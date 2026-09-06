@@ -1,0 +1,43 @@
+{
+  "game": "Watch Dogs",
+  "status": "runtime-confirmed-scoped",
+  "tools": [
+    {
+      "name": "ZModeler",
+      "version": "3.3.1 Build 1244",
+      "role": "skeleton bind, Compound and XBG export",
+      "required": true
+    },
+    {
+      "name": "NexusTools ModManager",
+      "version": "minTntVersion 1.1.1",
+      "role": "FAT/DAT install and rollback",
+      "required": true
+    },
+    {
+      "name": "Blender",
+      "version": "project-pinned",
+      "role": "source, LOD and FBX authoring",
+      "required": true
+    },
+    {
+      "name": "XBT pair builder",
+      "version": "project-pinned",
+      "role": "donor-header-preserving texture pair build",
+      "required": true
+    }
+  ],
+  "entry_documents": [
+    "../../games/watch-dogs/SOP_WATCH_DOGS_CHARACTER_REPLACEMENT.md",
+    "../../games/watch-dogs/ZMODELER_OPERATOR_CHECKLIST.md",
+    "../../games/watch-dogs/XBT_TEXTURE_PIPELINE.md"
+  ],
+  "runtime_boundary": "v1.3.0 default outfit acceptance with minor finger limitation",
+  "bundled_scripts": [
+    "scripts/audit_xbt_templates.py",
+    "scripts/build_xbt_pair.py",
+    "scripts/xbt_tool.py"
+  ],
+  "python": "3.10+",
+  "dependency_install": "python -m pip install -r requirements.txt (from bundle root)"
+}

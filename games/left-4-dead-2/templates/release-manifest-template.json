@@ -1,0 +1,106 @@
+{
+  "schema_version": 3,
+  "candidate_id": "candidate_000",
+  "status": "working",
+  "created_at": "YYYY-MM-DDTHH:MM:SS+08:00",
+  "target_survivor": "<target>",
+  "source_lock": {
+    "path": "<path>",
+    "sha256": "<hash>",
+    "verification": {"path": "<report>", "sha256": "<hash>"},
+    "required_roles_complete": false
+  },
+  "bind_contract": {
+    "strategy": "<target-fit-mesh|source-fit-skeleton>",
+    "target_abi": {"path": "<report>", "sha256": "<hash>"},
+    "pivot_and_seam": {"path": "<report>", "sha256": "<hash>"},
+    "triangle_edge_geometry": {"path": "<report>", "sha256": "<hash>"},
+    "double_bind_transform_absent": true
+  },
+  "animation_contract": {
+    "output_slot": "<survivor/path>",
+    "slot_interface_source": {"path": "<report>", "sha256": "<hash>"},
+    "rest_skeleton_source": {"path": "<source/report>", "sha256": "<hash>"},
+    "primary_animation_basis": "<Zoey/TeenAngst or proven exception>",
+    "corrective_source": {"path": "<native animation MDL or proven SMD>", "sha256": "<hash>"},
+    "sequence_contract_source": {"path": "<report>", "sha256": "<hash>"},
+    "ordered_includes": [],
+    "declaresequence": {"total": 0, "unique": 0, "duplicates": {}},
+    "proportion_sequence": {"reference_flags": 0, "proportions_flags": 0},
+    "ground_offset": {"value": 0.0, "unit": "source_units", "owner": "proportion-target Pelvis local Z"}
+  },
+  "light_animation_contract": {
+    "strict_reference_diagnostic": {"path": "<report>", "sha256": "<hash>", "accepted": null},
+    "relative_to_bind_motion": {"path": "<report>", "sha256": "<hash>", "accepted": null}
+  },
+  "procedural_contract": {
+    "world_light_field_parity": {"path": "<report>", "sha256": "<hash>"},
+    "collapsed_chain_root_skinning": {"path": "<report>", "sha256": "<hash>"}
+  },
+  "vpk": {
+    "path": "<path>",
+    "size": 0,
+    "sha256": "<hash>",
+    "entry_count": 0,
+    "payload_bytes": 0
+  },
+  "loose_tree": {
+    "path": "<path>",
+    "report": "<path>",
+    "sha256": "<manifest hash>"
+  },
+  "first_person_arms_contract": {
+    "slot_interface_source": {"path": "<report>", "sha256": "<hash>"},
+    "visible_geometry_source": {"path": "<source/report>", "sha256": "<hash>"},
+    "geometry_selection_source": {"path": "<manifest>", "sha256": "<hash>"},
+    "topology_contract": {"path": "<report>", "sha256": "<hash>"},
+    "basis_or_world_smd_extraction": {"path": "<report>", "sha256": "<hash>"},
+    "viewmodel_abi_source": {"path": "<report>", "sha256": "<hash>"},
+    "weight_guidance_source": {"path": "<reference/report>", "sha256": "<hash>"},
+    "material_source": "<namespace/contract>",
+    "triangle_edge_contract": {"path": "<report>", "sha256": "<hash>"},
+    "weight_continuity_contract": {"path": "<report>", "sha256": "<hash>"},
+    "compiled_arms_contract": {"path": "<report>", "sha256": "<hash>"},
+    "hlmv_screenshot_manifest": {"path": "<report>", "sha256": "<hash>"},
+    "legacy_reference_assets_absent": true
+  },
+  "component_closure": {
+    "world": ["<mdl>", "<vvd>", "<vtx>", "<phy-or-explicitly-absent>"],
+    "light": ["<mdl>", "<vvd>", "<vtx>"],
+    "first_person_arms": ["<mdl>", "<vvd>", "<vtx>"]
+  },
+  "reused_components": [],
+  "negative_controls": [
+    {
+      "name": "<known-bad-candidate>",
+      "artifact_sha256": "<hash>",
+      "validator_schema": "<schema>",
+      "report": {"path": "<report>", "sha256": "<hash>"},
+      "expected_failed_check_ids": []
+    }
+  ],
+  "reports": {
+    "source_audit": "<path>",
+    "rig": "<path>",
+    "materials": "<path>",
+    "compiled_world": "<path>",
+    "world_vertex_mapping": "<path>",
+    "arms_hud": "<path>",
+    "vpk_validation": "<path>",
+    "installer_roundtrip": "<path>",
+    "final_validation": "<path>"
+  },
+  "validation": {
+    "static": "pending",
+    "world_vertex_mapping": "pending",
+    "hlmv": "<pending|pass|unavailable-with-control-failure>",
+    "runtime_mount": "pending-user-test",
+    "runtime_world_visual": "pending-user-test",
+    "runtime_first_person_weapons": "pending-user-test"
+  },
+  "expected_changes_from_previous": [],
+  "unchanged_closure_attestation": {"path": "<report>", "sha256": "<hash>"},
+  "runtime_evidence": [],
+  "supersedes": null,
+  "known_limitations": []
+}

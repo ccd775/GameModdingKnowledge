@@ -1,0 +1,49 @@
+{
+  "game": "Left 4 Dead 2",
+  "status": "mixed-static-and-runtime-evidence",
+  "tools": [
+    {
+      "name": "Blender Source Tools",
+      "version": "project-pinned",
+      "role": "SMD/VTA export",
+      "required": true
+    },
+    {
+      "name": "Crowbar",
+      "version": "0.74",
+      "role": "MDL/VVD/VTX/PHY decompile",
+      "required": true
+    },
+    {
+      "name": "StudioMDL/VPK/VTEX",
+      "version": "from game bin",
+      "role": "compile and package",
+      "required": true
+    },
+    {
+      "name": "HLMV",
+      "version": "from game bin",
+      "role": "offline visual inspection",
+      "required": true
+    },
+    {
+      "name": "SourceIO",
+      "version": "project-pinned",
+      "role": "compiled mapping audit",
+      "required": false
+    }
+  ],
+  "entry_documents": [
+    "../../games/left-4-dead-2/10-end-to-end-sop.md",
+    "../../games/left-4-dead-2/12-automation-script-catalog.md"
+  ],
+  "runtime_boundary": "multiple user-accepted cases; each package retains its own runtime scope",
+  "bundled_scripts": [
+    "scripts/extract_vpk_entries.py",
+    "scripts/rescale_vta.py",
+    "scripts/run_studiomdl.py",
+    "scripts/validate_vpk_tree.py"
+  ],
+  "python": "3.10+",
+  "dependency_install": "python -m pip install -r requirements.txt (from bundle root)"
+}

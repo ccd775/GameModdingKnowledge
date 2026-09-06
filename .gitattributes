@@ -1,0 +1,2 @@
+# Preserve the exact script bytes recorded in PROVENANCE.json.
+* -text

@@ -1,0 +1,302 @@
+{
+  "$schema": "hd2-shared-modding-knowledge/v3",
+  "title": "Helldivers 2 character replacement modding knowledge base",
+  "language": "zh-CN",
+  "last_verified": "2026-08-09",
+  "confidence_model": [
+    "format-confirmed",
+    "project-proven",
+    "case-specific"
+  ],
+  "source_case": {
+    "project": "HD2/Karin_Nyako_RE2310",
+    "sop": "../Karin_Nyako_RE2310/SOP.md",
+    "sop_sha256_at_export": "5A13DB457893A5DB460699179D4826AED76FF343FF52CD54D13C756F3087EBDD",
+    "versions_covered": "RefClean v1; RefBind v2; RefBindAxis v3-v5 geometry; ArmorLUT Splat v6-v7",
+    "latest_case_evidence_date": "2026-08-08",
+    "latest_authoring": "../Karin_Nyako_RE2310/Work/candidates/nyako-re2310-ref-bind-axis-v5.blend",
+    "latest_authoring_sha256": "B11ED75020A70C269BE50CCD2764FD7AC96A7EC1F38C319BE6FA12B11A2D2527",
+    "latest_integration_report": "../Karin_Nyako_RE2310/Work/reports/nyako-re2310-armorlut-splat-verify-v7.json",
+    "latest_integration_report_sha256": "815D90855B434C8493A7E6FE3474079B00F9D1810DB4E1A630E515FAA41621B8",
+    "latest_offline_package": "../Karin_Nyako_RE2310/Output/Karin_Nyako_RE2310_ArmorLUT_Splat_v7_patch1.zip",
+    "latest_offline_package_sha256": "D1D85D9CB83099EF00A4BE4BD713313CE580927B425FEDE8B5F683BB303BD3E7",
+    "latest_package_reproducibility_report": "../Karin_Nyako_RE2310/Work/reports/nyako-re2310-armorlut-splat-package-reproducibility-v7.json",
+    "latest_package_reproducibility_report_sha256": "7FEBAA1D1F9477D8A7F9AD7DF9888101F2156A073C6A1E033A1A7ABD8F8AC312",
+    "latest_triplet": [
+      {
+        "path": "../Karin_Nyako_RE2310/Work/splat_recovery/v7_build_a/runtime_lut/9ba626afa44a3aa3.patch_1",
+        "size": 197408,
+        "sha256": "E57D2C5C083E863446E06BB3A6DA8772769FB328582D8CE8F6E0E4693315325A"
+      },
+      {
+        "path": "../Karin_Nyako_RE2310/Work/splat_recovery/v7_build_a/runtime_lut/9ba626afa44a3aa3.patch_1.gpu_resources",
+        "size": 88121672,
+        "sha256": "67EE23563B08EF3AE76C8ADB692D153CF40625FA536145A1E1F12FED346D6B25"
+      },
+      {
+        "path": "../Karin_Nyako_RE2310/Work/splat_recovery/v7_build_a/runtime_lut/9ba626afa44a3aa3.patch_1.stream",
+        "size": 524528,
+        "sha256": "39ED03AEB294CD9A5F658198413706CF8E75DCFD88842748130D2FCD2CEB543D"
+      }
+    ],
+    "runtime_status": "v1-v4 runtime_rejected_or_superseded; v5 immutable geometry baseline; v6 runtime_rejected; v7 packaged_and_offline_verified; runtime_validation_pending"
+  },
+  "supporting_cases": [
+    {
+      "project": "HD2/DR03_Replace_Cm10EX00",
+      "case_summary": "case-studies/Karin_DR03_CM10_EX00.md",
+      "scope": "installed material closure collision, cross-profile palette intersection, open shoulder seams and serialized semantic readback",
+      "runtime_status": "v1 material runtime_rejected; v2 color runtime_accepted but shoulder seam runtime_rejected; v3 shoulder static candidate packaged_and_offline_verified then superseded; active release status is authoritative in project SOP",
+      "locked_evidence": [
+        {
+          "role": "runtime_shoulder_diagnostic",
+          "path": "../DR03_Replace_Cm10EX00/Work/evidence/runtime-20260808-shoulder-seam-v2/dr03-v2-shoulder-seam-diagnostic.json",
+          "size": 37034,
+          "sha256": "52C2C07E9674B729A9EEF1EFACA275841E8FF711FB0A1630C906F2AAAB3F4D72"
+        },
+        {
+          "role": "latest_compile_report",
+          "path": "../DR03_Replace_Cm10EX00/Work/reports/dr03-cm10-ex00-compile-v3-seam.json",
+          "size": 383010,
+          "sha256": "14E52343535DA852E04103F1E9406B111E5E7A133958A642F78F6BB77F73C3C4"
+        },
+        {
+          "role": "latest_offline_package",
+          "path": "../DR03_Replace_Cm10EX00/_Superseded/20260808-v3-shoulder-seam-static-candidate/Karin_DR03_CM10_EX00_v3_shoulder_seam_patch7.zip",
+          "size": 94684276,
+          "sha256": "D959D1004DB0B838B7F6775294D146ED12B1D241E2F4B872BE10751EF12842D3"
+        }
+      ]
+    },
+    {
+      "project": "HD2/Umbrella_Replace_RS6RS67RS100",
+      "case_summary": "case-studies/Karin_Umbrella_RS6_RS67_RS100.md",
+      "scope": "multi-target complete Unit clone, Shoulder/UpperArm many-to-one retarget, pelvis ownership bridge, helmet carrier, Armor LUT splat recovery and exact-lineage replacement packaging",
+      "runtime_status": "v1 runtime_rejected; v2 immutable geometry/bind baseline; v3 Armor LUT splat packaged_and_offline_verified; runtime_validation_pending",
+      "locked_evidence": [
+        {
+          "role": "project_sop",
+          "path": "../Umbrella_Replace_RS6RS67RS100/SOP_zh-CN.md",
+          "size": 19325,
+          "sha256": "F503015ADE8A965A2F55A3378349FA0B900CE502EC6EC868EFC16217DD6515D4"
+        },
+        {
+          "role": "runtime_rejection_manifest",
+          "path": "../Umbrella_Replace_RS6RS67RS100/Work/evidence/runtime-20260808-v1-bind-rejection/evidence-manifest.json",
+          "size": 1985,
+          "sha256": "DEE39536F499BA25B73BD345FC758387018BCC068AF1DF68294C1139946020AA"
+        },
+        {
+          "role": "runtime_rs6_screenshot",
+          "path": "../Umbrella_Replace_RS6RS67RS100/Work/evidence/runtime-20260808-v1-bind-rejection/rs6-shoulder-hip-disconnection.png",
+          "size": 1753845,
+          "sha256": "15048D9DF836EF7AEC0DEABE17775FB7F6141EAD57308F7844965BD6BCDF7CAB"
+        },
+        {
+          "role": "runtime_rs67_screenshot",
+          "path": "../Umbrella_Replace_RS6RS67RS100/Work/evidence/runtime-20260808-v1-bind-rejection/rs67-global-bind-separation.png",
+          "size": 3542043,
+          "sha256": "2CC8F07948D34515A37DDF3BFC233BDCE6DB7B20F334B98B6758F235BFC97267"
+        },
+        {
+          "role": "runtime_rs100_screenshot",
+          "path": "../Umbrella_Replace_RS6RS67RS100/Work/evidence/runtime-20260808-v1-bind-rejection/rs100-helmet-scale-floating.png",
+          "size": 1499439,
+          "sha256": "1DA9015DC840AB319A21A726F6060961E5851F07DFE64C5810CEFE4DC94FFE7C"
+        },
+        {
+          "role": "rejected_v1_candidate_report",
+          "path": "../Umbrella_Replace_RS6RS67RS100/Work/reports/umbrella-rs6-rs67-rs100-aq-candidate-v1.json",
+          "size": 47052,
+          "sha256": "B8736B35E1FCE4342510DA71360F2CE1602C4F73B1B5EF8B04CB54A3120C8012"
+        },
+        {
+          "role": "rejected_v1_compile_report",
+          "path": "../Umbrella_Replace_RS6RS67RS100/Work/reports/umbrella-rs6-rs67-rs100-compile-v1.json",
+          "size": 544493,
+          "sha256": "3F36838A459D9034ABA03A9E3EE965AF78510D2E66F3E8AFD5D4E4075B3E43CB"
+        },
+        {
+          "role": "v2_candidate_report",
+          "path": "../Umbrella_Replace_RS6RS67RS100/Work/reports/umbrella-rs6-rs67-rs100-aq-candidate-v2-ds42.json",
+          "size": 57802,
+          "sha256": "FF37F4F4F2309968F6C7B36E46A83E00B72F85BBB06AFAA313A8EFE4FA646479"
+        },
+        {
+          "role": "v2_compile_report",
+          "path": "../Umbrella_Replace_RS6RS67RS100/Work/reports/umbrella-rs6-rs67-rs100-compile-v2-ds42.json",
+          "size": 517284,
+          "sha256": "262CE0E64A0C91E42203DDA1AD2DD39958189177A7F1D68EA4F3349CEAD94031"
+        },
+        {
+          "role": "v2_package_report",
+          "path": "../Umbrella_Replace_RS6RS67RS100/Output/Karin_Umbrella_RS6_RS67_RS100_v2_DS42Bind_REPLACE_patch3-package.json",
+          "size": 7619,
+          "sha256": "295ADBACA66B4C2605BCC5493019DE31BBD067D40B676ABB0B1415BCB724DCAE"
+        },
+        {
+          "role": "v2_offline_package",
+          "path": "../Umbrella_Replace_RS6RS67RS100/Output/Karin_Umbrella_RS6_RS67_RS100_v2_DS42Bind_REPLACE_patch3.zip",
+          "size": 199410472,
+          "sha256": "D167308806B9966F0EFDE9AFABAFFCDBB349C2FD11C702855EC8D53C03E823CC"
+        },
+        {
+          "role": "v3_runtime_lut_contract",
+          "path": "../Umbrella_Replace_RS6RS67RS100/Work/contracts/umbrella-runtime-lut-map-v3.json",
+          "size": 6932,
+          "sha256": "9C05EA0D34B9C3FBFDC45DD8C1EBA4BB8CFF0B0289EBC314BD7222A3696FDC96"
+        },
+        {
+          "role": "v3_aq_uv_readback",
+          "path": "../Umbrella_Replace_RS6RS67RS100/Work/audits/splat_recovery_v3_20260808/final/aq_unit_uv_readback-script-v3-r2.json",
+          "size": 545266,
+          "sha256": "2B90E388A945B667D05EB6E82B62C9D087BC25C02BAE99FA907CCD9A4DD54194"
+        },
+        {
+          "role": "v3_final_static_verification",
+          "path": "../Umbrella_Replace_RS6RS67RS100/Work/audits/splat_recovery_v3_20260808/final/final_static_verification.json",
+          "size": 34571,
+          "sha256": "D16CD038169215012AB4930B1C611A07F2411C89EADAC16AEB382B616ACA3AF4"
+        },
+        {
+          "role": "v3_package_report",
+          "path": "../Umbrella_Replace_RS6RS67RS100/Output/Karin_Umbrella_RS6_RS67_RS100_v3_ArmorLUT_Splat_REPLACE-package.json",
+          "size": 8178,
+          "sha256": "DD841940415D2C8179EF393919B4281C10488603584CD6B16474A1D4D8D8FC3B"
+        },
+        {
+          "role": "v3_offline_package",
+          "path": "../Umbrella_Replace_RS6RS67RS100/Output/Karin_Umbrella_RS6_RS67_RS100_v3_ArmorLUT_Splat_REPLACE.zip",
+          "size": 199781416,
+          "sha256": "94C55880F1AE4E21267400E75B0007BCA63DF27BF92FB530E9B5A05F0FB9AD2A"
+        }
+      ]
+    },
+    {
+      "project": "HD2/SSF_Replace_FS37SC15",
+      "case_summary": "case-studies/Karin_SSF_FS37_SC15.md",
+      "scope": "runtime-accepted natural shoulder seam weights, rejection of clavicle blanket overrides and artificial transition rings, per-role DS42 owner compile/complete Unit clone, lower-body seam exceptions, source-bound texture provenance, private namespace and aggregate texture budget",
+      "runtime_status": "v1 runtime_rejected; v2 runtime_rejected; v3 runtime_rejected for shoulder contour and upper-arm break; v4 explicitly accepted by user on 2026-08-09; Codex did not perform deployment, game launch or automated runtime testing",
+      "locked_evidence": [
+        {
+          "role": "project_sop",
+          "path": "../SSF_Replace_FS37SC15/SOP.md",
+          "size": 20159,
+          "sha256": "09BE149AB98AF97C573269848807D05C6E40406CC22DD92AA8A0298E0F99FF61"
+        },
+        {
+          "role": "user_runtime_acceptance",
+          "path": "../SSF_Replace_FS37SC15/Work/reports/ssf-fs37-sc15-v4-user-runtime-acceptance-20260809.json",
+          "size": 3088,
+          "sha256": "3ABECED3D9A4D29B9523B6C0268E7EACA38A252FE8E9E2904ADD6CCE88BCEEEE"
+        },
+        {
+          "role": "v3_runtime_rejection_report",
+          "path": "../SSF_Replace_FS37SC15/Work/reports/ssf-v3-runtime-rejection-shoulder-20260808.json",
+          "size": 2382,
+          "sha256": "4226DC6DA653C633A5C511DA2EB6566DF551112129C20E94AA594CDDD17AA4F1"
+        },
+        {
+          "role": "v3_runtime_rejection_screenshot",
+          "path": "../SSF_Replace_FS37SC15/Work/evidence/v3-runtime-rejected-shoulder-20260808/shoulder-still-wrong-and-cracked.png",
+          "size": 2735158,
+          "sha256": "5C8CA05333A4952EA4F2FDCBE7E1DA53FE04579F36FF9C3B9FD9CC4B2EDA20C6"
+        },
+        {
+          "role": "clean_ds42_authoring_contract",
+          "path": "../SSF_Replace_FS37SC15/Work/Reference/donor-clean-authoring-contract-v1.json",
+          "size": 303696,
+          "sha256": "A103D4BB126A35A7F4C70BEA8CEA52FEDF338B0D815D88B01ADC206B564DD863"
+        },
+        {
+          "role": "v4_authoring_report",
+          "path": "../SSF_Replace_FS37SC15/Work/reports/ssf-fs37-sc15-aq-candidate-v4-ds42.json",
+          "size": 96208,
+          "sha256": "0F16F378E10F25DA16E393B55BFE9A8372819EA13A8AB1734D1A7376E464FB0C"
+        },
+        {
+          "role": "v4_shoulder_pose_audit",
+          "path": "../SSF_Replace_FS37SC15/Work/reports/ssf-fs37-sc15-v4-shoulder-seam.json",
+          "size": 36228,
+          "sha256": "95F61A779874DD07EB8F30CEC67E6846E084D6F57E8DA05B1167C245A8F811BE"
+        },
+        {
+          "role": "v4_compile_report",
+          "path": "../SSF_Replace_FS37SC15/Work/reports/ssf-fs37-sc15-compile-v4-ds42.json",
+          "size": 291945,
+          "sha256": "3C0AAA69930E33F4D1C80D613C07E6B74073714AD4E33F2B3727C6FACEB41BC1"
+        },
+        {
+          "role": "v4_compiled_palette_clone_audit",
+          "path": "../SSF_Replace_FS37SC15/Work/reports/ssf-fs37-sc15-v4-compiled-ds42-palettes.json",
+          "size": 106095,
+          "sha256": "324BB223F73552F3851AF3837118A4A293F86883AA1B5CCE6E686D1EDE3EC798"
+        },
+        {
+          "role": "v4_package_report",
+          "path": "../SSF_Replace_FS37SC15/Output/Karin_SSF_FS37_SC15_v4_RE2310_DS42_patch6-package.json",
+          "size": 7756,
+          "sha256": "14B5AC0E067495546921B0BA0C6FB41F565E7A78469CC022C44E2F19B01FC426"
+        },
+        {
+          "role": "v4_runtime_accepted_package",
+          "path": "../SSF_Replace_FS37SC15/Output/Karin_SSF_FS37_SC15_v4_RE2310_DS42_patch6.zip",
+          "size": 78015456,
+          "sha256": "89B61B1AA230E231C29AAFB91947C65EEDC51B9E653BF8022DAD906825DDC106"
+        }
+      ]
+    }
+  ],
+  "historical_cases": [
+    {
+      "project": "HD2/New_SR24",
+      "scope": "resource, material, UV, LUT, packaging and failure-management lessons only",
+      "case_summary": "case-studies/New_SR24.md",
+      "evidence_availability": "metadata_only_in_this_checkout"
+    }
+  ],
+  "unavailable_evidence_roots": [
+    "../New_SR24"
+  ],
+  "documents": [
+    "README.md",
+    "QUICKSTART.md",
+    "01_EndToEnd_Workflow.md",
+    "02_HD2_Resource_Contracts.md",
+    "03_Rigging_Weights_Deformation.md",
+    "04_Materials_Textures_Namespace.md",
+    "05_Compilation_Merge_Package_Deploy.md",
+    "06_Validation_And_Evidence.md",
+    "07_Troubleshooting_Playbook.md",
+    "08_Tools_And_Scripts.md",
+    "09_Agent_Handoff_Checklist.md",
+    "case-studies/Karin_Nyako_RE2310.md",
+    "case-studies/Karin_DR03_CM10_EX00.md",
+    "case-studies/Karin_Umbrella_RS6_RS67_RS100.md",
+    "case-studies/Karin_SSF_FS37_SC15.md",
+    "case-studies/New_SR24.md",
+    "tools/README.md"
+  ],
+  "templates": [
+    "templates/Project-SOP.template.md",
+    "templates/Baseline-Manifest.template.json",
+    "templates/Audit-Report.template.json",
+    "templates/Release-Checklist.md"
+  ],
+  "tools": [
+    "tools/validate_knowledge_base.ps1"
+  ],
+  "validation": {
+    "active_relative_links_exist": true,
+    "declared_metadata_only_links_may_be_absent": true,
+    "markdown_code_fences_balanced": true,
+    "json_files_parse": true,
+    "source_case_hashes_match": true,
+    "supporting_case_hashes_match": true,
+    "release_triplet_hashes_match": true,
+    "historical_evidence_availability_is_explicit": true,
+    "self_check": "powershell -NoProfile -ExecutionPolicy Bypass -File HD2/SharedKnowledge/tools/validate_knowledge_base.ps1 -Deep -AsJson",
+    "game_data_modified": false,
+    "game_launched": false
+  }
+}

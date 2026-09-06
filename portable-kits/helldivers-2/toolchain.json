@@ -1,0 +1,50 @@
+{
+  "game": "Helldivers 2",
+  "status": "mixed-project-proven",
+  "tools": [
+    {
+      "name": "AQ Modified/ArchiveQT",
+      "version": "project-pinned",
+      "role": "Unit/Material/TextureMap import/export",
+      "required": true
+    },
+    {
+      "name": "HD2SDK Community Edition",
+      "version": "project-pinned",
+      "role": "Stingray resource structures and serialization",
+      "required": true
+    },
+    {
+      "name": "FileDiver",
+      "version": "project-pinned",
+      "role": "archive/FileID inventory and extraction",
+      "required": true
+    },
+    {
+      "name": "DirectXTex texconv",
+      "version": "pinned",
+      "role": "DDS/BC7/alpha conversion",
+      "required": true
+    },
+    {
+      "name": "Blender",
+      "version": "project-pinned",
+      "role": "source and rig authoring",
+      "required": true
+    }
+  ],
+  "entry_documents": [
+    "../../games/helldivers-2/QUICKSTART.md",
+    "../../games/helldivers-2/08_Tools_And_Scripts.md"
+  ],
+  "runtime_boundary": "role replacement methods are project-proven; splat/toggle phases need separate validation",
+  "bundled_scripts": [
+    "scripts/collapse_lut_rows.py",
+    "scripts/copy_unit_uv_channels.py",
+    "scripts/inject_runtime_lut.py",
+    "scripts/inspect_patch.py",
+    "scripts/stingray_archive.py"
+  ],
+  "python": "3.10+",
+  "dependency_install": "python -m pip install -r requirements.txt (from bundle root)"
+}

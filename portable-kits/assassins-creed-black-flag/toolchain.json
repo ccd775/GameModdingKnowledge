@@ -1,0 +1,40 @@
+{
+  "game": "Assassin's Creed IV: Black Flag Resynced",
+  "status": "runtime-confirmed-scoped",
+  "tools": [
+    {
+      "name": "Forge v50 parser/rebuilder",
+      "version": "project-pinned",
+      "role": "BMS0/BMS1, raw LZ4, resource replacement and strict re-encode",
+      "required": true
+    },
+    {
+      "name": "Blender",
+      "version": "4.2.23 LTS",
+      "role": "source audit and model staging",
+      "required": true
+    },
+    {
+      "name": "AnvilToolkit",
+      "version": "1.3.6",
+      "role": "research and format comparison only",
+      "required": false
+    },
+    {
+      "name": "DirectXTex texconv",
+      "version": "pinned",
+      "role": "texture conversion",
+      "required": false
+    }
+  ],
+  "entry_documents": [
+    "../../games/assassins-creed-black-flag/TOOLCHAIN.md"
+  ],
+  "runtime_boundary": "Full character project; final 1.6.1 fix confirmed by user on 2026-09-06. No exhaustive matrix inferred.",
+  "bundled_scripts": [
+    "scripts/extract_forge_v50_bms.py",
+    "scripts/rebuild_forge_v50_patch.py"
+  ],
+  "python": "3.10+",
+  "dependency_install": "python -m pip install -r requirements.txt (from bundle root)"
+}

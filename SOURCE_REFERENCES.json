@@ -1,0 +1,2162 @@
+[
+  {
+    "document": "games/helldivers-2/03_Rigging_Weights_Deformation.md",
+    "original_target": "../New_SR24/SOP.md#74-o44ref-纠偏基线"
+  },
+  {
+    "document": "games/helldivers-2/03_Rigging_Weights_Deformation.md",
+    "original_target": "../New_SR24/Work/audits/v11_external_gate/v11-o44-external-source-length-r1-compiled-external-o44-contract-r1.json"
+  },
+  {
+    "document": "games/helldivers-2/03_Rigging_Weights_Deformation.md",
+    "original_target": "../New_SR24/Work/reports/karin-v10-source-geometry-preservation-r4.json"
+  },
+  {
+    "document": "games/helldivers-2/03_Rigging_Weights_Deformation.md",
+    "original_target": "../New_SR24/Work/scripts/compile_karin_hd2_o44_units_v21_finger_only_rest.py"
+  },
+  {
+    "document": "games/helldivers-2/03_Rigging_Weights_Deformation.md",
+    "original_target": "../New_SR24/Work/reports/v10-final-unit-proportion-rest-audit-r2.json"
+  },
+  {
+    "document": "games/helldivers-2/03_Rigging_Weights_Deformation.md",
+    "original_target": "../New_SR24/SOP.md#737-v10-运行时拒绝与审计缺口"
+  },
+  {
+    "document": "games/helldivers-2/03_Rigging_Weights_Deformation.md",
+    "original_target": "../Karin_Nyako_RE2310/Work/scripts/nyako_ref_bind_axis_retarget_v5.py"
+  },
+  {
+    "document": "games/helldivers-2/03_Rigging_Weights_Deformation.md",
+    "original_target": "../Karin_Nyako_RE2310/Work/audits/nyako-re2310-ref-bind-axis-v5.json"
+  },
+  {
+    "document": "games/helldivers-2/03_Rigging_Weights_Deformation.md",
+    "original_target": "../New_SR24/Work/audits/v13_component_analysis/v13-selective-component-weighting-analysis-r1.md"
+  },
+  {
+    "document": "games/helldivers-2/03_Rigging_Weights_Deformation.md",
+    "original_target": "../New_SR24/Work/audits/v8_regression_20260731/v7-o44-runtime-contract-diagnostic-r4.json"
+  },
+  {
+    "document": "games/helldivers-2/03_Rigging_Weights_Deformation.md",
+    "original_target": "../New_SR24/Work/contracts/karin-hd2-v21-finger-bridge-prepared-rest-contract-r1.json"
+  },
+  {
+    "document": "games/helldivers-2/03_Rigging_Weights_Deformation.md",
+    "original_target": "../New_SR24/Work/contracts/karin-hd2-v21-finger-bridge-prepared-rest-contract-r1.json"
+  },
+  {
+    "document": "games/helldivers-2/03_Rigging_Weights_Deformation.md",
+    "original_target": "../New_SR24/Work/audits/v18_abdomen_runtime_rollback_20260802/v17-runtime-rejection-and-v18-contract-r1.json"
+  },
+  {
+    "document": "games/helldivers-2/03_Rigging_Weights_Deformation.md",
+    "original_target": "../New_SR24/Work/audits/v19_abdomen_gap_20260802/v18-abdomen-black-band-root-cause-r1.json"
+  },
+  {
+    "document": "games/helldivers-2/03_Rigging_Weights_Deformation.md",
+    "original_target": "../New_SR24/Work/audits/v19_abdomen_gap_20260802/v19-authoring-delta-and-dynamic-seam-r2.json"
+  },
+  {
+    "document": "games/helldivers-2/03_Rigging_Weights_Deformation.md",
+    "original_target": "../New_SR24/Work/reports/o44-donor-full-bind-contract.json"
+  },
+  {
+    "document": "games/helldivers-2/03_Rigging_Weights_Deformation.md",
+    "original_target": "../New_SR24/Work/audits/c4_d7_rig_comparison/c4-d7-rig-comparison-r1.json"
+  },
+  {
+    "document": "games/helldivers-2/03_Rigging_Weights_Deformation.md",
+    "original_target": "../New_SR24/Work/audits/v16_rest_contract_audit_agent/v16-rest-bind-contract-audit-r1.md"
+  },
+  {
+    "document": "games/helldivers-2/03_Rigging_Weights_Deformation.md",
+    "original_target": "../New_SR24/Work/audits/v13_component_analysis/v13-selective-component-weighting-analysis-r1.md"
+  },
+  {
+    "document": "games/helldivers-2/03_Rigging_Weights_Deformation.md",
+    "original_target": "../New_SR24/Work/reports/karin-v10-source-geometry-preservation-r4.json"
+  },
+  {
+    "document": "games/helldivers-2/03_Rigging_Weights_Deformation.md",
+    "original_target": "../New_SR24/Work/reports/v10-final-unit-proportion-rest-audit-r2.json"
+  },
+  {
+    "document": "games/helldivers-2/03_Rigging_Weights_Deformation.md",
+    "original_target": "../New_SR24/Work/audits/v11_external_gate/v11-o44-external-source-length-r1-compiled-external-o44-contract-r1.json"
+  },
+  {
+    "document": "games/helldivers-2/03_Rigging_Weights_Deformation.md",
+    "original_target": "../New_SR24/Work/audits/v18_abdomen_runtime_rollback_20260802/v17-runtime-rejection-and-v18-contract-r1.json"
+  },
+  {
+    "document": "games/helldivers-2/03_Rigging_Weights_Deformation.md",
+    "original_target": "../New_SR24/Work/audits/v19_abdomen_gap_20260802/v19-authoring-delta-and-dynamic-seam-r2.json"
+  },
+  {
+    "document": "games/helldivers-2/03_Rigging_Weights_Deformation.md",
+    "original_target": "../New_SR24/Work/contracts/karin-hd2-v21-finger-bridge-prepared-rest-contract-r1.json"
+  },
+  {
+    "document": "games/helldivers-2/03_Rigging_Weights_Deformation.md",
+    "original_target": "../Karin_Nyako_RE2310/Work/scripts/nyako_ref_bind_axis_retarget_v5.py"
+  },
+  {
+    "document": "games/helldivers-2/03_Rigging_Weights_Deformation.md",
+    "original_target": "../Karin_Nyako_RE2310/Work/audits/nyako-re2310-ref-bind-axis-v5.json"
+  },
+  {
+    "document": "games/helldivers-2/03_Rigging_Weights_Deformation.md",
+    "original_target": "../Karin_Nyako_RE2310/Work/audits/nyako-re2310-ref-bind-axis-compiled-v5-final-a.json"
+  },
+  {
+    "document": "games/helldivers-2/03_Rigging_Weights_Deformation.md",
+    "original_target": "../Karin_Nyako_RE2310/SOP.md"
+  },
+  {
+    "document": "games/helldivers-2/04_Materials_Textures_Namespace.md",
+    "original_target": "../New_SR24/SOP.md"
+  },
+  {
+    "document": "games/helldivers-2/04_Materials_Textures_Namespace.md",
+    "original_target": "../New_SR24/Work/audits/bangs_material_20260729/bangs-material-root-cause-and-fix.md"
+  },
+  {
+    "document": "games/helldivers-2/04_Materials_Textures_Namespace.md",
+    "original_target": "../New_SR24/Work/audits/face_shadow_20260729/face-private-sepalpha-material-build-r1.json"
+  },
+  {
+    "document": "games/helldivers-2/04_Materials_Textures_Namespace.md",
+    "original_target": "../New_SR24/Work/audits/face_shadow_20260729/v7-face-emission-zero-verify-r1.json"
+  },
+  {
+    "document": "games/helldivers-2/04_Materials_Textures_Namespace.md",
+    "original_target": "../New_SR24/Work/audits/namespace_conflict_20260729/private_namespace_manifest.json"
+  },
+  {
+    "document": "games/helldivers-2/04_Materials_Textures_Namespace.md",
+    "original_target": "../New_SR24/Work/audits/namespace_conflict_20260729/final-material-o44-isolation-independent-audit-r1.json"
+  },
+  {
+    "document": "games/helldivers-2/04_Materials_Textures_Namespace.md",
+    "original_target": "../New_SR24/Work/audits/v22_texture_budget_splat_20260805/"
+  },
+  {
+    "document": "games/helldivers-2/04_Materials_Textures_Namespace.md",
+    "original_target": "../New_SR24/Work/audits/v23_decalsheet_uv2_20260806/"
+  },
+  {
+    "document": "games/helldivers-2/04_Materials_Textures_Namespace.md",
+    "original_target": "../New_SR24/Work/audits/v24_helmet_splat_20260806/"
+  },
+  {
+    "document": "games/helldivers-2/04_Materials_Textures_Namespace.md",
+    "original_target": "../New_SR24/Work/audits/v25_head_decalsheet_opaque_20260806/"
+  },
+  {
+    "document": "games/helldivers-2/08_Tools_And_Scripts.md",
+    "original_target": "../Karin_Nyako_RE2310/Work/scripts/nyako_ref_bind_axis_retarget_v5.py"
+  },
+  {
+    "document": "games/helldivers-2/08_Tools_And_Scripts.md",
+    "original_target": "../Karin_Nyako_RE2310/Work/scripts/build_nyako_re2310_ref_bind_axis_v5.py"
+  },
+  {
+    "document": "games/helldivers-2/08_Tools_And_Scripts.md",
+    "original_target": "../Karin_Nyako_RE2310/Work/scripts/audit_nyako_ref_bind_axis_geometry_v5.py"
+  },
+  {
+    "document": "games/helldivers-2/08_Tools_And_Scripts.md",
+    "original_target": "../Karin_Nyako_RE2310/Work/scripts/compile_nyako_re2310_ref_bind_axis_v5.py"
+  },
+  {
+    "document": "games/helldivers-2/08_Tools_And_Scripts.md",
+    "original_target": "../Karin_Nyako_RE2310/Work/scripts/audit_compiled_ref_bind_axis_v5.py"
+  },
+  {
+    "document": "games/helldivers-2/08_Tools_And_Scripts.md",
+    "original_target": "../Karin_Nyako_RE2310/Work/scripts/verify_nyako_re2310_ref_bind_axis_v5.py"
+  },
+  {
+    "document": "games/helldivers-2/08_Tools_And_Scripts.md",
+    "original_target": "../Umbrella_Replace_RS6RS67RS100/Work/scripts/umbrella_ref_bind_retarget_v2.py"
+  },
+  {
+    "document": "games/helldivers-2/08_Tools_And_Scripts.md",
+    "original_target": "../Umbrella_Replace_RS6RS67RS100/Work/scripts/build_umbrella_rs_candidate_v2.py"
+  },
+  {
+    "document": "games/helldivers-2/08_Tools_And_Scripts.md",
+    "original_target": "../Umbrella_Replace_RS6RS67RS100/Work/scripts/compile_umbrella_rs_v2.py"
+  },
+  {
+    "document": "games/helldivers-2/08_Tools_And_Scripts.md",
+    "original_target": "../Umbrella_Replace_RS6RS67RS100/Work/scripts/package_umbrella_rs_v2.py"
+  },
+  {
+    "document": "games/helldivers-2/08_Tools_And_Scripts.md",
+    "original_target": "../SSF_Replace_FS37SC15/Work/scripts/build_ssf_fs37_sc15_candidate_v4_ds42.py"
+  },
+  {
+    "document": "games/helldivers-2/08_Tools_And_Scripts.md",
+    "original_target": "../SSF_Replace_FS37SC15/Work/scripts/audit_ssf_v4_shoulder_seam.py"
+  },
+  {
+    "document": "games/helldivers-2/08_Tools_And_Scripts.md",
+    "original_target": "../SSF_Replace_FS37SC15/Work/scripts/compile_ssf_fs37_sc15_v4_ds42.py"
+  },
+  {
+    "document": "games/helldivers-2/08_Tools_And_Scripts.md",
+    "original_target": "../SSF_Replace_FS37SC15/Work/scripts/audit_ssf_v4_compiled_ds42_palettes.py"
+  },
+  {
+    "document": "games/helldivers-2/08_Tools_And_Scripts.md",
+    "original_target": "../SSF_Replace_FS37SC15/Work/scripts/build_ssf_private_namespace_v4.py"
+  },
+  {
+    "document": "games/helldivers-2/08_Tools_And_Scripts.md",
+    "original_target": "../SSF_Replace_FS37SC15/Work/scripts/package_ssf_fs37_sc15_v4.py"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/Karin_DR03_CM10_EX00.md",
+    "original_target": "../../DR03_Replace_Cm10EX00/SOP.md"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/Karin_DR03_CM10_EX00.md",
+    "original_target": "../../DR03_Replace_Cm10EX00/Work/reports/dr03-target-consumer-scope-v1.json"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/Karin_DR03_CM10_EX00.md",
+    "original_target": "../../DR03_Replace_Cm10EX00/Work/evidence/runtime-20260808-shoulder-seam-v2/dr03-v2-shoulder-seam-diagnostic.json"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/Karin_DR03_CM10_EX00.md",
+    "original_target": "../../DR03_Replace_Cm10EX00/SOP.md"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/Karin_DR03_CM10_EX00.md",
+    "original_target": "../../DR03_Replace_Cm10EX00/Work/reports/dr03-cm10-ex00-aq-candidate-v3-seam.json"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/Karin_DR03_CM10_EX00.md",
+    "original_target": "../../DR03_Replace_Cm10EX00/Work/reports/dr03-cm10-ex00-v3-seam-readback.json"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/Karin_DR03_CM10_EX00.md",
+    "original_target": "../../DR03_Replace_Cm10EX00/Work/reports/dr03-cm10-ex00-compile-v3-seam.json"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/Karin_DR03_CM10_EX00.md",
+    "original_target": "../../DR03_Replace_Cm10EX00/Work/reports/dr03-cm10-ex00-v3-serialized-seam-readback.json"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/Karin_DR03_CM10_EX00.md",
+    "original_target": "../../DR03_Replace_Cm10EX00/_Superseded/20260808-v3-shoulder-seam-static-candidate/Karin_DR03_CM10_EX00_v3_shoulder_seam_patch7.zip"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/Karin_Nyako_RE2310.md",
+    "original_target": "../../Karin_Nyako_RE2310/SOP.md"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/Karin_Nyako_RE2310.md",
+    "original_target": "../../Karin_Nyako_RE2310/Ref/"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/Karin_Nyako_RE2310.md",
+    "original_target": "../../Karin_Nyako_RE2310/SOP.md"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/Karin_Nyako_RE2310.md",
+    "original_target": "../../Karin_Nyako_RE2310/Work/scripts/nyako_ref_bind_axis_retarget_v5.py"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/Karin_Nyako_RE2310.md",
+    "original_target": "../../Karin_Nyako_RE2310/Work/scripts/build_nyako_re2310_ref_bind_axis_v5.py"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/Karin_Nyako_RE2310.md",
+    "original_target": "../../Karin_Nyako_RE2310/Work/audits/nyako-re2310-ref-bind-axis-v5.json"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/Karin_Nyako_RE2310.md",
+    "original_target": "../../Karin_Nyako_RE2310/Work/audits/nyako-re2310-ref-bind-axis-compiled-v5-final-a.json"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/Karin_Nyako_RE2310.md",
+    "original_target": "../../Karin_Nyako_RE2310/Work/reports/nyako-re2310-ref-bind-axis-verify-v5-a.json"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/Karin_Nyako_RE2310.md",
+    "original_target": "../../Karin_Nyako_RE2310/Work/reports/nyako-re2310-ref-bind-axis-package-reproducibility-v5.json"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/Karin_Nyako_RE2310.md",
+    "original_target": "../../Karin_Nyako_RE2310/_Rejected/20260808-ref-bind-axis-v4-runtime-unbaked-shape-keys/REJECTION.md"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/Karin_SSF_FS37_SC15.md",
+    "original_target": "../../SSF_Replace_FS37SC15/SOP.md"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/Karin_SSF_FS37_SC15.md",
+    "original_target": "../../SSF_Replace_FS37SC15/Work/reports/ssf-v3-runtime-rejection-shoulder-20260808.json"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/Karin_SSF_FS37_SC15.md",
+    "original_target": "../../SSF_Replace_FS37SC15/Work/evidence/v3-runtime-rejected-shoulder-20260808/shoulder-still-wrong-and-cracked.png"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/Karin_SSF_FS37_SC15.md",
+    "original_target": "../../SSF_Replace_FS37SC15/Work/reports/ssf-fs37-sc15-v4-user-runtime-acceptance-20260809.json"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/Karin_SSF_FS37_SC15.md",
+    "original_target": "../../SSF_Replace_FS37SC15/Work/Reference/donor-clean-authoring-contract-v1.json"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/Karin_SSF_FS37_SC15.md",
+    "original_target": "../../SSF_Replace_FS37SC15/Work/reports/ssf-fs37-sc15-compile-v4-ds42.json"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/Karin_SSF_FS37_SC15.md",
+    "original_target": "../../SSF_Replace_FS37SC15/Work/reports/ssf-fs37-sc15-v4-compiled-ds42-palettes.json"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/Karin_SSF_FS37_SC15.md",
+    "original_target": "../../SSF_Replace_FS37SC15/Work/scripts/build_ssf_fs37_sc15_candidate_v4_ds42.py"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/Karin_SSF_FS37_SC15.md",
+    "original_target": "../../SSF_Replace_FS37SC15/Work/reports/ssf-fs37-sc15-v4-shoulder-seam.json"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/Karin_SSF_FS37_SC15.md",
+    "original_target": "../../SSF_Replace_FS37SC15/SOP.md"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/Karin_SSF_FS37_SC15.md",
+    "original_target": "../../SSF_Replace_FS37SC15/Work/reports/ssf-fs37-sc15-v4-user-runtime-acceptance-20260809.json"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/Karin_SSF_FS37_SC15.md",
+    "original_target": "../../SSF_Replace_FS37SC15/Work/reports/ssf-v3-runtime-rejection-shoulder-20260808.json"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/Karin_SSF_FS37_SC15.md",
+    "original_target": "../../SSF_Replace_FS37SC15/Work/evidence/v3-runtime-rejected-shoulder-20260808/shoulder-still-wrong-and-cracked.png"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/Karin_SSF_FS37_SC15.md",
+    "original_target": "../../SSF_Replace_FS37SC15/Work/Reference/donor-clean-authoring-contract-v1.json"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/Karin_SSF_FS37_SC15.md",
+    "original_target": "../../SSF_Replace_FS37SC15/Work/reports/ssf-fs37-sc15-aq-candidate-v4-ds42.json"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/Karin_SSF_FS37_SC15.md",
+    "original_target": "../../SSF_Replace_FS37SC15/Work/reports/ssf-fs37-sc15-v4-shoulder-seam.json"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/Karin_SSF_FS37_SC15.md",
+    "original_target": "../../SSF_Replace_FS37SC15/Work/reports/ssf-fs37-sc15-compile-v4-ds42.json"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/Karin_SSF_FS37_SC15.md",
+    "original_target": "../../SSF_Replace_FS37SC15/Work/reports/ssf-fs37-sc15-v4-compiled-ds42-palettes.json"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/Karin_SSF_FS37_SC15.md",
+    "original_target": "../../SSF_Replace_FS37SC15/Output/Karin_SSF_FS37_SC15_v4_RE2310_DS42_patch6-package.json"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/Karin_Umbrella_RS6_RS67_RS100.md",
+    "original_target": "../../Umbrella_Replace_RS6RS67RS100/Work/evidence/runtime-20260808-v1-bind-rejection/rs6-shoulder-hip-disconnection.png"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/Karin_Umbrella_RS6_RS67_RS100.md",
+    "original_target": "../../Umbrella_Replace_RS6RS67RS100/Work/evidence/runtime-20260808-v1-bind-rejection/rs67-global-bind-separation.png"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/Karin_Umbrella_RS6_RS67_RS100.md",
+    "original_target": "../../Umbrella_Replace_RS6RS67RS100/Work/evidence/runtime-20260808-v1-bind-rejection/rs100-helmet-scale-floating.png"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/Karin_Umbrella_RS6_RS67_RS100.md",
+    "original_target": "../../Umbrella_Replace_RS6RS67RS100/Work/evidence/runtime-20260808-v1-bind-rejection/evidence-manifest.json"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/Karin_Umbrella_RS6_RS67_RS100.md",
+    "original_target": "../../Umbrella_Replace_RS6RS67RS100/SOP_zh-CN.md"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/Karin_Umbrella_RS6_RS67_RS100.md",
+    "original_target": "../../Umbrella_Replace_RS6RS67RS100/SOP_zh-CN.md"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/Karin_Umbrella_RS6_RS67_RS100.md",
+    "original_target": "../../Umbrella_Replace_RS6RS67RS100/Work/reports/umbrella-rs6-rs67-rs100-aq-candidate-v2-ds42.json"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/Karin_Umbrella_RS6_RS67_RS100.md",
+    "original_target": "../../Umbrella_Replace_RS6RS67RS100/Work/reports/umbrella-rs6-rs67-rs100-compile-v2-ds42.json"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/Karin_Umbrella_RS6_RS67_RS100.md",
+    "original_target": "../../Umbrella_Replace_RS6RS67RS100/Output/Karin_Umbrella_RS6_RS67_RS100_v2_DS42Bind_REPLACE_patch3-package.json"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/Karin_Umbrella_RS6_RS67_RS100.md",
+    "original_target": "../../Umbrella_Replace_RS6RS67RS100/Output/Karin_Umbrella_RS6_RS67_RS100_v2_DS42Bind_REPLACE_patch3.zip"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/Karin_Umbrella_RS6_RS67_RS100.md",
+    "original_target": "../../Umbrella_Replace_RS6RS67RS100/Work/contracts/umbrella-runtime-lut-map-v3.json"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/Karin_Umbrella_RS6_RS67_RS100.md",
+    "original_target": "../../Umbrella_Replace_RS6RS67RS100/Work/audits/splat_recovery_v3_20260808/final/aq_unit_uv_readback-script-v3-r2.json"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/Karin_Umbrella_RS6_RS67_RS100.md",
+    "original_target": "../../Umbrella_Replace_RS6RS67RS100/Work/audits/splat_recovery_v3_20260808/final/final_static_verification.json"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/Karin_Umbrella_RS6_RS67_RS100.md",
+    "original_target": "../../Umbrella_Replace_RS6RS67RS100/Output/Karin_Umbrella_RS6_RS67_RS100_v3_ArmorLUT_Splat_REPLACE-package.json"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/Karin_Umbrella_RS6_RS67_RS100.md",
+    "original_target": "../../Umbrella_Replace_RS6RS67RS100/Output/Karin_Umbrella_RS6_RS67_RS100_v3_ArmorLUT_Splat_REPLACE.zip"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/New_SR24.md",
+    "original_target": "../../New_SR24/SOP.md"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/New_SR24.md",
+    "original_target": "../../New_SR24/SOP.md"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/New_SR24.md",
+    "original_target": "../../New_SR24/Work/audits/v22_texture_budget_splat_20260805/"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/New_SR24.md",
+    "original_target": "../../New_SR24/Work/audits/v22_texture_budget_splat_20260805/v22-final-static-sdk-closure-r1.json"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/New_SR24.md",
+    "original_target": "../../New_SR24/Work/audits/v23_decalsheet_uv2_20260806/"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/New_SR24.md",
+    "original_target": "../../New_SR24/Work/audits/v24_helmet_splat_20260806/"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/New_SR24.md",
+    "original_target": "../../New_SR24/Work/audits/v25_head_decalsheet_opaque_20260806/"
+  },
+  {
+    "document": "games/helldivers-2/case-studies/New_SR24.md",
+    "original_target": "../../New_SR24/Output/"
+  },
+  {
+    "document": "games/helldivers-2/DETAILS_INDEX.md",
+    "original_target": "../Karin_Nyako_RE2310/SOP.md"
+  },
+  {
+    "document": "games/helldivers-2/DETAILS_INDEX.md",
+    "original_target": "../Karin_Nyako_RE2310/Work/scripts/"
+  },
+  {
+    "document": "games/helldivers-2/DETAILS_INDEX.md",
+    "original_target": "../Karin_Nyako_RE2310/Work/reports/"
+  },
+  {
+    "document": "games/helldivers-2/DETAILS_INDEX.md",
+    "original_target": "../Karin_Nyako_RE2310/Work/audits/"
+  },
+  {
+    "document": "games/helldivers-2/DETAILS_INDEX.md",
+    "original_target": "../Karin_Nyako_RE2310/Output/"
+  },
+  {
+    "document": "games/helldivers-2/DETAILS_INDEX.md",
+    "original_target": "../DR03_Replace_Cm10EX00/SOP.md"
+  },
+  {
+    "document": "games/helldivers-2/DETAILS_INDEX.md",
+    "original_target": "../DR03_Replace_Cm10EX00/Work/reports/"
+  },
+  {
+    "document": "games/helldivers-2/DETAILS_INDEX.md",
+    "original_target": "../DR03_Replace_Cm10EX00/Output/"
+  },
+  {
+    "document": "games/helldivers-2/DETAILS_INDEX.md",
+    "original_target": "../Umbrella_Replace_RS6RS67RS100/SOP_zh-CN.md"
+  },
+  {
+    "document": "games/helldivers-2/DETAILS_INDEX.md",
+    "original_target": "../Umbrella_Replace_RS6RS67RS100/Work/evidence/runtime-20260808-v1-bind-rejection/"
+  },
+  {
+    "document": "games/helldivers-2/DETAILS_INDEX.md",
+    "original_target": "../Umbrella_Replace_RS6RS67RS100/Work/reports/"
+  },
+  {
+    "document": "games/helldivers-2/DETAILS_INDEX.md",
+    "original_target": "../Umbrella_Replace_RS6RS67RS100/Output/"
+  },
+  {
+    "document": "games/helldivers-2/DETAILS_INDEX.md",
+    "original_target": "../SSF_Replace_FS37SC15/SOP.md"
+  },
+  {
+    "document": "games/helldivers-2/DETAILS_INDEX.md",
+    "original_target": "../SSF_Replace_FS37SC15/Work/reports/"
+  },
+  {
+    "document": "games/helldivers-2/DETAILS_INDEX.md",
+    "original_target": "../SSF_Replace_FS37SC15/Output/"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/SOP.md"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/Work/reports/runtime-feedback-r1.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/Work/reports/runtime-feedback-r2.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/Work/reports/runtime-feedback-r3.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/Work/reports/runtime-feedback-r5-thin-deployment.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/Work/reports/runtime-feedback-r6-thin.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/Work/reports/runtime-feedback-r7-thin.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/Work/reports/runtime-feedback-r8-thin.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/Work/reports/runtime-feedback-r9-thin-accepted.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/Work/reports/consumer-matrix.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/Work/reports/pfb-r3-determinism.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/Work/reports/r9-pfb-determinism-normal.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/Work/reports/r9-pfb-determinism-thin.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/Scripts/patch_ada_pfbs.py"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/Scripts/disable_ada_joint_constraints.py"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/Work/reports/source-object-deletion-r4.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/Work/reports/source-object-top-removal-r5.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/Work/reports/source-object-intent-r6.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/Work/reports/r7-sleeve-bodyrope-thin-campaign.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/Work/reports/r7-sleeve-bodyrope-thin-mercenaries.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/Work/reports/runtime-feedback-r3.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/Work/reports/runtime-feedback-r6-thin.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/Work/reports/r7-sleeve-bodyrope-normal-campaign.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/Work/reports/r7-sleeve-bodyrope-normal-mercenaries.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/Work/reports/r7-sleeve-bodyrope-thin-campaign.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/Work/reports/r7-sleeve-bodyrope-thin-mercenaries.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/Scripts/audit_r7_sleeve_bodyrope.py"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/Work/reports/r9-mesh-audit.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/Work/reports/runtime-feedback-r8-thin.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/Work/reports/runtime-feedback-r9-thin-accepted.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/Work/reports/r9-flat-sole-tail-audit.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/Scripts/audit_r9_flat_sole_tail.py"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/Work/reports/r9-mesh-audit.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/Work/reports/r9-flat-sole-tail-audit.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/Scripts/build_karin_nyako_ada_meshes.py"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/Work/reports/runtime-feedback-r3.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/Work/reports/runtime-feedback-r7-thin.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/Work/reports/chain-build-normal.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/Work/reports/chain-build-thin.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/Work/reports/chain-audit.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/Work/reports/r9-flat-sole-tail-audit.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/Scripts/build_karin_nyako_ada_chains.py"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/Scripts/audit_karin_nyako_ada_chains.py"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/Work/reports/runtime-feedback-r5-thin-deployment.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/Work/reports/final-package-normal.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/Work/reports/final-package-thin.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/Work/reports/package-resource-map-normal.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/Work/reports/package-resource-map-thin.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/Scripts/build_ada_package.py"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/Work/reports/runtime-feedback-r9-thin-accepted.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/SOP.md"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/Work/reports/input-lock.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/Work/reports/consumer-matrix.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/Work/reports/source-object-intent-r6.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/Work/reports/r9-mesh-audit.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/Work/reports/r9-flat-sole-tail-audit.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/Work/reports/chain-audit.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/Work/reports/r9-pfb-determinism-normal.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/Work/reports/r9-pfb-determinism-thin.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/Work/reports/final-package-normal.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ADA_KARIN_NYAKO.md",
+    "original_target": "../../Karin_Nyako_Replace_Ada/Work/reports/final-package-thin.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ASHLEY_KARIN_Y.md",
+    "original_target": "../../KarinYReplaceAshley/AGENTS.md"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ASHLEY_KARIN_Y.md",
+    "original_target": "../../KarinYReplaceAshley/SOP.md"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ASHLEY_KARIN_Y.md",
+    "original_target": "../../KarinYReplaceAshley/Work/reports/runtime-isolation-candidates.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ASHLEY_KARIN_Y.md",
+    "original_target": "../../KarinYReplaceAshley/Work/reports/CURRENT_ASHLEY_PFB_RESOURCE_MAP.md"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ASHLEY_KARIN_Y.md",
+    "original_target": "../../KarinYReplaceAshley/Work/reports/runtime-isolation-candidates.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ASHLEY_KARIN_Y.md",
+    "original_target": "../../KarinYReplaceAshley/AGENT_RE4_MOD_PLAYBOOK.md"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ASHLEY_KARIN_Y.md",
+    "original_target": "../../KarinYReplaceAshley/Work/reports/COMMUNITY_RE4_CHARACTER_CONTRACT_RESEARCH.md"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ASHLEY_KARIN_Y.md",
+    "original_target": "../../KarinYReplaceAshley/Work/reports/SKELETON_JCNS_RUNTIME_CONTRACT_AUDIT.md"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ASHLEY_KARIN_Y.md",
+    "original_target": "../../KarinYReplaceAshley/Work/reports/CHA100_01_PFB_CONTRACT_AUDIT.md"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ASHLEY_KARIN_Y.md",
+    "original_target": "../../KarinYReplaceAshley/Work/reports/runtime-isolation-candidates.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ASHLEY_KARIN_Y.md",
+    "original_target": "../../KarinYReplaceAshley/Work/reports/final-mesh-numeric-acceptance.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ASHLEY_KARIN_Y.md",
+    "original_target": "../../KarinYReplaceAshley/Work/reports/tail-neck-source-audit.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ASHLEY_KARIN_Y.md",
+    "original_target": "../../KarinYReplaceAshley/Work/reports/RUNTIME_INSTALL_AUDIT.md"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/ASHLEY_KARIN_Y.md",
+    "original_target": "../../KarinYReplaceAshley/Work/reports/release-candidate-archives.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/krauser-r10-chapter14-runtime-rejection.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/krauser-r11-runtime-acceptance.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/SOP.md"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/rejected-bcd971-package-verification.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Output/archive-runtime-rejected/Karin_SSF_Replace_Krauser_RE4R_build22377325_r2_runtime-rejected-proportion-tail.zip"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Output/archive-runtime-rejected/Karin_SSF_Replace_Krauser_RE4R_build22377325_r3_runtime-rejected-campaign-crash.zip"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/krauser-r3-runtime-rejection.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Output/archive-runtime-rejected/Karin_SSF_Replace_Krauser_RE4R_build22377325_r4_runtime-rejected-campaign-crash.zip"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/krauser-r4-runtime-rejection.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Output/archive-runtime-rejected/Karin_SSF_Replace_Krauser_RE4R_build22377325_r5_runtime-rejected-campaign-crash.zip"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/krauser-r5-runtime-rejection.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Output/archive-runtime-rejected/Karin_SSF_Replace_Krauser_RE4R_build22377325_r6_runtime-rejected-campaign-crash.zip"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/krauser-r6-runtime-rejection.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Output/archive-runtime-rejected/Karin_SSF_Replace_Krauser_RE4R_build22377325_r7_runtime-rejected-campaign-crash.zip"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/krauser-r7-runtime-rejection.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Output/archive-runtime-rejected/Karin_SSF_Replace_Krauser_RE4R_build22377325_r8_runtime-rejected-campaign-crash.zip"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/krauser-r8-runtime-rejection.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Output/archive-runtime-rejected/Karin_SSF_Replace_Krauser_RE4R_build22377325_r9_runtime-rejected-campaign-checkerboard.zip"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/krauser-r9-runtime-visual-rejection.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Output/archive-runtime-rejected/Karin_SSF_Replace_Krauser_RE4R_build22377325_r10_runtime-rejected-chapter14-figure-crash.zip"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/krauser-r10-runtime-acceptance.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/krauser-r10-chapter14-runtime-rejection.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Output/Karin_SSF_Replace_Krauser_RE4R_build22377325.zip"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/krauser-r11-runtime-acceptance.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/rejected-bcd971-package-verification.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Scripts/build_karin_ssf_krauser_materials.py"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Scripts/verify_krauser_package.py"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/krauser-proportion-tail-contract.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Scripts/audit_krauser_proportions.py"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/krauser-chain-collider-unit-contract.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/krauser-pfb-joint-constraints-patch.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/krauser-r6-reference-structure.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/krauser-r7-chain-component-patch.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/krauser-r7-crash-disassembly.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Scripts/analyze_krauser_campaign_crash.py"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Scripts/build_krauser_r8_skin_mat_compatibility.py"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/krauser-r8-five-material-lookup-closure.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Scripts/build_krauser_r9_body_damage_material_closure.py"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/krauser-r9-body-damage-material-closure.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/krauser-r9-runtime-visual-rejection.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/krauser-r9-checkerboard-material-contract.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/krauser-r9-body-updater-consumption.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Scripts/audit_krauser_r9_checkerboard_rejection.py"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Scripts/audit_krauser_r9_checkerboard_material_contract.py"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Scripts/audit_krauser_r9_body_updater_consumption.py"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Scripts/build_krauser_r10_campaign_mesh_material_closure.py"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/krauser-r10-campaign-mesh-material-closure.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/rig-audits/r10-campaign-00.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/krauser-r10-master-contract.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/krauser-r10-chapter14-runtime-rejection.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Scripts/audit_krauser_r10_chapter14_runtime_rejection.py"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Scripts/build_krauser_r11_figure_material_closure.py"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Scripts/build_krauser_r11_figure_mesh_material_closure.py"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/krauser-r11-figure-material-closure.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/krauser-r11-change-isolation.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Scripts/record_krauser_r11_runtime_acceptance.py"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/krauser-r11-runtime-acceptance.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Scripts/audit_krauser_r10_change_isolation.py"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/krauser-r10-change-isolation.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Scripts/build_karin_ssf_krauser_package.py"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/krauser-r10-package-verification.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Scripts/audit_krauser_r11_change_isolation.py"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/krauser-r11-change-isolation.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/SOP.md"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/input-lock.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/consumer-matrix.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/krauser-r10-master-contract.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/krauser-r10-package-verification.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/krauser-r10-runtime-acceptance.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/krauser-r11-master-contract.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/krauser-r11-package-verification.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/krauser-r11-runtime-acceptance.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/krauser-r3-runtime-rejection.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/krauser-r4-runtime-rejection.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/krauser-r5-runtime-rejection.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/krauser-r6-runtime-rejection.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/krauser-r7-runtime-rejection.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/krauser-r8-runtime-rejection.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/krauser-r9-runtime-visual-rejection.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/krauser-r10-chapter14-runtime-rejection.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/krauser-r7-crash-disassembly.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/krauser-r8-materialparam-ladder-audit.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/krauser-r8-five-material-lookup-closure.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/krauser-r9-body-damage-material-closure.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/krauser-r9-checkerboard-material-contract.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/krauser-r9-body-updater-consumption.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/krauser-r10-campaign-mesh-material-closure.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/krauser-r10-change-isolation.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/krauser-r11-figure-mdf-material-closure.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/krauser-r11-figure-material-closure.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Work/reports/krauser-r11-change-isolation.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Scripts/build_karin_ssf_krauser_meshes.py"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Scripts/build_karin_ssf_krauser_chains.py"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Scripts/build_krauser_r8_skin_mat_compatibility.py"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Scripts/build_krauser_r9_body_damage_material_closure.py"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Scripts/build_krauser_r10_campaign_mesh_material_closure.py"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Scripts/audit_krauser_r10_campaign_mesh_material_closure.py"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Scripts/build_krauser_r10_master_contract.py"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Scripts/build_krauser_r11_figure_material_closure.py"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Scripts/build_krauser_r11_figure_mesh_material_closure.py"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Scripts/record_krauser_r11_runtime_acceptance.py"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/KRAUSER_KARIN_SSF.md",
+    "original_target": "../../Karin_SSF_Replace_Krauser/Scripts/verify_krauser_package.py"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LEON_KARIN_UMBRELLA.md",
+    "original_target": "../../Karin_Umbrella_Replace_Leon/SOP.md"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LEON_KARIN_UMBRELLA.md",
+    "original_target": "../../Karin_Umbrella_Replace_Leon/Work/reports/release-v7-hair-fix.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LEON_KARIN_UMBRELLA.md",
+    "original_target": "../../Karin_Umbrella_Replace_Leon/Work/reports/v7-runtime-acceptance-20260807.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LEON_KARIN_UMBRELLA.md",
+    "original_target": "../../Karin_Umbrella_Replace_Leon/Work/reports/v1-runtime-rejection-20260806.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LEON_KARIN_UMBRELLA.md",
+    "original_target": "../../Karin_Umbrella_Replace_Leon/Work/reports/v2-runtime-rejection-20260806.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LEON_KARIN_UMBRELLA.md",
+    "original_target": "../../Karin_Umbrella_Replace_Leon/Work/reports/v4-runtime-rejection-20260806.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LEON_KARIN_UMBRELLA.md",
+    "original_target": "../../Karin_Umbrella_Replace_Leon/Work/reports/v5-runtime-rejection-20260807.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LEON_KARIN_UMBRELLA.md",
+    "original_target": "../../Karin_Umbrella_Replace_Leon/Work/reports/v6-runtime-feedback-20260807.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LEON_KARIN_UMBRELLA.md",
+    "original_target": "../../Karin_Umbrella_Replace_Leon/Work/reports/v5-runtime-deformation-audit-20260807.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LEON_KARIN_UMBRELLA.md",
+    "original_target": "../../Karin_Umbrella_Replace_Leon/Work/reports/deformation-contract-v6-deformation.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LEON_KARIN_UMBRELLA.md",
+    "original_target": "../../Karin_Umbrella_Replace_Leon/Work/reports/sneaker-shape-bake-v5-controlled-motion.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LEON_KARIN_UMBRELLA.md",
+    "original_target": "../../Karin_Umbrella_Replace_Leon/Work/reports/v6-hair-root-cause-20260807.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LEON_KARIN_UMBRELLA.md",
+    "original_target": "../../Karin_Umbrella_Replace_Leon/Work/reports/hair-shape-and-central-bang-v7-hair.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LEON_KARIN_UMBRELLA.md",
+    "original_target": "../../Karin_Umbrella_Replace_Leon/Work/reports/chain-frame-audit-v4-runtime-rejected.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LEON_KARIN_UMBRELLA.md",
+    "original_target": "../../Karin_Umbrella_Replace_Leon/Work/reports/chain-frame-audit-v7-hair.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LEON_KARIN_UMBRELLA.md",
+    "original_target": "../../Karin_Umbrella_Replace_Leon/Work/reports/filtered-chain-build-v7-hair.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LEON_KARIN_UMBRELLA.md",
+    "original_target": "../../Karin_Umbrella_Replace_Leon/Work/reports/deformation-contract-v7-hair.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LEON_KARIN_UMBRELLA.md",
+    "original_target": "../../Karin_Umbrella_Replace_Leon/Work/reports/stage-diff-v6-to-v7-hair.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LEON_KARIN_UMBRELLA.md",
+    "original_target": "../../Karin_Umbrella_Replace_Leon/Work/reports/stage-determinism-v7-hair.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LEON_KARIN_UMBRELLA.md",
+    "original_target": "../../Karin_Umbrella_Replace_Leon/Work/reports/input-lock.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LEON_KARIN_UMBRELLA.md",
+    "original_target": "../../Karin_Umbrella_Replace_Leon/Work/reports/leon-consumer-matrix.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LEON_KARIN_UMBRELLA.md",
+    "original_target": "../../Karin_Umbrella_Replace_Leon/Work/reports/v1-runtime-rejection-20260806.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LEON_KARIN_UMBRELLA.md",
+    "original_target": "../../Karin_Umbrella_Replace_Leon/Work/reports/v2-runtime-rejection-20260806.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LEON_KARIN_UMBRELLA.md",
+    "original_target": "../../Karin_Umbrella_Replace_Leon/Work/reports/chain-frame-audit-v4-runtime-rejected.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LEON_KARIN_UMBRELLA.md",
+    "original_target": "../../Karin_Umbrella_Replace_Leon/Work/reports/v5-runtime-deformation-audit-20260807.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LEON_KARIN_UMBRELLA.md",
+    "original_target": "../../Karin_Umbrella_Replace_Leon/Work/reports/v6-runtime-feedback-20260807.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LEON_KARIN_UMBRELLA.md",
+    "original_target": "../../Karin_Umbrella_Replace_Leon/Work/reports/v6-hair-root-cause-20260807.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LEON_KARIN_UMBRELLA.md",
+    "original_target": "../../Karin_Umbrella_Replace_Leon/Work/reports/hair-shape-and-central-bang-v7-hair.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LEON_KARIN_UMBRELLA.md",
+    "original_target": "../../Karin_Umbrella_Replace_Leon/Work/reports/deformation-contract-v7-hair.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LEON_KARIN_UMBRELLA.md",
+    "original_target": "../../Karin_Umbrella_Replace_Leon/Work/reports/stage-diff-v6-to-v7-hair.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LEON_KARIN_UMBRELLA.md",
+    "original_target": "../../Karin_Umbrella_Replace_Leon/Work/reports/release-v7-hair-fix.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LEON_KARIN_UMBRELLA.md",
+    "original_target": "../../Karin_Umbrella_Replace_Leon/Work/reports/v7-runtime-acceptance-20260807.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_RIPTIDE.md",
+    "original_target": "../../KarinRiptideReplaceLouis/AGENTS.md"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_RIPTIDE.md",
+    "original_target": "../../KarinRiptideReplaceLouis/SOP.md"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_RIPTIDE.md",
+    "original_target": "../../KarinRiptideReplaceLouis/Work/reports/final-package-verification.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_RIPTIDE.md",
+    "original_target": "../../KarinRiptideReplaceLouis/Work/reports/consumer-matrix.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_RIPTIDE.md",
+    "original_target": "../../KarinRiptideReplaceLouis/Work/reports/LUIS_CONSUMER_CONTROL_AUDIT.md"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_RIPTIDE.md",
+    "original_target": "../../KarinRiptideReplaceLouis/Work/native-luis/SOP.md"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_RIPTIDE.md",
+    "original_target": "../../KarinRiptideReplaceLouis/Work/reports/VISOR_FRINGE_CLEARANCE_AUDIT.md"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_RIPTIDE.md",
+    "original_target": "../../KarinRiptideReplaceLouis/Work/reports/luis-visor-clearance-audit.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_RIPTIDE.md",
+    "original_target": "../../KarinRiptideReplaceLouis/Work/reports/attachment-clearance-acceptance.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_RIPTIDE.md",
+    "original_target": "../../KarinRiptideReplaceLouis/Work/reports/HIGH_HEEL_AND_GROUND_AUDIT.md"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_RIPTIDE.md",
+    "original_target": "../../KarinRiptideReplaceLouis/Work/reports/high-heel-lower-leg-shortening-audit.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_RIPTIDE.md",
+    "original_target": "../../KarinRiptideReplaceLouis/Work/reports/high-heel-lower-leg-shortening-comparison.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_RIPTIDE.md",
+    "original_target": "../../KarinRiptideReplaceLouis/Work/reports/source-vrm-physics-audit.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_RIPTIDE.md",
+    "original_target": "../../KarinRiptideReplaceLouis/Work/reports/karin-riptide-luis-chain-build.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_RIPTIDE.md",
+    "original_target": "../../KarinRiptideReplaceLouis/Work/reports/karin-riptide-luis-chain-frame-audit.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_RIPTIDE.md",
+    "original_target": "../../KarinRiptideReplaceLouis/Work/candidates/runtime-fixes/physics/03_terminal_dummy_dynamic_roots"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_RIPTIDE.md",
+    "original_target": "../../KarinRiptideReplaceLouis/Work/reports/luis-watergun-clearance-audit.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_RIPTIDE.md",
+    "original_target": "../../KarinRiptideReplaceLouis/Work/reports/runtime-feedback-watergun-clearance-audit.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_RIPTIDE.md",
+    "original_target": "../../KarinRiptideReplaceLouis/Work/reports/attachment-clearance-acceptance.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_RIPTIDE.md",
+    "original_target": "../../KarinRiptideReplaceLouis/Work/reports/material-build-report.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_RIPTIDE.md",
+    "original_target": "../../KarinRiptideReplaceLouis/Work/reports/runtime-feedback-surface-alpha-audit.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_RIPTIDE.md",
+    "original_target": "../../KarinRiptideReplaceLouis/Work/reports/luis-pfb-semantics-current-and-reference.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_RIPTIDE.md",
+    "original_target": "../../KarinRiptideReplaceLouis/Work/reports/pfb-joint-constraints-patch-report.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_RIPTIDE.md",
+    "original_target": "../../KarinRiptideReplaceLouis/Work/reports/final-resource-map.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_RIPTIDE.md",
+    "original_target": "../../KarinRiptideReplaceLouis/SOP.md"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_RIPTIDE.md",
+    "original_target": "../../KarinRiptideReplaceLouis/Work/reports/input-lock.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_RIPTIDE.md",
+    "original_target": "../../KarinRiptideReplaceLouis/Work/reports/source-semantic-contract.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_RIPTIDE.md",
+    "original_target": "../../KarinRiptideReplaceLouis/Work/reports/source-rig-contract.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_RIPTIDE.md",
+    "original_target": "../../KarinRiptideReplaceLouis/Work/reports/consumer-matrix.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_RIPTIDE.md",
+    "original_target": "../../KarinRiptideReplaceLouis/Work/reports/final-mesh-numeric-acceptance.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_RIPTIDE.md",
+    "original_target": "../../KarinRiptideReplaceLouis/Work/reports/mesh-build-determinism.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_RIPTIDE.md",
+    "original_target": "../../KarinRiptideReplaceLouis/Work/reports/material-build-report.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_RIPTIDE.md",
+    "original_target": "../../KarinRiptideReplaceLouis/Work/reports/karin-riptide-luis-chain-build.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_RIPTIDE.md",
+    "original_target": "../../KarinRiptideReplaceLouis/Work/reports/karin-riptide-luis-chain-frame-audit.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_RIPTIDE.md",
+    "original_target": "../../KarinRiptideReplaceLouis/Work/reports/attachment-clearance-acceptance.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_RIPTIDE.md",
+    "original_target": "../../KarinRiptideReplaceLouis/Work/reports/pfb-joint-constraints-patch-report.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_RIPTIDE.md",
+    "original_target": "../../KarinRiptideReplaceLouis/Work/reports/final-package-verification.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_WASAKURA.md",
+    "original_target": "../../Karin_wasakura_replace_luis/SOP.md"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_WASAKURA.md",
+    "original_target": "../../Karin_wasakura_replace_luis/Work/reports/runtime-feedback-20260806-r5-task-accepted.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_WASAKURA.md",
+    "original_target": "../../Karin_wasakura_replace_luis/Work/reports/final-package-verification.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_WASAKURA.md",
+    "original_target": "../../Karin_wasakura_replace_luis/Work/reports/runtime-feedback-20260806-uv1.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_WASAKURA.md",
+    "original_target": "../../Karin_wasakura_replace_luis/Work/reports/runtime-uv-channel-fix.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_WASAKURA.md",
+    "original_target": "../../Karin_wasakura_replace_luis/Work/reports/runtime-r3-uv-preservation.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_WASAKURA.md",
+    "original_target": "../../Karin_wasakura_replace_luis/Work/reports/runtime-feedback-20260806-r2-physics-proportion-ground.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_WASAKURA.md",
+    "original_target": "../../Karin_wasakura_replace_luis/Work/reports/runtime-r3-geometry-audit.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_WASAKURA.md",
+    "original_target": "../../Karin_wasakura_replace_luis/Work/reports/runtime-r3-physics-audit.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_WASAKURA.md",
+    "original_target": "../../Karin_wasakura_replace_luis/Work/reports/chain-build-report-r3.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_WASAKURA.md",
+    "original_target": "../../Karin_wasakura_replace_luis/Work/reports/runtime-feedback-20260806-r3-right-skirt.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_WASAKURA.md",
+    "original_target": "../../Karin_wasakura_replace_luis/Work/reports/runtime-feedback-20260806-r4-left-skirt-bulge.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_WASAKURA.md",
+    "original_target": "../../Karin_wasakura_replace_luis/Work/reports/runtime-r5-bilateral-skirt-audit.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_WASAKURA.md",
+    "original_target": "../../Karin_wasakura_replace_luis/Work/reports/runtime-r5-candidate-diff.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_WASAKURA.md",
+    "original_target": "../../Karin_wasakura_replace_luis/Work/reports/runtime-feedback-20260806-r5-skirt-accepted.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_WASAKURA.md",
+    "original_target": "../../Karin_wasakura_replace_luis/Work/reports/input-lock.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_WASAKURA.md",
+    "original_target": "../../Karin_wasakura_replace_luis/Work/reports/consumer-matrix.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_WASAKURA.md",
+    "original_target": "../../Karin_wasakura_replace_luis/Work/reports/source-semantic-contract.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_WASAKURA.md",
+    "original_target": "../../Karin_wasakura_replace_luis/Work/reports/source-vrm-semantic-audit.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_WASAKURA.md",
+    "original_target": "../../Karin_wasakura_replace_luis/Work/reports/mesh-build-determinism-r3.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_WASAKURA.md",
+    "original_target": "../../Karin_wasakura_replace_luis/Work/reports/runtime-r3-geometry-audit.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_WASAKURA.md",
+    "original_target": "../../Karin_wasakura_replace_luis/Work/reports/runtime-r3-physics-audit.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_WASAKURA.md",
+    "original_target": "../../Karin_wasakura_replace_luis/Work/reports/chain-build-report-r5.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_WASAKURA.md",
+    "original_target": "../../Karin_wasakura_replace_luis/Work/reports/runtime-r5-bilateral-skirt-audit.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_WASAKURA.md",
+    "original_target": "../../Karin_wasakura_replace_luis/Work/reports/runtime-r5-candidate-diff.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_WASAKURA.md",
+    "original_target": "../../Karin_wasakura_replace_luis/Work/reports/independent-package-verification.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/LUIS_KARIN_WASAKURA.md",
+    "original_target": "../../Karin_wasakura_replace_luis/Work/reports/runtime-feedback-20260806-r5-task-accepted.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/MERCHANT_KARIN_CHROME.md",
+    "original_target": "../../Karin_Chrome_Replace_Merchant/SOP.md"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/MERCHANT_KARIN_CHROME.md",
+    "original_target": "../../Karin_Chrome_Replace_Merchant/Work/reports/merchant-chrome-runtime-feedback-r2-accepted.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/MERCHANT_KARIN_CHROME.md",
+    "original_target": "../../Karin_Chrome_Replace_Merchant/Work/reports/chrome-vrm-mesh-material-audit.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/MERCHANT_KARIN_CHROME.md",
+    "original_target": "../../Karin_Chrome_Replace_Merchant/Work/reports/merchant-material-build-report-r2.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/MERCHANT_KARIN_CHROME.md",
+    "original_target": "../../Karin_Chrome_Replace_Merchant/Work/blender/merchant-chrome-runtime-r2-run1/mesh-build-report.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/MERCHANT_KARIN_CHROME.md",
+    "original_target": "../../Karin_Chrome_Replace_Merchant/Work/reports/fbxskel-determinism-r2.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/MERCHANT_KARIN_CHROME.md",
+    "original_target": "../../Karin_Chrome_Replace_Merchant/Work/reports/merchant-chain-build-report-r2.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/MERCHANT_KARIN_CHROME.md",
+    "original_target": "../../Karin_Chrome_Replace_Merchant/Work/reports/merchant-chrome-package-build-r2.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/MERCHANT_KARIN_CHROME.md",
+    "original_target": "../../Karin_Chrome_Replace_Merchant/Scripts/render_chrome_source_diagnostic.py"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/MERCHANT_KARIN_CHROME.md",
+    "original_target": "../../Karin_Chrome_Replace_Merchant/Scripts/audit_chrome_vrm_mesh_materials.py"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/MERCHANT_KARIN_CLOTH04.md",
+    "original_target": "../../KarinCloth04ReplaceMerchant/Work/reports/merchant-runtime-feedback-r4.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/MERCHANT_KARIN_CLOTH04.md",
+    "original_target": "../../KarinCloth04ReplaceMerchant/Work/reports/merchant-runtime-feedback-r1.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/MERCHANT_KARIN_CLOTH04.md",
+    "original_target": "../../KarinCloth04ReplaceMerchant/Work/reports/merchant-runtime-feedback-r2.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/MERCHANT_KARIN_CLOTH04.md",
+    "original_target": "../../KarinCloth04ReplaceMerchant/Work/reports/merchant-runtime-feedback-r3.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/MERCHANT_KARIN_CLOTH04.md",
+    "original_target": "../../KarinCloth04ReplaceMerchant/Work/reports/merchant-runtime-feedback-r4.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/MERCHANT_KARIN_CLOTH04.md",
+    "original_target": "../../KarinCloth04ReplaceMerchant/Work/reports/MERCHANT_R2_MESH_BIND_SPACE_FORENSICS.md"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/MERCHANT_KARIN_CLOTH04.md",
+    "original_target": "../../KarinCloth04ReplaceMerchant/Work/reports/merchant-r2-mesh-bind-space-forensics.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/MERCHANT_KARIN_CLOTH04.md",
+    "original_target": "../../KarinCloth04ReplaceMerchant/Scripts/audit_merchant_mesh_fbxskel_runtime_contract.py"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/MERCHANT_KARIN_CLOTH04.md",
+    "original_target": "../../KarinCloth04ReplaceMerchant/Scripts/build_karin_cloth04_merchant_fbxskel.py"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/MERCHANT_KARIN_CLOTH04.md",
+    "original_target": "../../KarinCloth04ReplaceMerchant/Work/reports/merchant-r4-mesh-fbxskel-runtime-contract.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/MERCHANT_KARIN_CLOTH04.md",
+    "original_target": "../../KarinCloth04ReplaceMerchant/Work/reports/merchant-r4-fbxskel-determinism.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/MERCHANT_KARIN_CLOTH04.md",
+    "original_target": "../../KarinCloth04ReplaceMerchant/Scripts/build_karin_cloth04_merchant_meshes.py"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/MERCHANT_KARIN_CLOTH04.md",
+    "original_target": "../../KarinCloth04ReplaceMerchant/Scripts/audit_merchant_r4_visual_fidelity.py"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/MERCHANT_KARIN_CLOTH04.md",
+    "original_target": "../../KarinCloth04ReplaceMerchant/Work/reports/merchant-r4-visual-fidelity.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/MERCHANT_KARIN_CLOTH04.md",
+    "original_target": "../../KarinCloth04ReplaceMerchant/Work/reports/source-material-channel-audit.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/MERCHANT_KARIN_CLOTH04.md",
+    "original_target": "../../KarinCloth04ReplaceMerchant/Work/reports/merchant-r4-material-build-report.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/MERCHANT_KARIN_CLOTH04.md",
+    "original_target": "../../KarinCloth04ReplaceMerchant/Work/blender/merchant-r4-source-proportions-run1/mesh-build-report.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/MERCHANT_KARIN_CLOTH04.md",
+    "original_target": "../../KarinCloth04ReplaceMerchant/Scripts/build_karin_cloth04_merchant_meshes.py"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/MERCHANT_KARIN_CLOTH04.md",
+    "original_target": "../../KarinCloth04ReplaceMerchant/Work/reports/merchant-r3-material-build-report.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/MERCHANT_KARIN_CLOTH04.md",
+    "original_target": "../../KarinCloth04ReplaceMerchant/Work/reports/merchant-r4-material-plan.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/MERCHANT_KARIN_CLOTH04.md",
+    "original_target": "../../KarinCloth04ReplaceMerchant/Scripts/build_karin_cloth04_merchant_materials.py"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/MERCHANT_KARIN_CLOTH04.md",
+    "original_target": "../../KarinCloth04ReplaceMerchant/Scripts/render_merchant_r4_textured_preview.py"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/MERCHANT_KARIN_CLOTH04.md",
+    "original_target": "../../KarinCloth04ReplaceMerchant/Work/previews/merchant-r4-source-proportions/merchant-r4-textured-preview.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/MERCHANT_KARIN_CLOTH04.md",
+    "original_target": "../../KarinCloth04ReplaceMerchant/Work/reports/merchant-runtime-feedback-r4.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/MERCHANT_KARIN_CLOTH04.md",
+    "original_target": "../../KarinCloth04ReplaceMerchant/Work/previews/merchant-r4-source-proportions/merchant-r4-textured-feet_side.png"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/MERCHANT_KARIN_CLOTH04.md",
+    "original_target": "../../KarinCloth04ReplaceMerchant/Work/reports/merchant-r4-mesh-build-determinism.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/MERCHANT_KARIN_CLOTH04.md",
+    "original_target": "../../KarinCloth04ReplaceMerchant/Scripts/verify_mesh_build_determinism.py"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/MERCHANT_KARIN_CLOTH04.md",
+    "original_target": "../../KarinCloth04ReplaceMerchant/Work/reports/merchant-r4-master-contract.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/MERCHANT_KARIN_CLOTH04.md",
+    "original_target": "../../KarinCloth04ReplaceMerchant/Work/reports/merchant-r4-package-verification.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/MERCHANT_KARIN_CLOTH04.md",
+    "original_target": "../../KarinCloth04ReplaceMerchant/SOP.md"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/MERCHANT_KARIN_CLOTH04.md",
+    "original_target": "../../KarinCloth04ReplaceMerchant/AGENTS.md"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/MERCHANT_KARIN_CLOTH04.md",
+    "original_target": "../../KarinCloth04ReplaceMerchant/Work/reports/merchant-r4-visual-fidelity.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/MERCHANT_KARIN_CLOTH04.md",
+    "original_target": "../../KarinCloth04ReplaceMerchant/Work/reports/merchant-r4-material-build-report.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/MERCHANT_KARIN_CLOTH04.md",
+    "original_target": "../../KarinCloth04ReplaceMerchant/Work/reports/merchant-r4-mesh-fbxskel-runtime-contract.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/MERCHANT_KARIN_CLOTH04.md",
+    "original_target": "../../KarinCloth04ReplaceMerchant/Work/reports/merchant-r4-mesh-build-determinism.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/MERCHANT_KARIN_CLOTH04.md",
+    "original_target": "../../KarinCloth04ReplaceMerchant/Work/reports/merchant-r4-package-verification.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/MERCHANT_KARIN_CLOTH04.md",
+    "original_target": "../../KarinCloth04ReplaceMerchant/Work/reports/merchant-runtime-feedback-r4.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/MERCHANT_KARIN_DR03.md",
+    "original_target": "../../Karin_DR03_replace_merchant/SOP.md"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/MERCHANT_KARIN_DR03.md",
+    "original_target": "../../Karin_DR03_replace_merchant/Work/reports/merchant-runtime-feedback-r3-backpack.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/MERCHANT_KARIN_DR03.md",
+    "original_target": "../../Karin_DR03_replace_merchant/Work/reports/merchant-runtime-feedback-r4-accepted.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/MERCHANT_KARIN_DR03.md",
+    "original_target": "../../Karin_DR03_replace_merchant/Work/reports/merchant-chain-build-report-r4.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/MERCHANT_KARIN_DR03.md",
+    "original_target": "../../Karin_DR03_replace_merchant/Work/reports/merchant-dr03-runtime-assets-r4.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/MERCHANT_KARIN_DR03.md",
+    "original_target": "../../Karin_DR03_replace_merchant/Work/reports/merchant-dr03-master-contract-r4.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/MERCHANT_KARIN_DR03.md",
+    "original_target": "../../Karin_DR03_replace_merchant/Work/reports/merchant-dr03-package-build-r4.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/MERCHANT_KARIN_DR03.md",
+    "original_target": "../../Karin_DR03_replace_merchant/Work/reports/merchant-dr03-package-verification-r4.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/MERCHANT_KARIN_DR03.md",
+    "original_target": "../../Karin_DR03_replace_merchant/Scripts/build_karin_dr03_merchant_chains.py"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/MERCHANT_KARIN_DR03.md",
+    "original_target": "../../Karin_DR03_replace_merchant/Scripts/stage_merchant_dr03_runtime_assets.py"
+  },
+  {
+    "document": "games/resident-evil-4-remake/cases/MERCHANT_KARIN_DR03.md",
+    "original_target": "../../Karin_DR03_replace_merchant/Scripts/Build-DR03MerchantRelease.ps1"
+  },
+  {
+    "document": "games/resident-evil-4-remake/CHARACTER_REPLACEMENT_SOP.md",
+    "original_target": "../Karin_SSF_Replace_Krauser/Work/reports/krauser-r11-figure-material-closure.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/CHARACTER_REPLACEMENT_SOP.md",
+    "original_target": "../Karin_SSF_Replace_Krauser/Work/reports/krauser-r10-chapter14-runtime-rejection.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/CHARACTER_REPLACEMENT_SOP.md",
+    "original_target": "../Karin_SSF_Replace_Krauser/Work/reports/krauser-r11-runtime-acceptance.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/DETAILS_INDEX.md",
+    "original_target": "../KarinYReplaceAshley/AGENT_RE4_MOD_PLAYBOOK.md"
+  },
+  {
+    "document": "games/resident-evil-4-remake/DETAILS_INDEX.md",
+    "original_target": "../KarinYReplaceAshley/AGENTS.md"
+  },
+  {
+    "document": "games/resident-evil-4-remake/DETAILS_INDEX.md",
+    "original_target": "../KarinYReplaceAshley/SOP.md"
+  },
+  {
+    "document": "games/resident-evil-4-remake/DETAILS_INDEX.md",
+    "original_target": "../KarinRiptideReplaceLouis/AGENTS.md"
+  },
+  {
+    "document": "games/resident-evil-4-remake/DETAILS_INDEX.md",
+    "original_target": "../KarinRiptideReplaceLouis/SOP.md"
+  },
+  {
+    "document": "games/resident-evil-4-remake/DETAILS_INDEX.md",
+    "original_target": "../Karin_wasakura_replace_luis/AGENTS.md"
+  },
+  {
+    "document": "games/resident-evil-4-remake/DETAILS_INDEX.md",
+    "original_target": "../Karin_wasakura_replace_luis/SOP.md"
+  },
+  {
+    "document": "games/resident-evil-4-remake/DETAILS_INDEX.md",
+    "original_target": "../Karin_wasakura_replace_luis/Work/reports/runtime-feedback-20260806-uv1.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/DETAILS_INDEX.md",
+    "original_target": "../Karin_wasakura_replace_luis/Work/reports/runtime-r3-geometry-audit.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/DETAILS_INDEX.md",
+    "original_target": "../Karin_wasakura_replace_luis/Work/reports/runtime-r3-physics-audit.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/DETAILS_INDEX.md",
+    "original_target": "../Karin_wasakura_replace_luis/Work/reports/runtime-r5-bilateral-skirt-audit.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/DETAILS_INDEX.md",
+    "original_target": "../Karin_wasakura_replace_luis/Work/reports/runtime-feedback-20260806-r5-task-accepted.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/DETAILS_INDEX.md",
+    "original_target": "../KarinCloth04ReplaceMerchant/AGENTS.md"
+  },
+  {
+    "document": "games/resident-evil-4-remake/DETAILS_INDEX.md",
+    "original_target": "../KarinCloth04ReplaceMerchant/SOP.md"
+  },
+  {
+    "document": "games/resident-evil-4-remake/DETAILS_INDEX.md",
+    "original_target": "../KarinCloth04ReplaceMerchant/Work/reports/merchant-runtime-feedback-r1.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/DETAILS_INDEX.md",
+    "original_target": "../KarinCloth04ReplaceMerchant/Work/reports/merchant-runtime-feedback-r2.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/DETAILS_INDEX.md",
+    "original_target": "../KarinCloth04ReplaceMerchant/Work/reports/merchant-runtime-feedback-r3.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/DETAILS_INDEX.md",
+    "original_target": "../KarinCloth04ReplaceMerchant/Work/reports/merchant-runtime-feedback-r4.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/DETAILS_INDEX.md",
+    "original_target": "../KarinCloth04ReplaceMerchant/Work/reports/MERCHANT_R2_MESH_BIND_SPACE_FORENSICS.md"
+  },
+  {
+    "document": "games/resident-evil-4-remake/DETAILS_INDEX.md",
+    "original_target": "../KarinCloth04ReplaceMerchant/Work/reports/merchant-r2-mesh-bind-space-forensics.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/DETAILS_INDEX.md",
+    "original_target": "../Karin_DR03_replace_merchant/AGENTS.md"
+  },
+  {
+    "document": "games/resident-evil-4-remake/DETAILS_INDEX.md",
+    "original_target": "../Karin_DR03_replace_merchant/SOP.md"
+  },
+  {
+    "document": "games/resident-evil-4-remake/DETAILS_INDEX.md",
+    "original_target": "../Karin_DR03_replace_merchant/Work/reports/merchant-runtime-feedback-r3-backpack.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/DETAILS_INDEX.md",
+    "original_target": "../Karin_DR03_replace_merchant/Work/reports/merchant-runtime-feedback-r4-accepted.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/DETAILS_INDEX.md",
+    "original_target": "../Karin_DR03_replace_merchant/Work/reports/merchant-dr03-master-contract-r4.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/DETAILS_INDEX.md",
+    "original_target": "../Karin_Chrome_Replace_Merchant/AGENTS.md"
+  },
+  {
+    "document": "games/resident-evil-4-remake/DETAILS_INDEX.md",
+    "original_target": "../Karin_Chrome_Replace_Merchant/SOP.md"
+  },
+  {
+    "document": "games/resident-evil-4-remake/DETAILS_INDEX.md",
+    "original_target": "../Karin_Chrome_Replace_Merchant/Work/reports/chrome-vrm-mesh-material-audit.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/DETAILS_INDEX.md",
+    "original_target": "../Karin_Chrome_Replace_Merchant/Work/reports/merchant-chrome-runtime-feedback-r2-accepted.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/DETAILS_INDEX.md",
+    "original_target": "../Karin_Nyako_Replace_Ada/AGENTS.md"
+  },
+  {
+    "document": "games/resident-evil-4-remake/DETAILS_INDEX.md",
+    "original_target": "../Karin_Nyako_Replace_Ada/SOP.md"
+  },
+  {
+    "document": "games/resident-evil-4-remake/DETAILS_INDEX.md",
+    "original_target": "../Karin_Nyako_Replace_Ada/Work/reports/runtime-feedback-r3.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/DETAILS_INDEX.md",
+    "original_target": "../Karin_Nyako_Replace_Ada/Work/reports/runtime-feedback-r5-thin-deployment.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/DETAILS_INDEX.md",
+    "original_target": "../Karin_Nyako_Replace_Ada/Work/reports/r7-sleeve-bodyrope-thin-campaign.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/DETAILS_INDEX.md",
+    "original_target": "../Karin_Nyako_Replace_Ada/Work/reports/runtime-feedback-r8-thin.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/DETAILS_INDEX.md",
+    "original_target": "../Karin_Nyako_Replace_Ada/Work/reports/r9-flat-sole-tail-audit.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/DETAILS_INDEX.md",
+    "original_target": "../Karin_Nyako_Replace_Ada/Work/reports/runtime-feedback-r9-thin-accepted.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/DETAILS_INDEX.md",
+    "original_target": "../Karin_SSF_Replace_Krauser/AGENTS.md"
+  },
+  {
+    "document": "games/resident-evil-4-remake/DETAILS_INDEX.md",
+    "original_target": "../Karin_SSF_Replace_Krauser/SOP.md"
+  },
+  {
+    "document": "games/resident-evil-4-remake/DETAILS_INDEX.md",
+    "original_target": "../Karin_SSF_Replace_Krauser/Work/reports/krauser-r9-runtime-visual-rejection.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/DETAILS_INDEX.md",
+    "original_target": "../Karin_SSF_Replace_Krauser/Work/reports/krauser-r9-checkerboard-material-contract.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/DETAILS_INDEX.md",
+    "original_target": "../Karin_SSF_Replace_Krauser/Work/reports/krauser-r9-body-updater-consumption.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/DETAILS_INDEX.md",
+    "original_target": "../Karin_SSF_Replace_Krauser/Work/reports/krauser-r10-campaign-mesh-material-closure.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/DETAILS_INDEX.md",
+    "original_target": "../Karin_SSF_Replace_Krauser/Work/reports/krauser-r10-change-isolation.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/DETAILS_INDEX.md",
+    "original_target": "../Karin_SSF_Replace_Krauser/Work/reports/krauser-r10-chapter14-runtime-rejection.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/DETAILS_INDEX.md",
+    "original_target": "../Karin_SSF_Replace_Krauser/Work/reports/krauser-r11-figure-material-closure.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/DETAILS_INDEX.md",
+    "original_target": "../Karin_SSF_Replace_Krauser/Work/reports/krauser-r11-change-isolation.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/DETAILS_INDEX.md",
+    "original_target": "../Karin_SSF_Replace_Krauser/Work/reports/krauser-r11-runtime-acceptance.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/DETAILS_INDEX.md",
+    "original_target": "../Karin_Umbrella_Replace_Leon/AGENTS.md"
+  },
+  {
+    "document": "games/resident-evil-4-remake/DETAILS_INDEX.md",
+    "original_target": "../Karin_Umbrella_Replace_Leon/SOP.md"
+  },
+  {
+    "document": "games/resident-evil-4-remake/DETAILS_INDEX.md",
+    "original_target": "../Karin_Umbrella_Replace_Leon/Work/reports/v1-runtime-rejection-20260806.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/DETAILS_INDEX.md",
+    "original_target": "../Karin_Umbrella_Replace_Leon/Work/reports/v2-runtime-rejection-20260806.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/DETAILS_INDEX.md",
+    "original_target": "../Karin_Umbrella_Replace_Leon/Work/reports/chain-frame-audit-v4-runtime-rejected.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/DETAILS_INDEX.md",
+    "original_target": "../Karin_Umbrella_Replace_Leon/Work/reports/v5-runtime-deformation-audit-20260807.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/DETAILS_INDEX.md",
+    "original_target": "../Karin_Umbrella_Replace_Leon/Work/reports/v6-hair-root-cause-20260807.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/DETAILS_INDEX.md",
+    "original_target": "../Karin_Umbrella_Replace_Leon/Work/reports/deformation-contract-v7-hair.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/DETAILS_INDEX.md",
+    "original_target": "../Karin_Umbrella_Replace_Leon/Work/reports/stage-diff-v6-to-v7-hair.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/DETAILS_INDEX.md",
+    "original_target": "../Karin_Umbrella_Replace_Leon/Work/reports/v7-runtime-acceptance-20260807.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/EVIDENCE_AND_AUTHORITY.md",
+    "original_target": "../Karin_SSF_Replace_Krauser/Scripts/record_krauser_r11_runtime_acceptance.py"
+  },
+  {
+    "document": "games/resident-evil-4-remake/EVIDENCE_AND_AUTHORITY.md",
+    "original_target": "../Karin_SSF_Replace_Krauser/Work/reports/krauser-r11-runtime-acceptance.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/EVIDENCE_AND_AUTHORITY.md",
+    "original_target": "../Karin_SSF_Replace_Krauser/SOP.md"
+  },
+  {
+    "document": "games/resident-evil-4-remake/TECHNICAL_CONTRACTS.md",
+    "original_target": "../Karin_SSF_Replace_Krauser/Work/reports/krauser-r10-chapter14-runtime-rejection.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/TECHNICAL_CONTRACTS.md",
+    "original_target": "../Karin_SSF_Replace_Krauser/Work/reports/krauser-r11-figure-material-closure.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/TECHNICAL_CONTRACTS.md",
+    "original_target": "../Karin_SSF_Replace_Krauser/SOP.md"
+  },
+  {
+    "document": "games/resident-evil-4-remake/TECHNICAL_CONTRACTS.md",
+    "original_target": "../Karin_Umbrella_Replace_Leon/SOP.md#0v-2026-08-15-可选-ashley---leon-语音附加包"
+  },
+  {
+    "document": "games/resident-evil-4-remake/TECHNICAL_CONTRACTS.md",
+    "original_target": "../Karin_Umbrella_Replace_Leon/Work/reports/ashley-voice-addon-v1.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/TROUBLESHOOTING.md",
+    "original_target": "../Karin_SSF_Replace_Krauser/Work/reports/krauser-r10-chapter14-runtime-rejection.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/TROUBLESHOOTING.md",
+    "original_target": "../Karin_SSF_Replace_Krauser/Work/reports/krauser-r11-figure-material-closure.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/TROUBLESHOOTING.md",
+    "original_target": "../Karin_SSF_Replace_Krauser/Work/reports/krauser-r11-runtime-acceptance.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/TROUBLESHOOTING.md",
+    "original_target": "../Karin_SSF_Replace_Krauser/SOP.md"
+  },
+  {
+    "document": "games/resident-evil-4-remake/TROUBLESHOOTING.md",
+    "original_target": "../KarinCloth04ReplaceMerchant/Work/reports/MERCHANT_R2_MESH_BIND_SPACE_FORENSICS.md"
+  },
+  {
+    "document": "games/resident-evil-4-remake/VALIDATION_AND_RELEASE.md",
+    "original_target": "../Karin_SSF_Replace_Krauser/Work/reports/krauser-r10-chapter14-runtime-rejection.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/VALIDATION_AND_RELEASE.md",
+    "original_target": "../Karin_SSF_Replace_Krauser/Work/reports/krauser-r11-runtime-acceptance.json"
+  },
+  {
+    "document": "games/resident-evil-4-remake/VALIDATION_AND_RELEASE.md",
+    "original_target": "../Karin_SSF_Replace_Krauser/Scripts/record_krauser_r11_runtime_acceptance.py"
+  },
+  {
+    "document": "games/resident-evil-4-remake/VALIDATION_AND_RELEASE.md",
+    "original_target": "../Karin_SSF_Replace_Krauser/Work/reports/krauser-r11-runtime-acceptance.json"
+  }
+]

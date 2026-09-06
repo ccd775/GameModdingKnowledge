@@ -1,0 +1,2 @@
+markdown-it-py==4.0.0
+lz4==4.4.5

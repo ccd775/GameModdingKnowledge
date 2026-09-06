@@ -1,0 +1,9 @@
+{
+  "$schema": "modding-source-lock/v1",
+  "game": "",
+  "build": "",
+  "inputs": [],
+  "tools": [],
+  "references": [],
+  "notes": "Record path aliases, size, SHA-256, provenance and read-only status. Do not publish private payloads."
+}

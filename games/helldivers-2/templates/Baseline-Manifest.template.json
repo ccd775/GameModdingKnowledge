@@ -1,0 +1,122 @@
+{
+  "$schema": "hd2-modding-baseline-manifest/v2",
+  "project": "REPLACE_ME",
+  "created_at": "REPLACE_WITH_ISO_8601",
+  "authorization": {
+    "modify_user_source_copy": false,
+    "deploy_to_game_data": false,
+    "launch_steam": false,
+    "launch_game": false
+  },
+  "environment": {
+    "game": {
+      "version": "",
+      "executable_path": "",
+      "sha256": ""
+    },
+    "blender": {
+      "version": "",
+      "build_hash": "",
+      "path": "",
+      "sha256": ""
+    },
+    "aq_modified": {
+      "version": "",
+      "commit": "",
+      "path": ""
+    },
+    "hd2sdk_ce": {
+      "version": "",
+      "commit": "",
+      "path": ""
+    },
+    "filediver": {
+      "version": "",
+      "path": "",
+      "sha256": ""
+    },
+    "texconv": {
+      "version": "",
+      "path": "",
+      "sha256": ""
+    }
+  },
+  "immutable_inputs": [
+    {
+      "role": "source_model",
+      "path": "",
+      "bytes": 0,
+      "sha256": ""
+    },
+    {
+      "role": "reference_mod",
+      "path": "",
+      "bytes": 0,
+      "sha256": ""
+    },
+    {
+      "role": "donor_triplet_patch",
+      "path": "",
+      "bytes": 0,
+      "sha256": ""
+    }
+  ],
+  "target_resources": [
+    {
+      "equipment_role": "",
+      "body_type": "shared|slim|stocky",
+      "target_file_id": "0x0000000000000000",
+      "complete_carrier_file_id": "0x0000000000000000",
+      "archive_id": "0000000000000000",
+      "compile_policy": "target_native_profile|compile_once_clone_complete_unit",
+      "visibility_role": "visible|suppression",
+      "evidence": ""
+    }
+  ],
+  "carrier_contracts": [
+    {
+      "logical_role": "",
+      "carrier_file_id": "0x0000000000000000",
+      "carrier_triplet_sha256": [],
+      "expected_compile_count": 1,
+      "clone_target_file_ids": [],
+      "lock_transform_info": true,
+      "lock_core_bone_bind": true
+    }
+  ],
+  "deformation_interfaces": {
+    "shoulder_semantic_cardinality": "one_to_one|many_to_one|profile_specific",
+    "shoulder_source_groups": [],
+    "shoulder_target_semantics": [],
+    "shoulder_frame_policy": "",
+    "declared_seam_topology": "closed_loop|open|multi_component",
+    "ownership_graph": [],
+    "forbidden_direct_bypasses": [],
+    "natural_projection_audit_before_edits": true,
+    "post_partition_seam_edits": [],
+    "targeted_pose_moving_bones": [],
+    "targeted_pose_excluded_bones": []
+  },
+  "private_namespace": {
+    "string": "mods/author/character/slot/version",
+    "reuse_policy": "new_namespace|exact_lineage_replacement",
+    "materials": [],
+    "texture_maps": [],
+    "allowed_external_parents": []
+  },
+  "texture_budget": {
+    "accounting": "sum of base-level width * height for each distinct packaged private TextureMap FileID",
+    "total_pixel_limit": 16777216,
+    "semantic_subtotals_required": true
+  },
+  "deployment_contract": {
+    "mode": "new_slot|exact_lineage_replacement",
+    "replaced_live_triplet_sha256": [],
+    "old_and_new_may_coexist": false
+  },
+  "thresholds": {
+    "max_influences": 4,
+    "weight_sum_error": 0.0001,
+    "pose_thresholds_are_project_calibrated": false
+  }
+}

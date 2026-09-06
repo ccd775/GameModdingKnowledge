@@ -1,0 +1,55 @@
+{
+  "schema": "game-modding-shared-knowledge/v1",
+  "language": "zh-CN",
+  "documentation_only": true,
+  "games": [
+    {
+      "id": "hitman-world-of-assassination",
+      "path": "games/hitman-world-of-assassination",
+      "status": "runtime-confirmed-scoped",
+      "milestone": "Karin Signature Suit 0.1.0",
+      "date": "2026-07-22",
+      "topics": ["SMF", "RPKG", "Dartmoor", "character replacement"],
+      "limits": ["long-hair secondary physics", "vaulting/ragdoll/cross-map LOD not fully tested"]
+    },
+    {
+      "id": "watch-dogs",
+      "path": "games/watch-dogs",
+      "status": "runtime-confirmed-scoped",
+      "milestone": "Karin default outfit replacer 1.3.0",
+      "date": "2026-08-05",
+      "topics": ["XBG", "XBT", "ZModeler", "FAT/DAT", "ModManager"],
+      "limits": ["minor residual finger deformation in some gun/pocket animations"]
+    },
+    {
+      "id": "assassins-creed-black-flag",
+      "path": "games/assassins-creed-black-flag",
+      "status": "runtime-confirmed-scoped",
+      "milestone": "Karin Playable 1.6.1 local mouth switch",
+      "date": "2026-09-06",
+      "topics": ["Forge v50", "BMS/LZ4", "outfit-local visibility", "shared-head recovery"],
+      "limits": ["1.6.1 acceptance confirmed by user on 2026-09-06; no new exhaustive scenario matrix implied"]
+    },
+    {
+      "id": "resident-evil-4-remake",
+      "path": "games/resident-evil-4-remake",
+      "status": "multi-case-runtime-confirmed",
+      "milestone": "build-sensitive character replacement contracts",
+      "topics": ["Mesh/MDF/TEX", "FBXSKEL", "Chain", "PFB/RSZ", "JCNS"]
+    },
+    {
+      "id": "left-4-dead-2",
+      "path": "games/left-4-dead-2",
+      "status": "mixed-static-and-runtime-evidence",
+      "milestone": "Source character replacement knowledge base",
+      "topics": ["SMD/QC/VTA", "StudioMDL", "VTF/VMT", "PHY", "VPK", "jigglebone"]
+    },
+    {
+      "id": "helldivers-2",
+      "path": "games/helldivers-2",
+      "status": "mixed-project-proven",
+      "milestone": "AQ/HD2SDK Unit and material contracts",
+      "topics": ["Unit triplets", "TransformInfo/BoneInfo", "UV0/UV1/UV2", "namespace", "Armor LUT"]
+    }
+  ]
+}

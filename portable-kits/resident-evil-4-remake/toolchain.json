@@ -1,0 +1,46 @@
+{
+  "game": "Resident Evil 4 Remake",
+  "status": "multi-case-runtime-confirmed",
+  "tools": [
+    {
+      "name": "Blender",
+      "version": "4.5.12 LTS",
+      "role": "source, retarget, shape, UV and preview",
+      "required": true
+    },
+    {
+      "name": "RE Mesh Editor",
+      "version": "0.66",
+      "role": "Mesh/FBXSKEL import/export and audit",
+      "required": true
+    },
+    {
+      "name": "RE Chain Editor",
+      "version": "14.0",
+      "role": "Chain topology and physics",
+      "required": false
+    },
+    {
+      "name": "RE Asset Library/REasy",
+      "version": "project-pinned",
+      "role": "PFB/RSZ/resource inspection",
+      "required": true
+    },
+    {
+      "name": "DirectXTex",
+      "version": "pinned",
+      "role": "texture encode/decode",
+      "required": false
+    }
+  ],
+  "entry_documents": [
+    "../../games/resident-evil-4-remake/TOOLCHAIN.md",
+    "../../games/resident-evil-4-remake/CHARACTER_REPLACEMENT_SOP.md"
+  ],
+  "runtime_boundary": "case results are build-sensitive; read current project SOP",
+  "bundled_scripts": [
+    "scripts/re4_pak_analyze.py"
+  ],
+  "python": "3.10+",
+  "dependency_install": "python -m pip install -r requirements.txt (from bundle root)"
+}

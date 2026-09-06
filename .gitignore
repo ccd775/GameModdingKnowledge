@@ -1,0 +1,20 @@
+# Documentation-only repository: keep generated/private artifacts out.
+*.blend
+*.fbx
+*.vrm
+*.pak
+*.vpk
+*.xbg
+*.forge
+*.zip
+*.exe
+*.dll
+*.png
+*.jpg
+*.jpeg
+__pycache__/
+.venv/
+out/
+dist/
+work/
+

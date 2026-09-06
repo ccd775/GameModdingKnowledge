@@ -1,0 +1,73 @@
+{
+  "example_only": true,
+  "note": "Synthetic IDs; supply the actual six-slot carrier and matching metas.",
+  "atlas_size": 2048,
+  "slots": [
+    {
+      "slot": 0,
+      "carrier_mati_hash": "0000000000001000",
+      "carrier_material_id": 1,
+      "carrier_dependency_index": 1,
+      "texture_hashes": {
+        "normal": "000000000000101A",
+        "specular": "000000000000102A",
+        "diffuse": "000000000000103A"
+      }
+    },
+    {
+      "slot": 1,
+      "carrier_mati_hash": "0000000000001100",
+      "carrier_material_id": 2,
+      "carrier_dependency_index": 2,
+      "texture_hashes": {
+        "normal": "000000000000111A",
+        "specular": "000000000000112A",
+        "diffuse": "000000000000113A"
+      }
+    },
+    {
+      "slot": 2,
+      "carrier_mati_hash": "0000000000001200",
+      "carrier_material_id": 3,
+      "carrier_dependency_index": 3,
+      "texture_hashes": {
+        "normal": "000000000000121A",
+        "specular": "000000000000122A",
+        "diffuse": "000000000000123A"
+      }
+    },
+    {
+      "slot": 3,
+      "carrier_mati_hash": "0000000000001300",
+      "carrier_material_id": 4,
+      "carrier_dependency_index": 4,
+      "texture_hashes": {
+        "normal": "000000000000131A",
+        "specular": "000000000000132A",
+        "diffuse": "000000000000133A"
+      }
+    },
+    {
+      "slot": 4,
+      "carrier_mati_hash": "0000000000001400",
+      "carrier_material_id": 5,
+      "carrier_dependency_index": 5,
+      "texture_hashes": {
+        "normal": "000000000000141A",
+        "specular": "000000000000142A",
+        "diffuse": "000000000000143A"
+      }
+    },
+    {
+      "slot": 5,
+      "carrier_mati_hash": "0000000000001500",
+      "carrier_material_id": 6,
+      "carrier_dependency_index": 6,
+      "texture_hashes": {
+        "normal": "000000000000151A",
+        "specular": "000000000000152A",
+        "diffuse": "000000000000153A"
+      }
+    }
+  ]
+}

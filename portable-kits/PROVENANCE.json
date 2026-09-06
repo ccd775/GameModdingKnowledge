@@ -1,0 +1,173 @@
+[
+  {
+    "path": "portable-kits/watch-dogs/scripts/xbt_tool.py",
+    "source": "Mods/WatchDogs/pipeline/xbt_tool.py",
+    "original_sha256": "12bf3a8cc4376c894602cb527b5ee2e77aeaded9aeb93188d9d3ef8ac48acee0",
+    "source_bytes": 6731,
+    "portable_sha256": "aec8f76961c2a541125e6f32e1f2c884d783c77d4bf9bd6494c5d36f7854efee",
+    "portable_bytes": 6939,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/watch-dogs/scripts/audit_xbt_templates.py",
+    "source": "Mods/WatchDogs/pipeline/audit_xbt_templates.py",
+    "original_sha256": "3f98af34e5ec3edd0c524cdcc0ab5947f744fb010a47ac5e1fb36649235addd6",
+    "source_bytes": 8080,
+    "portable_sha256": "3f98af34e5ec3edd0c524cdcc0ab5947f744fb010a47ac5e1fb36649235addd6",
+    "portable_bytes": 8080,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/watch-dogs/scripts/build_xbt_pair.py",
+    "source": "Mods/WatchDogs/pipeline/build_xbt_pair.py",
+    "original_sha256": "a901e5fccfbe55b620611045d0fe9100d0a941dff02b78a05c2a549ab88dc5ac",
+    "source_bytes": 14121,
+    "portable_sha256": "97c0da6b996637dd2c5fc7aacf7bb37ef2ad52a13dd5361ee94c37a56f0b36cc",
+    "portable_bytes": 14050,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/hitman-world-of-assassination/scripts/validate_prim_glb.py",
+    "source": "Mods/Hitman3/scripts/validate_prim_glb.py",
+    "original_sha256": "f5cbb0d757296eebcce0e4cdd53fe4ffa82727cb715b8f5c2783efe811bed96d",
+    "source_bytes": 46005,
+    "portable_sha256": "f5cbb0d757296eebcce0e4cdd53fe4ffa82727cb715b8f5c2783efe811bed96d",
+    "portable_bytes": 46005,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/hitman-world-of-assassination/scripts/compare_prim_roundtrip.py",
+    "source": "Mods/Hitman3/scripts/compare_prim_roundtrip.py",
+    "original_sha256": "31f0eb93b34beca6799de97d3c655cb0d749cd1eb227d40831b3e06506a4fb59",
+    "source_bytes": 10331,
+    "portable_sha256": "31f0eb93b34beca6799de97d3c655cb0d749cd1eb227d40831b3e06506a4fb59",
+    "portable_bytes": 10331,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/hitman-world-of-assassination/scripts/rebuild_text_resources.py",
+    "source": "Mods/Hitman3/scripts/rebuild_text_resources.py",
+    "original_sha256": "52660c55c9992c5cf6429f490160c0020fbd0e42b9bc346d391cb70e9497c4e4",
+    "source_bytes": 15163,
+    "portable_sha256": "2c1b47fe963b21773ebd1f00c6d5f273afed341881bfbc0bfd93a1f35fe5b770",
+    "portable_bytes": 15254,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/assassins-creed-black-flag/scripts/extract_forge_v50_bms.py",
+    "source": "Mods/ACS/scripts/extract_forge_v50_bms.py",
+    "original_sha256": "5f61f2f39ee0fd737da18de174993e2150fab8094bb64f90e86cb0fa7d1a7c1c",
+    "source_bytes": 37897,
+    "portable_sha256": "cc33b717233bccc1e5c01c20197be574eee4d6bca1034ad0fc96727c7ace3128",
+    "portable_bytes": 37042,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/assassins-creed-black-flag/scripts/rebuild_forge_v50_patch.py",
+    "source": "Mods/ACS/scripts/rebuild_forge_v50_patch.py",
+    "original_sha256": "545e93b2db9edf35e64716cc2b93e175d1973bc1b444a5de1efe3b7998df6471",
+    "source_bytes": 25645,
+    "portable_sha256": "25d0ee1bd1eb9969c6786822cf18687ddb9011961d13b0335a8a9c818e5b4126",
+    "portable_bytes": 25924,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/left-4-dead-2/scripts/extract_vpk_entries.py",
+    "source": "Mods/L4d2/Karin_PT_L4D2/src/scripts/extract_vpk_entries.py",
+    "original_sha256": "7fb054c39de443ccf01ffba53f19d89e245deff9adbb2aa96b1f2fa97744895d",
+    "source_bytes": 6496,
+    "portable_sha256": "7fb054c39de443ccf01ffba53f19d89e245deff9adbb2aa96b1f2fa97744895d",
+    "portable_bytes": 6496,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/left-4-dead-2/scripts/rescale_vta.py",
+    "source": "Mods/L4d2/Karin_PT_L4D2/src/scripts/rescale_vta.py",
+    "original_sha256": "fffef905b374c4896135e9a831c2582251d1dc1ab4b5f8e921a45d974da91592",
+    "source_bytes": 7213,
+    "portable_sha256": "b4a5b6c5a0c850e7d7014f2210e0cc3403417307d3ad43d9cb06c7307315abf8",
+    "portable_bytes": 7693,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/left-4-dead-2/scripts/run_studiomdl.py",
+    "source": "Mods/L4d2/Karin_PT_L4D2/src/scripts/run_studiomdl.py",
+    "original_sha256": "0932b6297389beaaf1153fe3ed27b0d7658d07afa1ef0815e002221c6d9286f2",
+    "source_bytes": 3728,
+    "portable_sha256": "9651e3d194c7012a717f2bcaa14b77be229c6b43d73d7dcf1512d0755d6f8b20",
+    "portable_bytes": 4344,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/left-4-dead-2/scripts/validate_vpk_tree.py",
+    "source": "Mods/L4d2/Karin_PT_L4D2/src/scripts/validate_vpk_tree.py",
+    "original_sha256": "aa014bc3e718d0691c0c43a45285cc5ca18f568755f7549722c766f489533b83",
+    "source_bytes": 5957,
+    "portable_sha256": "aa014bc3e718d0691c0c43a45285cc5ca18f568755f7549722c766f489533b83",
+    "portable_bytes": 5957,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/helldivers-2/scripts/stingray_archive.py",
+    "source": "Mods/HD2/RecoverArmorSplatLUT/hd2-armor-lut-splat-recovery/hd2-armor-lut-splat-recovery/scripts/stingray_archive.py",
+    "original_sha256": "e41cbb4828962c2c471df494e03e7287036b880e25e26c4dd96cc2b3e2dc213a",
+    "source_bytes": 8236,
+    "portable_sha256": "e41cbb4828962c2c471df494e03e7287036b880e25e26c4dd96cc2b3e2dc213a",
+    "portable_bytes": 8236,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/helldivers-2/scripts/inspect_patch.py",
+    "source": "Mods/HD2/RecoverArmorSplatLUT/hd2-armor-lut-splat-recovery/hd2-armor-lut-splat-recovery/scripts/inspect_patch.py",
+    "original_sha256": "103e88018b9be4de5cc8ab9f42e7fabd29a32f2139ebba33646ba474cb6a8ce0",
+    "source_bytes": 3317,
+    "portable_sha256": "103e88018b9be4de5cc8ab9f42e7fabd29a32f2139ebba33646ba474cb6a8ce0",
+    "portable_bytes": 3317,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/helldivers-2/scripts/collapse_lut_rows.py",
+    "source": "Mods/HD2/RecoverArmorSplatLUT/hd2-armor-lut-splat-recovery/hd2-armor-lut-splat-recovery/scripts/collapse_lut_rows.py",
+    "original_sha256": "646dd85672ed13c873831ed9a0c8da64d5d50ae1dd36adcddbad4734e37c15ff",
+    "source_bytes": 6849,
+    "portable_sha256": "646dd85672ed13c873831ed9a0c8da64d5d50ae1dd36adcddbad4734e37c15ff",
+    "portable_bytes": 6849,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/helldivers-2/scripts/inject_runtime_lut.py",
+    "source": "Mods/HD2/RecoverArmorSplatLUT/hd2-armor-lut-splat-recovery/hd2-armor-lut-splat-recovery/scripts/inject_runtime_lut.py",
+    "original_sha256": "ab360a244a1e7683344b550283d24e994288b926427a088a19f84b2384e8b015",
+    "source_bytes": 20057,
+    "portable_sha256": "ab360a244a1e7683344b550283d24e994288b926427a088a19f84b2384e8b015",
+    "portable_bytes": 20057,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/helldivers-2/scripts/copy_unit_uv_channels.py",
+    "source": "Mods/HD2/RecoverArmorSplatLUT/hd2-armor-lut-splat-recovery/hd2-armor-lut-splat-recovery/scripts/copy_unit_uv_channels.py",
+    "original_sha256": "18bba5bb97d1525a2e5f6fc10bbd16f520884465589cc571dc3d89d7e17efbcb",
+    "source_bytes": 19626,
+    "portable_sha256": "18bba5bb97d1525a2e5f6fc10bbd16f520884465589cc571dc3d89d7e17efbcb",
+    "portable_bytes": 19626,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/resident-evil-4-remake/scripts/re4_pak_analyze.py",
+    "source": "Mods/RE4/SwapFix/Tools/re4_pak_analyze.py",
+    "original_sha256": "1fd2d65b084152e31135122d2aa755f6e978d13f077a39ce27221576a1d2f60e",
+    "source_bytes": 7523,
+    "portable_sha256": "e4884e1efb947e77b2276328056f11993e957ce27c952d29caac35db554617cc",
+    "portable_bytes": 8100,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/common/scripts/audit_blend_source.py",
+    "source": "Mods/L4d2/Karin_PT_L4D2/src/scripts/audit_blend_source.py",
+    "original_sha256": "f5286f22e3c5a75866ba84bd47c2aa5a3f90f6289a05e4fcfda9c3b6f117f7a5",
+    "source_bytes": 16887,
+    "portable_sha256": "f5286f22e3c5a75866ba84bd47c2aa5a3f90f6289a05e4fcfda9c3b6f117f7a5",
+    "portable_bytes": 16887,
+    "modified_for_portability": false
+  }
+]

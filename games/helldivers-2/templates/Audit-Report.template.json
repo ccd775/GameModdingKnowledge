@@ -1,0 +1,41 @@
+{
+  "$schema": "hd2-modding-audit-report/v1",
+  "project": "REPLACE_ME",
+  "stage": "REPLACE_ME",
+  "revision": 1,
+  "created_at": "REPLACE_WITH_ISO_8601",
+  "accepted": false,
+  "status": "diagnostic",
+  "evidence_level": "authoring|compiled_and_offline_verified|packaged_and_offline_verified|runtime_validated",
+  "automated_runtime_testing_performed": false,
+  "scope": {
+    "purpose": "",
+    "allowed_changes": [],
+    "frozen_domains": []
+  },
+  "tools": [
+    {
+      "name": "",
+      "version": "",
+      "path": "",
+      "sha256": ""
+    }
+  ],
+  "inputs_before": [
+    {
+      "role": "",
+      "path": "",
+      "bytes": 0,
+      "sha256": ""
+    }
+  ],
+  "outputs": [],
+  "checks": {
+    "replace_with_boolean_hard_gate": false
+  },
+  "metrics": {},
+  "known_limits": [],
+  "evidence": [],
+  "inputs_after": [],
+  "notes": "accepted must equal all required hard gates; never edit a failed report in place"
+}

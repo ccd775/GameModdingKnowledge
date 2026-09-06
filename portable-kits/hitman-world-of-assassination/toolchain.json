@@ -1,0 +1,41 @@
+{
+  "game": "Hitman World of Assassination",
+  "status": "runtime-confirmed-scoped",
+  "tools": [
+    {
+      "name": "RPKG Tool",
+      "version": "2.34.0",
+      "role": "RPKG/PRIM/TEXT/TEXD extraction and rebuild",
+      "required": true
+    },
+    {
+      "name": "Simple Mod Framework",
+      "version": "2.33.40",
+      "role": "manifest, packagedefinition patching, deployment and rollback",
+      "required": true
+    },
+    {
+      "name": "GlacierKit",
+      "version": "1.12.15",
+      "role": "resource/path/hash inspection",
+      "required": true
+    },
+    {
+      "name": "Blender",
+      "version": "4.2.23 LTS",
+      "role": "source and retarget authoring",
+      "required": true
+    }
+  ],
+  "entry_documents": [
+    "../../games/hitman-world-of-assassination/TOOLCHAIN.md"
+  ],
+  "runtime_boundary": "Dartmoor 0.1.0 scoped acceptance; extended matrix remains open",
+  "bundled_scripts": [
+    "scripts/compare_prim_roundtrip.py",
+    "scripts/rebuild_text_resources.py",
+    "scripts/validate_prim_glb.py"
+  ],
+  "python": "3.10+",
+  "dependency_install": "python -m pip install -r requirements.txt (from bundle root)"
+}
