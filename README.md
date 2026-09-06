@@ -1,3 +1,4 @@
+如果你觉得内容有帮助，可以前往https://ifdian.net/a/ccd775 赞助我以获得贴贴！
 # Game Modding Shared Knowledge
 
 供人和 agent 接续长线 Mod 项目的知识库与便携工具包。它包含实际项目的方法、成功与失败记录、19 个迁移脚本和公共运行工具；不需要注册 Skill。
