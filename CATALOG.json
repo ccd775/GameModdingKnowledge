@@ -14,6 +14,16 @@
       "portable_kit": "portable-kits/mortal-kombat-1"
     },
     {
+      "id": "onimusha-way-of-the-sword",
+      "path": "games/onimusha-way-of-the-sword",
+      "status": "runtime-confirmed-scoped",
+      "milestone": "Karin PicodraTech 替换宫本武藏 v1.11.0；几何与次级物理均有实机确认",
+      "date": "2026-09-13",
+      "game_build": "24769601",
+      "topics": ["RE Engine", "mesh/gpuc 版本号反推", "MDF51 104-byte 头", "hybrid rest 闭包", "chain2 v17", "angleLimitDir 父骨系", "散装文件加载"],
+      "limits": ["PAK 路线在本 build 不可用，仅散装文件", "腿部绑带与嵌套链未实装", "大衣/耳机线穿模未实机检查", "手指与鞋底修复已发行但未单独签收"]
+    },
+    {
       "id": "hitman-world-of-assassination",
       "path": "games/hitman-world-of-assassination",
       "status": "runtime-confirmed-scoped",
