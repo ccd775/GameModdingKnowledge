@@ -1,7 +1,7 @@
 如果你觉得内容有帮助，可以前往https://ifdian.net/a/ccd775 赞助我以获得贴贴！
 # Game Modding Shared Knowledge
 
-供人和 agent 接续长线 Mod 项目的知识库与便携工具包。它包含实际项目的方法、成功与失败记录、19 个迁移脚本和公共运行工具；不需要注册 Skill。
+供人和 agent 接续长线 Mod 项目的知识库与便携工具包。它包含七款游戏的实际项目方法、成功与失败记录、19 个原项目迁移脚本、MK1 参数化工具和公共运行工具；不需要注册 Skill。
 
 ## 从这里开始
 
@@ -12,6 +12,7 @@
 
 | 游戏 | 知识入口 | 已验证历史范围 |
 | --- | --- | --- |
+| 真人快打1 | [MK1](games/mortal-kombat-1/README.md) | 多角色可见效果验收、骨架/骨盆/材质与 IoStore 排障；T1000 v8 材质复发仍在调查，未宣称全动作通过 |
 | 杀手暗杀世界 | [Hitman WOA](games/hitman-world-of-assassination/README.md) | Signature Suit 0.1.0 在 Dartmoor 的基础动作 |
 | 看门狗 | [Watch Dogs](games/watch-dogs/README.md) | 默认服装 v1.3.0；保留少数手指变形限制 |
 | 刺客信条黑旗记忆重置 | [Black Flag Resynced](games/assassins-creed-black-flag/README.md) | 角色替换及最终 1.6.1 修复，用户于 9 月 6 日确认 |
@@ -28,9 +29,15 @@ python -B tools/check_repository.py
 python -B tools/export_kit.py --all --output ../Modding-Portable-Exports --zip
 ```
 
-输出六份不依赖父仓库的目录，以及对应 ZIP/文件哈希清单。每份包含该游戏文档、脚本、公共层和安装依赖说明。[验证记录](portable-kits/VALIDATION.md) 明确哪些进行了组件测试，哪些还需要专用工具和游戏实测。
+输出七份不依赖父仓库的目录，以及对应 ZIP/文件哈希清单。每份包含该游戏文档、脚本、公共层和安装依赖说明。[验证记录](portable-kits/VALIDATION.md) 明确哪些进行了组件测试，哪些还需要专用工具和游戏实测。
 
 ## 下载便携包
+
+MK1 已加入源码与导出器；现有 v0.1.0 Release 仍为原六游戏包。本次未改动该 Release。需要 MK1 独立包时运行：
+
+```powershell
+python -B tools/export_kit.py --game mortal-kombat-1 --output ../MK1-Portable --zip
+```
 
 [v0.1.0 Release](https://github.com/ccd775/GameModdingKnowledge/releases/tag/v0.1.0) 提供六款游戏的独立目录 ZIP，以及对应的文件 SHA-256 清单。下载后解压整个包，从包内 README.md 开始。
 

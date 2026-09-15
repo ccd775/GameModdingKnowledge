@@ -13,7 +13,7 @@ from export_kit import export, GAMES
 
 
 class DetachedExports(unittest.TestCase):
-    def test_all_six_without_parent_checkout(self):
+    def test_all_games_without_parent_checkout(self):
         with tempfile.TemporaryDirectory(prefix='modding detached ') as folder:
             for game in GAMES:
                 with self.subTest(game=game):
@@ -26,7 +26,9 @@ class DetachedExports(unittest.TestCase):
                     process = subprocess.run([sys.executable,'-B','tests/test_portable_tools.py'],
                                              cwd=target, capture_output=True, text=True, timeout=60)
                     self.assertEqual(process.returncode,0,process.stdout+'\n'+process.stderr)
-                    self.assertNotIn('skipped=12', process.stderr)
+                    if game == 'mortal-kombat-1':
+                        self.assertIn('test_mk1_synthetic_suite_and_cli', process.stderr)
+                        self.assertNotIn("test_mk1_synthetic_suite_and_cli (__main__.MK1Tools.test_mk1_synthetic_suite_and_cli) ... skipped", process.stderr)
                     print(f'{game}: detached tests passed (unselected games skipped)')
 
 

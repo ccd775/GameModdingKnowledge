@@ -169,5 +169,104 @@
     "portable_sha256": "f5286f22e3c5a75866ba84bd47c2aa5a3f90f6289a05e4fcfda9c3b6f117f7a5",
     "portable_bytes": 16887,
     "modified_for_portability": false
+  },
+  {
+    "path": "games/mortal-kombat-1/scripts/atlas_quadrants.py",
+    "source": "SharedKnowledge/games/mortal-kombat-1/scripts/atlas_quadrants.py",
+    "original_sha256": "0df6b6a22b0e4bb943e633796248343a2c63a9090e4938186d71fc8d597941ab",
+    "source_bytes": 2270,
+    "portable_sha256": "0df6b6a22b0e4bb943e633796248343a2c63a9090e4938186d71fc8d597941ab",
+    "portable_bytes": 2270,
+    "modified_for_portability": false
+  },
+  {
+    "path": "games/mortal-kombat-1/scripts/deploy_trio.ps1",
+    "source": "SharedKnowledge/games/mortal-kombat-1/scripts/deploy_trio.ps1",
+    "original_sha256": "11dd24d43f63b2fa1b0bdc125e19062038e51c46d44c38385523f6fd91e0ae64",
+    "source_bytes": 4018,
+    "portable_sha256": "11dd24d43f63b2fa1b0bdc125e19062038e51c46d44c38385523f6fd91e0ae64",
+    "portable_bytes": 4018,
+    "modified_for_portability": false
+  },
+  {
+    "path": "games/mortal-kombat-1/scripts/mk1_checks.py",
+    "source": "SharedKnowledge/games/mortal-kombat-1/scripts/mk1_checks.py",
+    "original_sha256": "b0c59668d02a7fc05445a026028c77bdbbfb35da02e1ef323eac64dfee87ba65",
+    "source_bytes": 4734,
+    "portable_sha256": "b0c59668d02a7fc05445a026028c77bdbbfb35da02e1ef323eac64dfee87ba65",
+    "portable_bytes": 4734,
+    "modified_for_portability": false
+  },
+  {
+    "path": "games/mortal-kombat-1/scripts/neck_fit.py",
+    "source": "SharedKnowledge/games/mortal-kombat-1/scripts/neck_fit.py",
+    "original_sha256": "6c48058fc7946f6af8635b08e76471fde29a70f8900a225e2e26950268b6111e",
+    "source_bytes": 1282,
+    "portable_sha256": "6c48058fc7946f6af8635b08e76471fde29a70f8900a225e2e26950268b6111e",
+    "portable_bytes": 1282,
+    "modified_for_portability": false
+  },
+  {
+    "path": "games/mortal-kombat-1/scripts/psk_index_plan.py",
+    "source": "SharedKnowledge/games/mortal-kombat-1/scripts/psk_index_plan.py",
+    "original_sha256": "1829d8aad76d5f32cb7431333dce32c741a174e41e8398635e71160d16457680",
+    "source_bytes": 4989,
+    "portable_sha256": "1829d8aad76d5f32cb7431333dce32c741a174e41e8398635e71160d16457680",
+    "portable_bytes": 4989,
+    "modified_for_portability": false
+  },
+  {
+    "path": "games/mortal-kombat-1/scripts/retarget_math.py",
+    "source": "SharedKnowledge/games/mortal-kombat-1/scripts/retarget_math.py",
+    "original_sha256": "3bbb3d3792af3ef044f92687b98ed47271f2e6fe8ab35e65c89697324ff70d58",
+    "source_bytes": 5730,
+    "portable_sha256": "3bbb3d3792af3ef044f92687b98ed47271f2e6fe8ab35e65c89697324ff70d58",
+    "portable_bytes": 5730,
+    "modified_for_portability": false
+  },
+  {
+    "path": "games/mortal-kombat-1/scripts/test_deploy.ps1",
+    "source": "SharedKnowledge/games/mortal-kombat-1/scripts/test_deploy.ps1",
+    "original_sha256": "74fa3b742c065fb0797b1c1b34ff61fcd17e1aac823d8ebe344d454e294a1382",
+    "source_bytes": 2261,
+    "portable_sha256": "74fa3b742c065fb0797b1c1b34ff61fcd17e1aac823d8ebe344d454e294a1382",
+    "portable_bytes": 2261,
+    "modified_for_portability": false
+  },
+  {
+    "path": "games/mortal-kombat-1/scripts/test_neck_fit.py",
+    "source": "SharedKnowledge/games/mortal-kombat-1/scripts/test_neck_fit.py",
+    "original_sha256": "76fd76c83df1e111f3d75913a403cdfa68f2010bcc91f5f2c41f0636f951b007",
+    "source_bytes": 2038,
+    "portable_sha256": "76fd76c83df1e111f3d75913a403cdfa68f2010bcc91f5f2c41f0636f951b007",
+    "portable_bytes": 2038,
+    "modified_for_portability": false
+  },
+  {
+    "path": "games/mortal-kombat-1/scripts/test_psk_index_plan.py",
+    "source": "SharedKnowledge/games/mortal-kombat-1/scripts/test_psk_index_plan.py",
+    "original_sha256": "e2462b3b3752296fbf9dce1ffa4b6ff12c353127748a7a8706d7e206c4d44a23",
+    "source_bytes": 3222,
+    "portable_sha256": "e2462b3b3752296fbf9dce1ffa4b6ff12c353127748a7a8706d7e206c4d44a23",
+    "portable_bytes": 3222,
+    "modified_for_portability": false
+  },
+  {
+    "path": "games/mortal-kombat-1/scripts/test_retarget_math.py",
+    "source": "SharedKnowledge/games/mortal-kombat-1/scripts/test_retarget_math.py",
+    "original_sha256": "ca512907e870e2ea0b43512b356a9071eb524f24c9bec02f52922cc9c703b077",
+    "source_bytes": 2887,
+    "portable_sha256": "ca512907e870e2ea0b43512b356a9071eb524f24c9bec02f52922cc9c703b077",
+    "portable_bytes": 2887,
+    "modified_for_portability": false
+  },
+  {
+    "path": "games/mortal-kombat-1/scripts/test_tools.py",
+    "source": "SharedKnowledge/games/mortal-kombat-1/scripts/test_tools.py",
+    "original_sha256": "1ed61c545f01631b8b72a138809a193585458fd2dccca935ac715e2942f687fd",
+    "source_bytes": 2493,
+    "portable_sha256": "1ed61c545f01631b8b72a138809a193585458fd2dccca935ac715e2942f687fd",
+    "portable_bytes": 2493,
+    "modified_for_portability": false
   }
 ]

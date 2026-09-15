@@ -1,6 +1,6 @@
 # Core Workflow
 
-The six game workflows use different formats, but the same engineering loop.
+The game workflows use different formats, but the same engineering loop.
 
 | Gate | Required output | Typical failure caught |
 | --- | --- | --- |
@@ -33,4 +33,3 @@ The six game workflows use different formats, but the same engineering loop.
 - Validate the final serialized data, not only the authoring scene or compiler
   exit code.
 - Preserve negative controls and rejected hypotheses as first-class evidence.
-

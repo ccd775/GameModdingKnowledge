@@ -1,0 +1,23 @@
+{
+  "game": "Mortal Kombat 1",
+  "status": "synthetic-tools-and-scoped-runtime-case-evidence",
+  "tools": [
+    {"name": "Blender", "version": "case-pinned 4.5.12 LTS", "role": "source geometry, rig and FBX checks", "required": true},
+    {"name": "MK1 custom UE4.27", "version": "4.27-MK1-release", "role": "target-specific import and Cook", "required": true},
+    {"name": "retoc", "version": "case-pinned 0.1.5", "role": "IoStore extraction and packing", "required": true},
+    {"name": "ACL UModel", "version": "case-pinned 2.1", "role": "independent mesh and texture readback", "required": true},
+    {"name": "PowerShell", "version": "Windows 5.1 or 7", "role": "trio preflight and deployment", "required": false}
+  ],
+  "entry_documents": ["README.md", "../../games/mortal-kombat-1/PLAYBOOK.md", "../../games/mortal-kombat-1/STATUS.md", "../../games/mortal-kombat-1/scripts/README.md"],
+  "bundled_scripts": [
+    "../../games/mortal-kombat-1/scripts/mk1_checks.py",
+    "../../games/mortal-kombat-1/scripts/atlas_quadrants.py",
+    "../../games/mortal-kombat-1/scripts/psk_index_plan.py",
+    "../../games/mortal-kombat-1/scripts/retarget_math.py",
+    "../../games/mortal-kombat-1/scripts/neck_fit.py",
+    "../../games/mortal-kombat-1/scripts/deploy_trio.ps1"
+  ],
+  "python": "3.10+",
+  "dependency_install": "python -m pip install -r requirements.txt (from bundle root)",
+  "runtime_boundary": "Local case observations only; T1000 material recurrence remains unresolved. No universal skeleton mapper, native package writer or full-animation guarantee."
+}

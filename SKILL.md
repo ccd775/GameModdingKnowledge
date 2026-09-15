@@ -1,6 +1,6 @@
 ---
 name: game-modding-shared-knowledge
-description: Use this skill when creating, repairing, auditing, packaging, or validating a game character or resource Mod for the six supported games in this repository.
+description: Use this skill when creating, repairing, auditing, packaging, or validating a game character or resource Mod for the seven supported games in this repository.
 metadata:
   short-description: Reproducible game Modding workflows and evidence contracts
 ---
@@ -28,6 +28,8 @@ Copy [`templates/PROJECT_STATE.md`](templates/PROJECT_STATE.md) and
 before authoring. Never use this root document as a live candidate state file.
 
 ## Routing
+
+- Mortal Kombat 1 -> `games/mortal-kombat-1/`
 
 - Hitman: World of Assassination -> `games/hitman-world-of-assassination/`
 - Watch Dogs -> `games/watch-dogs/`

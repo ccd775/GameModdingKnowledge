@@ -4,6 +4,7 @@
 
 | 游戏 | 实际附带脚本 | 命令与边界 |
 | --- | --- | --- |
+| MK1 | 图集拼合、hash/差异检查、PSK索引计划、比例/骨盆/颈部算子、三件套预检部署 | [使用](mortal-kombat-1/README.md) |
 | 杀手 WOA | PRIM/GLB 校验、roundtrip 比较、六槽 TEXT/TEXD 重建 | [使用](hitman-world-of-assassination/README.md) |
 | 看门狗 | XBT/DDS 提取、注入、配对审计、PNG 转 XBT pair | [使用](watch-dogs/README.md) |
 | 黑旗记忆重置 | Forge v50 BMS 提取、LZ4 重建、显式资源替换 | [使用](assassins-creed-black-flag/README.md) |

@@ -1,0 +1,46 @@
+{
+  "schema": "mk1-character-project/v1",
+  "project_id": "replace-me",
+  "source_model": "Source/model.blend",
+  "source_sha256": "MEASURE_BEFORE_WORK",
+  "game_build": "MEASURE_CURRENT_BUILD",
+  "target_character": "REPLACE_ME",
+  "skin": "001",
+  "palette": "default",
+  "native": {
+    "body_asset": "/Game/Disk/Char/REPLACE_ME/Skin/001/Mesh/REPLACE_ME",
+    "body_chunk_id": "EXTRACT_DO_NOT_GUESS",
+    "body_sha256": "MEASURE",
+    "skeleton_asset": "EXTRACT",
+    "bone_count": null,
+    "material_asset": "VERIFY_IN_GAME",
+    "raw_refpose_offset": null,
+    "hair_meshes": [],
+    "gore_resources": []
+  },
+  "retarget_checks": {
+    "scope": "MEASURE_FOR_NEW_BINDING_OR_REFERENCE_ACCEPTED_BASELINE_FOR_LOCAL_PATCH",
+    "coordinate_frame_and_units": "MEASURE",
+    "common_body_scale": null,
+    "explicit_head_scale": null,
+    "actual_segment_matrices_report": null,
+    "pelvis_midpoints_and_hips_gap_report": null,
+    "skin_clothing_shared_field_report": null,
+    "foot_side_and_sole_report": null,
+    "independent_appendage_exclusions": [],
+    "raw_bone_order_parent_transform_report": null,
+    "atlas_rectangles_and_readback_report": null,
+    "allowed_changed_packages": [],
+    "protected_baseline_hashes": {},
+    "container_id_uniqueness_report": null
+  },
+  "delivery": {
+    "source_prefix": "a_replace_me_P",
+    "installed_prefix": "a_replace_me_P",
+    "active_candidate": null,
+    "pak_sha256": null,
+    "ucas_sha256": null,
+    "utoc_sha256": null
+  },
+  "runtime": {"status": "untested", "observations": [], "known_limits": []}
+}

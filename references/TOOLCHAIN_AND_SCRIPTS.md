@@ -1,9 +1,10 @@
 # 工具链与脚本路线
 
-实际提供的脚本以 [便携包](../portable-kits/README.md) 的命令为准。[PROVENANCE.json](../portable-kits/PROVENANCE.json) 记录 19 个迁移文件的原始与便携版 SHA-256，包含修改标记。
+实际提供的脚本以 [便携包](../portable-kits/README.md) 的命令为准。[PROVENANCE.json](../portable-kits/PROVENANCE.json) 记录原项目迁移文件及 MK1 参数化工具的原始与公开版 SHA-256，包含修改标记。
 
 | 游戏 | 工具职责与参数 |
 | --- | --- |
+| Mortal Kombat 1 | [便携命令](../portable-kits/mortal-kombat-1/README.md) |
 | Hitman WOA | [便携命令](../portable-kits/hitman-world-of-assassination/README.md) |
 | Watch Dogs | [便携命令](../portable-kits/watch-dogs/README.md) |
 | Black Flag Resynced | [便携命令](../portable-kits/assassins-creed-black-flag/README.md) |

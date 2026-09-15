@@ -4,6 +4,16 @@
   "documentation_only": true,
   "games": [
     {
+      "id": "mortal-kombat-1",
+      "path": "games/mortal-kombat-1",
+      "status": "mixed-runtime-confirmed-and-open-issues",
+      "game_build": "17941244",
+      "milestone": "Scoped multi-character appearance acceptance; T1000 v8 material recurrence unresolved",
+      "topics": ["native skeleton", "common pelvis field", "material consumers", "IoStore package stores and redirects", "scoped visibility patches"],
+      "limits": ["not all animations, fatalities, skins or physics tested", "Conan v9 weapon candidate offline verified but not installed at snapshot", "no universal retarget or native binary writer"],
+      "portable_kit": "portable-kits/mortal-kombat-1"
+    },
+    {
       "id": "hitman-world-of-assassination",
       "path": "games/hitman-world-of-assassination",
       "status": "runtime-confirmed-scoped",

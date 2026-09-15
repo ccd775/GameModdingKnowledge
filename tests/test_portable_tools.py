@@ -238,4 +238,20 @@ class PortableTools(unittest.TestCase):
             cli(path.parents[1].name,path.stem,'--help')
 
 
+class MK1Tools(unittest.TestCase):
+    def test_mk1_synthetic_suite_and_cli(self):
+        scripts = ROOT/'games/mortal-kombat-1/scripts'
+        if not scripts.is_dir():
+            self.skipTest('MK1 is not included in this single-game export')
+        process = subprocess.run(
+            [sys.executable, '-B', '-m', 'unittest', 'discover', '-s', str(scripts), '-p', 'test_*.py'],
+            cwd=ROOT, capture_output=True, text=True, timeout=60)
+        self.assertEqual(process.returncode, 0, process.stdout+'\n'+process.stderr)
+        self.assertIn('Ran 18 tests', process.stderr)
+        for name in ('mk1_checks.py', 'psk_index_plan.py', 'atlas_quadrants.py'):
+            process = subprocess.run([sys.executable, '-B', str(scripts/name), '--help'],
+                                     cwd=ROOT, capture_output=True, text=True, timeout=30)
+            self.assertEqual(process.returncode, 0, process.stdout+'\n'+process.stderr)
+
+
 if __name__ == '__main__': unittest.main(verbosity=2)
