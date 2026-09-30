@@ -14,6 +14,10 @@
 - PFB/RSZ/JCNS 修改必须来自当前 build，要求语义字段差分、序列化回读、确定性构建和候选绑定的运行时报告。
 - 高跟鞋、脚骨方向、鞋底平面和地面接触是不同命题，不能用一个角度或最低点代替全部证明。
 
+## RE Engine 跨作参考
+
+同引擎的 MHWs（`games/monster-hunter-wilds/`）与 Onimusha（`games/onimusha-way-of-the-sword/`）记录了几条可迁移的方法（常量不可迁移）：REFramework 版本决定散装贴图/未加密 PAK 能否加载；MDF 引用的贴图不可达会让资源构建挂起而不是崩溃；隐藏部位要保留引擎挂点骨；引擎 NullNRRO 的粗糙度是 0.5。
+
 ## 证据纪律
 
 本库定义 `reference-inferred`、`offline-accepted`、`runtime-load-pass`、`runtime-rejected` 和 `runtime-confirmed` 五类证据。运行时拒绝要停止候选晋级，但保留已被独立证明的离线子合同；新 build、工具或 schema 出现时重新提取和验证。

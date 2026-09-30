@@ -26,6 +26,13 @@ v1.11.0）。所有具体后缀号、骨数、偏移和参数都是 `build-sensi
 - 生产构建器一旦冻结就不再改，能力扩展走**运行时注入的版本化 runner**；每个发行版
   有自己的打包器，旧打包器保持冻结以维持旧版可复现。
 
+## RE Engine 跨作参考
+
+MHWs（`games/monster-hunter-wilds/`）在另一个 build 上观察到相同的加载器依赖：旧
+REFramework 找不到 `sha3_rsa_code_start` 时未加密 PAK 被忽略，没有 `LooseTextureLoader`
+时散装贴图会让装备构建挂起、标题前黑屏；更新 REFramework 后散装贴图正常。另见其
+「隐藏部位保留引擎挂点骨」与「NullNRRO 粗糙度 0.5」两条。
+
 ## 证据纪律
 
 沿用本库的 `reference-inferred` / `offline-accepted` / `runtime-load-pass` /

@@ -1,7 +1,7 @@
 如果你觉得内容有帮助，可以前往https://ifdian.net/a/ccd775 赞助我以获得贴贴！
 # Game Modding Shared Knowledge
 
-供人和 agent 接续长线 Mod 项目的知识库与便携工具包。它包含七款游戏的实际项目方法、成功与失败记录、19 个原项目迁移脚本、MK1 参数化工具和公共运行工具；不需要注册 Skill。
+供人和 agent 接续长线 Mod 项目的知识库与便携工具包。它包含九款游戏的实际项目方法、成功与失败记录（其中七款附便携工具包）、19 个原项目迁移脚本、MK1 参数化工具和公共运行工具；不需要注册 Skill。
 
 ## 从这里开始
 
@@ -14,6 +14,7 @@
 | --- | --- | --- |
 | 真人快打1 | [MK1](games/mortal-kombat-1/README.md) | 多角色可见效果验收、骨架/骨盆/材质与 IoStore 排障；T1000 v8 材质复发仍在调查，未宣称全动作通过 |
 | 鬼武者：新生 | [Onimusha WotS](games/onimusha-way-of-the-sword/README.md) | Karin→宫本武藏 v1.11.0：几何与 chain2 v17 次级物理均由用户实机确认；仅散装文件路线可用 |
+| 怪物猎人：荒野 | [MHWs](games/monster-hunter-wilds/README.md) | Karin_Original→女装备 ch03_060_000 r6（BoneSystem 独立骨骼）：武器挂点、野外地图、裙摆碰撞与哑光材质经用户验收；依赖新版 REFramework 散装贴图加载；表情未单独签收 |
 | 杀手暗杀世界 | [Hitman WOA](games/hitman-world-of-assassination/README.md) | Signature Suit 0.1.0 在 Dartmoor 的基础动作 |
 | 看门狗 | [Watch Dogs](games/watch-dogs/README.md) | 默认服装 v1.3.0；保留少数手指变形限制 |
 | 刺客信条黑旗记忆重置 | [Black Flag Resynced](games/assassins-creed-black-flag/README.md) | 角色替换及最终 1.6.1 修复，用户于 9 月 6 日确认 |

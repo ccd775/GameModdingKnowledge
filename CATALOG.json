@@ -24,6 +24,16 @@
       "limits": ["PAK 路线在本 build 不可用，仅散装文件", "腿部绑带与嵌套链未实装", "大衣/耳机线穿模未实机检查", "手指与鞋底修复已发行但未单独签收"]
     },
     {
+      "id": "monster-hunter-wilds",
+      "path": "games/monster-hunter-wilds",
+      "status": "runtime-confirmed-scoped",
+      "milestone": "Karin_Original 替换女装备 ch03_060_000 r6（BoneSystem 独立骨骼 + 表情映射 + chain2）",
+      "date": "2026-09-30",
+      "game_build": "24705561",
+      "topics": ["RE Engine", "REFramework LooseTextureLoader 版本门槛", "标题前黑屏机理", "BoneSystem", "装备部位引擎挂点骨", "NRRO 粗糙度", "chain2 v14 / clsp 碰撞位", "1.042 MDF 合同迁移", "标题自测与负对照矩阵"],
+      "limits": ["表情幅度为估计值、未单独签收", "腰挂武器种类未逐一检查", "PAK 路线在新 REFramework 上未测", "自测只到标题画面"]
+    },
+    {
       "id": "hitman-world-of-assassination",
       "path": "games/hitman-world-of-assassination",
       "status": "runtime-confirmed-scoped",

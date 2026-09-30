@@ -33,3 +33,14 @@ The game workflows use different formats, but the same engineering loop.
 - Validate the final serialized data, not only the authoring scene or compiler
   exit code.
 - Preserve negative controls and rejected hypotheses as first-class evidence.
+- When a runtime failure survives several content changes, test the environment
+  before the next content change: a positive control (framework only), a loader
+  negative control (vanilla bytes re-installed at their own vanilla path) and a
+  previously working reference Mod. If the negative control fails, stop editing
+  the Mod (case: `games/monster-hunter-wilds/cases/KARIN_ORIGINAL_CH03_060.md`).
+- Bisect along references, not only along files: a file tested alone still
+  carries what it points to (an MDF still references its textures). Give each
+  isolated file either its referenced assets or vanilla references.
+- Hidden or placeholder parts keep the engine joints that the game attaches to
+  (weapon mounts, gadget joints). Find them by sampling several vanilla assets
+  of the same slot and keeping the names every one of them has.
