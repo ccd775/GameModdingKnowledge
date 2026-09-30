@@ -80,6 +80,16 @@
       "status": "mixed-project-proven",
       "milestone": "AQ/HD2SDK Unit and material contracts",
       "topics": ["Unit triplets", "TransformInfo/BoneInfo", "UV0/UV1/UV2", "namespace", "Armor LUT"]
+    },
+    {
+      "id": "pragmata",
+      "path": "games/pragmata",
+      "status": "runtime-confirmed-scoped",
+      "milestone": "Karin_Original→Hugh、Karin_kipfel→Diana v0.3.0（从源模型完整构建 + chain2 物理与裙摆碰撞）；Gamer JP 替换 mod 加装物理 phys3",
+      "date": "2026-09-30",
+      "game_build": "24543093",
+      "topics": ["RE Engine", "mesh 251121828 raw 模式", "refskel 路线 / 原生 rest 路线", "参考 mod 配方反推", "PFB.18 / RSZ v16 组件插入", "chain2 .15", "Chain2 UpdateTiming", "chain2 内置模型碰撞体", "节点胶囊碰撞", "形态键烘焙收素体"],
+      "limits": ["无表情/眼动", "Diana GPU 发丝未处理", "其它服装与破损形态侵蚀件未覆盖", "过场 ch0091 无物理", "碰撞与参数改动未逐项归因"]
     }
   ]
 }

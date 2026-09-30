@@ -21,6 +21,7 @@
 | 生化危机4重制版 | [RE4R](games/resident-evil-4-remake/README.md) | 多个角色案例，具体场景/build 分别记录 |
 | 求生之路2 | [L4D2](games/left-4-dead-2/README.md) | 多个实机确认案例，另有静态完成待复测项目 |
 | 绝地潜兵2 | [HD2](games/helldivers-2/README.md) | Unit/绑定/材质多案例；splat 等分支单独验收 |
+| PRAGMATA | [Pragmata](games/pragmata/README.md) | Karin_Original→Hugh、Karin_kipfel→Diana v0.3.0：从源模型完整构建（refskel / 原生 rest 两条骨架路线、Env_Emissive 材质、从零插入 chain2 与 prefab 组件、裙摆碰撞体与节点胶囊）经用户验收；另为 Gamer JP 的两个替换 mod 加装物理（phys3 用户认可）；无表情，GPU 发丝与其它服装未覆盖 |
 
 ## 独立交接与验证
 

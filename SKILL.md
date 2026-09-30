@@ -39,6 +39,7 @@ before authoring. Never use this root document as a live candidate state file.
 - Resident Evil 4 Remake -> `games/resident-evil-4-remake/`
 - Left 4 Dead 2 -> `games/left-4-dead-2/`
 - Helldivers 2 -> `games/helldivers-2/`
+- PRAGMATA -> `games/pragmata/`
 
 Use a game's detailed documents only after routing. Do not transfer a resource
 path, bone count, threshold, archive index, material ID, or transform from one
