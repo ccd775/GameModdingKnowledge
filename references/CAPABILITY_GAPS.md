@@ -12,6 +12,7 @@
 | L4D2 | VPK 提取/校验、VTA 缩放、StudioMDL 记录器 | 源 SMD/QC、flex/procedural/physics、MDL 深审计 |
 | HD2 | patch triplet、LUT、SDK UV 复制 | 当前 AQ/SDK、Unit carrier、权重和 Piece ownership |
 | MHWs | 仅文档（合同、排障、自测方法），无便携脚本 | RE Mesh/Chain 工具、BoneSystem、当前 REFramework；每角色骨架/脸部映射、挂点骨与碰撞拟合 |
+| Ghost of Tsushima | 无便携脚本；文档含格式布局、拟合与肩部反解方法、容量流程 | 按文档重建或取得项目构建器；VRM 拟合、槽位写入、贴图页与实机复测 |
 
 完整清单见 [便携入口](../portable-kits/README.md)。带有 --help 的脚本也有明确格式限制，不能把旧角色合同当成所有模型的常量。
 

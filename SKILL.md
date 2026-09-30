@@ -32,6 +32,7 @@ before authoring. Never use this root document as a live candidate state file.
 - Mortal Kombat 1 -> `games/mortal-kombat-1/`
 - Monster Hunter Wilds -> `games/monster-hunter-wilds/`
 - Onimusha: Way of the Sword -> `games/onimusha-way-of-the-sword/`
+- Ghost of Tsushima DIRECTOR'S CUT (PC) -> `games/ghost-of-tsushima/`
 
 - Hitman: World of Assassination -> `games/hitman-world-of-assassination/`
 - Watch Dogs -> `games/watch-dogs/`

@@ -44,3 +44,10 @@ The game workflows use different formats, but the same engineering loop.
 - Hidden or placeholder parts keep the engine joints that the game attaches to
   (weapon mounts, gadget joints). Find them by sampling several vanilla assets
   of the same slot and keeping the names every one of them has.
+- Fit for the pose players see most. When a target joint pivot differs from the source joint (Ghost of
+  Tsushima: the hero upper-arm pivot sits about 8 cm outside the source character's shoulder joint),
+  any T-pose fit moves the mismatch into the idle pose; solve bind positions from that pose instead of
+  tuning T-pose offsets.
+- A spatial warp driven by bone and skin-radius control points does not control loose cloth far from the
+  bone (leg warmers, platform soles). Apply explicit per-region transforms where the scale must change,
+  and compare renders with the source model at the same scale, not only with the previous candidate.

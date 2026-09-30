@@ -34,6 +34,16 @@
       "limits": ["表情幅度为估计值、未单独签收", "腰挂武器种类未逐一检查", "PAK 路线在新 REFramework 上未测", "自测只到标题画面"]
     },
     {
+      "id": "ghost-of-tsushima",
+      "path": "games/ghost-of-tsushima",
+      "status": "runtime-confirmed-scoped",
+      "milestone": "Karin 替换忠赖的铠甲：PicodraTech 第四构建用户实机验收；Karin_Original 用户认可（未指明版本，当时发布为 v4）",
+      "date": "2026-09-30",
+      "game_build": "23879181",
+      "topics": ["DSAR/PSARC", "hero.xpps 量化与隐藏", "xmesh SMBS", "SPS/XTBS", "TPS 拟合", "肩部转轴不匹配与下垂姿势反解", "遮挡剔除", "QEM 减面", "UV 岛拼页"],
+      "limits": ["只替换 LOD0", "头发/尾巴/外套无次级物理", "上举与攀爬时肩部皮肤拉伸", "未修改骨架；改骨架未验证", "构建工具未随仓库发布"]
+    },
+    {
       "id": "hitman-world-of-assassination",
       "path": "games/hitman-world-of-assassination",
       "status": "runtime-confirmed-scoped",
