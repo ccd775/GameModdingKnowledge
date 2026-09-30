@@ -1,5 +1,39 @@
 # 迁移验证记录
 
+## 2026-10-01：新增对马岛构建器
+
+- **迁入内容：** 9 个 Python 文件，`build_karin.py`、`verify.py` 和 7 个模块。PROVENANCE 分别记录每个文件的原始 SHA-256 和公开版 SHA-256。
+- **便携改动**只在 `build_karin.py` 和 `verify.py` 两个文件：
+  - 去掉写死的本机游戏目录和 VRM 路径，改为 `--game`（或 `GOT_GAME_DIR`）和必填的 `--vrm`；
+  - texconv 改为可选的 `--texconv`，可用 `--expected-texconv-sha256` 校验；不提供时用 etcpak；
+  - 两个文件的 CRLF 换行统一为 LF。
+
+  其余 7 个文件与原文件逐字节相同。
+- **等价性验证**（build `23879181`；环境为 Python 3.14.0、numpy 2.5.2、scipy 1.18.0、Pillow 12.2.0、etcpak 0.9.15）：用 PROVENANCE 里记录的便携脚本、同一 VRM 和 texconv 2025.10.28.1（SHA-256 `2cb5703c…`）重建两个 profile，输出与项目构建逐字节相同：
+  - Original：md5 `a30f3ac17122e2ab1702bc74dffa2ec0`；
+  - PicodraTech：md5 `bf0a6e15a6c7786dd48a91210e31fc82`。
+
+  两个 profile 不带 texconv 的 etcpak 构建都通过 `verify.py`（PROBLEMS none，使用 76 根骨骼）。
+- **合成测试**新增 6 项：
+  - PSARC 数据原样存储且按 8192 对齐（用非零载荷检查）；
+  - 权重和法线打包；
+  - 减面时边界锁定、面朝向不翻；
+  - 拼页像素与 UV 一致，缩小比例下也一致，透明标记不丢色；
+  - 下垂姿势反解；
+  - 5 种错误输入被拒绝：缺 VRM、缺游戏目录、只给哈希不给 texconv、texconv 路径不存在、哈希不符。
+
+  根测试共 19 项，全部通过；八个游戏的独立导出测试通过，其中对马岛测试在导出包里确实执行，没有被跳过。
+- **依赖：** 本包的额外依赖放在 `portable-kits/ghost-of-tsushima/requirements.txt`：numpy 2.5.2、scipy 1.18.0、etcpak 0.9.15、texture2ddecoder 1.0.6。
+  - 这些版本需要 Python 3.12+。
+  - 根 `requirements.txt` 不变，其他工具包仍支持 Python 3.10。
+  - 没装这些依赖时，对马岛测试会跳过并提示安装命令。
+  - 本机的 Pillow 是 12.2.0、markdown-it-py 是 4.2.0，与根文件里的 12.3.0 / 4.0.0 不同。
+- **未执行：**
+  - 新模型的 profile；
+  - 本次没有新的实机部署；
+  - VRM 读入只在两个项目模型上验证过；
+  - 没有在其他库版本上核对逐字节一致性。
+
 ## 2026-09-15：新增 MK1 公开工具与第七游戏导出
 
 - 迁入MK1流程、8份案例、当前状态、模板及11个源码/测试文件（6个工具、5个测试文件），没有游戏/模型payload或专用二进制。公开脚本只规范LF换行；原始和公开字节hash分别保存在PROVENANCE。

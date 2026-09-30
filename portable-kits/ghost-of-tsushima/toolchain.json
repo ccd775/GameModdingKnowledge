@@ -1,0 +1,42 @@
+{
+  "game": "Ghost of Tsushima DIRECTOR'S CUT (PC)",
+  "status": "runtime-confirmed-scoped",
+  "tools": [
+    {
+      "name": "Karin armour-replacement builder (build_karin.py and modules)",
+      "version": "project-pinned",
+      "role": "VRM fitting, weights, capacity reduction, texture pages, xmesh/xpps/SPS writing and PSARC packaging",
+      "required": true
+    },
+    {
+      "name": "verify.py",
+      "version": "project-pinned",
+      "role": "offline structure checks and decoded pose renders",
+      "required": true
+    },
+    {
+      "name": "DirectXTex texconv",
+      "version": "2025.10.28.1 (SHA-256 2cb5703c8ec81a8135bfe40ef63912c172862838f5345062515c93c3744a9f46)",
+      "role": "colour-page BC1/BC3 compression; etcpak is used when omitted",
+      "required": false
+    }
+  ],
+  "entry_documents": [
+    "../../games/ghost-of-tsushima/README.md",
+    "../../games/ghost-of-tsushima/FITTING.md"
+  ],
+  "runtime_boundary": "Karin PicodraTech build 4 accepted in game by the user on 2026-09-30; Karin_Original approved by the user without naming a version. No scenario matrix; only LOD0 is replaced; no secondary physics.",
+  "bundled_scripts": [
+    "scripts/build_karin.py",
+    "scripts/verify.py",
+    "scripts/fit.py",
+    "scripts/vrm.py",
+    "scripts/atlas.py",
+    "scripts/decimate.py",
+    "scripts/gotfmt.py",
+    "scripts/gotarc.py",
+    "scripts/render.py"
+  ],
+  "python": "3.12+ (numpy 2.5 / scipy 1.18 wheels); tested 3.14.0",
+  "dependency_install": "python -m pip install -r requirements.txt -r portable-kits/ghost-of-tsushima/requirements.txt (from bundle root)"
+}

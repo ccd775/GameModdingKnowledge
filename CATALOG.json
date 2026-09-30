@@ -41,7 +41,8 @@
       "date": "2026-09-30",
       "game_build": "23879181",
       "topics": ["DSAR/PSARC", "hero.xpps 量化与隐藏", "xmesh SMBS", "SPS/XTBS", "TPS 拟合", "肩部转轴不匹配与下垂姿势反解", "遮挡剔除", "QEM 减面", "UV 岛拼页"],
-      "limits": ["只替换 LOD0", "头发/尾巴/外套无次级物理", "上举与攀爬时肩部皮肤拉伸", "未修改骨架；改骨架未验证", "构建工具未随仓库发布"]
+      "limits": ["只替换 LOD0", "头发/尾巴/外套无次级物理", "上举与攀爬时肩部皮肤拉伸", "未修改骨架；改骨架未验证", "新模型需要自写 profile（网格名、遮盖规则、参数）"],
+      "portable_kit": "portable-kits/ghost-of-tsushima"
     },
     {
       "id": "hitman-world-of-assassination",

@@ -1,4 +1,5 @@
 """Run selected-game tests in detached exports with space-containing paths."""
+import importlib.util
 import json
 from pathlib import Path
 import subprocess
@@ -29,6 +30,12 @@ class DetachedExports(unittest.TestCase):
                     if game == 'mortal-kombat-1':
                         self.assertIn('test_mk1_synthetic_suite_and_cli', process.stderr)
                         self.assertNotIn("test_mk1_synthetic_suite_and_cli (__main__.MK1Tools.test_mk1_synthetic_suite_and_cli) ... skipped", process.stderr)
+                    if game == 'ghost-of-tsushima':
+                        self.assertTrue((target/'portable-kits/ghost-of-tsushima/requirements.txt').is_file())
+                    if game == 'ghost-of-tsushima' and all(importlib.util.find_spec(m) for m in
+                                                           ('numpy', 'scipy', 'etcpak', 'texture2ddecoder', 'PIL')):
+                        self.assertIn('test_got_hang_pose_and_rest_solve', process.stderr)
+                        self.assertFalse([l for l in process.stderr.splitlines() if 'test_got_' in l and 'skipped' in l])
                     print(f'{game}: detached tests passed (unselected games skipped)')
 
 

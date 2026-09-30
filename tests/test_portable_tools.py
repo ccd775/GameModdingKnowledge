@@ -235,7 +235,182 @@ class PortableTools(unittest.TestCase):
     def test_all_cli_help(self):
         for path in KITS.glob('*/scripts/*.py'):
             if path.stem in ('stingray_archive','audit_blend_source'): continue
+            if path.parents[1].name == 'ghost-of-tsushima' and got_missing(): continue
             cli(path.parents[1].name,path.stem,'--help')
+
+
+GOT_DEPENDENCIES = ('numpy', 'scipy', 'etcpak', 'texture2ddecoder', 'PIL')
+
+
+def got_missing():
+    return [m for m in GOT_DEPENDENCIES if importlib.util.find_spec(m) is None]
+
+
+def got(name):
+    """GoT builder module; skipped with the install hint when the kit's extra requirements are absent."""
+    if not (KITS / 'ghost-of-tsushima').is_dir():
+        raise unittest.SkipTest('ghost-of-tsushima is not included in this single-game export')
+    if got_missing():
+        raise unittest.SkipTest('pip install -r portable-kits/ghost-of-tsushima/requirements.txt (missing '
+                                + ', '.join(got_missing()) + ')')
+    return module('ghost-of-tsushima', name)
+
+
+class GhostOfTsushimaTools(unittest.TestCase):
+    """Builder modules on synthetic data. A full build needs the game install and a VRM and is not run here."""
+
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(prefix='modding got ')
+        self.root = Path(self.temp.name)
+
+    def tearDown(self): self.temp.cleanup()
+
+    def test_got_psarc_stores_data_raw_and_aligned(self):
+        arc = got('gotarc')
+        files = [(f'/bitmaps/hero_kamakura_armor_chest_mtl.msac.{c}.synthetic.sps', bytes([i]) * (40 + i))
+                 for i, c in enumerate('dnsg')]
+        big = bytes((i * 7) % 251 for i in range(70000))
+        files.append(('/meshes/hero_kamakura_armor_all_ranks.xmesh', big))
+        out = self.root / 'mod.psarc'
+        arc.write_psarc(str(out), files)
+        raw = out.read_bytes()
+        self.assertEqual(raw[:4], b'PSAR')
+        for _, data in files[1:4]:                              # non-zero payloads: padding cannot fake a hit
+            self.assertGreater(raw.find(data), 0)               # file data stored as is, not zlib
+        self.assertEqual(raw.find(big) % 8192, 0)              # >= 64 KiB starts on an 8192 boundary
+        back = arc.Psarc(str(out))
+        for name, data in files:
+            self.assertEqual(back.extract(name), data)
+        back.s.f.close()                                     # Psarc keeps its stream open
+
+    def test_got_weight_and_normal_packing(self):
+        fmt = got('gotfmt')
+        import numpy as np
+        bones = np.array([[5, 7, 9, 0], [3, 0, 0, 0]])
+        weights = np.array([[0.5, 0.3, 0.2, 0.0], [1.0, 0.0, 0.0, 0.0]])
+        b, packed = fmt.quantize_weights(bones, weights)
+        self.assertEqual(b[1].tolist(), [3, -1, -1, -1])
+        implicit = 255 - packed[:, :3].astype(int).sum(1)       # bone 0 weight is not stored
+        self.assertLessEqual(abs(implicit[0] - 127.5), 1)
+        self.assertEqual(implicit[1], 255)
+        v = np.random.default_rng(1).normal(size=(50, 3))
+        v /= np.linalg.norm(v, axis=1, keepdims=True)
+        q = fmt.pack_n10(v)
+        dec = np.stack([q & 1023, (q >> 10) & 1023, (q >> 20) & 1023], 1) / 1023.0 * 2 - 1
+        self.assertLess(np.abs(dec - v).max(), 2.0 / 1023)
+
+    def test_got_decimate_keeps_border_and_faces(self):
+        dec = got('decimate')
+        import numpy as np
+        n = 12
+        g = np.stack(np.meshgrid(np.arange(n), np.arange(n), indexing='ij'), -1).reshape(-1, 2).astype(float)
+        tris = []
+        for i in range(n - 1):
+            for j in range(n - 1):
+                a, b, c, d = i * n + j, (i + 1) * n + j, (i + 1) * n + j + 1, i * n + j + 1
+                tris += [(a, b, c), (a, c, d)]
+        mesh = dict(pos=np.c_[g, np.zeros(len(g))], tris=np.array(tris), uv=g / (n - 1),
+                    joints=np.zeros((len(g), 4), int), weights=np.tile([1.0, 0, 0, 0], (len(g), 1)))
+        target = int(len(g) * 0.8)
+        out, stats = dec.decimate(mesh, target)
+        self.assertLessEqual(stats['verts'][1], target)
+        border = {tuple(p) for p in g if p[0] in (0, n - 1) or p[1] in (0, n - 1)}
+        self.assertTrue(border <= {tuple(p[:2]) for p in out['pos']})
+        faces = {tuple(sorted(t)) for t in out['tris'].tolist()}
+        self.assertEqual(len(faces), len(out['tris']))
+        P, T = out['pos'], out['tris']
+        normal_z = np.cross(P[T[:, 1]] - P[T[:, 0]], P[T[:, 2]] - P[T[:, 0]])[:, 2]
+        self.assertTrue((normal_z > 0).all())
+
+    def test_got_atlas_pixels_follow_uv(self):
+        atlas = got('atlas')
+        import numpy as np
+        from PIL import Image
+        items = []
+        for key, (cx, cy), blue in (('a', (21, 31), 60), ('b', (40, 12), 200)):
+            grid = np.zeros((64, 64, 4), np.uint8)              # per-pixel gradient: any offset changes the colour
+            grid[..., 0] = np.arange(64)[None, :] * 4
+            grid[..., 1] = np.arange(64)[:, None] * 4
+            grid[..., 2] = blue                                 # alpha stays 0: colour must survive resampling
+            uv = np.array([[cx + 0.5, cy + 0.5], [cx - 5, cy - 6], [cx + 6, cy - 6], [cx + 6, cy + 6],
+                           [cx - 5, cy + 6]]) / 64.0
+            items.append(dict(img=Image.fromarray(grid, 'RGBA'), uv=uv, key=key,
+                              tris=np.array([[0, 1, 2], [0, 2, 3], [0, 3, 4], [0, 4, 1]])))
+        # scale 1 is checked exactly (any one-pixel shift fails); the downscaled page only catches gross
+        # mapping errors (axis swap, wrong scale), its tolerance allows about one page pixel of gradient
+        for size, tol in ((64, 0), (24, 6)):
+            page, uvs, info = atlas.build_page(items, (size, size))
+            if size == 24:
+                self.assertLess(info['scale'], 1.0)
+            px = np.asarray(page.convert('RGBA')).astype(int)
+            self.assertTrue((px[..., 2] > 0).all())             # empty page area is filled from the pieces
+            for it, uv in zip(items, uvs):
+                src = np.asarray(it['img']).astype(int)
+                for k in (0, 1, 2, 3, 4):                       # centre and the four island corners
+                    sx, sy = np.clip(np.floor(it['uv'][k] * 64 + (it['uv'][0] * 64 - it['uv'][k] * 64) * 0.2), 0, 63).astype(int)
+                    x, y = np.clip(np.floor((uv[k] + (uv[0] - uv[k]) * 0.2) * size), 0, size - 1).astype(int)
+                    with self.subTest(size=size, key=it['key'], vertex=k):
+                        self.assertLessEqual(np.abs(px[y, x, :3] - src[sy, sx, :3]).max(), tol + 4 / info['scale'] * (tol > 0))
+
+    def test_got_hang_pose_and_rest_solve(self):
+        bk = got('build_karin')
+        import numpy as np
+        nb = bk.NBONES
+        parents = [-1] * nb
+        for side in (0, 1):
+            ua, fa = (499, 505) if side == 0 else (546, 553)
+            chain = [ua] + [b for b, _ in bk.LIMBS['leftUpperArm' if side == 0 else 'rightUpperArm'][2]]
+            for p, c in zip(chain, chain[1:]):
+                parents[c] = p
+            parents[fa] = ua
+        J = np.zeros((nb, 3))
+        J[499], J[546] = (-1.6, 18.2, 147.0), (-1.6, -18.2, 147.0)
+        J[505], J[553] = (-4.1, 47.3, 147.0), (-4.1, -47.3, 147.0)
+        tgt = {'neck': np.array([0.3, 0, 147.8]), 'leftUpperArm': np.array([-0.5, 9.8, 144.8]),
+               'rightUpperArm': np.array([-0.5, -9.8, 144.8]), 'leftLowerArm': J[505], 'rightLowerArm': J[553]}
+        kj = {'neck': np.array([0, 0, 100.0]), 'leftUpperArm': np.array([0, 6.8, 98.0]),
+              'rightUpperArm': np.array([0, -6.8, 98.0]), 'leftLowerArm': np.array([0, 25.8, 98.0]),
+              'rightLowerArm': np.array([0, -25.8, 98.0])}
+        maps, S, moving = bk.hang_pose({'kj': kj, 'tgt': tgt}, J, parents, 75.0, 1.45)
+        for h, b in (('leftUpperArm', 499), ('rightUpperArm', 546)):
+            root = maps[h][1]                                 # turned 75 degrees down, the root reaches her shoulder
+            self.assertLess(np.linalg.norm(S[b, :3, :3] @ root + S[b, :3, 3] - tgt[h]), 1e-9)
+        P = np.array([[0, 8.0, 140.0], [0, 20.0, 146.0], [0, 12.0, 145.0]])
+        Pa = P + np.array([0, 4.0, -6.0])
+        N = np.tile([0, 0, 1.0], (3, 1))
+        bones = np.array([[10, 0, 0, 0], [500, 0, 0, 0], [10, 500, 0, 0]])
+        weights = np.array([[1.0, 0, 0, 0], [1.0, 0, 0, 0], [0.5, 0.5, 0, 0]])
+        x, n, moved = bk.rest_from_hang(P, N, bones, weights, S, moving, {500: (Pa, N)})
+        self.assertEqual(moved, 2)
+        self.assertTrue(np.array_equal(x[0], P[0]))            # torso-only vertices keep the torso fit
+        self.assertLess(np.abs(x[1] - Pa[1]).max(), 1e-9)       # arm-only vertices land on the arm map
+        R, t = S[500, :3, :3], S[500, :3, 3]
+        posed = 0.5 * x[2] + 0.5 * (R @ x[2] + t)               # mixed vertex: exact in the hang pose
+        self.assertLess(np.abs(posed - (0.5 * P[2] + 0.5 * (R @ Pa[2] + t))).max(), 1e-9)
+
+    def test_got_builder_refuses_missing_inputs(self):
+        got('gotfmt')                                           # same skip rules as the module tests
+        out = self.root / 'mod.psarc'
+        vrm = self.root / 'model.vrm'
+        vrm.write_bytes(b'glTF')
+        game = self.root / 'game'
+        (game / 'cache_pc' / 'psarc').mkdir(parents=True)
+        texconv = self.root / 'texconv.exe'
+        texconv.write_bytes(b'not the real tool')
+        base = ('--profile', 'picodra', '--out', out)
+        cases = [
+            ((), 'must name the source VRM file'),
+            (('--vrm', vrm, '--game', self.root / 'missing'), 'must be the game folder'),
+            (('--vrm', vrm, '--game', game, '--expected-texconv-sha256', '0' * 64), 'needs --texconv'),
+            (('--vrm', vrm, '--game', game, '--texconv', self.root / 'missing.exe'), 'is not a file'),
+            (('--vrm', vrm, '--game', game, '--texconv', texconv, '--expected-texconv-sha256', '0' * 64),
+             'does not match'),
+        ]
+        for extra, message in cases:
+            with self.subTest(message=message):
+                process = cli('ghost-of-tsushima', 'build_karin', *base, *extra, ok=False)
+                self.assertIn(message, process.stderr)
+                self.assertFalse(out.exists())
 
 
 class MK1Tools(unittest.TestCase):

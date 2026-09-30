@@ -47,6 +47,6 @@
 - 贴图、游戏归档和提取出的原生资源；
 - 发布包。
 
-构建工具是纯 Python（`build_karin.py`、`fit.py`、`vrm.py`、`atlas.py`、`decimate.py`、`gotfmt.py`、`gotarc.py`、`verify.py`、`render.py`），留在项目目录 `Karin_Original_GoT/tools/`。这里只记录方法、数值快照和被否决的假设。
+构建工具是纯 Python，放在 [对马岛便携包](../../portable-kits/ghost-of-tsushima/README.md)：`build_karin.py`、`verify.py` 和 7 个模块。其中 7 个模块与项目构建器逐字节相同，`build_karin.py` 和 `verify.py` 只改为显式传入游戏目录、VRM 和 texconv；两个 profile 的构建输出 md5 已验证与项目构建相同。本目录记录方法、数值快照和被否决的假设。
 
 格式知识部分参考了 Dave349234 的 "Ghost of Tsushima Toolkit for Blender"（MIT，要求署名），并在本 build 上重新核实过。来源见 [工具来源](../../references/TOOL_SOURCES.md)。

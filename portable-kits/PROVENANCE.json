@@ -268,5 +268,86 @@
     "portable_sha256": "1ed61c545f01631b8b72a138809a193585458fd2dccca935ac715e2942f687fd",
     "portable_bytes": 2493,
     "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/ghost-of-tsushima/scripts/build_karin.py",
+    "source": "Mods/对马岛/Karin_Original_GoT/tools/build_karin.py",
+    "original_sha256": "94703f8e3f75678d19561016f6c83aa60e75754478ba37b6bb75f6e3b0907f28",
+    "source_bytes": 49523,
+    "portable_sha256": "a670370b6237f40512f2377f5213ac9aeabae49b40866ca057cc11cf34df8bea",
+    "portable_bytes": 50289,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/ghost-of-tsushima/scripts/verify.py",
+    "source": "Mods/对马岛/Karin_Original_GoT/tools/verify.py",
+    "original_sha256": "1393788273d0fdfa15fded79ee8be2526798ee9bf1f24a2b88542c1556f49156",
+    "source_bytes": 11081,
+    "portable_sha256": "11fab797bfcde4eb769b3e9ae1457fe54adfd584578a178505a9e9cce7959b64",
+    "portable_bytes": 11079,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/ghost-of-tsushima/scripts/fit.py",
+    "source": "Mods/对马岛/Karin_Original_GoT/tools/fit.py",
+    "original_sha256": "beef0f1fefc2dddea3f02ae27e9effa9465ac711062d18cd96ee004a71956a81",
+    "source_bytes": 15327,
+    "portable_sha256": "beef0f1fefc2dddea3f02ae27e9effa9465ac711062d18cd96ee004a71956a81",
+    "portable_bytes": 15327,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/ghost-of-tsushima/scripts/vrm.py",
+    "source": "Mods/对马岛/Karin_Original_GoT/tools/vrm.py",
+    "original_sha256": "095ddf5e9faadab80a341314c67da16353c446c9c46d602ccc89a48b003039d9",
+    "source_bytes": 7772,
+    "portable_sha256": "095ddf5e9faadab80a341314c67da16353c446c9c46d602ccc89a48b003039d9",
+    "portable_bytes": 7772,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/ghost-of-tsushima/scripts/atlas.py",
+    "source": "Mods/对马岛/Karin_Original_GoT/tools/atlas.py",
+    "original_sha256": "345edf03bbbd9bc63251bb707f2bf06f1c196646e36b911298cb39d0965e1e4c",
+    "source_bytes": 7227,
+    "portable_sha256": "345edf03bbbd9bc63251bb707f2bf06f1c196646e36b911298cb39d0965e1e4c",
+    "portable_bytes": 7227,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/ghost-of-tsushima/scripts/decimate.py",
+    "source": "Mods/对马岛/Karin_Original_GoT/tools/decimate.py",
+    "original_sha256": "3656c59bc09d94fcede2f4308c430bdad741c1628c44c3287bcc4df8e24c1f3c",
+    "source_bytes": 6729,
+    "portable_sha256": "3656c59bc09d94fcede2f4308c430bdad741c1628c44c3287bcc4df8e24c1f3c",
+    "portable_bytes": 6729,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/ghost-of-tsushima/scripts/gotfmt.py",
+    "source": "Mods/对马岛/Karin_Original_GoT/tools/gotfmt.py",
+    "original_sha256": "a29436c33edc2b16ca30a1f0e450cb61b4904e8f386c1bca3cf7d28e424e41bf",
+    "source_bytes": 14428,
+    "portable_sha256": "a29436c33edc2b16ca30a1f0e450cb61b4904e8f386c1bca3cf7d28e424e41bf",
+    "portable_bytes": 14428,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/ghost-of-tsushima/scripts/gotarc.py",
+    "source": "Mods/对马岛/Karin_Original_GoT/tools/gotarc.py",
+    "original_sha256": "f3981e617b18fb42fbfc715fd003cbd60dce1a42b67b8632bfa4f013f5e7a1ef",
+    "source_bytes": 7121,
+    "portable_sha256": "f3981e617b18fb42fbfc715fd003cbd60dce1a42b67b8632bfa4f013f5e7a1ef",
+    "portable_bytes": 7121,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/ghost-of-tsushima/scripts/render.py",
+    "source": "Mods/对马岛/Karin_Original_GoT/tools/render.py",
+    "original_sha256": "2e1557d1a4356c4b8277d8840266899e7c3b128688fc640cab3e0c824befdd85",
+    "source_bytes": 3387,
+    "portable_sha256": "2e1557d1a4356c4b8277d8840266899e7c3b128688fc640cab3e0c824befdd85",
+    "portable_bytes": 3387,
+    "modified_for_portability": false
   }
 ]

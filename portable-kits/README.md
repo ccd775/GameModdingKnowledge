@@ -11,10 +11,11 @@
 | RE4R | KPKA v4 路径哈希、目录和 payload 提取 | [使用](resident-evil-4-remake/README.md) |
 | L4D2 | VPK 提取/回读、VTA 缩放、StudioMDL 运行记录 | [使用](left-4-dead-2/README.md) |
 | HD2 | 三件套解析、LUT 行折叠/注入、SDK UV 复制 | [使用](helldivers-2/README.md) |
+| 对马岛 | 忠赖的铠甲角色替换完整构建器（VRM 拟合、剔除/减面、拼页、xmesh/xpps/SPS、PSARC）与离线校验渲染 | [使用](ghost-of-tsushima/README.md) |
 
 [公共层](common/README.md) 提供项目初始化、哈希锁、断点、工具预检、确定性 ZIP 和 Blender 审计。
 
-Python 3.10+；大多数脚本只用标准库，Forge 需 lz4，文档检查和导出需 markdown-it-py。Windows 编译器在 Windows 中执行，Blender 审计在 Blender 内执行。仓库根命令：
+Python 3.10+；大多数脚本只用标准库，Forge 需 lz4，文档检查和导出需 markdown-it-py，对马岛构建器另需 `ghost-of-tsushima/requirements.txt`（numpy、scipy、etcpak、texture2ddecoder，需 Python 3.12+）。Windows 编译器在 Windows 中执行，Blender 审计在 Blender 内执行。仓库根命令：
 
 ```powershell
 python -m pip install -r requirements.txt

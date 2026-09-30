@@ -11,6 +11,7 @@
 | RE4R | [便携命令](../portable-kits/resident-evil-4-remake/README.md) |
 | L4D2 | [便携命令](../portable-kits/left-4-dead-2/README.md) |
 | HD2 | [便携命令](../portable-kits/helldivers-2/README.md) |
+| Ghost of Tsushima | [便携命令](../portable-kits/ghost-of-tsushima/README.md) |
 
 各游戏原知识中的脚本职责表仍有大量角色专属实现；没有对应 portable-kits 脚本的名称是历史设计参考，不能假设文件已在交接包内。新项目需要按当前资源实现对应步骤，不要尝试调用不存在的旧路径。
 

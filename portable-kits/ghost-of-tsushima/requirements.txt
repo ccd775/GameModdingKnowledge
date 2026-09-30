@@ -1,0 +1,6 @@
+# Ghost of Tsushima builder only (install together with the bundle-root requirements.txt).
+# These pins need Python 3.12+; tested on Python 3.14.0 with Pillow 12.2.0.
+numpy==2.5.2
+scipy==1.18.0
+etcpak==0.9.15
+texture2ddecoder==1.0.6
