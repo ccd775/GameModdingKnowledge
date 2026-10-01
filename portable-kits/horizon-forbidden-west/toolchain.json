@@ -1,0 +1,54 @@
+{
+  "game": "Horizon Forbidden West Complete Edition (PC)",
+  "status": "runtime-load-pass",
+  "tools": [
+    {
+      "name": "Karin Beta-replacement builder (build_hfw.py and modules)",
+      "version": "project-pinned",
+      "role": "VRM fitting, culling, region weight transfer, texture pages and h2 ascii writing",
+      "required": true
+    },
+    {
+      "name": "make_mod.py / patch_bounds.py",
+      "version": "project-pinned",
+      "role": "DDS conversion, h2 import runs with success counts, core bounds and SkinInfo patch",
+      "required": true
+    },
+    {
+      "name": "h2_pc_mi_091 (id-daemon)",
+      "version": "0.9.1 (SHA-256 871331ef2b60bac0ef78b6ebacdb2a51d6fb4a0810c01e45b899b78536bd78f1)",
+      "role": "export of vanilla meshes/skeletons and import of ascii meshes and DDS textures into core/stream files",
+      "required": true
+    },
+    {
+      "name": "DirectXTex texconv",
+      "version": "2024.6.5.1 (SHA-256 9450ba6c551851f8b149efc40fee9c7bbaf5e02fc1430e29e76bad3192874176)",
+      "role": "BC1 / BC7 / BC6H_UF16 conversion for the fixed-size texture slots",
+      "required": true
+    },
+    {
+      "name": "HFW Mod Manager (KingJulz)",
+      "version": "0.9.8",
+      "role": "Pack Mods and the Characters swap to Beta; not called by the scripts",
+      "required": true
+    }
+  ],
+  "entry_documents": [
+    "../../games/horizon-forbidden-west/README.md",
+    "../../games/horizon-forbidden-west/BUILD_PIPELINE.md"
+  ],
+  "runtime_boundary": "Karin_Original v4 loaded and checked in game by the agent on 2026-10-02 (appearance, hair colour, run and turn); not yet confirmed by the user. Cutscenes, combat, climbing and distant body LODs unchecked; no secondary physics or facial animation.",
+  "bundled_scripts": [
+    "scripts/build_hfw.py",
+    "scripts/fit_hfw.py",
+    "scripts/atlas.py",
+    "scripts/vrm.py",
+    "scripts/hfwascii.py",
+    "scripts/make_mod.py",
+    "scripts/patch_bounds.py",
+    "scripts/pose_preview.py",
+    "scripts/gamekey.py"
+  ],
+  "python": "3.12+ (numpy 2.5 / scipy 1.18 wheels); tested 3.14.0",
+  "dependency_install": "python -m pip install -r requirements.txt -r portable-kits/horizon-forbidden-west/requirements.txt (from bundle root)"
+}

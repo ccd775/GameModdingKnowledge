@@ -45,6 +45,17 @@
       "portable_kit": "portable-kits/ghost-of-tsushima"
     },
     {
+      "id": "horizon-forbidden-west",
+      "path": "games/horizon-forbidden-west",
+      "status": "runtime-load-pass",
+      "milestone": "Karin_Original 替换贝塔 v4（Mod Manager 角色切换扮演）；agent 实机自测读档、外观与跑动，用户未单独确认",
+      "date": "2026-10-02",
+      "game_build": "14835813",
+      "topics": ["Decima", "流图组下标", "h2_pc_mi_091 ascii 导入", "顺时针绕序与 UV 翻转", "SkinInfo CsNbtGen→VsNbt", "塌缩隐藏子网格", "TPS 拟合", "分区权重继承", "掩码合并拼页", "HFW Mod Manager 角色切换", "干净根目录"],
+      "limits": ["用户未单独确认", "无次级物理与表情", "身体 LOD1+ 为原版", "过场/战斗/攀爬未检查", "导入依赖 id-daemon 工具（用户自取）"],
+      "portable_kit": "portable-kits/horizon-forbidden-west"
+    },
+    {
       "id": "devil-may-cry-5",
       "path": "games/devil-may-cry-5",
       "status": "runtime-confirmed-scoped",

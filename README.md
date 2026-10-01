@@ -1,7 +1,7 @@
 如果你觉得内容有帮助，可以前往https://ifdian.net/a/ccd775 赞助我以获得贴贴！
 # Game Modding Shared Knowledge
 
-供人和 agent 接续长线 Mod 项目的知识库与便携工具包。它包含十三款游戏的实际项目方法、成功与失败记录（其中八款附便携工具包）、19 个原项目迁移脚本、MK1 参数化工具、对马岛构建器和公共运行工具；不需要注册 Skill。
+供人和 agent 接续长线 Mod 项目的知识库与便携工具包。它包含十四款游戏的实际项目方法、成功与失败记录（其中九款附便携工具包）、19 个原项目迁移脚本、MK1 参数化工具、对马岛与西之绝境构建器和公共运行工具；不需要注册 Skill。
 
 ## 从这里开始
 
@@ -15,6 +15,7 @@
 | 真人快打1 | [MK1](games/mortal-kombat-1/README.md) | 多角色可见效果验收、骨架/骨盆/材质与 IoStore 排障；T1000 v8 材质复发仍在调查，未宣称全动作通过 |
 | 鬼武者：新生 | [Onimusha WotS](games/onimusha-way-of-the-sword/README.md) | Karin→宫本武藏 v1.11.0：几何与 chain2 v17 次级物理均由用户实机确认；仅散装文件路线可用 |
 | 怪物猎人：荒野 | [MHWs](games/monster-hunter-wilds/README.md) | Karin_Original→女装备 ch03_060_000 r6（BoneSystem 独立骨骼）：武器挂点、野外地图、裙摆碰撞与哑光材质经用户验收；依赖新版 REFramework 散装贴图加载；表情未单独签收 |
+| 地平线：西之绝境 | [Horizon Forbidden West](games/horizon-forbidden-west/README.md) | Karin_Original 替换贝塔 v4（经 Mod Manager 角色切换扮演）：读档、外观、奔跑转身由 agent 实机自测（2026-10-02），用户未单独确认；身体只换 LOD0，无次级物理与表情 |
 | 对马岛之魂 导演剪辑版 | [Ghost of Tsushima](games/ghost-of-tsushima/README.md) | Karin 替换忠赖的铠甲：PicodraTech 第四构建经用户实机验收；Karin_Original 经用户认可（未指明版本，当时发布为 v4）（均为 2026-09-30，场景未逐项列出）；只替换 LOD0，无次级物理 |
 | 鬼泣5 | [DMC5](games/devil-may-cry-5/README.md) | KarinPT→V：标题画面经用户确认；Karin_Original→Nero / Dante / V 三包 v1.1：Nero / Dante 实战经用户验收（含裙摆碰撞修复）；Original V 的 v1.1 物理未在游戏里加载，魔人形态、过场、立绘未检查 |
 | 杀手暗杀世界 | [Hitman WOA](games/hitman-world-of-assassination/README.md) | Signature Suit 0.1.0 在 Dartmoor 的基础动作 |
@@ -35,7 +36,7 @@ python -B tools/check_repository.py
 python -B tools/export_kit.py --all --output ../Modding-Portable-Exports --zip
 ```
 
-输出八份不依赖父仓库的目录，以及对应 ZIP/文件哈希清单。每份包含该游戏文档、脚本、公共层和安装依赖说明。[验证记录](portable-kits/VALIDATION.md) 明确哪些进行了组件测试，哪些还需要专用工具和游戏实测。
+输出九份不依赖父仓库的目录，以及对应 ZIP/文件哈希清单。每份包含该游戏文档、脚本、公共层和安装依赖说明。[验证记录](portable-kits/VALIDATION.md) 明确哪些进行了组件测试，哪些还需要专用工具和游戏实测。
 
 ## 下载便携包
 

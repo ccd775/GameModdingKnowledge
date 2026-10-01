@@ -349,5 +349,86 @@
     "portable_sha256": "2e1557d1a4356c4b8277d8840266899e7c3b128688fc640cab3e0c824befdd85",
     "portable_bytes": 3387,
     "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/horizon-forbidden-west/scripts/build_hfw.py",
+    "source": "Mods/西之绝境/karin_original_build/scripts/build_hfw.py",
+    "original_sha256": "a98116d69a242f7ca93fd3f0563175cd02fb740ec9ec68793da5868326dcb910",
+    "source_bytes": 24854,
+    "portable_sha256": "a98116d69a242f7ca93fd3f0563175cd02fb740ec9ec68793da5868326dcb910",
+    "portable_bytes": 24854,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/horizon-forbidden-west/scripts/fit_hfw.py",
+    "source": "Mods/西之绝境/karin_original_build/scripts/fit_hfw.py",
+    "original_sha256": "1970d68b51d2e51723e183bc516ee52ff0877ae242ada4b69e6e3f25f4985554",
+    "source_bytes": 15882,
+    "portable_sha256": "1970d68b51d2e51723e183bc516ee52ff0877ae242ada4b69e6e3f25f4985554",
+    "portable_bytes": 15882,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/horizon-forbidden-west/scripts/atlas.py",
+    "source": "Mods/西之绝境/karin_original_build/scripts/atlas.py",
+    "original_sha256": "b2ca4a6c52843574daf5b664999abb1305471b60c3bbd53190f65799cddb02e6",
+    "source_bytes": 9031,
+    "portable_sha256": "b2ca4a6c52843574daf5b664999abb1305471b60c3bbd53190f65799cddb02e6",
+    "portable_bytes": 9031,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/horizon-forbidden-west/scripts/vrm.py",
+    "source": "Mods/西之绝境/karin_original_build/scripts/vrm.py",
+    "original_sha256": "095ddf5e9faadab80a341314c67da16353c446c9c46d602ccc89a48b003039d9",
+    "source_bytes": 7772,
+    "portable_sha256": "095ddf5e9faadab80a341314c67da16353c446c9c46d602ccc89a48b003039d9",
+    "portable_bytes": 7772,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/horizon-forbidden-west/scripts/hfwascii.py",
+    "source": "Mods/西之绝境/karin_original_build/scripts/hfwascii.py",
+    "original_sha256": "7ee0d8d1731afaf0f56ced92a7c54ed2e94044bb086a90ffebce0218eb6ac49c",
+    "source_bytes": 3457,
+    "portable_sha256": "7ee0d8d1731afaf0f56ced92a7c54ed2e94044bb086a90ffebce0218eb6ac49c",
+    "portable_bytes": 3457,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/horizon-forbidden-west/scripts/make_mod.py",
+    "source": "Mods/西之绝境/karin_original_build/scripts/make_mod.py",
+    "original_sha256": "a53db5561e7c20c90a4b4f8b26ddf23d4340c7d7570d784e5858e179ed9022db",
+    "source_bytes": 4304,
+    "portable_sha256": "fdc3e208582b8a9dc0a7764fb229848bc1c8cf790c26c766e6dca9c186ba9e31",
+    "portable_bytes": 5243,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/horizon-forbidden-west/scripts/patch_bounds.py",
+    "source": "Mods/西之绝境/karin_original_build/scripts/patch_bounds.py",
+    "original_sha256": "06c1ece7fe8b95baa77bdd4714ffd0b84e9d6f354232821f19df9de91617a9f2",
+    "source_bytes": 2911,
+    "portable_sha256": "0606e068dbd444f1b70075b44d3457ff7ecb854c30095cfc2637b6a3a841b1af",
+    "portable_bytes": 3326,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/horizon-forbidden-west/scripts/pose_preview.py",
+    "source": "Mods/西之绝境/karin_original_build/scripts/pose_preview.py",
+    "original_sha256": "17b61fa948f4ac33c352c02dce5cd3fd9235c244592cf8e3b5aca3abc0e9dcd5",
+    "source_bytes": 3730,
+    "portable_sha256": "34880e3afb2bf40535c0df2b2f869d58e30b3159640951e79e50bf171178b74f",
+    "portable_bytes": 4133,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/horizon-forbidden-west/scripts/gamekey.py",
+    "source": "Mods/西之绝境/karin_original_build/scripts/gamekey.py",
+    "original_sha256": "d263e77edc97e782917b64b441d12f7ef0f9acc3022e7151e661ad537efdb60d",
+    "source_bytes": 2571,
+    "portable_sha256": "c56aa14b30628c8f8b6f9f12b44e9d4ecbbefaa098b81a829579b29d834e34aa",
+    "portable_bytes": 3095,
+    "modified_for_portability": true
   }
 ]

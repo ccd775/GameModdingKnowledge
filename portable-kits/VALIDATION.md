@@ -1,5 +1,37 @@
 # 迁移验证记录
 
+## 2026-10-02：新增西之绝境构建器
+
+- **迁入内容：** 9 个 Python 文件，`build_hfw.py`、`make_mod.py`、`patch_bounds.py` 和 6 个模块或工具脚本。PROVENANCE 分别记录每个文件的原始 SHA-256 和公开版 SHA-256。
+- **便携改动**只在 4 个文件：`make_mod.py`、`patch_bounds.py`、`pose_preview.py`、`gamekey.py`。
+  - 4 个文件的位置参数都改用 argparse，有了 `--help`，测试也就能统一检查各脚本的帮助输出；
+  - `make_mod.py` 在缺少 h2 工具、`.pristine` core、texconv 或 `jobs.json` 时直接报错；
+  - `gamekey.py` 在非 Windows 系统上也能导入。
+
+  其余 5 个文件与原文件逐字节相同。其中 `vrm.py` 与对马岛便携包中的同名文件逐字节相同。
+- **等价性验证：**
+  - **条件：** build `14835813`；Python 3.14.0、numpy 2.5.2、scipy 1.18.0、Pillow 12.2.0；texconv 2024.6.5.1（SHA-256 `9450ba6c…`）；h2_pc_mi_091 0.9.1（SHA-256 `871331ef…`）；同一 VRM 和同一组 h2 导出。
+  - **构建：** `build_hfw.py` 的 30 个输出与 v4 构建逐字节相同，包括 25 个 ascii、4 张页和 `jobs.json`。
+  - **导入和补丁：** `make_mod.py` 和 `patch_bounds.py` 产出的 33 个 mod 文件，与 agent 实机测试过的 v4 逐字节相同。便携改动前后各跑了一次，两次都相同。
+  - **其他：** `pose_preview.py` 产出 15 个 OBJ；`make_mod.py` 在工具目录缺失时以退出码 2 拒绝运行。
+- **合成测试**新增 5 项：
+  - ascii 读写往返：骨架、多 UV 层、8 个权重槽、LF 换行，且不写出 `nan`；
+  - core 补丁：常量从脚本源码中读取，检查 4 个包围盒和 6 个 SkinInfo 部件；类型不是 7 时拒绝修改，文件保持不变；
+  - 权重量化，以及射线锥遮挡判定（立方体内外各一个点，另测距离不足的情况）；
+  - 掩码合并：两个包围盒重叠但足迹分离的岛分成两块，镜像的岛合成一块；
+  - 姿势 FK：转轴不动，子骨跟随，蒙皮按权重混合。
+
+  根测试共 24 项，全部通过。九个游戏的独立导出测试也全部通过，其中西之绝境的测试在导出包里确实执行了，没有被跳过。
+- **依赖：** 本包的额外依赖放在 `portable-kits/horizon-forbidden-west/requirements.txt`：numpy 2.5.2、scipy 1.18.0（需要 Python 3.12+）。
+  - Pillow 来自根 `requirements.txt`；
+  - `gamekey.py` 另需 pywinauto，只在 Windows 上做实机测试时使用。
+- **未执行：**
+  - 新模型的案例常量；
+  - 其他 build；
+  - 其他库版本或 texconv 版本下的逐字节一致性。
+
+  实机证据仍是 v4 的 agent 自测，用户尚未单独确认。
+
 ## 2026-10-01：新增对马岛构建器
 
 - **迁入内容：** 9 个 Python 文件，`build_karin.py`、`verify.py` 和 7 个模块。PROVENANCE 分别记录每个文件的原始 SHA-256 和公开版 SHA-256。

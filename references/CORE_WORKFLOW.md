@@ -51,3 +51,8 @@ The game workflows use different formats, but the same engineering loop.
 - A spatial warp driven by bone and skin-radius control points does not control loose cloth far from the
   bone (leg warmers, platform soles). Apply explicit per-region transforms where the scale must change,
   and compare renders with the source model at the same scale, not only with the previous candidate.
+- When an importer only swaps vertex buffers, look for per-asset values derived from the vanilla vertex count
+  (Horizon Forbidden West: the `VertexComputeNbtCount` of GPU normal-regeneration SkinInfo parts). A stale count
+  hangs the game on load; diff a working reference Mod's metadata against vanilla before guessing.
+- Pick the material of a replaced part by its shader, not by free texture-page space: a face-skin shader's
+  subsurface scattering tinted hair red-brown in shadow, which no offline render showed.

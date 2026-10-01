@@ -9,6 +9,7 @@ import sys
 import tempfile
 import unittest
 import zlib
+import ast
 
 sys.dont_write_bytecode = True
 ROOT = Path(__file__).resolve().parents[1]
@@ -236,6 +237,7 @@ class PortableTools(unittest.TestCase):
         for path in KITS.glob('*/scripts/*.py'):
             if path.stem in ('stingray_archive','audit_blend_source'): continue
             if path.parents[1].name == 'ghost-of-tsushima' and got_missing(): continue
+            if path.parents[1].name == 'horizon-forbidden-west' and hfw_missing(): continue
             cli(path.parents[1].name,path.stem,'--help')
 
 
@@ -411,6 +413,174 @@ class GhostOfTsushimaTools(unittest.TestCase):
                 process = cli('ghost-of-tsushima', 'build_karin', *base, *extra, ok=False)
                 self.assertIn(message, process.stderr)
                 self.assertFalse(out.exists())
+
+
+HFW_DEPENDENCIES = ('numpy', 'scipy', 'PIL')
+HFW_SHARED_NAMES = ('atlas', 'vrm')                       # same module names as the GoT kit
+
+
+def hfw_missing():
+    return [m for m in HFW_DEPENDENCIES if importlib.util.find_spec(m) is None]
+
+
+def hfw(name):
+    """HFW builder module; skipped with the install hint when the kit's extra requirements are absent."""
+    if not (KITS / 'horizon-forbidden-west').is_dir():
+        raise unittest.SkipTest('horizon-forbidden-west is not included in this single-game export')
+    if hfw_missing():
+        raise unittest.SkipTest('pip install -r portable-kits/horizon-forbidden-west/requirements.txt (missing '
+                                + ', '.join(hfw_missing()) + ')')
+    for shared in HFW_SHARED_NAMES:                        # build_hfw must import the HFW atlas / vrm
+        sys.modules.pop(shared, None)
+    return module('horizon-forbidden-west', name)
+
+
+class HorizonForbiddenWestTools(unittest.TestCase):
+    """Builder modules on synthetic data. A full build needs h2 exports of the game, the h2 tool and a VRM."""
+
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(prefix='modding hfw ')
+        self.root = Path(self.temp.name)
+
+    def tearDown(self): self.temp.cleanup()
+
+    @classmethod
+    def tearDownClass(cls):
+        for shared in HFW_SHARED_NAMES:
+            sys.modules.pop(shared, None)
+
+    @staticmethod
+    def submesh(np, name, points, nuv=1, slots=4, bone=0):
+        n = len(points)
+        return dict(name=name, nuv=nuv, textures=[('tex_a', 0)], pos=np.asarray(points, float),
+                    nrm=np.tile([0, 0, 1.0], (n, 1)), col=np.tile([255, 128, 0, 255], (n, 1)),
+                    uv=[np.linspace(0, 1, 2 * n).reshape(n, 2) for _ in range(nuv)],
+                    bi=[[bone] * slots for _ in range(n)], bw=[[1.0] + [0.0] * (slots - 1) for _ in range(n)],
+                    faces=np.array([[0, 1, 2]]))
+
+    def test_hfw_ascii_roundtrip(self):
+        H = hfw('hfwascii')
+        import numpy as np
+        bones = [dict(name='hipsBone', parent=-1, pos=[0, 0, 1.0], quat=[0, 0, 0, 1]),
+                 dict(name='C_Spine_sjnt_0', parent=0, pos=[0, 0.01, 1.1], quat=[0, 0, 0.5, 0.866025])]
+        upper = self.submesh(np, 'b2c4_215_sm1', [[0.1, 0.2, 0.3], [0.4, -0.5, 0.6], [-0.7, 0.8, 0.9]],
+                             nuv=3, slots=8, bone=1)
+        upper['bi'] = [[1, 0, 1, 1, 1, 1, 1, 1]] * 3
+        upper['bw'] = [[0.5, 0.25, 0.25] + [0.0] * 5] * 3
+        meshes = [self.submesh(np, 'b2c4_215_sm0', np.eye(3)), upper]
+        path = self.root / 'lod0_215.ascii'
+        H.write(path, meshes, bones=bones)
+        text = path.read_bytes()
+        self.assertNotIn(b'\r', text)                         # the h2 tool reads LF text
+        self.assertNotIn(b'nan', text.lower())
+        back_bones, back = H.read_meshes(path, has_skeleton=True)
+        self.assertEqual([(b['name'], b['parent']) for b in back_bones], [('hipsBone', -1), ('C_Spine_sjnt_0', 0)])
+        self.assertEqual([b['name'] for b in H.read_skeleton(path)], ['hipsBone', 'C_Spine_sjnt_0'])
+        for m, r in zip(meshes, back):
+            self.assertEqual((r['name'], r['nuv'], r['textures']), (m['name'], m['nuv'], m['textures']))
+            self.assertLess(np.abs(r['pos'] - m['pos']).max(), 1e-6)
+            self.assertTrue(np.array_equal(r['col'], m['col']))
+            for u in range(m['nuv']):
+                self.assertLess(np.abs(r['uv'][u] - m['uv'][u]).max(), 1e-6)
+            self.assertEqual(r['bi'], m['bi'])
+            self.assertLess(np.abs(np.array(r['bw']) - np.array(m['bw'])).max(), 1e-6)
+            self.assertTrue(np.array_equal(r['faces'], m['faces']))
+
+    def test_hfw_core_patch_and_refusal(self):
+        H = hfw('hfwascii')
+        import numpy as np
+        script = KITS / 'horizon-forbidden-west/scripts/patch_bounds.py'
+        consts = {n.targets[0].id: ast.literal_eval(n.value) for n in ast.parse(script.read_text(encoding='utf-8')).body
+                  if isinstance(n, ast.Assign) and isinstance(n.targets[0], ast.Name)
+                  and n.targets[0].id in ('BOXES', 'CS_NBT')}
+        core = bytearray(4096)
+        box_at, nbt_at, o = {}, {}, 64
+        for name, (mn, _) in consts['BOXES'].items():
+            struct.pack_into('<6f', core, o, *mn, *(np.array(mn) + 0.25))
+            box_at[name], o = o, o + 64
+        for name, (vc, nbt) in consts['CS_NBT'].items():
+            struct.pack_into('<I', core, o, 7)                # SkinInfo type 24 bytes before the count pair
+            struct.pack_into('<ii', core, o + 24, vc, nbt)
+            nbt_at[name], o = o + 24, o + 64
+        bones = [dict(name='hipsBone', parent=-1, pos=[0, 0, 0], quat=[0, 0, 0, 1])]
+        karin = {('lod0_215.ascii', 1): [[-2.0, 0.1, 1.2], [0.3, 0.2, 1.3], [0.1, -0.3, 2.4]],
+                 ('lod0_260.ascii', 0): [[1.5, 0.9, -0.5], [0.1, 0.1, 0.2], [0.0, 0.0, 0.9]],
+                 ('lod0_625.ascii', 0): [[0.3, 0.4, 2.5], [-0.1, 0.0, 1.5], [0.0, 0.1, 1.6]]}
+        (self.root / 'ascii').mkdir()
+        for f in sorted({f for f, _ in karin}):
+            subs = [self.submesh(np, f'sm{i}', karin.get((f, i), np.eye(3))) for i in range(2)]
+            H.write(self.root / 'ascii' / f, subs, bones=bones)
+        path = self.root / '02_19A7C73A.core'
+        path.write_bytes(bytes(core))
+        cli('horizon-forbidden-west', 'patch_bounds', path, self.root)
+        out = path.read_bytes()
+        for name, (mn, content) in consts['BOXES'].items():
+            pts = np.concatenate([np.array(karin[(f, i)]) for f, i in content])
+            want_min = np.minimum(mn, pts.min(0) - 0.02)
+            want_max = np.maximum(np.array(mn) + 0.25, pts.max(0) + 0.02)
+            got = np.array(struct.unpack_from('<6f', out, box_at[name]))
+            with self.subTest(box=name):
+                self.assertLess(np.abs(got - np.r_[want_min, want_max]).max(), 1e-5)
+        for name, (vc, nbt) in consts['CS_NBT'].items():
+            with self.subTest(skininfo=name):
+                self.assertEqual(struct.unpack_from('<I', out, nbt_at[name] - 24)[0], 5)
+                self.assertEqual(struct.unpack_from('<ii', out, nbt_at[name]), (vc, -1))
+        bad = bytearray(core)                                 # one part is not CsNbtGen: refuse, file untouched
+        struct.pack_into('<I', bad, next(iter(nbt_at.values())) - 24, 6)
+        path.write_bytes(bytes(bad))
+        process = cli('horizon-forbidden-west', 'patch_bounds', path, self.root, ok=False)
+        self.assertIn('expected 7', process.stdout + process.stderr)
+        self.assertEqual(path.read_bytes(), bytes(bad))
+
+    def test_hfw_weight_quantize_and_cover_test(self):
+        bh = hfw('build_hfw')
+        import numpy as np
+        acc = np.array([[0.1, 0.6, 0.0, 0.3, 0.001], [0, 0, 1.0, 0, 0]])
+        bi, bw = bh.quantize(acc, 2)
+        self.assertEqual(bi[0].tolist(), [1, 3])
+        self.assertLess(np.abs(bw[0] - [0.6 / 0.9, 0.3 / 0.9]).max(), 1e-12)
+        self.assertEqual((int(bi[1][0]), bw[1].tolist()), (2, [1.0, 0.0]))
+        with self.assertRaises(ValueError):
+            bh.quantize(np.zeros((1, 3)), 2)
+        c = np.array([[x, y, z] for x in (-1, 1) for y in (-1, 1) for z in (-1, 1)], float)
+        quads = [(0, 1, 3, 2), (4, 6, 7, 5), (0, 4, 5, 1), (2, 3, 7, 6), (0, 2, 6, 4), (1, 5, 7, 3)]
+        tri = np.array([[c[a], c[b], c[d]] for a, b, _, d in quads] + [[c[b], c[e], c[d]] for _, b, e, d in quads])
+        P = np.array([[0, 0, 0.0], [0.2, 0.1, 0.0], [3.0, 0, 0]])
+        N = np.array([[1.0, 0, 0], [0, 0, 1.0], [1.0, 0, 0]])
+        self.assertEqual(bh.enclosed(P, N, tri, dist=1.5).tolist(), [True, True, False])
+        self.assertEqual(bh.enclosed(P[:1], N[:1], tri, dist=0.5).tolist(), [False])   # cover farther than dist
+
+    def test_hfw_atlas_mask_merge_keeps_separate_islands(self):
+        atlas = hfw('atlas')
+        import numpy as np
+        from PIL import Image
+        img = Image.new('RGBA', (64, 64), (90, 120, 150, 255))
+        # two triangles whose bounding boxes overlap but whose footprints do not touch
+        uv = np.array([[0.1, 0.1], [0.6, 0.1], [0.1, 0.6], [0.9, 0.9], [0.4, 0.9], [0.9, 0.4]])
+        items = [dict(img=img, uv=uv, tris=np.array([[0, 1, 2], [3, 4, 5]]), key='a')]
+        self.assertEqual(atlas.build_page(items, (128, 128))[2]['pieces'], 1)
+        page, uvs, info = atlas.build_page(items, (128, 128), mask_merge=True)
+        self.assertEqual(info['pieces'], 2)
+        self.assertEqual(page.size, (128, 128))
+        # a mirrored copy on the same footprint still shares one piece
+        twin = [dict(img=img, uv=uv[:3].copy(), tris=np.array([[0, 1, 2]]), key='a'),
+                dict(img=img, uv=uv[:3].copy(), tris=np.array([[0, 2, 1]]), key='a')]
+        page, uvs, info = atlas.build_page(twin, (128, 128), mask_merge=True)
+        self.assertEqual(info['pieces'], 1)
+        self.assertLess(np.abs(uvs[0] - uvs[1]).max(), 1e-12)
+
+    def test_hfw_pose_fk_keeps_pivots(self):
+        pp = hfw('pose_preview')
+        import numpy as np
+        sk = [dict(name='root', parent=-1, pos=[0, 0, 0], quat=[0, 0, 0, 1]),
+              dict(name='arm', parent=0, pos=[0, 0, 1.0], quat=[0, 0, 0, 1]),
+              dict(name='hand', parent=1, pos=[0, 0, 2.0], quat=[0, 0, 0, 1])]
+        M = pp.fk(sk, {'arm': pp.rot([1, 0, 0], 90)})
+        self.assertTrue(np.allclose(M[0], np.eye(4)))
+        self.assertTrue(np.allclose(M[1] @ [0, 0, 1.0, 1], [0, 0, 1.0, 1]))          # rotation about its own pivot
+        self.assertTrue(np.allclose(M[2] @ [0, 0, 2.0, 1], [0, -1.0, 1.0, 1]))       # child follows
+        m = dict(pos=np.array([[0, 0, 2.0]]), bi=[[2, 0]], bw=[[0.5, 0.5]])
+        self.assertTrue(np.allclose(pp.skin(m, M), [[0, -0.5, 1.5]]))
 
 
 class MK1Tools(unittest.TestCase):
