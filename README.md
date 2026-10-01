@@ -1,7 +1,7 @@
 如果你觉得内容有帮助，可以前往https://ifdian.net/a/ccd775 赞助我以获得贴贴！
 # Game Modding Shared Knowledge
 
-供人和 agent 接续长线 Mod 项目的知识库与便携工具包。它包含十二款游戏的实际项目方法、成功与失败记录（其中八款附便携工具包）、19 个原项目迁移脚本、MK1 参数化工具、对马岛构建器和公共运行工具；不需要注册 Skill。
+供人和 agent 接续长线 Mod 项目的知识库与便携工具包。它包含十三款游戏的实际项目方法、成功与失败记录（其中八款附便携工具包）、19 个原项目迁移脚本、MK1 参数化工具、对马岛构建器和公共运行工具；不需要注册 Skill。
 
 ## 从这里开始
 
@@ -24,6 +24,7 @@
 | 求生之路2 | [L4D2](games/left-4-dead-2/README.md) | 多个实机确认案例，另有静态完成待复测项目 |
 | 绝地潜兵2 | [HD2](games/helldivers-2/README.md) | Unit/绑定/材质多案例；splat 等分支单独验收 |
 | PRAGMATA | [Pragmata](games/pragmata/README.md) | Karin_Original→Hugh、Karin_kipfel→Diana v0.3.0：从源模型完整构建（refskel / 原生 rest 两条骨架路线、Env_Emissive 材质、从零插入 chain2 与 prefab 组件、裙摆碰撞体与节点胶囊）经用户验收；另为 Gamer JP 的两个替换 mod 加装物理（phys3 用户认可）；无表情，GPU 发丝与其它服装未覆盖 |
+| 生化危机 安魂曲 | [RE9 Requiem](games/resident-evil-requiem/README.md) | Karin_Original→里昂 / 格蕾丝 v1.2.0：从源模型完整构建（refskel 路线、全部部件与 mdf2 变体、chain2 物理与无 Chain2 身体 prefab 注入、CollisionTarget=Self 让 chain2 自带碰撞体生效）；仅在「游戏模型」展柜由 agent 截图与运行时探针验证，实际游玩未测、用户未验收；另修复用户自制 Leon Karin 的乳胶感材质（离线） |
 
 ## 独立交接与验证
 

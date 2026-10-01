@@ -111,6 +111,16 @@
       "game_build": "24543093",
       "topics": ["RE Engine", "mesh 251121828 raw 模式", "refskel 路线 / 原生 rest 路线", "参考 mod 配方反推", "PFB.18 / RSZ v16 组件插入", "chain2 .15", "Chain2 UpdateTiming", "chain2 内置模型碰撞体", "节点胶囊碰撞", "形态键烘焙收素体"],
       "limits": ["无表情/眼动", "Diana GPU 发丝未处理", "其它服装与破损形态侵蚀件未覆盖", "过场 ch0091 无物理", "碰撞与参数改动未逐项归因"]
+    },
+    {
+      "id": "resident-evil-requiem",
+      "path": "games/resident-evil-requiem",
+      "status": "runtime-load-pass-scoped",
+      "milestone": "Karin_Original→里昂 / 格蕾丝 v1.2.0（从源模型完整构建 + chain2 物理 + 无 Chain2 身体 prefab 注入；CollisionTarget=Self 让 chain2 自带碰撞体生效）；用户自制 Leon Karin 哑光修复",
+      "date": "2026-10-02",
+      "game_build": "23634047",
+      "topics": ["RE Engine", "mesh 250925211 八权重 raw 模式", "参考 mod 配方反推", "部件变体与 mdf2 变体全覆盖", "montage 套件与展柜 figure prefab", "PFB.18 / RSZ v16 组件注入", "chain2 .15", "Chain2 CollisionTarget", "NullNormal 粗糙度 0", "REFramework 运行时探针"],
+      "limits": ["只在展柜验证（agent 截图 + 探针），实际游玩未测、用户未验收", "格蕾丝展柜里身体物理被游戏关闭", "无表情/眼动", "GPU 发丝未处理", "refskel 影响同角色其它服装", "Leon Karin 哑光修复未进游戏"]
     }
   ]
 }

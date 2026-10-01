@@ -13,6 +13,7 @@
 | HD2 | patch triplet、LUT、SDK UV 复制 | 当前 AQ/SDK、Unit carrier、权重和 Piece ownership |
 | MHWs | 仅文档（合同、排障、自测方法），无便携脚本 | RE Mesh/Chain 工具、BoneSystem、当前 REFramework；每角色骨架/脸部映射、挂点骨与碰撞拟合 |
 | Ghost of Tsushima | 完整构建器：VRM 拟合与肩部反解、剔除/减面、UV 拼页、xmesh/xpps/SPS 写入、PSARC 打包；离线校验与渲染 | 新模型的 profile（网格→槽位、遮盖规则、参数）、新 build 的偏移与断言复核、实机复测 |
+| RE9 Requiem | 仅文档（合同、排障、展柜自测与运行时探针方法），无便携脚本 | RE Mesh/Chain 工具、REasy RSZ 类型库、REFramework；每角色部件/变体覆盖、refskel 映射、chain2 拟合与 prefab 注入；实际游玩复测 |
 
 完整清单见 [便携入口](../portable-kits/README.md)。带有 --help 的脚本也有明确格式限制，不能把旧角色合同当成所有模型的常量。
 

@@ -9,9 +9,11 @@
 | SMF / GlacierKit | [维护者的 suit modding 指南](https://glaciermodding.org/docs/modding/hitman/guides/suitmodding/) | SMF 2.33.40、GlacierKit 1.12.15 为历史锁；使用当前实体补丁 |
 | ZModeler | [作者官网](https://www.zmodeler3.com/) | 3.3.1.1244；XBG filter、Skeleton Bind、L0/L1 Compound，需用户自己的授权 |
 | RE Mesh/Chain 工具 | [NSACloud](https://github.com/NSACloud) / [Chain 项目](https://github.com/NSACloud/RE-Chain-Editor) | Mesh 0.66、Chain 14.0；在 Blender 插件设置中安装并测试当前文件格式。DMC5 用 Mesh 0.44（无界面模式需屏蔽 `console_toggle`，MDF v10 只读不写），Chain 14.0 的 `file_re_chain` 可往返 chain .21 |
-| REFramework | [nightly 发布](https://github.com/praydog/REFramework-nightly/releases) | RE Engine 游戏的加载器；MHWs exe 1.42.0.2 上 nightly 01212 无法加载散装贴图，01424 可以。每次游戏更新后重新确认，记录日志中的 commit |
+| REFramework | [nightly 发布](https://github.com/praydog/REFramework-nightly/releases) | RE Engine 游戏的加载器；MHWs exe 1.42.0.2 上 nightly 01212 无法加载散装贴图，01424 可以。每次游戏更新后重新确认，记录日志中的 commit。RE9 用它的 Lua autorun 写只读探针，读 Chain2 组件、关节坐标与枚举值 |
 | BoneSystem（MHWs） | [作者发布帖（南风焓）](https://www.caimogu.cc/post/1937594.htm) | 26.1.13.1；REFramework 插件，独立骨骼与表情映射，配置见 MHWs 技术合同 |
-| Fluffy Mod Manager | [作者官网](https://www.fluffyquack.com/) | MHWs、DMC5 的 mod 安装/回退（DMC5 为 invalidate 方式）；以其 `installed.ini` 为游戏目录的权威记录 |
+| Fluffy Mod Manager | [作者官网](https://www.fluffyquack.com/) | MHWs、DMC5、RE9 的 mod 安装/回退（DMC5 为 invalidate 方式）；以其 `installed.ini` 为游戏目录的权威记录 |
+| REE.PAK.Tool 路径表 | [Ekey](https://github.com/Ekey/REE.PAK.Tool) | `Projects/*_STM_Release.list`：RE Engine 游戏的文件路径表，用于按表提取与枚举部件/mdf2 变体（PRAGMATA、RE9）；游戏更新后重新下载 |
+| REasy | [seifhassine/REasy](https://github.com/seifhassine/REasy) | `resources/data/dumps/` 下的 RSZ 类型库：PRAGMATA 用 `rszpragmata.json`，RE9 用 `rszre9.json`（2026-10-01 取自 main）；先对原生 prefab 做逐字节往返再用 |
 | Crowbar | [作者项目](https://github.com/ZeqMacaw/Crowbar) | 0.74，Source 伴随文件反编译 |
 | Source 工具 | [Valve Source SDK](https://github.com/ValveSoftware/source-sdk-2013) | StudioMDL/VTEX/VPK/HLMV 使用目标 L4D2 安装提供的版本，不以 SDK2013 编译器替代 |
 | HD2SDK CE | [维护者项目](https://github.com/Boxofbiscuits97/HD2SDK-CommunityEdition) | 获取插件后固定 commit；不同 AQ 分支需单独作 Unit 往返测试 |

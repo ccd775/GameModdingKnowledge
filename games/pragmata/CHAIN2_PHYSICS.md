@@ -76,6 +76,8 @@ group `attrFlags` 位（名称来自 RE Chain Editor 的属性表）：
 模型碰撞体，不碰角色 `.clsp`。据此推断 v0.1 的 Diana 虽然 `EnabledCollision = 1`，但文件里
 没有碰撞体，实际上什么也不碰（推断，未单独实验）。
 
+补充（2026-10-02，来自 [生化危机 安魂曲](../resident-evil-requiem/CHAIN2_PHYSICS.md) §3）：chain2 自带碰撞体是否生效，还取决于 prefab 上 `via.motion.Chain2.CollisionTarget`（RE9 运行时枚举 Self 0 / Extern 1 / All 2；Extern 只碰 `.clsp`）。本项目插入的 Chain2（从原生部件复制）和原生 ch09000 读出来都是 0，与模型碰撞体生效一致；本作未单独读枚举。新项目复制模板组件时先核对这个字段。
+
 角色 `.clsp` 不能直接复用：Hugh 的 clsp 有背包机械臂、颈后推进器和 0.2 m 胸腔胶囊，Karin 没有这些部件。
 
 ### 5.2 chain2 内置模型碰撞体（runtime-confirmed，随 v0.2/v0.3 一起被接受）
