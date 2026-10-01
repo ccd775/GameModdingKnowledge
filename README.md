@@ -1,7 +1,7 @@
 如果你觉得内容有帮助，可以前往https://ifdian.net/a/ccd775 赞助我以获得贴贴！
 # Game Modding Shared Knowledge
 
-供人和 agent 接续长线 Mod 项目的知识库与便携工具包。它包含十四款游戏的实际项目方法、成功与失败记录（其中九款附便携工具包）、19 个原项目迁移脚本、MK1 参数化工具、对马岛与西之绝境构建器和公共运行工具；不需要注册 Skill。
+供人和 agent 接续长线 Mod 项目的知识库与便携工具包。它包含十五款游戏的实际项目方法、成功与失败记录（其中九款附便携工具包）、19 个原项目迁移脚本、MK1 参数化工具、对马岛与西之绝境构建器和公共运行工具；不需要注册 Skill。
 
 ## 从这里开始
 
@@ -18,6 +18,7 @@
 | 地平线：西之绝境 | [Horizon Forbidden West](games/horizon-forbidden-west/README.md) | Karin_Original 替换贝塔 v4（经 Mod Manager 角色切换扮演）：读档、外观、奔跑转身由 agent 实机自测（2026-10-02），用户未单独确认；身体只换 LOD0，无次级物理与表情 |
 | 对马岛之魂 导演剪辑版 | [Ghost of Tsushima](games/ghost-of-tsushima/README.md) | Karin 替换忠赖的铠甲：PicodraTech 第四构建经用户实机验收；Karin_Original 经用户认可（未指明版本，当时发布为 v4）（均为 2026-09-30，场景未逐项列出）；只替换 LOD0，无次级物理 |
 | 鬼泣5 | [DMC5](games/devil-may-cry-5/README.md) | KarinPT→V：标题画面经用户确认；Karin_Original→Nero / Dante / V 三包 v1.1：Nero / Dante 实战经用户验收（含裙摆碰撞修复）；Original V 的 v1.1 物理未在游戏里加载，魔人形态、过场、立绘未检查 |
+| 真三国无双 起源 | [DW Origins](games/dynasty-warriors-origins/README.md) | Karin PicodraTech→鸾翼将装：修复接缝/外套脏/翻领发糊（源模型重烘焙、UV 切开重排）经用户实机验收，脸部"可接受"；Karin_Original→鸾翼将装 v20261002a：从 FBX 构建、复用同网格的脸、按原版辅助骨分布迁移权重，仅由 agent 读档在旅馆/装备界面截图验证，用户未验收；无次级物理 |
 | 杀手暗杀世界 | [Hitman WOA](games/hitman-world-of-assassination/README.md) | Signature Suit 0.1.0 在 Dartmoor 的基础动作 |
 | 看门狗 | [Watch Dogs](games/watch-dogs/README.md) | 默认服装 v1.3.0；保留少数手指变形限制 |
 | 刺客信条黑旗记忆重置 | [Black Flag Resynced](games/assassins-creed-black-flag/README.md) | 角色替换及最终 1.6.1 修复，用户于 9 月 6 日确认 |

@@ -66,6 +66,16 @@
       "limits": ["Original V 的 v1.1 chain 未在游戏里加载；V 的实战未报告", "魔人形态、过场、裂纹形态未检查", "无表情 / 眼动", "菜单 UI 立绘未检查", "v1.1 物理改动未逐项归因"]
     },
     {
+      "id": "dynasty-warriors-origins",
+      "path": "games/dynasty-warriors-origins",
+      "status": "mixed-runtime-confirmed-and-open-issues",
+      "milestone": "Karin PicodraTech→鸾翼将装 修复 v20261001c（接缝/外套/翻领经用户验收，脸部可接受）；Karin_Original→鸾翼将装 v20261002a（从 FBX 构建、复用同网格的脸；agent 读档旅馆/装备界面截图，用户未验收）",
+      "date": "2026-10-02",
+      "game_build": "21711288",
+      "topics": ["KT 引擎 G1M / G1T", "DWOPATCHER 散装哈希文件", "rdb / fdata / KTID 槽表", "类型 49 细节遮罩与类型 24 细节法线", "源模型法线/颜色重烘焙", "UV 密度诊断、切开与 ARAP 重排", "脸部附属贴图布局", "原版辅助骨权重分布迁移", "gust 往返写回", "读档旅馆自测自动化"],
+      "limits": ["无次级物理（头发/马尾/尾巴/裙摆刚性）", "脸部部分光照偏暗、下半部斑块", "Original 版只做读档界面自测，战斗/过场未测、用户未验收", "肩关节比游戏窄 7 cm，抬臂腋下拉伸", "构建脚本未进便携包"]
+    },
+    {
       "id": "hitman-world-of-assassination",
       "path": "games/hitman-world-of-assassination",
       "status": "runtime-confirmed-scoped",

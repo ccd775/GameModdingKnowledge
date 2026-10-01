@@ -35,6 +35,7 @@ before authoring. Never use this root document as a live candidate state file.
 - Ghost of Tsushima DIRECTOR'S CUT (PC) -> `games/ghost-of-tsushima/`
 - Horizon Forbidden West (PC) -> `games/horizon-forbidden-west/`
 - Devil May Cry 5 -> `games/devil-may-cry-5/`
+- Dynasty Warriors: Origins -> `games/dynasty-warriors-origins/`
 
 - Hitman: World of Assassination -> `games/hitman-world-of-assassination/`
 - Watch Dogs -> `games/watch-dogs/`
