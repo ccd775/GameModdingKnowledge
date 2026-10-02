@@ -430,5 +430,266 @@
     "portable_sha256": "c56aa14b30628c8f8b6f9f12b44e9d4ecbbefaa098b81a829579b29d834e34aa",
     "portable_bytes": 3095,
     "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/god-of-war-ragnarok/scripts/build_kratos_final.py",
+    "source": "Mods/战神5/Tools_GoWR/gowr/build_kratos_final.py",
+    "original_sha256": "994681f80db7b3aa5147e9387ca2b920919c97871ea636e40b12642e4b48de19",
+    "source_bytes": 2263,
+    "portable_sha256": "66c8bcd33f35dc13ae910f9c2e75cdfd05a8829727759c6fe408a4543ae87b8c",
+    "portable_bytes": 3343,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/god-of-war-ragnarok/scripts/build_valk_final.py",
+    "source": "Mods/战神5/Tools_GoWR/gowr/build_valk_final.py",
+    "original_sha256": "12437c1ec65dae491588264af480e5690e6cb5fb2489d46febec8f2cfed4b298",
+    "source_bytes": 3504,
+    "portable_sha256": "96a82223f65b0d8026c6dea2119e2640e18ee2cb56122eade8aaca8576c3e92b",
+    "portable_bytes": 4479,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/god-of-war-ragnarok/scripts/verify_build.py",
+    "source": "Mods/战神5/Tools_GoWR/gowr/verify_build.py",
+    "original_sha256": "348f1cf678b45577721cca691dbafca81fd40e953c42ea045a790028cdabcf2a",
+    "source_bytes": 5276,
+    "portable_sha256": "094a45b3d55926d5bb4e9b5a66713c6f95b0405288481810b3ae7c8c1ee76a20",
+    "portable_bytes": 5738,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/god-of-war-ragnarok/scripts/knee_sim.py",
+    "source": "agent-session-scratchpad/knee_sim.py",
+    "original_sha256": "b606264c47bb002fc441e765646fb9f896daf59098eb6790682e4a838880136d",
+    "source_bytes": 5089,
+    "portable_sha256": "71ecc9ebfeedc58dc7741a0c630bbfc2239be3266434dc2c90c6f8d4c87c25d5",
+    "portable_bytes": 5507,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/god-of-war-ragnarok/scripts/build_textures.py",
+    "source": "Mods/战神5/Tools_GoWR/gowr/build_textures.py",
+    "original_sha256": "7843bdf52c4535524e49ead8964928b7e87dd8ed2adaa6471e20ac4b2162e0ec",
+    "source_bytes": 6920,
+    "portable_sha256": "42d5f2235aa712fbd28a7884dd3a30833e200f72a355e5b58e1eecc5b3fa7707",
+    "portable_bytes": 7878,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/god-of-war-ragnarok/scripts/build_valk_textures.py",
+    "source": "Mods/战神5/Tools_GoWR/gowr/build_valk_textures.py",
+    "original_sha256": "3ae1695d718ae4cf23b1032ecbc905cb3ec90e1389d2f17baaec079aeb658816",
+    "source_bytes": 1233,
+    "portable_sha256": "d7e88244f515b48f124b1b5976d3994de023d074f01e7f0447c237e5c38bed2f",
+    "portable_bytes": 1991,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/god-of-war-ragnarok/scripts/rigspec.py",
+    "source": "Mods/战神5/Tools_GoWR/gowr/rigspec.py",
+    "original_sha256": "b082a37b81f4bf2c43204d52d707233a81107fae88180f13672c61ce1f2c7689",
+    "source_bytes": 4095,
+    "portable_sha256": "139e6cf1f26e652ea9d97114bb200cbcea462d05da34a2a3e68db338ccfcbd8d",
+    "portable_bytes": 3881,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/god-of-war-ragnarok/scripts/extract_vrm_textures.py",
+    "source": "Mods/战神5/Tools_GoWR/gowr/extract_vrm_textures.py",
+    "original_sha256": "6989027d02ac55e8a3d2c8f4b3fa254a45d7bbba7b84551672a136bed2ec0c7e",
+    "source_bytes": 595,
+    "portable_sha256": "e623e4e3f631d63ccae4880725147f330b0bb98a12b78f0434e9bcc81d6253a2",
+    "portable_bytes": 817,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/god-of-war-ragnarok/scripts/bake_knee.py",
+    "source": "Mods/战神5/Tools_GoWR/source_fix/bake_knee.py",
+    "original_sha256": "0261b1f7ea45f4d16ee03f4b11ce1cde4c0da62ec27fe9b7358da908dacf1912",
+    "source_bytes": 6134,
+    "portable_sha256": "2b8eb6b31df0f6702852533300170b33de49ce5b99d233e7417c51707b9df8f5",
+    "portable_bytes": 6529,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/god-of-war-ragnarok/scripts/gamedir.py",
+    "source": "new file written for the portable kit (no project original)",
+    "original_sha256": null,
+    "source_bytes": null,
+    "portable_sha256": "cf44c905bcd78bb6271d0f9ddf9bcc7150582baeaf94c8d71652dbdb069f2d94",
+    "portable_bytes": 1597,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/god-of-war-ragnarok/scripts/wad.py",
+    "source": "Mods/战神5/Tools_GoWR/gowr/wad.py",
+    "original_sha256": "117ee39ace19b229b8d730986352d3ff2bd2a595ef87d2b964c286466aa64b27",
+    "source_bytes": 5003,
+    "portable_sha256": "38ebab2cdf6f7df6a20b4fca910196c89837f24c42e80dc0df9e601b303f069a",
+    "portable_bytes": 5206,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/god-of-war-ragnarok/scripts/mesh.py",
+    "source": "Mods/战神5/Tools_GoWR/gowr/mesh.py",
+    "original_sha256": "8b53fec3478f1a59f027c09a86cc7de89f85677cd7a4bd7902697ae5db9f548d",
+    "source_bytes": 2674,
+    "portable_sha256": "8b53fec3478f1a59f027c09a86cc7de89f85677cd7a4bd7902697ae5db9f548d",
+    "portable_bytes": 2674,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/god-of-war-ragnarok/scripts/mg.py",
+    "source": "Mods/战神5/Tools_GoWR/gowr/mg.py",
+    "original_sha256": "e3b51112ab84e70f0e52c581b538b038a1249c787347df9ede42610ffee93c95",
+    "source_bytes": 826,
+    "portable_sha256": "e3b51112ab84e70f0e52c581b538b038a1249c787347df9ede42610ffee93c95",
+    "portable_bytes": 826,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/god-of-war-ragnarok/scripts/rig.py",
+    "source": "Mods/战神5/Tools_GoWR/gowr/rig.py",
+    "original_sha256": "773ea2b0ec91915808b0a0a0680a4e9e2276ea282b707a92353b6c193ed01f97",
+    "source_bytes": 435,
+    "portable_sha256": "773ea2b0ec91915808b0a0a0680a4e9e2276ea282b707a92353b6c193ed01f97",
+    "portable_bytes": 435,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/god-of-war-ragnarok/scripts/packs.py",
+    "source": "Mods/战神5/Tools_GoWR/gowr/packs.py",
+    "original_sha256": "25dfcefd8b4e95069e412c8236cab4a41ab6855541cb1b1dfd95f8b1e8882d67",
+    "source_bytes": 1005,
+    "portable_sha256": "25dfcefd8b4e95069e412c8236cab4a41ab6855541cb1b1dfd95f8b1e8882d67",
+    "portable_bytes": 1005,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/god-of-war-ragnarok/scripts/decode.py",
+    "source": "Mods/战神5/Tools_GoWR/gowr/decode.py",
+    "original_sha256": "c40d0bcb3a6f047d3739723d826692b1bd0e57142bb87d7c83bd60bb3af50bfa",
+    "source_bytes": 3365,
+    "portable_sha256": "c40d0bcb3a6f047d3739723d826692b1bd0e57142bb87d7c83bd60bb3af50bfa",
+    "portable_bytes": 3365,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/god-of-war-ragnarok/scripts/encode.py",
+    "source": "Mods/战神5/Tools_GoWR/gowr/encode.py",
+    "original_sha256": "8ecb25b722cbc4e210cd6d7459df1be80c2b1df8882825dcccd9d4ce09b2e1ad",
+    "source_bytes": 7515,
+    "portable_sha256": "8ecb25b722cbc4e210cd6d7459df1be80c2b1df8882825dcccd9d4ce09b2e1ad",
+    "portable_bytes": 7515,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/god-of-war-ragnarok/scripts/geometry.py",
+    "source": "Mods/战神5/Tools_GoWR/gowr/geometry.py",
+    "original_sha256": "29caa6ed2b16eebf2aa920f7b61e5df45295dc918a53a078e8b25264e06dcf63",
+    "source_bytes": 7838,
+    "portable_sha256": "29caa6ed2b16eebf2aa920f7b61e5df45295dc918a53a078e8b25264e06dcf63",
+    "portable_bytes": 7838,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/god-of-war-ragnarok/scripts/charbuild.py",
+    "source": "Mods/战神5/Tools_GoWR/gowr/charbuild.py",
+    "original_sha256": "3d862b4185dcc91203c99a061b8087753f77428c989764ce17f5544d301f62c9",
+    "source_bytes": 4446,
+    "portable_sha256": "3d862b4185dcc91203c99a061b8087753f77428c989764ce17f5544d301f62c9",
+    "portable_bytes": 4446,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/god-of-war-ragnarok/scripts/build_inplace.py",
+    "source": "Mods/战神5/Tools_GoWR/gowr/build_inplace.py",
+    "original_sha256": "60ab9b04ba9c1dd93635c17403f3afa60fe83a82585a7b352ceefdcb227ed5bc",
+    "source_bytes": 6740,
+    "portable_sha256": "60ab9b04ba9c1dd93635c17403f3afa60fe83a82585a7b352ceefdcb227ed5bc",
+    "portable_bytes": 6740,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/god-of-war-ragnarok/scripts/build_mesh.py",
+    "source": "Mods/战神5/Tools_GoWR/gowr/build_mesh.py",
+    "original_sha256": "c462dfb1e17a0e1f4e86ca209e28e9274df886fb01a6c43db67e859337f5c028",
+    "source_bytes": 5426,
+    "portable_sha256": "919873f709bf4be558ff426ce9b27cbfecef2ca40b1b978d24eca5261c9d1510",
+    "portable_bytes": 5362,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/god-of-war-ragnarok/scripts/textures.py",
+    "source": "Mods/战神5/Tools_GoWR/gowr/textures.py",
+    "original_sha256": "a617082ba8713bd15cc24b01773792d4fa390b063f25b7c2291c423a1cdb5978",
+    "source_bytes": 3477,
+    "portable_sha256": "a617082ba8713bd15cc24b01773792d4fa390b063f25b7c2291c423a1cdb5978",
+    "portable_bytes": 3477,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/god-of-war-ragnarok/scripts/gnf.py",
+    "source": "Mods/战神5/Tools_GoWR/gowr/gnf.py",
+    "original_sha256": "16caedfb77708e44a1b190cfab98cb06c4e760c625b822a961518ae893c28a4c",
+    "source_bytes": 1438,
+    "portable_sha256": "16caedfb77708e44a1b190cfab98cb06c4e760c625b822a961518ae893c28a4c",
+    "portable_bytes": 1438,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/god-of-war-ragnarok/scripts/agctex.py",
+    "source": "Mods/战神5/Tools_GoWR/gowr/agctex.py",
+    "original_sha256": "29344a13b6b8939b938def2f04d292de387f75ae10ad004ef3a8b3723da700b2",
+    "source_bytes": 3810,
+    "portable_sha256": "4e07fc98482b7cfac455050c9bf8b71cc6416aa209ccaf2e3468a98c8ff82c00",
+    "portable_bytes": 4465,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/god-of-war-ragnarok/scripts/fbxbin.py",
+    "source": "Mods/战神5/Tools_GoWR/source_fix/fbxbin.py",
+    "original_sha256": "acd4830f06e41c50bba874ec2fe5c03a449729654372560cb5813d7ce643c469",
+    "source_bytes": 5488,
+    "portable_sha256": "acd4830f06e41c50bba874ec2fe5c03a449729654372560cb5813d7ce643c469",
+    "portable_bytes": 5488,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/god-of-war-ragnarok/scripts/gltf_util.py",
+    "source": "Mods/战神5/Tools_GoWR/source_fix/gltf_util.py",
+    "original_sha256": "fdb64f4b983f3c37ae88f346d47fb3bdc46ee259eda7de163f90d78cc34e1130",
+    "source_bytes": 2629,
+    "portable_sha256": "fdb64f4b983f3c37ae88f346d47fb3bdc46ee259eda7de163f90d78cc34e1130",
+    "portable_bytes": 2629,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/god-of-war-ragnarok/scripts/blender/fit_karin.py",
+    "source": "Mods/战神5/Tools_GoWR/blender/fit_karin.py",
+    "original_sha256": "416c3e5374bfb6199493c053a4affb60aa4d91b37b77bcd23673830fb023fa4e",
+    "source_bytes": 7535,
+    "portable_sha256": "416c3e5374bfb6199493c053a4affb60aa4d91b37b77bcd23673830fb023fa4e",
+    "portable_bytes": 7535,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/god-of-war-ragnarok/scripts/blender/decimate_levels.py",
+    "source": "Mods/战神5/Tools_GoWR/blender/decimate_levels.py",
+    "original_sha256": "6e0932c56261807e1bb70be3a27b2623c3675b78edeb8d4f58348ba4143ec477",
+    "source_bytes": 2548,
+    "portable_sha256": "6e0932c56261807e1bb70be3a27b2623c3675b78edeb8d4f58348ba4143ec477",
+    "portable_bytes": 2548,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/god-of-war-ragnarok/scripts/blender/dump_bones.py",
+    "source": "Mods/战神5/Tools_GoWR/blender/dump_bones.py",
+    "original_sha256": "7b220b78ca7c04874856bc9e3c9c3e0904537b21992164f662959d2a0dba84cb",
+    "source_bytes": 975,
+    "portable_sha256": "7b220b78ca7c04874856bc9e3c9c3e0904537b21992164f662959d2a0dba84cb",
+    "portable_bytes": 975,
+    "modified_for_portability": false
   }
 ]

@@ -1,5 +1,61 @@
 # 迁移验证记录
 
+## 2026-10-02：新增战神：诸神黄昏构建器
+
+- **迁入内容：** 29 个 Python 文件。
+  - `scripts/` 下 26 个：两个角色的构建入口、回读校验、屈膝模拟、两个贴图包入口、骨架角色表、VRM 贴图导出、源模型形态键烘焙，以及 17 个模块；
+  - `scripts/blender/` 下 3 个 Blender 脚本。放在子目录里，是为了不让 `--help` 检查去跑它们；
+  - 来源是项目工具目录 `Tools_GoWR` 的 `gowr/`、`source_fix/`、`blender/`。`knee_sim.py` 来自 agent 会话的临时目录，项目目录里没有它。`gamedir.py` 是新写的；
+  - PROVENANCE 分别记录每个文件的原始 SHA-256 和公开版 SHA-256。
+- **没有迁入：**
+  - `build_freya_final.py`：它改的是 `r_freya00.wad`，游戏不加载这个文件，是被否决的路线；
+  - `lodpack.py`：没有脚本引用它；
+  - `launch_test.sh`：仓库不收 `.sh` 文件；
+  - `data/` 里的角色表、骨骼表、贴图计划和原版 boot-options，`work/` 里的拟合结果和原版 wad。它们来自游戏或模型。
+- **便携改动**在 12 个文件，另加新文件 `gamedir.py`：
+  - 游戏目录只在 `gamedir.py` 一处设置：`--game` 或环境变量 `GOWR_GAME`，都没有时明确报错。`build_mesh.py`、`build_textures.py`、`agctex.py` 原来写死的路径改为调用它；
+  - `agctex.py` 改为第一次用到时才加载 DLL，所以任何模块在任何系统上都能导入；
+  - 入口脚本改用 argparse，底板 wad、拟合目录、骨骼表、角色表和输出都从参数传入。涉及 `build_kratos_final.py`、`build_valk_final.py`、`verify_build.py`、`knee_sim.py`、`build_textures.py`（新增 main，用奎托斯的默认规则）、`build_valk_textures.py`、`rigspec.py`、`extract_vrm_textures.py`、`bake_knee.py`、`wad.py`；
+  - `verify_build.py` 不再从构建脚本导入 `BASE_WAD`，也不再切换到自己所在的目录；
+  - `rigspec.py` 的骨骼表改成常量 `SPECS`，去掉了 `r_freya00` 那一份；
+  - `knee_sim.py` 的骨骼号、槽位号和膝盖高度提成顶部常量，CRLF 换行改为 LF；
+  - `wad.py` 直接运行时会先列出全部条目。
+
+  其余 16 个文件与原文件逐字节相同，包括 3 个 Blender 脚本。处理逻辑没有改。
+- **等价性验证：**
+  - **条件：** build `18979360`；Python 3.14.0、numpy 2.5.2、scipy 1.18.0、Pillow 12.3.0、lz4 4.4.5、etcpak 0.9.15、texture2ddecoder 1.0.6。全部用本包的脚本运行。输入是项目已有的拟合结果（来自已修正膝盖的源模型）、骨骼表、两个角色表，以及从 VRM 导出的贴图源 PNG。
+  - **奎托斯：** 底板是 KarinPicodraTech_Kratos 的 wad。`r_heroa00.wad`（`c8b43fc4…`）、`KarinOriginal.lodpack`（`a483890f…`）及其 `.toc`、`KarinOriginal.texpack`（`b37d5ca5…`）及其 `.toc`，与已发布的 5 个文件逐字节相同。
+  - **芙蕾雅：** 底板是原版 `r_freyavalkyrie00.wad`（LZ4）。`r_freyavalkyrie00.wad`（`f003da61…`）、`KarinOriginalFreya.lodpack`（`408cc758…`）及其 `.toc`、`KarinOriginalFreya.texpack`（`20d321c0…`）及其 `.toc`，与已发布的 5 个文件逐字节相同。
+  - **报告：** 两个角色的 `mesh_report.json` 和贴图 `.plan.json`，也与项目里的记录逐字节相同。
+  - **回读：** `verify_build.py` 两个角色都是 `BAD 0`（奎托斯 10 个槽位，芙蕾雅 19 个槽位，位置误差都是 0）。
+  - **屈膝：** `knee_sim.py` 在 0、30、60、90 度时，`outside_knee` 都是 0。会话里的原脚本对同一份输出给出的结果逐行相同。
+  - **角色表：** `rigspec.py` 重新生成的两个角色表，与项目使用的逐字节相同。奎托斯的骨架和项目当时一样，是从 KarinPicodraTech_Kratos 的 wad 读的。
+  - **形态键烘焙：** `bake_knee.py` 从 `.orig` 原件烘焙出的 FBX（`18f00e1a…`）和 VRM（`8f930404…`），与项目当时在会话里烘焙的副本逐字节相同。
+    - 这次比对发现，共享模型目录里的两个烘焙文件与之不同：各有一段 384 KiB（0x60000）、按 4 KiB 对齐的全零块，VRM 在 0xC0000，FBX 在 0xE0000，块以外逐字节相同。结果是那个 FBX 无法解析，那个 VRM 里脸部网格 `Body` 有 70 个形态键的数据变成了 0；
+    - 这是复制进同步盘时发生的存储损坏，不是脚本差异。`.orig` 原件没有这种全零块；
+    - 2026-10-02 当天已用会话里的烘焙副本替换，替换后两个文件的哈希与本包输出一致，FBX 能解析，VRM 脸部全零形态键的数量与原件相同（474 个里 218 个，原本就是空的）。复制进同步盘的文件要在复制后重新核对哈希。
+  - **其他：** `scripts/` 下 26 个脚本都能用 `--help` 运行。
+- **合成测试**新增 7 项：
+  - 三种骨骼权重布局的编码、解码往返：(9,2,4)+(10,2,3)、(9,2,4)+(10,2,2)、(9,4,4)+(10,3,1)。第二种检查 8 个 u16 骨骼槽（用 7 个，第 8 个为 0），骨骼号大于 2047 也不丢；超出容量的影响数按 10 / 7 / 4 截断；
+  - 单组多成员 lodpack 的写入，以及从 lodpack、`.toc`、LZ4 压缩的 `.toc` 回读；
+  - 槽位规划：先取共同档位再按顺序升级，索引容量也算；副槽连最低档都放不下时，部件交给主槽；主槽放不下时从末尾丢部件；什么都放不下时报错；
+  - 二进制 FBX：16 种长度下原样写回逐字节相同（覆盖"已对齐时填充 16 字节"）；改动 zlib 压缩的数组后重写，其他属性不变，尾部填充仍按 16 字节对齐；
+  - VRM 形态键烘焙：`body_2` 的稀疏 `kisekae_Knee` 加到基础网格上，该形态键清零（索引保留），包围盒更新；另一个形态键和另一个网格不变；
+  - 骨架镜像：同一关节上叠两根骨时按父骨选择，`left_override` 只替换指定的角色；
+  - 游戏目录：没设置时报错；导入 `agctex.py` 不需要 DLL，第一次真正使用时才去找它。
+
+  根测试共 31 项，全部通过。十个游戏的独立导出测试也全部通过，其中战神的测试在导出包里确实执行了，没有被跳过。
+- **依赖：** 本包的额外依赖放在 `portable-kits/god-of-war-ragnarok/requirements.txt`：numpy 2.5.2、scipy 1.18.0、etcpak 0.9.15、texture2ddecoder 1.0.6（需要 Python 3.12+）。
+  - Pillow 和 lz4 来自根 `requirements.txt`；
+  - 贴图那一步要在 Windows 上调用游戏自带的 `libSceAgcTextureTool.dll`；
+  - Blender 5.0.1 只用于拟合、减面和骨骼表。
+- **未执行：**
+  - Blender 的三步（骨骼表、拟合、减面）没有重跑，等价性验证用的是项目已有的拟合结果和骨骼表；
+  - 用原版 `r_heroa00.wad` 做奎托斯底板；
+  - 新模型的案例常量；其他 build；其他库版本下的逐字节一致性；
+  - 在非 Windows 系统上跑网格步骤；
+  - 本次没有部署或启动游戏，实机证据仍是此前 agent 的自测。
+
 ## 2026-10-02：新增西之绝境构建器
 
 - **迁入内容：** 9 个 Python 文件，`build_hfw.py`、`make_mod.py`、`patch_bounds.py` 和 6 个模块或工具脚本。PROVENANCE 分别记录每个文件的原始 SHA-256 和公开版 SHA-256。

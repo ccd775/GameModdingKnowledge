@@ -2,6 +2,7 @@
 from __future__ import annotations
 import importlib.util
 import json
+import os
 from pathlib import Path
 import struct
 import subprocess
@@ -238,6 +239,7 @@ class PortableTools(unittest.TestCase):
             if path.stem in ('stingray_archive','audit_blend_source'): continue
             if path.parents[1].name == 'ghost-of-tsushima' and got_missing(): continue
             if path.parents[1].name == 'horizon-forbidden-west' and hfw_missing(): continue
+            if path.parents[1].name == 'god-of-war-ragnarok' and gowr_missing(): continue
             cli(path.parents[1].name,path.stem,'--help')
 
 
@@ -413,6 +415,368 @@ class GhostOfTsushimaTools(unittest.TestCase):
                 process = cli('ghost-of-tsushima', 'build_karin', *base, *extra, ok=False)
                 self.assertIn(message, process.stderr)
                 self.assertFalse(out.exists())
+
+
+GOWR_DEPENDENCIES = ('numpy', 'scipy', 'PIL', 'lz4', 'etcpak', 'texture2ddecoder')
+GOWR_KIT = KITS / 'god-of-war-ragnarok'
+
+
+def gowr_missing():
+    return [m for m in GOWR_DEPENDENCIES if importlib.util.find_spec(m) is None]
+
+
+def gowr_names():
+    return [p.stem for p in (GOWR_KIT / 'scripts').glob('*.py')]
+
+
+def gowr(name):
+    """GoWR builder module; skipped with the install hint when the kit's extra requirements are absent.
+    Modules of the same name loaded from anywhere else are dropped first, so the kit imports its own siblings."""
+    if not GOWR_KIT.is_dir():
+        raise unittest.SkipTest('god-of-war-ragnarok is not included in this single-game export')
+    if gowr_missing():
+        raise unittest.SkipTest('pip install -r portable-kits/god-of-war-ragnarok/requirements.txt (missing '
+                                + ', '.join(gowr_missing()) + ')')
+    scripts = (GOWR_KIT / 'scripts').resolve()
+    for stem in gowr_names():
+        loaded = sys.modules.get(stem)
+        if loaded is not None and Path(getattr(loaded, '__file__', None) or '.').resolve().parent != scripts:
+            sys.modules.pop(stem)
+    return module('god-of-war-ragnarok', name)
+
+
+def gowr_mesh_def(comps, vcount, icount, buf_offs, ind_off, ind_stride=2):
+    """One synthetic MESH_ entry holding one definition, laid out where mesh.parse_mesh reads it."""
+    b = bytearray(0x400)
+    struct.pack_into('<II', b, 0xC, 0x14, 1)                  # header offset (table at 0x20) and def count
+    o = 0x40
+    struct.pack_into('<I', b, 0x20, o - 0x20)                  # self-relative pointer to the def
+    struct.pack_into('<I', b, o + 0x30, ind_off)
+    struct.pack_into('<I', b, o + 0x3C, buf_offs[0])
+    struct.pack_into('<II', b, o + 0x44, vcount, icount // 3)
+    struct.pack_into('<I', b, o + 0x5C, icount)
+    struct.pack_into('<II', b, o + 0x60, 0x100, 0x180)         # component / buffer-offset tables, def-relative
+    struct.pack_into('<Q', b, o + 0x68, 0x1234)
+    b[o + 0x80], b[o + 0x81], b[o + 0x84] = len(buf_offs), ind_stride, len(comps)
+    for j, c in enumerate(comps):
+        struct.pack_into('<5B', b, o + 0x100 + 8 * j, *c)
+    for j, off in enumerate(buf_offs):
+        struct.pack_into('<I', b, o + 0x180 + 4 * j, off)
+    return bytes(b)
+
+
+def gowr_geo(np, sizes):
+    """Synthetic geometry: one triangle strip per part; `sizes` maps part name -> vertex count."""
+    P, IDX, part_of_tri, stats, base = [], [], [], {}, 0
+    for k, (name, n) in enumerate(sizes.items()):
+        P.append(np.c_[np.arange(n) * 0.01 + k, np.zeros(n), np.arange(n) % 2])
+        tris = np.array([[i, i + 1, i + 2] for i in range(n - 2)]) + base
+        IDX.append(tris)
+        part_of_tri.append(np.full(len(tris), k))
+        stats[name] = dict(verts=n)
+        base += n
+    P = np.concatenate(P)
+    V = len(P)
+    return dict(P=P, N=np.tile([0, 0, 1.0], (V, 1)), T=np.tile([1.0, 0, 0], (V, 1)), UV=np.zeros((V, 2)),
+                INF=[[(0, 1.0)]] * V, IDX=np.concatenate(IDX), part_of_tri=np.concatenate(part_of_tri), stats=stats)
+
+
+def gowr_fbx_nodes(specs, start):
+    """Binary FBX 7.4 node records (12-byte headers); spec = (name, encoded props, children, has_null)."""
+    out = bytearray()
+    for name, props, children, null in specs:
+        pb = b''.join(props)
+        body_start = start + len(out) + 13 + len(name) + len(pb)
+        body = gowr_fbx_nodes(children, body_start) if children else b''
+        if null:
+            body += bytes(13)
+        out += struct.pack('<III', body_start + len(body), len(props), len(pb)) + bytes([len(name)]) + name + pb + body
+    return bytes(out)
+
+
+def gowr_fbx(filler, vertices):
+    def s(b):
+        return b'S' + struct.pack('<I', len(b)) + b
+    def arr(code, fmt, values, enc):
+        data = struct.pack('<%d%s' % (len(values), fmt), *values)
+        data = zlib.compress(data) if enc else data
+        return code + struct.pack('<III', len(values), enc, len(data)) + data
+    specs = [
+        (b'FBXHeaderExtension', [], [(b'FBXHeaderVersion', [b'I' + struct.pack('<i', 1003)], [], False),
+                                     (b'Creator', [s(b'synthetic' + b'x' * filler)], [], False)], True),
+        (b'Objects', [], [(b'Geometry', [b'L' + struct.pack('<q', 42), s(b'body_2\x00\x01Geometry'), s(b'Mesh')],
+                           [(b'Vertices', [arr(b'd', 'd', vertices, 1)], [], False),
+                            (b'PolygonVertexIndex', [arr(b'i', 'i', [0, 1, -3], 0)], [], False),
+                            (b'Misc', [b'Y' + struct.pack('<h', 7), b'C\x01', b'F' + struct.pack('<f', 1.5),
+                                       b'D' + struct.pack('<d', 2.5), b'R' + struct.pack('<I', 3) + b'raw'], [], False),
+                            (b'Properties70', [], [], True)], True)], True),
+        (b'Connections', [], [(b'C', [s(b'OO'), b'L' + struct.pack('<q', 42), b'L' + struct.pack('<q', 0)], [], False)], True),
+    ]
+    body = b'Kaydara FBX Binary  \x00\x1a\x00' + struct.pack('<I', 7400) + gowr_fbx_nodes(specs, 27) + bytes(13)
+    pad = -(len(body) + 20) % 16 or 16                         # footer padding ends on a 16-byte boundary
+    magic = bytes.fromhex('f85a8c6adef5d97eece90ce3758f290b')
+    return body + bytes(range(16)) + bytes(4) + bytes(pad) + struct.pack('<I', 7400) + bytes(120) + magic
+
+
+def gowr_glb():
+    """VRM-like GLB: mesh 'Body' plus 'body_2' whose two sparse POSITION targets are kisekae_Ankle and kisekae_Knee."""
+    binary, views, accessors = bytearray(), [], []
+    def view(raw):
+        while len(binary) % 4: binary.append(0)
+        views.append({'buffer': 0, 'byteOffset': len(binary), 'byteLength': len(raw)})
+        binary.extend(raw)
+        return len(views) - 1
+    def dense(rows):
+        a = {'bufferView': view(b''.join(struct.pack('<3f', *r) for r in rows)), 'componentType': 5126,
+             'count': len(rows), 'type': 'VEC3', 'min': [min(c) for c in zip(*rows)], 'max': [max(c) for c in zip(*rows)]}
+        accessors.append(a)
+        return len(accessors) - 1
+    def sparse(count, idx, vals):
+        accessors.append({'componentType': 5126, 'count': count, 'type': 'VEC3',
+                          'min': [min(c) for c in zip(*vals)], 'max': [max(c) for c in zip(*vals)],
+                          'sparse': {'count': len(idx),
+                                     'indices': {'bufferView': view(struct.pack('<%dI' % len(idx), *idx)), 'componentType': 5125},
+                                     'values': {'bufferView': view(b''.join(struct.pack('<3f', *v) for v in vals))}}})
+        return len(accessors) - 1
+    base = [(0, 0, 0), (1, 0, 0), (0, 1, 0), (1, 1, 0)]
+    face = dense([(0, 2, 0), (1, 2, 0), (0, 3, 0)])
+    pos = dense(base)
+    ankle = sparse(4, [0], [(0.125, 0, 0)])
+    knee = sparse(4, [1, 3], [(0, 0, 0.5), (0, -0.25, 2.0)])
+    while len(binary) % 4: binary.append(0)
+    document = {'asset': {'version': '2.0'}, 'buffers': [{'byteLength': len(binary)}], 'bufferViews': views,
+                'accessors': accessors,
+                'meshes': [{'name': 'Body', 'primitives': [{'attributes': {'POSITION': face}}]},
+                           {'name': 'body_2', 'extras': {'targetNames': ['kisekae_Ankle', 'kisekae_Knee']},
+                            'primitives': [{'attributes': {'POSITION': pos},
+                                            'targets': [{'POSITION': ankle}, {'POSITION': knee}]}]}]}
+    encoded = json.dumps(document).encode()
+    encoded += b' ' * (-len(encoded) % 4)
+    body = struct.pack('<I4s', len(encoded), b'JSON') + encoded + struct.pack('<I4s', len(binary), b'BIN\0') + bytes(binary)
+    return struct.pack('<4sII', b'glTF', 2, len(body) + 12) + body, dict(pos=pos, ankle=ankle, knee=knee, face=face)
+
+
+def gowr_rig(np, positions, parents):
+    """Skeleton blob in the layout rig.parse_rig reads: local matrices (row-vector translation) after the bone table."""
+    n = len(positions)
+    mo = ((0x18 + n * 32 + 15) & ~15) + 0x50
+    b = bytearray(mo + 128 * n)
+    struct.pack_into('<H', b, 0x10, n)
+    for i, (p, par) in enumerate(zip(positions, parents)):
+        struct.pack_into('<h', b, 0x1E + 8 * i, par)
+        local = np.eye(4)
+        local[3, :3] = np.subtract(p, positions[par]) if par >= 0 else p
+        struct.pack_into('<16f', b, mo + 64 * i, *local.reshape(-1))
+    return bytes(b)
+
+
+class GodOfWarRagnarokTools(unittest.TestCase):
+    """Builder modules on synthetic data. A full build needs the game install, Blender fits and the source model."""
+
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(prefix='modding gowr ')
+        self.root = Path(self.temp.name)
+        for stem in gowr_names() if GOWR_KIT.is_dir() else ():   # fresh modules: charbuild caches part sizes
+            sys.modules.pop(stem, None)
+
+    def tearDown(self): self.temp.cleanup()
+
+    @classmethod
+    def tearDownClass(cls):
+        for stem in gowr_names() if GOWR_KIT.is_dir() else ():
+            sys.modules.pop(stem, None)
+
+    def test_gowr_joint_layouts_roundtrip(self):
+        mesh, enc, dec = gowr('mesh'), gowr('encode'), gowr('decode')
+        import numpy as np
+        P = np.array([[0.1, 1.2, -0.3], [0.5, 1.0, 0.25], [-0.4, 0.1, 0.0], [0.2, 1.5, 0.75]])
+        N = np.array([[0, 0, 1.0], [0, 1.0, 0], [0.6, 0.8, 0], [0, -0.6, 0.8]])
+        geo = dict(P=P, N=N, T=np.tile([1.0, 0, 0], (4, 1)), UV=np.zeros((4, 2)), IDX=np.array([[0, 1, 2], [2, 1, 3]]))
+        def ramp(joints, first):                               # descending weights summing to 1
+            ws = np.linspace(first, 1.0, len(joints)); ws /= ws.sum()
+            return list(zip(joints, ws.tolist()))
+        layouts = [  # joints component, weights component, influences carried, per-vertex influences
+            ((9, 2, 4), (10, 2, 3), 10, [ramp([1447, 2000, 3, 4, 5, 6, 7, 8, 9, 10], 3.0),
+                                         [(163, 0.5), (175, 0.3), (2047, 0.2)], [(318, 1.0)],
+                                         ramp(list(range(20, 31)), 4.0)]),
+            ((9, 2, 4), (10, 2, 2), 7, [ramp([3000, 2048, 1447, 12, 13, 14, 15], 3.0),
+                                        [(65000, 0.75), (1, 0.25)], [(2500, 1.0)], ramp(list(range(40, 49)), 5.0)]),
+            ((9, 4, 4), (10, 3, 1), 4, [ramp([1500, 2, 3, 4], 4.0), [(900, 0.6), (901, 0.4)], [(7, 1.0)],
+                                        ramp(list(range(60, 66)), 3.0)]),
+        ]
+        for jc, wc, k, inf in layouts:
+            with self.subTest(joints=jc, weights=wc):
+                stride1 = mesh.DT_SIZE[jc[1]] * jc[2] + mesh.DT_SIZE[wc[1]] * wc[2]
+                comps = [(0, 0, 3, 0, 0), (1, 3, 1, 12, 0), (*jc, 0, 1), (*wc, mesh.DT_SIZE[jc[1]] * jc[2], 1)]
+                offs = [0, enc.align(4 * 16)]
+                ind_off = enc.align(offs[1] + 4 * stride1)
+                m = mesh.parse_mesh(gowr_mesh_def(comps, 4, 6, offs, ind_off))[0]
+                self.assertEqual((m.strides, m.buf_offs, m.ind_off), ([16, stride1], offs, ind_off))
+                self.assertEqual(enc.max_influences(m), k)
+                buf = bytearray(ind_off + 16)
+                enc.write_in_place(buf, m, dict(geo, INF=inf), None, None)
+                out, idx = dec.decode(m, bytes(buf))
+                self.assertEqual(np.array(idx).reshape(-1, 3).tolist(), geo['IDX'].tolist())
+                self.assertTrue(np.array_equal(np.array(dec.pos_of(out))[:, :3], P.astype(np.float32)))
+                normals = np.array([v[0][:3] for v in out[(1, 3, 1)]])
+                self.assertLess(np.abs(normals - N).max(), 2 / 512)
+                want = enc.limit_influences(inf, k)             # the 11-influence vertex keeps its 10/7/4 largest
+                for vi, (got, exp) in enumerate(zip(dec.skin_of(m, out), want)):
+                    gw = {}
+                    for j, w in got:
+                        gw[j] = gw.get(j, 0.0) + w
+                    self.assertEqual({j for j, w in gw.items() if w > 0.002}, {j for j, _ in exp}, (vi, got))
+                    self.assertLess(max(abs(gw[j] - w) for j, w in exp), 0.006)
+                if wc == (10, 2, 2):                            # eight u16 slots: 7 joints, 8th zero, no 11-bit packing
+                    raw = struct.unpack_from('<8H', buf, offs[1])
+                    self.assertEqual(raw, (3000, 2048, 1447, 12, 13, 14, 15, 0))
+                    raw = struct.unpack_from('<8H', buf, offs[1] + stride1)
+                    self.assertEqual(raw, (65000, 1, 65000, 65000, 65000, 65000, 65000, 0))   # padded with joint 1
+
+    def test_gowr_single_group_lodpack_roundtrip(self):
+        bm, packs = gowr('build_mesh'), gowr('packs')
+        import lz4.frame
+        buffers = {0x2a5ef0f242a705b6: bytes(range(256)) * 3 + b'x', 0x167745b9b547165b: b'\x01' * 1000, 0x10: b'abc'}
+        path = self.root / 'Mod Pack.lodpack'
+        bm.write_lodpack_single_group(str(path), buffers)
+        data, toc = path.read_bytes(), Path(str(path) + '.toc').read_bytes()
+        head = 16 + 24 + 24 * len(buffers)
+        self.assertEqual(struct.unpack_from('<IIQ', data, 0), (1, 3, 1 << 32))
+        self.assertEqual((toc, len(data)), (data[:head], head + sum(map(len, buffers.values()))))
+        lz = self.root / 'lz4.toc'
+        lz.write_bytes(lz4.frame.compress(toc))
+        for source in (path, Path(str(path) + '.toc'), lz):
+            groups, members, _ = packs.read_lodpack_toc(str(source))
+            self.assertEqual(groups, [(head, max(buffers), sum(map(len, buffers.values())))])
+            self.assertEqual(set(members), set(buffers))
+        offsets = [members[h][1] for h in sorted(buffers)]
+        self.assertEqual(offsets, sorted(offsets))                 # members follow each other in hash order
+        for h, b in buffers.items():
+            gi, mo, size = members[h]
+            self.assertEqual((gi, size, data[head + mo:head + mo + size]), (0, len(b), b))
+
+    def test_gowr_slot_planning_and_fallback(self):
+        cb = gowr('charbuild')
+        import numpy as np
+        geos = {'full': gowr_geo(np, {'a': 30, 'b': 20, 'c': 10}), '0.5': gowr_geo(np, {'a': 15, 'b': 10, 'c': 6})}
+        levels = ['full', '0.5']
+        # best common level first, then the leftover room upgrades parts in list order
+        self.assertEqual(cb.fit_parts(['a', 'b'], levels, geos, 45, 1000), [('a', 'full'), ('b', '0.5')])
+        self.assertIsNone(cb.fit_parts(['a', 'b'], levels, geos, 20, 1000))
+        self.assertEqual(cb.fit_parts(['a'], levels, geos, 100, 50), [('a', '0.5')])    # index room decides
+        groups = [dict(lods=[dict(dist=12.34, meshes=[7, 5])]),
+                  dict(lods=[dict(dist=1.0, meshes=[9]), dict(dist=50.0, meshes=[])])]
+        room = {5: (100, 1000), 7: (4, 1000), 9: (16, 1000)}
+        plan, chosen = cb.plan_groups(groups, {0: [['a'], ['c']], 1: [['a', 'c']]}, room.__getitem__, geos)
+        # slot 7 cannot hold even the coarsest 'c', so 'c' moves to the main slot 5
+        self.assertEqual(plan, {5: ('mixed', [('a', 'full'), ('c', 'full')]), 9: ('mixed', [('a', '0.5')])})
+        self.assertEqual(chosen[5], dict(group=0, lod=0, dist=12.3, room=(100, 1000),
+                                         levels={'a': 'full', 'c': 'full'}, verts=40))
+        self.assertEqual((chosen[9]['dropped'], chosen[9]['verts']), (['c'], 15))   # lowest priority dropped
+        with self.assertRaises(SystemExit):
+            cb.plan_groups(groups, {1: [['a']]}, {9: (3, 1000)}.__getitem__, geos)
+
+    def test_gowr_fbx_roundtrip_and_edit(self):
+        fb = gowr('fbxbin')
+        import numpy as np
+        pattern = [0.0, 1.0, 0.5] * 20
+        for filler in range(16):                                   # covers the "already aligned: pad 16" footer
+            with self.subTest(filler=filler):
+                src, out = self.root / f'src{filler}.fbx', self.root / f'out{filler}.fbx'
+                src.write_bytes(gowr_fbx(filler, pattern))
+                fb.FBX(str(src)).save(str(out))
+                self.assertEqual(out.read_bytes(), src.read_bytes())
+        src = self.root / 'src0.fbx'
+        f = fb.FBX(str(src))
+        geo = f.objects()[0]
+        self.assertEqual(geo.props[1].value(), b'body_2\x00\x01Geometry')
+        vp = geo.find(b'Vertices')[0].props[0]
+        self.assertEqual(vp.value().tolist(), pattern)
+        new = np.random.default_rng(3).normal(size=len(pattern))   # less compressible: the file length changes
+        vp.set_array(new)
+        out = self.root / 'edited.fbx'
+        f.save(str(out))
+        self.assertNotEqual(out.stat().st_size, src.stat().st_size)
+        g = fb.FBX(str(out))
+        gp = g.objects()[0].find(b'Vertices')[0].props[0]
+        self.assertTrue(np.array_equal(gp.value(), new))
+        self.assertEqual(struct.unpack_from('<III', gp.raw)[1], 1)  # still zlib-compressed
+        before = {c.name: [p.raw for p in c.props] for c in f.objects()[0].children if c.name != b'Vertices'}
+        after = {c.name: [p.raw for p in c.props] for c in g.objects()[0].children if c.name != b'Vertices'}
+        self.assertEqual(after, before)
+        pad = len(g.tail) - 16 - 4 - 140
+        self.assertTrue(0 <= pad <= 16)
+        self.assertEqual((g.body_len + 20 + pad) % 16, 0)          # padding recomputed: ends on a 16-byte boundary
+        self.assertEqual((g.tail[:20], g.tail[-140:]), (f.tail[:20], f.tail[-140:]))
+
+    def test_gowr_bake_knee_vrm_sparse_target(self):
+        bk, gu = gowr('bake_knee'), gowr('gltf_util')
+        import numpy as np
+        data, ai = gowr_glb()
+        src, dst = self.root / 'model.vrm', self.root / 'baked.vrm'
+        src.write_bytes(data)
+        report = bk.bake_vrm(str(src), str(dst), ['kisekae_Knee'])
+        self.assertEqual(src.read_bytes(), data)
+        self.assertEqual(report['kisekae_Knee']['verts'], 2)
+        self.assertTrue(report['position_bounds_updated'])
+        g, g0 = gu.GLB(str(dst)), gu.GLB(str(src))
+        self.assertTrue(np.allclose(g.read(ai['pos']), [[0, 0, 0], [1, 0, 0.5], [0, 1, 0], [1, 0.75, 2.0]]))
+        idx, val = g.read_sparse(ai['knee'])
+        self.assertEqual((idx.tolist(), np.abs(val).max()), ([1, 3], 0.0))     # indices kept, values zeroed
+        acc = g.json['accessors']
+        self.assertEqual((acc[ai['knee']]['min'], acc[ai['knee']]['max']), ([0.0, 0.0, 0.0], [0.0, 0.0, 0.0]))
+        self.assertEqual((acc[ai['pos']]['min'], acc[ai['pos']]['max']), ([0.0, 0.0, 0.0], [1.0, 1.0, 2.0]))
+        for other in ('ankle', 'face'):                           # other target and other mesh untouched
+            self.assertTrue(np.array_equal(g.read(ai[other]), g0.read(ai[other])))
+            self.assertEqual(acc[ai[other]], g0.json['accessors'][ai[other]])
+
+    def test_gowr_rigspec_mirror_stacked_joint(self):
+        rs = gowr('rigspec')
+        import numpy as np
+        # GoW: +X is the character's right. Left knee: FK control 4 and deforming child 5 sit on one joint.
+        pos = [(0, 1.0, 0), (0.1, 1.0, 0), (-0.1, 1.0, 0), (0.1, 0.5, 0), (-0.1, 0.5, 0), (-0.1, 0.5, 0),
+               (0.1, 0.05, 0.02), (-0.1, 0.05, 0.02)]
+        par = [-1, 0, 0, 1, 2, 4, 3, 5]
+        rig = gowr_rig(np, pos, par)
+        n, parents, P = rs.world(rig)
+        self.assertEqual((n, parents), (8, par))
+        self.assertTrue(np.allclose(P, pos, atol=1e-6))
+        self.assertEqual(rs.mirror(P, 3, parents), 4)     # tie broken by the parent that mirrors bone 3's parent
+        self.assertEqual(rs.mirror(P, 6, parents), 7)
+        core = dict(Hips=0, Spine=0, Chest=0, Neck=0, Head=0)
+        right = dict(hip=1, kn=3, an=6, Index=[3, 6])
+        spec = rs.make_spec(rig, core, right)
+        self.assertEqual(spec['Left'], dict(hip=2, kn=4, an=7, Index=[4, 7]))
+        spec = rs.make_spec(rig, core, right, pad_joint=6, left_override=dict(kn=5))
+        self.assertEqual(spec['Left'], dict(hip=2, kn=5, an=7, Index=[4, 7]))    # override only replaces its role
+        self.assertEqual((spec['core'], spec['Right'], spec['pad_joint']), (core, right, 6))
+        self.assertTrue(np.allclose(spec['joints'][6], [-0.1, 0.02, 0.05]))       # Blender (-x, z, y)
+        json.dumps(spec)
+
+    def test_gowr_game_folder_and_lazy_dll(self):
+        gd = gowr('gamedir')
+        from unittest import mock
+        with mock.patch.dict(os.environ):
+            os.environ.pop('GOWR_GAME', None)
+            gd.set_game(None)
+            with self.assertRaises(SystemExit) as cm:
+                gd.wad_dir()
+            self.assertIn('GOWR_GAME', str(cm.exception))
+            gd.set_game(self.root / 'nowhere')
+            with self.assertRaises(SystemExit) as cm:
+                gd.game_root()
+            self.assertIn('exec/wad/pc_le', str(cm.exception))
+            game = self.root / 'game'
+            (game / 'exec' / 'wad' / 'pc_le').mkdir(parents=True)
+            os.environ['GOWR_GAME'] = str(game)
+            gd.set_game(None)
+            self.assertEqual(Path(gd.wad_dir()), game / 'exec' / 'wad' / 'pc_le')
+            agc = gowr('agctex')                                   # imports without the game DLL
+            self.assertIsNone(agc._api)
+            self.assertEqual(agc.parse_tsharp(bytes(32))['width'], 1)
+            with self.assertRaises(SystemExit) as cm:              # first real use looks for the DLL
+                agc.AgcTexture(bytes(32))
+            self.assertIn('libSceAgcTextureTool.dll', str(cm.exception))
 
 
 HFW_DEPENDENCIES = ('numpy', 'scipy', 'PIL')

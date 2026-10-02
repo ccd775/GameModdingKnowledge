@@ -56,3 +56,19 @@ The game workflows use different formats, but the same engineering loop.
   hangs the game on load; diff a working reference Mod's metadata against vanilla before guessing.
 - Pick the material of a replaced part by its shader, not by free texture-page space: a face-skin shader's
   subsurface scattering tinted hair red-brown in shadow, which no offline render showed.
+- Confirm which asset the game actually loads before editing it. God of War Ragnarök ships a complete Freya in
+  `r_freya00.wad` that nothing references; the companion loads `r_freyavalkyrie00.wad`. Search the game's
+  dependency manifest for who references the asset instead of trusting the file name.
+- Validate serialized skinning per vertex (joint set and weights against the source), not by index range. A
+  joint layout chosen from the wrong component combination (u16 slots written as packed 11-bit indices) passed
+  a range check and bound a whole mesh to the wrong bones in game.
+- Bind only to bones that carry skin in the vanilla meshes. Rigs can stack non-deforming FK controls on the same
+  joints, and a position-based role or mirror search will happily pick them (the skirt and tail then flip).
+- Shared source model: since 2026-10-02 Karin_Original's FBX and VRM have body_2's `kisekae_Knee` shape key baked
+  into the base mesh (key zeroed, name kept; originals beside them as `*.orig`; VRM `971a150d…` → `8f930404…`,
+  FBX `0b6e268d…` → `18f00e1a…`). Projects built before that date used the unbaked source. The first copy into
+  the synced folder came out with a 384 KiB zero block in each file (VRM `32dd84b5…`, FBX `c8b90bc2…`; replaced
+  the same day): re-hash files after copying them into a sync drive. Pipelines that drop shape keys lose these
+  "dressing" keys that pull skin in under clothing; bake the needed key at the source
+  (`portable-kits/god-of-war-ragnarok`, `bake_knee.py`) rather than adding per-game culls, and use the
+  `.orig` files for outfits that expose the knee.

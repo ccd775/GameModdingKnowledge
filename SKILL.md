@@ -34,6 +34,7 @@ before authoring. Never use this root document as a live candidate state file.
 - Onimusha: Way of the Sword -> `games/onimusha-way-of-the-sword/`
 - Ghost of Tsushima DIRECTOR'S CUT (PC) -> `games/ghost-of-tsushima/`
 - Horizon Forbidden West (PC) -> `games/horizon-forbidden-west/`
+- God of War Ragnarök (PC) -> `games/god-of-war-ragnarok/`
 - Devil May Cry 5 -> `games/devil-may-cry-5/`
 - Dynasty Warriors: Origins -> `games/dynasty-warriors-origins/`
 

@@ -42,6 +42,12 @@ class DetachedExports(unittest.TestCase):
                                                                 ('numpy', 'scipy', 'PIL')):
                         self.assertIn('test_hfw_core_patch_and_refusal', process.stderr)
                         self.assertFalse([l for l in process.stderr.splitlines() if 'test_hfw_' in l and 'skipped' in l])
+                    if game == 'god-of-war-ragnarok':
+                        self.assertTrue((target/'portable-kits/god-of-war-ragnarok/requirements.txt').is_file())
+                    if game == 'god-of-war-ragnarok' and all(importlib.util.find_spec(m) for m in
+                                                             ('numpy', 'scipy', 'PIL', 'lz4', 'etcpak', 'texture2ddecoder')):
+                        self.assertIn('test_gowr_joint_layouts_roundtrip', process.stderr)
+                        self.assertFalse([l for l in process.stderr.splitlines() if 'test_gowr_' in l and 'skipped' in l])
                     print(f'{game}: detached tests passed (unselected games skipped)')
 
 

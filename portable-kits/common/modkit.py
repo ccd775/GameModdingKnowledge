@@ -14,7 +14,7 @@ import zipfile
 
 GAMES = ('hitman-world-of-assassination', 'watch-dogs', 'assassins-creed-black-flag',
          'resident-evil-4-remake', 'left-4-dead-2', 'helldivers-2', 'mortal-kombat-1', 'ghost-of-tsushima',
-         'horizon-forbidden-west')
+         'horizon-forbidden-west', 'god-of-war-ragnarok')
 
 
 def digest(path):

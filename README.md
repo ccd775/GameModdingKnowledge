@@ -1,7 +1,7 @@
 如果你觉得内容有帮助，可以前往https://ifdian.net/a/ccd775 赞助我以获得贴贴！
 # Game Modding Shared Knowledge
 
-供人和 agent 接续长线 Mod 项目的知识库与便携工具包。它包含十五款游戏的实际项目方法、成功与失败记录（其中九款附便携工具包）、19 个原项目迁移脚本、MK1 参数化工具、对马岛与西之绝境构建器和公共运行工具；不需要注册 Skill。
+供人和 agent 接续长线 Mod 项目的知识库与便携工具包。它包含十六款游戏的实际项目方法、成功与失败记录（其中十款附便携工具包）、19 个原项目迁移脚本、MK1 参数化工具、对马岛 / 西之绝境 / 战神5 构建器和公共运行工具；不需要注册 Skill。
 
 ## 从这里开始
 
@@ -16,6 +16,7 @@
 | 鬼武者：新生 | [Onimusha WotS](games/onimusha-way-of-the-sword/README.md) | Karin→宫本武藏 v1.11.0：几何与 chain2 v17 次级物理均由用户实机确认；仅散装文件路线可用 |
 | 怪物猎人：荒野 | [MHWs](games/monster-hunter-wilds/README.md) | Karin_Original→女装备 ch03_060_000 r6（BoneSystem 独立骨骼）：武器挂点、野外地图、裙摆碰撞与哑光材质经用户验收；依赖新版 REFramework 散装贴图加载；表情未单独签收 |
 | 地平线：西之绝境 | [Horizon Forbidden West](games/horizon-forbidden-west/README.md) | Karin_Original 替换贝塔 v4（经 Mod Manager 角色切换扮演）：读档、外观、奔跑转身由 agent 实机自测（2026-10-02），用户未单独确认；身体只换 LOD0，无次级物理与表情 |
+| 战神：诸神黄昏 | [God of War Ragnarök](games/god-of-war-ragnarok/README.md) | Karin_Original 替换奎托斯与同伴芙蕾雅：外观与行走由 agent 实机自测；用户实机看过芙蕾雅并反馈膝盖穿模，已修正共享源模型（烘焙 `kisekae_Knee`）后重建，修复版用户未单独确认；无次级物理与表情 |
 | 对马岛之魂 导演剪辑版 | [Ghost of Tsushima](games/ghost-of-tsushima/README.md) | Karin 替换忠赖的铠甲：PicodraTech 第四构建经用户实机验收；Karin_Original 经用户认可（未指明版本，当时发布为 v4）（均为 2026-09-30，场景未逐项列出）；只替换 LOD0，无次级物理 |
 | 鬼泣5 | [DMC5](games/devil-may-cry-5/README.md) | KarinPT→V：标题画面经用户确认；Karin_Original→Nero / Dante / V 三包 v1.1：Nero / Dante 实战经用户验收（含裙摆碰撞修复）；Original V 的 v1.1 物理未在游戏里加载，魔人形态、过场、立绘未检查 |
 | 真三国无双 起源 | [DW Origins](games/dynasty-warriors-origins/README.md) | Karin PicodraTech→鸾翼将装：修复接缝/外套脏/翻领发糊（源模型重烘焙、UV 切开重排）经用户实机验收，脸部"可接受"；Karin_Original→鸾翼将装 v20261002a：从 FBX 构建、复用同网格的脸、按原版辅助骨分布迁移权重，仅由 agent 读档在旅馆/装备界面截图验证，用户未验收；无次级物理 |
@@ -37,7 +38,7 @@ python -B tools/check_repository.py
 python -B tools/export_kit.py --all --output ../Modding-Portable-Exports --zip
 ```
 
-输出九份不依赖父仓库的目录，以及对应 ZIP/文件哈希清单。每份包含该游戏文档、脚本、公共层和安装依赖说明。[验证记录](portable-kits/VALIDATION.md) 明确哪些进行了组件测试，哪些还需要专用工具和游戏实测。
+输出十份不依赖父仓库的目录，以及对应 ZIP/文件哈希清单。每份包含该游戏文档、脚本、公共层和安装依赖说明。[验证记录](portable-kits/VALIDATION.md) 明确哪些进行了组件测试，哪些还需要专用工具和游戏实测。
 
 ## 下载便携包
 

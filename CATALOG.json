@@ -56,6 +56,17 @@
       "portable_kit": "portable-kits/horizon-forbidden-west"
     },
     {
+      "id": "god-of-war-ragnarok",
+      "path": "games/god-of-war-ragnarok",
+      "status": "runtime-load-pass",
+      "milestone": "Karin_Original 替换奎托斯（r_heroa00）与同伴芙蕾雅（r_freyavalkyrie00）；agent 实机自测外观与行走，用户实机看过芙蕾雅并反馈膝盖穿模，已修正共享源模型（烘焙 kisekae_Knee）后重建，修复版用户未单独确认",
+      "date": "2026-10-02",
+      "game_build": "18979360",
+      "topics": ["WTOC wad", "MESH / MG 定义", "原地写入与容量限制", "每组至少一个非空网格", "退化三角形隐藏与零块位置", "补丁 lodpack 单组布局与哈希 +1", "texpack GNF 条目与游戏 DLL tiling", "骨骼/权重分量组合（11 bit / u16 / u8）", "只绑定带蒙皮的骨骼", "资源依赖表定位真实 wad", "Blender 姿势拟合", "逐顶点回读与屈膝模拟", "源模型形态键烘焙（二进制 FBX / VRM 稀疏 target）"],
+      "limits": ["修复版用户未单独确认", "无次级物理与表情", "战斗/过场/远景 LOD 切换未检查", "芙蕾雅正面近景与翅膀形态未检查", "奎托斯版俯视有黑斑未处理", "贴图需要游戏自带 DLL（仅 Windows）"],
+      "portable_kit": "portable-kits/god-of-war-ragnarok"
+    },
+    {
       "id": "devil-may-cry-5",
       "path": "games/devil-may-cry-5",
       "status": "runtime-confirmed-scoped",

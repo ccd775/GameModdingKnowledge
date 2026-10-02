@@ -1,0 +1,74 @@
+{
+  "game": "God of War Ragnarok (PC)",
+  "status": "runtime-load-pass",
+  "tools": [
+    {
+      "name": "Karin character-replacement builder (build_kratos_final.py / build_valk_final.py and modules)",
+      "version": "project-pinned",
+      "role": "geometry assembly, slot planning, in-place MESH writing, hidden-mesh block, single-group patch lodpack",
+      "required": true
+    },
+    {
+      "name": "verify_build.py / knee_sim.py",
+      "version": "project-pinned",
+      "role": "per-vertex read-back of positions, joints, weights and triangles; knee-flex check of the Freya build",
+      "required": true
+    },
+    {
+      "name": "build_textures.py / build_valk_textures.py",
+      "version": "project-pinned",
+      "role": "4096 atlas, per-slot texture plan, BCn compression (etcpak) and patch texpack writing",
+      "required": true
+    },
+    {
+      "name": "libSceAgcTextureTool.dll (ships with the game)",
+      "version": "game build 18979360",
+      "role": "PS5 (AGC) texture tiling and detiling, loaded from the game folder on first use; Windows only",
+      "required": true
+    },
+    {
+      "name": "Blender",
+      "version": "5.0.1",
+      "role": "pose fitting (blender/fit_karin.py), distance-LOD decimation (blender/decimate_levels.py), bone table (blender/dump_bones.py)",
+      "required": true
+    }
+  ],
+  "entry_documents": [
+    "../../games/god-of-war-ragnarok/README.md",
+    "../../games/god-of-war-ragnarok/BUILD_PIPELINE.md"
+  ],
+  "runtime_boundary": "Agent self-test in game build 18979360 on 2026-10-02: Kratos v1 (title, save load, walk, camera turn); knee-fixed Kratos v2 installed and rechecked mainly through Freya; knee-fixed Freya v3 from behind, side, above and about 6 m in front. The user saw the earlier Freya build and reported the knee clipping; the knee-fixed builds are not yet confirmed by the user. Combat, cutscenes, Valkyrie wing form, distant LOD switching and close front views unchecked; no hair or skirt physics, no facial animation.",
+  "bundled_scripts": [
+    "scripts/build_kratos_final.py",
+    "scripts/build_valk_final.py",
+    "scripts/verify_build.py",
+    "scripts/knee_sim.py",
+    "scripts/build_textures.py",
+    "scripts/build_valk_textures.py",
+    "scripts/rigspec.py",
+    "scripts/extract_vrm_textures.py",
+    "scripts/bake_knee.py",
+    "scripts/gamedir.py",
+    "scripts/wad.py",
+    "scripts/mesh.py",
+    "scripts/mg.py",
+    "scripts/rig.py",
+    "scripts/packs.py",
+    "scripts/decode.py",
+    "scripts/encode.py",
+    "scripts/geometry.py",
+    "scripts/charbuild.py",
+    "scripts/build_inplace.py",
+    "scripts/build_mesh.py",
+    "scripts/textures.py",
+    "scripts/gnf.py",
+    "scripts/agctex.py",
+    "scripts/fbxbin.py",
+    "scripts/gltf_util.py",
+    "scripts/blender/fit_karin.py",
+    "scripts/blender/decimate_levels.py",
+    "scripts/blender/dump_bones.py"
+  ],
+  "python": "3.12+ (numpy 2.5 / scipy 1.18 wheels); tested 3.14.0",
+  "dependency_install": "python -m pip install -r requirements.txt -r portable-kits/god-of-war-ragnarok/requirements.txt (from bundle root)"
+}

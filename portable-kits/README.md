@@ -13,10 +13,11 @@
 | HD2 | 三件套解析、LUT 行折叠/注入、SDK UV 复制 | [使用](helldivers-2/README.md) |
 | 西之绝境 | 贝塔替换构建器（VRM 拟合、遮挡剔除、分区权重、拼页、h2 ascii）、导入批处理、core 包围盒与 SkinInfo 补丁、姿势预览、游戏按键 | [使用](horizon-forbidden-west/README.md) |
 | 对马岛 | 忠赖的铠甲角色替换完整构建器（VRM 拟合、剔除/减面、拼页、xmesh/xpps/SPS、PSARC）与离线校验渲染 | [使用](ghost-of-tsushima/README.md) |
+| 战神：诸神黄昏 | 奎托斯 / 芙蕾雅替换构建器（原地写入网格、单组补丁 lodpack、GNF 贴图包）、逐顶点回读、屈膝模拟、骨架角色表、源模型形态键烘焙、Blender 拟合与减面 | [使用](god-of-war-ragnarok/README.md) |
 
 [公共层](common/README.md) 提供项目初始化、哈希锁、断点、工具预检、确定性 ZIP 和 Blender 审计。
 
-Python 3.10+；大多数脚本只用标准库，Forge 需 lz4，文档检查和导出需 markdown-it-py，对马岛构建器另需 `ghost-of-tsushima/requirements.txt`（numpy、scipy、etcpak、texture2ddecoder，需 Python 3.12+），西之绝境构建器另需 `horizon-forbidden-west/requirements.txt`（numpy、scipy，需 Python 3.12+）。Windows 编译器在 Windows 中执行，Blender 审计在 Blender 内执行。仓库根命令：
+Python 3.10+；大多数脚本只用标准库，Forge 需 lz4，文档检查和导出需 markdown-it-py，对马岛构建器另需 `ghost-of-tsushima/requirements.txt`（numpy、scipy、etcpak、texture2ddecoder，需 Python 3.12+），西之绝境构建器另需 `horizon-forbidden-west/requirements.txt`（numpy、scipy，需 Python 3.12+），战神构建器另需 `god-of-war-ragnarok/requirements.txt`（numpy、scipy、etcpak、texture2ddecoder，需 Python 3.12+；贴图那一步要在 Windows 上调用游戏自带的 DLL）。Windows 编译器在 Windows 中执行，Blender 审计在 Blender 内执行。仓库根命令：
 
 ```powershell
 python -m pip install -r requirements.txt

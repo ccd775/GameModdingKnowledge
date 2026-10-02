@@ -13,6 +13,7 @@
 | HD2 | [便携命令](../portable-kits/helldivers-2/README.md) |
 | Ghost of Tsushima | [便携命令](../portable-kits/ghost-of-tsushima/README.md) |
 | Horizon Forbidden West | [便携命令](../portable-kits/horizon-forbidden-west/README.md) |
+| God of War Ragnarök | [便携命令](../portable-kits/god-of-war-ragnarok/README.md) |
 
 各游戏原知识中的脚本职责表仍有大量角色专属实现；没有对应 portable-kits 脚本的名称是历史设计参考，不能假设文件已在交接包内。新项目需要按当前资源实现对应步骤，不要尝试调用不存在的旧路径。
 
