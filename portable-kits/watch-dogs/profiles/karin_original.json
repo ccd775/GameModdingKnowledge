@@ -1,0 +1,55 @@
+{
+  "schema": "watchdogs.vrm_profile.v1",
+  "note": "Karin_Original (VRM 1.0): the profile behind Karin_Original 0.1.2, accepted in game on 2026-10-03.",
+  "materials": {
+    "Karin_Face": {
+      "slot": "head"
+    },
+    "Karin_Alpha": {
+      "slot": "lashes"
+    },
+    "Karin_Costume": {
+      "slot": "coat",
+      "spec": "cloth"
+    },
+    "Karin_Body": {
+      "slot": "coat",
+      "spec": "skin"
+    },
+    "Karin_Hair": {
+      "slot": "hair"
+    },
+    "Karin_Hair_Transparent": {
+      "slot": "hair"
+    }
+  },
+  "chains": [
+    {
+      "match": "Hair_tail_[LR](?:\\.(\\d+))?$",
+      "under": "head",
+      "to": "Spine2",
+      "shares": [
+        0.0,
+        0.15,
+        0.35,
+        0.55,
+        0.7,
+        0.8
+      ]
+    },
+    {
+      "match": "Skirt_[^.]*(?:\\.(\\d+))?$",
+      "under": "hips",
+      "to_side": [
+        "L Thigh",
+        "R Thigh"
+      ],
+      "shares": [
+        0.15,
+        0.35,
+        0.55
+      ],
+      "side_width": 0.02
+    }
+  ]
+}

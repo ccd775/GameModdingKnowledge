@@ -965,7 +965,8 @@ class MK1Tools(unittest.TestCase):
 
 
 WD_DEPENDENCIES = ('numpy',)
-WD_STDLIB_SCRIPTS = ('xbt_tool', 'audit_xbt_templates', 'build_xbt_pair', 'extract_fat8', 'repack_fat8')
+WD_STDLIB_SCRIPTS = ('xbt_tool', 'audit_xbt_templates', 'build_xbt_pair', 'extract_fat8', 'repack_fat8',
+                     'char01_paths', 'package_mod')
 # synthetic char01-like skeleton: name, parent index, local translation (identity rotations)
 WD_NODES = (('char01', -1, (0, 0, 0)), ('Pelvis', 0, (0, 0, 1.0)), ('Spine', 1, (0, 0, 0.1)), ('Spine1', 2, (0, 0, 0.1)),
             ('Spine2', 3, (0, 0, 0.1)), ('Neck', 4, (0, 0, 0.15)), ('Head', 5, (0, 0.02, 0.1)), ('L_Eye', 6, (-0.03, 0.08, 0.06)),
@@ -1008,26 +1009,28 @@ def wd_submesh(np, codec, material, vertex_type, bones, lift=0.0):
                          np.array([[0, i + 1, i] for i in range(1, n - 1)]))
 
 
-def wd_template(path, palette_len=2):
-    """Write a synthetic char01-like template XBG: 2 material slots, WD_NODES, inverse binds and a filler block."""
+def wd_template(path, palette_len=2, nodes_spec=WD_NODES, materials=WD_MATERIALS, slots=((0, 0x17BA, 6), (1, 0x179A, (1, 2)))):
+    """Write a synthetic char01-like template XBG: material slots, nodes (name, parent, local t), inverse binds,
+    a filler block and one LOD submesh per (slot, vertex type, bone or bones)."""
     import numpy as np
     xm, codec = wd('xbg_model'), wd('xbg_codec')
     out = bytearray(0x8C)
     out[:4] = b'MOEG'
-    out += struct.pack('<I', len(WD_MATERIALS)) + b''.join(wd_entry(m) for m in WD_MATERIALS)
-    out += struct.pack('<I', 2) + wd_entry('head') + struct.pack('<I', 0) + wd_entry('coat') + struct.pack('<I', 1)
+    out += struct.pack('<I', len(materials)) + b''.join(wd_entry(m) for m in materials)
+    out += struct.pack('<I', len(materials)) + b''.join(
+        wd_entry(m.split('\\')[-1].split('.')[0]) + struct.pack('<I', i) for i, m in enumerate(materials))
     out += struct.pack('<I', 1) + wd_entry('char01', 0xCC97FA4A) + struct.pack('<I', 1)
     palette_offset = len(out)
     palette = list(range(palette_len))
     out += struct.pack('<I', palette_len) + struct.pack(f'<{palette_len}H', *palette) + b'\0' * (2 * palette_len % 4)
-    out += struct.pack('<II', 1, len(WD_NODES))
+    out += struct.pack('<II', 1, len(nodes_spec))
     world, nodes = [], []
-    for b, (name, parent, t) in enumerate(WD_NODES):
+    for b, (name, parent, t) in enumerate(nodes_spec):
         out += struct.pack('<I7f2H', 0x64, *t, 0, 0, 0, 1, parent & 0xFFFF, b) + wd_entry(name)
         world.append(np.array(t, float) + (world[parent] if parent >= 0 else 0))
         nodes.append({'name': name, 'parent': parent & 0xFFFF, 'b': b, 'xf': (*t, 0, 0, 0, 1), 'flags': 0x64})
     nodes_end = len(out)
-    out += struct.pack('<II', len(WD_NODES), len(WD_NODES))
+    out += struct.pack('<II', len(nodes_spec), len(nodes_spec))
     out += b'\0' * (-len(out) % 16)
     for p in world:
         inv = np.eye(4)
@@ -1036,7 +1039,8 @@ def wd_template(path, palette_len=2):
     out += b'SYNTHETIC-PHYSICS-BLOCK.' * 2
     fake = xm.Xbg(bytes(out), palette, palette_offset, nodes, len(out))
     fake.nodes_end = nodes_end
-    lod = [wd_submesh(np, codec, 0, 0x17BA, [6]), wd_submesh(np, codec, 1, 0x179A, [1, 2], lift=-0.5)]
+    lod = [wd_submesh(np, codec, slot, vtype, list(bones) if isinstance(bones, tuple) else [bones], lift=-0.5 * (i > 0))
+           for i, (slot, vtype, bones) in enumerate(slots)]
     path.write_bytes(codec.encode(fake, [lod, lod]))
     return xm.load(path)
 
@@ -1229,5 +1233,275 @@ class WatchDogsXbgTools(unittest.TestCase):
         self.assertEqual(data[:48 + 128], bytes(donor[:48 + 128]))
         self.assertNotEqual(data[48 + 128:], bytes(56))
         cli('watch-dogs', 'xbt_encode', png, donor_path, out, ok=False)
+
+# synthetic char01 template for the VRM builder: (name, parent, world position), identity rotations, arms in an A-pose
+WD_HUMAN_WORLD = (
+    ('char01', -1, (0, 0, 0)), ('Pelvis', 0, (0, 0, 1.0)), ('Spine', 1, (0, 0, 1.1)), ('Spine1', 2, (0, 0, 1.2)),
+    ('Spine2', 3, (0, 0, 1.3)), ('Neck', 4, (0, 0, 1.5)), ('Head', 5, (0, 0.02, 1.6)),
+    ('L_Eye', 6, (-0.03, 0.08, 1.68)), ('R_Eye', 6, (0.03, 0.08, 1.68)),
+    ('L Clavicle', 4, (-0.02, 0, 1.42)), ('L UpperArm', 9, (-0.18, 0, 1.42)), ('L Forearm', 10, (-0.36, 0, 1.24)),
+    ('L Hand', 11, (-0.53, 0, 1.07)),
+    ('R Clavicle', 4, (0.02, 0, 1.42)), ('R UpperArm', 13, (0.18, 0, 1.42)), ('R Forearm', 14, (0.36, 0, 1.24)),
+    ('R Hand', 15, (0.53, 0, 1.07)),
+    ('L Thigh', 1, (-0.1, 0, 0.95)), ('L Calf', 17, (-0.1, 0, 0.5)), ('L Foot', 18, (-0.1, 0, 0.08)),
+    ('L Toe', 19, (-0.1, 0.12, 0.02)),
+    ('R Thigh', 1, (0.1, 0, 0.95)), ('R Calf', 21, (0.1, 0, 0.5)), ('R Foot', 22, (0.1, 0, 0.08)),
+    ('R Toe', 23, (0.1, 0.12, 0.02)))
+WD_HUMAN_MATERIALS = tuple(f'graphics\\_synthetic\\{s}.material.bin' for s in ('head', 'coat', 'hair', 'lashes'))
+# synthetic VRM 1.0 (glTF: left = +X, up = +Y, forward = +Z): name, parent, world position, humanoid bone, material
+WD_VRM_NODES = (
+    ('Armature', -1, (0, 0, 0), None, None), ('Hips', 0, (0, 0.60, 0), 'hips', 'Cloth'),
+    ('Spine', 1, (0, 0.70, 0), 'spine', 'Body'), ('Chest', 2, (0, 0.80, 0), 'chest', 'Cloth'),
+    ('Neck', 3, (0, 0.95, 0), 'neck', 'Body'), ('Head', 4, (0, 1.00, 0), 'head', 'Face'),
+    ('EyeL', 5, (0.03, 1.08, 0.05), 'leftEye', 'Lashes'), ('EyeR', 5, (-0.03, 1.08, 0.05), 'rightEye', 'Face'),
+    ('ShoulderL', 3, (0.03, 0.92, 0), 'leftShoulder', 'Body'), ('UpperArmL', 8, (0.10, 0.92, 0), 'leftUpperArm', 'Body'),
+    ('LowerArmL', 9, (0.30, 0.92, 0), 'leftLowerArm', 'Body'), ('HandL', 10, (0.50, 0.92, 0), 'leftHand', 'Body'),
+    ('ThumbL1', 11, (0.52, 0.91, 0.02), 'leftThumbMetacarpal', 'Body'),
+    ('ThumbL2', 12, (0.54, 0.90, 0.03), 'leftThumbProximal', 'Body'),
+    ('ShoulderR', 3, (-0.03, 0.92, 0), 'rightShoulder', 'Body'), ('UpperArmR', 14, (-0.10, 0.92, 0), 'rightUpperArm', 'Body'),
+    ('LowerArmR', 15, (-0.30, 0.92, 0), 'rightLowerArm', 'Body'), ('HandR', 16, (-0.50, 0.92, 0), 'rightHand', 'Body'),
+    ('UpperLegL', 1, (0.08, 0.58, 0), 'leftUpperLeg', 'Body'), ('LowerLegL', 18, (0.08, 0.32, 0), 'leftLowerLeg', 'Body'),
+    ('FootL', 19, (0.08, 0.05, 0), 'leftFoot', 'Body'), ('ToesL', 20, (0.08, 0.0, 0.08), 'leftToes', 'Body'),
+    ('UpperLegR', 1, (-0.08, 0.58, 0), 'rightUpperLeg', 'Body'), ('LowerLegR', 22, (-0.08, 0.32, 0), 'rightLowerLeg', 'Body'),
+    ('FootR', 23, (-0.08, 0.05, 0), 'rightFoot', 'Body'), ('ToesR', 24, (-0.08, 0.0, 0.08), 'rightToes', 'Body'),
+    ('Hair_tail_L', 5, (0.06, 1.05, -0.06), None, 'Hair'), ('Hair_tail_L.001', 26, (0.07, 0.90, -0.07), None, 'Hair'),
+    ('Skirt_root', 1, (0, 0.55, 0), None, None), ('Skirt_F', 28, (0, 0.50, 0.08), None, 'Cloth'),
+    ('Skirt_B', 28, (0, 0.50, -0.08), None, 'Cloth'), ('Skirt_F.001', 29, (0, 0.42, 0.09), None, 'Cloth'))
+WD_VRM_COLORS = {'Face': (230, 200, 190, 255), 'Body': (240, 210, 200, 255), 'Cloth': (40, 60, 120, 255),
+                 'Hair': (250, 240, 200, 255), 'Lashes': (20, 10, 10, 200)}
+WD_VRM_PROFILE = {
+    'materials': {'Face': {'slot': 'head'}, 'Lashes': {'slot': 'lashes'}, 'Cloth': {'slot': 'coat', 'spec': 'cloth'},
+                  'Body': {'slot': 'coat', 'spec': 'skin'}, 'Hair': {'slot': 'hair'}},
+    'chains': [{'match': 'Hair_tail_', 'under': 'head', 'to': 'Spine2', 'shares': [0.0, 0.5]},
+               {'match': 'Skirt_', 'under': 'hips', 'to_side': ['L Thigh', 'R Thigh'], 'shares': [0.3]}]}
+
+
+def wd_human_template(path):
+    nodes = []
+    for name, parent, p in WD_HUMAN_WORLD:
+        base = WD_HUMAN_WORLD[parent][2] if parent >= 0 else (0, 0, 0)
+        nodes.append((name, parent, tuple(a - b for a, b in zip(p, base))))
+    return wd_template(path, palette_len=4, nodes_spec=tuple(nodes), materials=WD_HUMAN_MATERIALS,
+                       slots=((0, 0x17BA, 6), (1, 0x179A, (1, 2)), (2, 0x179A, 6), (3, 0x11BA, 6)))
+
+
+def wd_vrm(path, vrm0=False):
+    """Synthetic humanoid VRM: one skinned triangle per bone, each fully weighted to its bone.
+
+    vrm0=True writes the VRM 0.x form: VRM extension, humanBones list, VRM 0.x thumb names, facing -Z."""
+    import io
+    from PIL import Image
+    binary, views, accessors = bytearray(), [], []
+
+    def view(data):
+        while len(binary) % 4:
+            binary.append(0)
+        views.append({'buffer': 0, 'byteOffset': len(binary), 'byteLength': len(data)})
+        binary.extend(data)
+        return len(views) - 1
+
+    def acc(rows, fmt, component, kind):
+        accessors.append({'bufferView': view(b''.join(struct.pack('<' + fmt, *r) for r in rows)),
+                          'componentType': component, 'count': len(rows), 'type': kind})
+        return len(accessors) - 1
+
+    flip = (-1, 1, -1) if vrm0 else (1, 1, 1)
+    world = [tuple(c * f for c, f in zip(p, flip)) for _, _, p, _, _ in WD_VRM_NODES]
+    gl_nodes = [{'name': name} for name, *_ in WD_VRM_NODES]
+    for i, (name, parent, _, _, _) in enumerate(WD_VRM_NODES):
+        base = world[parent] if parent >= 0 else (0, 0, 0)
+        gl_nodes[i]['translation'] = [a - b for a, b in zip(world[i], base)]
+        if parent >= 0:
+            gl_nodes[parent].setdefault('children', []).append(i)
+    joints = list(range(1, len(WD_VRM_NODES)))
+    ibm = acc([(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -world[j][0], -world[j][1], -world[j][2], 1) for j in joints],
+              '16f', 5126, 'MAT4')
+    names = list(WD_VRM_COLORS)
+    images, materials = [], []
+    for k, name in enumerate(names):
+        img = Image.new('RGBA', (8, 8), WD_VRM_COLORS[name])
+        img.putpixel((k, k), (255, 0, 0, 255))
+        buf = io.BytesIO()
+        img.save(buf, 'PNG')
+        images.append({'name': name, 'mimeType': 'image/png', 'bufferView': view(buf.getvalue())})
+        materials.append({'name': name, 'pbrMetallicRoughness': {'baseColorTexture': {'index': k}}})
+    primitives = []
+    for mat_index, name in enumerate(names):
+        pos, nrm, uv, jt, wt = [], [], [], [], []
+        for i, (_, _, _, _, mat) in enumerate(WD_VRM_NODES):
+            if mat != name:
+                continue
+            x, y, z = world[i]
+            pos += [(x, y, z), (x + 0.01 * flip[0], y, z), (x, y - 0.01, z + 0.005 * flip[2])]  # mirrored for vrm0
+            nrm += [(0, 0, 1)] * 3
+            uv += [(0.3, 0.3), (0.5, 0.3), (0.3, 0.5)] if name == 'Lashes' else [(0.1, 0.1), (0.9, 0.1), (0.1, 0.9)]
+            jt += [(joints.index(i), 0, 0, 0)] * 3
+            wt += [(1.0, 0, 0, 0)] * 3
+        attrs = {'POSITION': acc(pos, '3f', 5126, 'VEC3'), 'NORMAL': acc(nrm, '3f', 5126, 'VEC3'),
+                 'TEXCOORD_0': acc(uv, '2f', 5126, 'VEC2'), 'JOINTS_0': acc(jt, '4H', 5123, 'VEC4'),
+                 'WEIGHTS_0': acc(wt, '4f', 5126, 'VEC4')}
+        primitives.append({'attributes': attrs, 'indices': acc([(i,) for i in range(len(pos))], 'H', 5123, 'SCALAR'),
+                           'material': mat_index})
+    gl_nodes.append({'name': 'Body', 'mesh': 0, 'skin': 0})
+    human = {h: i for i, (_, _, _, h, _) in enumerate(WD_VRM_NODES) if h}
+    if vrm0:
+        rename = {'leftThumbMetacarpal': 'leftThumbProximal', 'leftThumbProximal': 'leftThumbIntermediate'}
+        ext = {'VRM': {'humanoid': {'humanBones': [{'bone': rename.get(h, h), 'node': i} for h, i in human.items()]}}}
+    else:
+        ext = {'VRMC_vrm': {'specVersion': '1.0', 'humanoid': {'humanBones': {h: {'node': i} for h, i in human.items()}}}}
+    while len(binary) % 4:
+        binary.append(0)
+    document = {'asset': {'version': '2.0'}, 'extensionsUsed': list(ext), 'extensions': ext,
+                'buffers': [{'byteLength': len(binary)}], 'bufferViews': views, 'accessors': accessors,
+                'images': images, 'textures': [{'source': k} for k in range(len(images))], 'materials': materials,
+                'nodes': gl_nodes, 'skins': [{'joints': joints, 'inverseBindMatrices': ibm}],
+                'meshes': [{'name': 'Body', 'primitives': primitives}], 'scenes': [{'nodes': [0, len(gl_nodes) - 1]}], 'scene': 0}
+    encoded = json.dumps(document).encode()
+    encoded += b' ' * (-len(encoded) % 4)
+    body = struct.pack('<II', len(encoded), 0x4E4F534A) + encoded + struct.pack('<II', len(binary), 0x004E4942) + binary
+    path.write_bytes(struct.pack('<4sII', b'glTF', 2, len(body) + 12) + body)
+
+
+def wd_donor(width, height, fourcc=b'DXT1'):
+    """Donor XBT: DDS with a full mip chain of zero blocks and the FOURCC flag set."""
+    mips, payload, w, h = 0, 0, width, height
+    while True:
+        mips += 1
+        payload += max(1, (w + 3) // 4) * max(1, (h + 3) // 4) * (8 if fourcc == b'DXT1' else 16)
+        if w == 1 and h == 1:
+            break
+        w, h = max(1, w // 2), max(1, h // 2)
+    data = bytearray(xbt(dds(width, height, mips=mips, payload=bytes(payload))))
+    struct.pack_into('<I', data, 48 + 80, 4)
+    data[48 + 84:48 + 88] = fourcc
+    return bytes(data)
+
+
+def wd_base_pack(folder, template_path):
+    """Base char01 replacer pack: template XBG, donor XBTs for every char01 stream, one private entry, modconfig."""
+    paths, repack = module('watch-dogs', 'char01_paths'), module('watch-dogs', 'repack_fat8')
+    blobs = {repack.path_hash(paths.XBG): template_path.read_bytes(),
+             repack.path_hash('graphics/_synthetic/private_hair.material.bin'): b'PRIVATE-MATERIAL'}
+    for key in paths.TEXTURES:
+        for p in paths.texture_paths(key):
+            blobs[repack.path_hash(p)] = wd_donor(8, 4, b'DXT5') if key == paths.LASHES_KEY else wd_donor(8, 8)
+    fat = wd_fat(folder, blobs)
+    (folder / 'modconfig.json').write_text(json.dumps({'friendlyId': 'base_mod', 'name': 'Base', 'author': 'synthetic',
+                                                       'packs': ['pack'], 'version': '1.0.0', 'configVersion': 1,
+                                                       'modsRecommendedBelowPriority': ['living_city']}))
+    return fat, blobs
+
+
+class WatchDogsVrmBuilder(unittest.TestCase):
+    """Generic VRM -> char01 builder on a synthetic humanoid; the real check is the Karin_Original
+    reproduction recorded in VALIDATION.md."""
+
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(prefix='modding wd vrm ')
+        self.root = Path(self.temp.name)
+
+    def tearDown(self): self.temp.cleanup()
+
+    def test_wd_vrm_build_end_to_end(self):
+        import numpy as np
+        wd('build_from_vrm', pil=True)
+        xm, codec, skel, paths, repack = (wd(n) for n in ('xbg_model', 'xbg_codec', 'xbg_skeleton', 'char01_paths', 'repack_fat8'))
+        template = self.root / 'template.xbg'
+        wd_human_template(template)
+        base = self.root / 'base'
+        base.mkdir()
+        fat, blobs = wd_base_pack(base, template)
+        vrm, profile, out = self.root / 'model.vrm', self.root / 'profile.json', self.root / 'out'
+        wd_vrm(vrm)
+        profile.write_text(json.dumps(WD_VRM_PROFILE))
+        args = ('--vrm', vrm, '--profile', profile, '--base-fat', fat, '--out-dir', out, '--package', '--pack', 'synthetic',
+                '--friendly-id', 'synthetic_replacer', '--name', 'Synthetic', '--version', '0.1.0')
+        self.assertIn('READBACK PASS', cli('watch-dogs', 'build_from_vrm', *args).stdout)
+        cli('watch-dogs', 'build_from_vrm', *args, ok=False)  # non-empty output directory
+        report = json.loads((out / 'build_report.json').read_text())
+        self.assertEqual(report['facing'], '+Z (VRM 1.0)')
+        scale = report['scale']
+        self.assertAlmostEqual(scale, 0.87 / 0.53, places=6)  # template thigh-to-foot over the model's
+        # joints: torso pivots stay, limbs move to the model's scaled joints
+        before, after = skel.Skeleton(template), skel.Skeleton(out / 'char01.xbg')
+        self.assertTrue(np.allclose(after.head('Pelvis'), before.head('Pelvis'), atol=1e-6))
+        self.assertTrue(np.allclose(after.head('L Thigh'), scale * np.array([-0.08, 0, 0.58]), atol=1e-5))
+        self.assertTrue(np.allclose(after.head('L UpperArm')[0], -scale * 0.10, atol=1e-5))
+        # repose: the forearm points the template's way, and its vertices lie along the new forearm
+        f, h = after.head('L Forearm'), after.head('L Hand')
+        tmpl = before.head('L Hand') - before.head('L Forearm')
+        self.assertGreater((h - f) @ tmpl / np.linalg.norm(h - f) / np.linalg.norm(tmpl), 0.9999)
+        x = xm.load(out / 'char01.xbg')
+        _, lods = codec.decode(x)
+        b = {n['name']: n['b'] for n in x.nodes}
+
+        def vertices_on(sub, bone):
+            return [dict(zip(r_b[r_w > 0].tolist(), r_w[r_w > 0].tolist())) for r_b, r_w in zip(sub.bones, sub.weights)
+                    if bone in r_b[r_w > 0]]
+
+        coat = next(s for s in lods[0] if s.material == 1)
+        fore = coat.positions[coat.bones[:, 0] == b['L Forearm']] - f
+        along = fore[np.argmin(np.abs(np.linalg.norm(fore, axis=1) - 0.01 * scale))]  # the vertex 1 cm down the T-pose arm
+        self.assertGreater(along @ (h - f) / np.linalg.norm(along) / np.linalg.norm(h - f), 0.99)
+        # weights: eye -> Head, hair chain level 1 -> half to Spine2, skirt level 0 -> 30 % split over both thighs
+        lashes = next(s for s in lods[0] if s.material == 3)
+        self.assertTrue(all(v == {b['Head']: 255} for v in vertices_on(lashes, b['Head'])))
+        hair = next(s for s in lods[0] if s.material == 2)
+        self.assertIn({b['Head']: 128, b['Spine2']: 127}, vertices_on(hair, b['Spine2']))
+        self.assertIn({b['Head']: 255}, vertices_on(hair, b['Head']))
+        # skirt vertices on the centre line (x = 0): 0.7 Pelvis, 0.15 per thigh
+        self.assertIn({b['Pelvis']: 179, b['L Thigh']: 38, b['R Thigh']: 38}, vertices_on(coat, b['Pelvis']))
+        # textures: two coat textures stacked, lashes cropped; package keeps untouched entries
+        layout = json.loads((out / 'textures' / 'layout.json').read_text())
+        self.assertEqual(layout['materials']['Cloth']['rect'], [0.0, 0.0, 1.0, 0.5])
+        self.assertEqual(layout['materials']['Body']['rect'], [0.0, 0.5, 1.0, 1.0])
+        self.assertGreater(layout['materials']['Lashes']['rect'][2], 1.0)
+        new_fat = out / 'package' / 'synthetic.fat'
+        new_dat = new_fat.with_suffix('.dat').read_bytes()
+        entries = {h_: new_dat[o:o + s] for h_, o, s in module('watch-dogs', 'extract_fat8').read_entries(new_fat.read_bytes())}
+        self.assertEqual(entries.keys(), blobs.keys())
+        changed = {h_ for h_ in entries if entries[h_] != blobs[h_]}
+        expect = {repack.path_hash(paths.XBG)} | {repack.path_hash(p) for k, (slot, kind) in paths.TEXTURES.items()
+                                                  if slot != 'head' or kind == 'd' for p in paths.texture_paths(k)}
+        self.assertEqual(changed, expect)  # head normal/specular and the private material stay
+        cfg = json.loads((out / 'package' / 'modconfig.json').read_text())
+        self.assertEqual((cfg['friendlyId'], cfg['packs'], cfg['author']), ('synthetic_replacer', ['synthetic'], 'synthetic'))
+        self.assertTrue((out / 'synthetic_replacer_v0_1_0.zip').is_file())
+
+    def test_wd_vrm0_facing_and_thumb_names(self):
+        import numpy as np
+        wd('vrm_fit', pil=True)
+        fit_mod, model, skel = wd('vrm_fit'), wd('vrm_model'), wd('xbg_skeleton')
+        template = self.root / 'template.xbg'
+        wd_human_template(template)
+        sk = skel.Skeleton(template)
+        v1, v0 = self.root / 'v1.vrm', self.root / 'v0.vrm'
+        wd_vrm(v1)
+        wd_vrm(v0, vrm0=True)
+        m0 = model.load(v0)
+        self.assertEqual(m0.humanoid['leftThumbMetacarpal'], 12)  # VRM 0.x leftThumbProximal
+        self.assertEqual(m0.humanoid['leftThumbProximal'], 13)  # VRM 0.x leftThumbIntermediate
+        a, b = fit_mod.build_fit(v1, sk), fit_mod.build_fit(v0, sk)
+        self.assertFalse(np.array_equal(a.axes, b.axes))
+        for name in sk.names:
+            self.assertTrue(np.allclose(a.aiden_world[name], b.aiden_world[name], atol=1e-9), name)
+        for pa, pb in zip(a.parts, b.parts):
+            self.assertTrue(np.allclose(pa.positions, pb.positions, atol=1e-9))
+
+    def test_wd_vrm_profile_errors_and_grid(self):
+        wd('vrm_textures', pil=True)
+        tex, model = wd('vrm_textures'), wd('vrm_model')
+        self.assertEqual(tex.cells(2, 16), [(0, 0, 16, 8), (0, 8, 16, 8)])
+        self.assertEqual(tex.cells(3, 16), [(0, 0, 8, 8), (8, 0, 8, 8), (0, 8, 8, 8)])
+        vrm = self.root / 'model.vrm'
+        wd_vrm(vrm)
+        m = model.load(vrm)
+        partial = {'materials': {k: v for k, v in WD_VRM_PROFILE['materials'].items() if k != 'Hair'}}
+        with self.assertRaises(ValueError):
+            tex.compose(m, partial, self.root / 'a')
+        grid = {'materials': {**WD_VRM_PROFILE['materials'], 'Hair': {'slot': 'coat'}}}
+        layout = tex.compose(m, grid, self.root / 'b', {'coat': (8, 8)})
+        self.assertEqual(layout['materials']['Hair']['rect'], [0.0, 0.5, 0.5, 1.0])  # third cell of a 2x2 grid
+        self.assertNotIn('char01_hair_v2_d', layout['textures'])
 
 if __name__ == '__main__': unittest.main(verbosity=2)

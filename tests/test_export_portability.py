@@ -53,6 +53,7 @@ class DetachedExports(unittest.TestCase):
                         self.assertIn('test_wd_fat8_repack_replace_and_extract', process.stderr)
                     if game == 'watch-dogs' and all(importlib.util.find_spec(m) for m in ('numpy', 'PIL')):
                         self.assertIn('test_wd_xbg_palette_growth_keeps_matrix_table_aligned', process.stderr)
+                        self.assertIn('test_wd_vrm_build_end_to_end', process.stderr)
                         self.assertFalse([l for l in process.stderr.splitlines() if 'test_wd_' in l and 'skipped' in l])
                     print(f'{game}: detached tests passed (unselected games skipped)')
 

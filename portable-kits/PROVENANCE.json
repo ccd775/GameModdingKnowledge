@@ -760,8 +760,8 @@
     "source": "Mods/WatchDogs/.work/xbg_writer/repack_fat8.py",
     "original_sha256": "d990f37be8915024d62d3f2d4c891400f34ed29f9c73aea6d635140064f22a73",
     "source_bytes": 2038,
-    "portable_sha256": "552f7ef3130c990f86e52f6512d6ef4d3307eea4dd76192488be8cbae501510a",
-    "portable_bytes": 3636,
+    "portable_sha256": "568b42b89a88f7df083b45d6cbcfb0f38b2003314a8bc4887709fd9844bdeb1c",
+    "portable_bytes": 3873,
     "modified_for_portability": true
   },
   {
@@ -789,6 +789,78 @@
     "source_bytes": 3116,
     "portable_sha256": "c9086fbe1752e59608d89fde820612d172389f029d55e922a2fe229f402497c0",
     "portable_bytes": 3888,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/watch-dogs/scripts/vrm_model.py",
+    "source": "Mods/WatchDogs/.work/karin_original/vrm_model.py",
+    "original_sha256": "edb916720fabf99dfd76182ca92a852f9158f6f5b012222789d6306a15d929a4",
+    "source_bytes": 6652,
+    "portable_sha256": "62939b498066c5465dcb81784706e91d352854eb0e24bba53a1f6b4dd82d42e8",
+    "portable_bytes": 7415,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/watch-dogs/scripts/vrm_fit.py",
+    "source": "Mods/WatchDogs/.work/karin_original/karin_fit.py",
+    "original_sha256": "20b1c09f3996ad0f98d12a7f1ca9ed140191645f69dc5ae779b947968b778cc3",
+    "source_bytes": 11717,
+    "portable_sha256": "d057322a367d6b206ff117be5799bfe2bb5f9a1ff1ee97b596f335510f6ef3de",
+    "portable_bytes": 13311,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/watch-dogs/scripts/vrm_weights.py",
+    "source": "Mods/WatchDogs/.work/karin_original/weights_map.py",
+    "original_sha256": "382360686e024ca17fdac2fbdad285289338a4c682466f0947405bea1d332e99",
+    "source_bytes": 5749,
+    "portable_sha256": "96bbea07f817efa8fb385e11136fea81e6977a5ab5feb2f7f9a2cc5cfaba655b",
+    "portable_bytes": 10301,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/watch-dogs/scripts/vrm_assemble.py",
+    "source": "Mods/WatchDogs/.work/karin_original/assemble.py",
+    "original_sha256": "134667f6c3d54f642cbc6e11474e8e8cbbbb9c9fbf5ecb499b68bb8d69324f23",
+    "source_bytes": 2577,
+    "portable_sha256": "68d8654726c8db569288bb56650a4b8b2730a13d9d19152bf5b66aef7a9b65ee",
+    "portable_bytes": 2546,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/watch-dogs/scripts/vrm_textures.py",
+    "source": "Mods/WatchDogs/.work/karin_original/build_textures.py",
+    "original_sha256": "9cc51506b1a38e3a82710680e45b76dfcfbe479e8c12b64d273e5130f83988f8",
+    "source_bytes": 4859,
+    "portable_sha256": "bb00a2b01e96f7e2a17dd0a8ef9b3f5f9860555fb1a63d1049697fc0dc1da6a4",
+    "portable_bytes": 8966,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/watch-dogs/scripts/build_from_vrm.py",
+    "source": "Mods/WatchDogs/.work/karin_original/build_karin_original.py",
+    "original_sha256": "89ea0711f36f88b8dbd4ff3f7a6af6d5ebdba5779c3808ab5c2c13294ed20981",
+    "source_bytes": 4565,
+    "portable_sha256": "e0e9f372deb922ae85aed2a4ed76c635ac5a4a49dbe529528d4a851b195bda62",
+    "portable_bytes": 9419,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/watch-dogs/scripts/package_mod.py",
+    "source": "Mods/WatchDogs/.work/karin_original/package_karin_original.py",
+    "original_sha256": "c886820d6e6512275e294875f3b741bdee112dc59a83c38d6f9f72c2a25fc329",
+    "source_bytes": 4499,
+    "portable_sha256": "613023b2a62ade1009127d171860792b255992bbb357e8ed96cfd79723e88c4f",
+    "portable_bytes": 6008,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/watch-dogs/scripts/char01_paths.py",
+    "source": "Mods/WatchDogs/.work/karin_original/fat_paths.py",
+    "original_sha256": "9112747660c6b27a316e71f85577c5451ced3f0d4032216cb55754907a2e06d2",
+    "source_bytes": 1297,
+    "portable_sha256": "a570c34b21043225e18050fea2e0d82f5bb21e5fb9cb7bb46d1ba749d6b6c646",
+    "portable_bytes": 2101,
     "modified_for_portability": true
   }
 ]

@@ -6,7 +6,7 @@
 | --- | --- | --- |
 | MK1 | Atlas/索引检查、骨盆与颈部数学算子、三件套预检和备份部署 | 每角色骨架映射、定制UE导入/Cook、native多export/store/redirect写入、游戏复测 |
 | Hitman | GLB/PRIM 验证、roundtrip、六槽 TEXT 重建 | 当前实体 QuickEntity、rig/atlas、RPKG/SMF |
-| Watch Dogs | 不用 ZModeler 的 XBG 写出器（FBX→char01.xbg）、骨架关节移动、FAT v8 解包/重打包、XBT 解析/注入/配对、PNG 直接编码 XBT | 源模型与 FBX 交接（或自写 VRM 直出）、XBG GPU 面数审计、modconfig.json、实机检查 |
+| Watch Dogs | 不用 ZModeler 的 XBG 写出器（FBX→char01.xbg）、骨架关节移动、FAT v8 解包/重打包、XBT 解析/注入/配对、PNG 直接编码 XBT；通用 VRM 构建器：拟合与摆姿势、骨架贴合、权重映射、贴图拼图集、打包 ModManager ZIP | 一个 ZModeler 布局的 char01 底包（模板 XBG 与贴图 donor）、新模型的 profile（材质分槽、次级骨链）、XBG GPU 面数审计、实机检查；表情与次级物理未做 |
 | Black Flag | Forge v50 LZ4 提取/重建 | 当前 Mesh writer/target rig、纹理和角色局部资源合同 |
 | RE4R | KPKA v4 哈希/目录/提取 | RE Mesh/Chain 工具、每角色映射和 PFB/RSZ |
 | L4D2 | VPK 提取/校验、VTA 缩放、StudioMDL 记录器 | 源 SMD/QC、flex/procedural/physics、MDL 深审计 |

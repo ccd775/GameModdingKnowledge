@@ -14,7 +14,7 @@
 
 此前的理由是"ZModeler 有 XBG 插件，自写格式风险大"。ZModeler 3 每台设备只有几天试用，这条路线难以长期维持。旧的 ZModeler 链（[操作清单](ZMODELER_OPERATOR_CHECKLIST.md)）作为历史和对照保留。
 
-写出器、骨架修改、FAT v8 打包和 PNG→XBT 编码脚本已收入[便携包](../../portable-kits/watch-dogs/README.md)，附合成数据测试。从 VRM 直接构建的脚本与 Karin_Original 的材质名、部件名绑定，没有收录；做法见 §5。
+写出器、骨架修改、FAT v8 打包和 PNG→XBT 编码脚本已收入[便携包](../../portable-kits/watch-dogs/README.md)，附合成数据测试。从 VRM 直接构建的脚本已整理成通用构建器 `build_from_vrm.py`：模型相关的部分（材质分槽、次级骨链）移到 JSON 配置文件，用 Karin_Original 的配置重建出的包与实机认可的 0.1.2 逐字节一致。做法见 §5。
 
 ## 2. 方法：模板 + 重写网格
 
@@ -145,6 +145,8 @@ u16 0, u16 0xFFFF
   - 用双四元数蒙皮从 T 字形摆成 Aiden 的绑定姿势，并对齐手掌法线；
   - 把 char01 的关节移到她摆好姿势后的关节位置；
   - 权重按人形骨骼映射。扭转骨的比例沿用旧 Karin 的分布；长双马尾逐级把一部分权重分给胸骨；裙摆逐级把一部分权重分给同侧大腿。
+  - 通用构建器（[便携包](../../portable-kits/watch-dogs/README.md) 的 `build_from_vrm.py`）把上述步骤做成一条命令：输入 VRM、配置文件和一个 ZModeler 布局的底包，输出 XBG、全部 XBT 和 ModManager 包。配置只写两类模型相关信息：每个 VRM 材质放进哪个槽位，以及头发、裙子等次级骨链把多少权重分给哪根骨骼。链级按"向上数到分叉节点或人形骨骼的步数"计算，不依赖节点命名的数字后缀；对 Karin_Original，它与原先按后缀取级的结果在所有带权重的节点上一致。
+  - VRM 0.x 模型朝 −Z，构建器根据左右大腿的位置判断朝向，必要时先转 180°。可选的人形骨骼（胸、肩、脚趾、手指、眼睛）缺失时跳过对应步骤。
 - **XBT 不用 texconv**：保留 donor XBT 及其 DDS 头，逐个 mip 级用 Pillow 的 DXT1/DXT5 编码，尺寸、格式、mip 数必须与 donor 一致。见 [XBT 管线](XBT_TEXTURE_PIPELINE.md)。
 - **FAT v8**：路径哈希为小写反斜杠路径的 FNV-1 64 位哈希取低 32 位。重打包时，未改动的条目逐字节保留。新 mod 换用新的 `friendlyId` 和 pack 名，就能与旧版并存于 ModManager，但同一时间只能启用一个。
 
@@ -168,6 +170,12 @@ u16 0, u16 0xFFFF
 - 次级物理。
 - 其他服装槽位，以及 char01 以外的骨架。
 - 超过 4 个材质槽的模板。
+
+通用 VRM 构建器：
+
+- 只有 Karin_Original（VRM 1.0）经过实机，并与 0.1.2 逐字节核对；
+- VRM 0.x 朝向转换、缺失可选骨骼、多贴图拼图集只有合成数据测试；
+- 仍需要一个已有的 char01 替换包作底包（模板 XBG 必须是 ZModeler 布局）。
 
 写出器的限制：
 

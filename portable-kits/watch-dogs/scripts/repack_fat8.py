@@ -35,6 +35,28 @@ def entry_hash(key: str) -> int:
     return path_hash(key)
 
 
+def rebuild(fat: bytes, dat: bytes, replacements: dict[int, bytes]) -> tuple[bytes, bytes]:
+    """New (FAT, DAT) bytes: source order, 16-byte aligned files, replaced entries swapped in."""
+    entries = read_entries(fat)
+    if sorted(e[0] for e in entries) != [e[0] for e in entries]:
+        raise SystemExit("source FAT is not hash-ordered")
+    unknown = set(replacements) - {e[0] for e in entries}
+    if unknown:
+        raise SystemExit(f"replacement hashes not in source: {[hex(h) for h in unknown]}")
+    out_dat = bytearray()
+    out_entries = bytearray()
+    for name_hash, offset, size in entries:
+        blob = replacements.get(name_hash, dat[offset : offset + size])
+        out_dat += b"\0" * ((-len(out_dat)) % 16)
+        new_offset = len(out_dat)
+        if new_offset % 8 or len(blob) >= 1 << 29 or new_offset >= 1 << 35:
+            raise SystemExit("entry does not fit FAT v8 packing")
+        out_dat += blob
+        packed_size = len(blob) | ((new_offset & 7) << 29)
+        out_entries += struct.pack("<4I", name_hash, 0, packed_size, new_offset >> 3)
+    return fat[:16] + bytes(out_entries) + fat[16 + len(entries) * 16 :], bytes(out_dat)
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="Rebuild an uncompressed Watch Dogs FAT v8 / DAT pair, replacing entries.")
     ap.add_argument("src_fat", type=Path, help="source FAT; the DAT next to it is read")
@@ -53,29 +75,11 @@ def main() -> None:
     for arg in args.replacements:
         key, path = arg.split("=", 1)
         replacements[entry_hash(key)] = Path(path).read_bytes()
-    fat = src_fat.read_bytes()
-    dat = src_fat.with_suffix(".dat").read_bytes()
-    entries = read_entries(fat)
-    if sorted(e[0] for e in entries) != [e[0] for e in entries]:
-        raise SystemExit("source FAT is not hash-ordered")
-    unknown = set(replacements) - {e[0] for e in entries}
-    if unknown:
-        raise SystemExit(f"replacement hashes not in source: {[hex(h) for h in unknown]}")
-    out_dat = bytearray()
-    out_entries = bytearray()
-    for name_hash, offset, size in entries:
-        blob = replacements.get(name_hash, dat[offset : offset + size])
-        out_dat += b"\0" * ((-len(out_dat)) % 16)
-        new_offset = len(out_dat)
-        if new_offset % 8 or len(blob) >= 1 << 29 or new_offset >= 1 << 35:
-            raise SystemExit("entry does not fit FAT v8 packing")
-        out_dat += blob
-        packed_size = len(blob) | ((new_offset & 7) << 29)
-        out_entries += struct.pack("<4I", name_hash, 0, packed_size, new_offset >> 3)
+    fat, dat = rebuild(src_fat.read_bytes(), src_fat.with_suffix(".dat").read_bytes(), replacements)
     out_fat.parent.mkdir(parents=True, exist_ok=True)
-    out_fat.write_bytes(fat[:16] + bytes(out_entries) + fat[16 + len(entries) * 16 :])
-    out_fat.with_suffix(".dat").write_bytes(bytes(out_dat))
-    print(f"wrote {out_fat} ({len(entries)} entries, dat {len(out_dat)} bytes)")
+    out_fat.write_bytes(fat)
+    out_fat.with_suffix(".dat").write_bytes(dat)
+    print(f"wrote {out_fat} ({len(read_entries(fat))} entries, dat {len(dat)} bytes)")
 
 
 if __name__ == "__main__":

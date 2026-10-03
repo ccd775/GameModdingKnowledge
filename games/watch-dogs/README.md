@@ -4,7 +4,7 @@
 
 Karin v1.3.0 替换 Aiden 默认“私法制裁者”服装。商店服装、DLC、囚服、开场和剧情强制模型不在范围内。Blender -> FBX -> ZModeler Compound -> XBG -> XBT/FAT/DAT -> ModManager 的生产链已冻结，用户于 2026-08-05 实机接受。
 
-**2026-10-03 更新：不再需要 ZModeler。** 项目自写的纯 Python 写出器直接生成 `char01.xbg`。用它生成的 1.4（手指与脚跟修复）、1.5（缩短锁骨的骨架修改）和 Karin_Original 0.1.2（从 VRM 直接构建，骨架贴合模型）都经用户实机认可。格式、合同和范围见 [不用 ZModeler 生成 XBG](XBG_WITHOUT_ZMODELER.md)，脚本在 [便携包](../../portable-kits/watch-dogs/README.md)。
+**2026-10-03 更新：不再需要 ZModeler。** 项目自写的纯 Python 写出器直接生成 `char01.xbg`。用它生成的 1.4（手指与脚跟修复）、1.5（缩短锁骨的骨架修改）和 Karin_Original 0.1.2（从 VRM 直接构建，骨架贴合模型）都经用户实机认可。格式、合同和范围见 [不用 ZModeler 生成 XBG](XBG_WITHOUT_ZMODELER.md)，脚本在 [便携包](../../portable-kits/watch-dogs/README.md)。便携包还带通用 VRM 构建器：VRM + 配置文件 + 已有的 char01 底包，一条命令生成 XBG、XBT 和 ModManager 包。
 
 ## 最重要的工程合同
 

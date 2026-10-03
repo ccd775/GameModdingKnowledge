@@ -11,7 +11,7 @@
     {
       "name": "XBG writer (pure Python, bundled)",
       "version": "2026-10-03",
-      "role": "template-based char01.xbg writer, skeleton patch, FAT v8 repack and texconv-free XBT encoder; runtime-confirmed by Karin 1.4, 1.5 and Karin_Original 0.1.2",
+      "role": "template-based char01.xbg writer (FBX or VRM input), skeleton fitting, FAT v8 packaging and texconv-free XBT encoder; runtime-confirmed by Karin 1.4, 1.5 and Karin_Original 0.1.2",
       "required": true,
       "bundled": true
     },
@@ -43,13 +43,21 @@
   "runtime_boundary": "v1.3.0 default outfit acceptance with minor finger limitation; ZModeler-free 1.4/1.5 and Karin_Original 0.1.2 accepted in game (Karin_Original: load, face and eyes only)",
   "bundled_scripts": [
     "scripts/audit_xbt_templates.py",
+    "scripts/build_from_vrm.py",
     "scripts/build_xbg_from_fbx.py",
     "scripts/build_xbt_pair.py",
+    "scripts/char01_paths.py",
     "scripts/extract_fat8.py",
     "scripts/fbx_mesh.py",
     "scripts/fbx_reader.py",
     "scripts/fbx_to_xbg.py",
+    "scripts/package_mod.py",
     "scripts/repack_fat8.py",
+    "scripts/vrm_assemble.py",
+    "scripts/vrm_fit.py",
+    "scripts/vrm_model.py",
+    "scripts/vrm_textures.py",
+    "scripts/vrm_weights.py",
     "scripts/xbg_codec.py",
     "scripts/xbg_model.py",
     "scripts/xbg_skeleton.py",
@@ -58,5 +66,5 @@
     "scripts/xbt_tool.py"
   ],
   "python": "3.10+ for the XBT scripts; 3.12+ for the XBG writer (numpy pin)",
-  "dependency_install": "python -m pip install -r requirements.txt (from bundle root); add -r portable-kits/watch-dogs/requirements.txt for the XBG writer and skeleton tools"
+  "dependency_install": "python -m pip install -r requirements.txt (from bundle root); add -r portable-kits/watch-dogs/requirements.txt for the XBG writer, VRM builder and skeleton tools"
 }

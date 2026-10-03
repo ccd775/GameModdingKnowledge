@@ -2,11 +2,11 @@
 
 先读 [游戏知识](../../games/watch-dogs/README.md) 和 [不用 ZModeler 生成 XBG](../../games/watch-dogs/XBG_WITHOUT_ZMODELER.md)。
 
-本包附带 Karin 1.4、1.5、Karin_Original 0.1.2 实际使用的 XBG 写出器（不需要 ZModeler）、骨架修改、FAT v8 打包和不依赖 texconv 的贴图编码脚本，以及原有的 XBT 工具。
+本包附带 Karin 1.4、1.5、Karin_Original 0.1.2 实际使用的 XBG 写出器（不需要 ZModeler）、骨架修改、FAT v8 打包和不依赖 texconv 的贴图编码脚本，从 VRM 直接构建整个替换包的通用构建器，以及原有的 XBT 工具。
 
-- **Python 版本**：XBT 工具和 FAT 工具只需标准库，Python 3.10+。XBG 写出器、骨架工具和 `xbt_encode.py` 需要 numpy；钉住的 numpy 2.5 需要 Python 3.12+（测试环境 Python 3.14.0）。
+- **Python 版本**：XBT 工具、FAT 工具、`char01_paths.py` 和 `package_mod.py` 只需标准库，Python 3.10+。XBG 写出器、骨架工具、VRM 构建器和 `xbt_encode.py` 需要 numpy 和 Pillow；钉住的 numpy 2.5 需要 Python 3.12+（测试环境 Python 3.14.0）。
 - **运行位置**：以下命令都从交接包根目录执行。
-- **不随包提供**：游戏文件、模板 XBG、模型、ModManager 都由用户自备。
+- **不随包提供**：游戏文件、模板 XBG 和底包、模型、ModManager 都由用户自备。
 
 ```powershell
 python -m pip install -r requirements.txt -r portable-kits/watch-dogs/requirements.txt
@@ -48,6 +48,60 @@ python -B $Kit/repack_fat8.py ../MyMod/Ref/old_mod.fat ../MyMod/Output/my_mod.fa
 
 `targets.json` 的格式是 `{"关节名": [x, y, z]}`，坐标为 XBG 模型空间（米）：左为 −X，前为 +Y，上为 +Z。
 
+## VRM：直接构建替换包
+
+人形 VRM（1.0 或 0.x）一步生成 char01.xbg、全部 XBT 和 ModManager 包，不经过 Blender、FBX 和 texconv。需要一个现成的 char01 替换包作底包：它的 char01.xbg 必须是 ZModeler 布局（写出器的模板），它的 XBT 是贴图 donor，它引用的私有材质也随之保留。
+
+```powershell
+# 0. 看底包里有哪些 char01 条目（列出全部游戏路径和哈希）
+python -B $Kit/char01_paths.py
+
+# 1. 只合成贴图和 UV 布局，先检查材质分组（可选）
+python -B $Kit/vrm_textures.py ../MyMod/Ref/model.vrm ../MyMod/Work/profile.json ../MyMod/Work/textures
+
+# 2. 构建；--package 时同时写出 FAT/DAT、modconfig.json 和 ZIP
+python -B $Kit/build_from_vrm.py --vrm ../MyMod/Ref/model.vrm --profile ../MyMod/Work/profile.json `
+  --base-fat ../MyMod/Ref/old_mod.fat --out-dir ../MyMod/Output/build `
+  --package --pack my_mod --friendly-id my_mod --name "My Mod" --version 0.1.0
+
+# 3. 只换条目重新打包已有的 XBG/XBT（不重建模型）
+python -B $Kit/package_mod.py --base-fat ../MyMod/Ref/old_mod.fat --out-dir ../MyMod/Output/pkg `
+  --pack my_mod --friendly-id my_mod --name "My Mod" --version 0.1.1 `
+  --replace graphics/characters/char/char01/char01.xbg=../MyMod/Work/char01.xbg
+```
+
+构建步骤：从底包取出模板 XBG 和 donor XBT；按配置合成 4 个槽位的贴图并重排 UV；整体缩放到模板腿长，用双四元数蒙皮摆成模板绑定姿势；把 char01 的身体关节移到模型的关节位置（Pelvis 到 Spine2 保留模板位置）；映射权重；写 XBG（LOD1 复用 LOD0）并回读；把贴图编码进对应的 low/high 流 donor。`OUT/build_report.json` 记录输入哈希、缩放、朝向、骨架改动、各部件的槽位和回读结果。输出目录非空时拒绝写入，`--force` 覆盖。
+
+### 配置文件（profile）
+
+`profiles/karin_original.json` 是 Karin_Original 0.1.2 实际使用的配置，可作样板。
+
+```json
+{
+  "materials": {
+    "<VRM 材质名>": {"slot": "head | coat | hair | lashes", "spec": "skin | cloth | hair"}
+  },
+  "chains": [
+    {"match": "<节点名正则>", "under": "<人形骨骼>", "to": "<char01 骨骼>", "shares": [0.0, 0.15, 0.35]},
+    {"match": "<节点名正则>", "under": "<人形骨骼>", "to_side": ["L Thigh", "R Thigh"],
+     "shares": [0.15, 0.35], "side_width": 0.02}
+  ],
+  "replace_head_maps": false
+}
+```
+
+- `materials`：网格用到的每个材质都要列出，否则报错。同一槽位内按 base color 贴图分组：一张原样使用；两张上下拼；三张以上拼成网格，每格四周复制边缘作缝隙。`lashes` 槽只放一张贴图，裁到几何体实际用到的 UV 区域。`spec` 决定外套和头发的高光常量（省略时按槽位取默认）。
+- `chains`：非人形骨骼默认把权重并给最近的人形祖先。匹配的规则按链级把 `shares[级]` 比例的权重移给 `to`，或按顶点 X 分给左右两根骨骼（`to_side`；中线处各半，`side_width` 是过渡宽度，单位米，默认 0.02）。规则必须且只能有 `to` 和 `to_side` 之一。链级是向上数到分叉节点或人形骨骼的步数；超出列表时沿用最后一个值。
+- `replace_head_maps`：默认保留底包头部的法线和高光，只换头部颜色贴图。
+- 固定规则：眼骨和下巴并入 `Head`（面部骨骼位置会被动画重置）；上臂、前臂按 Karin 1.3 实测比例分给扭转骨；手部权重向指根渐变到掌骨。
+
+### 检查门
+
+- 输出 `READBACK PASS`；`build_report.json` 的 `facing` 与模型的 VRM 版本一致（1.0 为 +Z，0.x 自动转 180°）。
+- `layout_warnings` 为空，或已逐条确认。
+- `--package` 时逐条回读新包，除替换的条目外全部逐字节保留。
+- 实机：读档、脸和眼睛、基础动作、双手持枪、长头发和裙子在走路下蹲时的穿模。
+
 ## XBT：原有工具
 
 ```powershell
@@ -73,11 +127,20 @@ python -B $Kit/build_xbt_pair.py ../MyMod/Ref/source.png ../MyMod/Ref/low.xbt ..
 | `xbg_skeleton_patch.py` | 移动关节并同步更新节点局部平移与逆绑定矩阵；写后验证，失败时删除输出 |
 | `xbt_encode.py` | PNG -> donor XBT，Pillow 逐级 DXT1/DXT5 编码，保留 donor 文件头 |
 | `extract_fat8.py`、`repack_fat8.py` | 未压缩 FAT v8 / DAT 解包与重打包；条目 16 字节对齐，键可用游戏路径 |
+| `build_from_vrm.py` | 入口：VRM + 配置 + 底包 -> char01.xbg、XBT、可选 ModManager 包；写 `build_report.json` |
+| `vrm_model.py` | 最小 glTF/VRM 读取（节点、蒙皮、网格、材质、贴图）；VRM 0.x 拇指改用 1.0 命名 |
+| `vrm_fit.py` | 朝向判断、按腿长缩放、双四元数摆姿势、计算 char01 关节的新位置 |
+| `vrm_weights.py` | 人形骨骼权重映射、扭转骨比例、掌骨渐变、配置里的链规则 |
+| `vrm_textures.py` | 按配置合成 4 个槽位的贴图和 UV 布局（`layout.json`） |
+| `vrm_assemble.py` | 把摆好姿势的部件转成写出器输入（子网格按槽位合并） |
+| `char01_paths.py` | char01 的 XBG/XBT 游戏路径、low/high 流和 FAT 哈希 |
+| `package_mod.py` | 底包换条目、写 modconfig.json（CRLF）、固定时间戳的可复现 ZIP |
 | `xbt_tool.py`、`audit_xbt_templates.py`、`build_xbt_pair.py` | 原有 XBT 解析、注入、模板审计和 texconv 配对构建 |
 
 ## 限制
 
 - 只支持 char01 骨架和模板里的材质槽。每个顶点最多 4 个权重，每个子网格最多 65,535 个顶点，调色板最多 255 根骨骼；超出时直接报错，不会静默拆分。
-- 从 VRM 直接构建（Karin_Original）的脚本没有收录：它与该模型的材质名、部件名绑定。做法见游戏文档。
+- VRM 构建器只对 Karin_Original（VRM 1.0）做过逐字节核对：用样板配置重建的 XBG、15 个 XBT、FAT/DAT、modconfig 和 ZIP 与实机认可的 0.1.2 完全一致。VRM 0.x 和其他模型只有合成数据测试，未经实机。
+- VRM 构建器不做表情、视线和次级物理：脸是刚性的，嘴和眼睛不会动；头发、裙子只随骨骼按比例摆动。
 - 输出与 ZModeler 语义一致，但不逐字节一致。
 - 测试只用合成数据：`python -B tests/test_portable_tools.py`。

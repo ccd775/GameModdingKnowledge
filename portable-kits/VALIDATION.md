@@ -1,5 +1,30 @@
 # 迁移验证记录
 
+## 2026-10-03：看门狗 VRM 构建器整理成通用版
+
+- **迁入内容：** 8 个 Python 文件和 1 个配置样板，放在 `portable-kits/watch-dogs/`。
+  - 来自项目的 `.work/karin_original/`，按职责改名：`vrm_model.py`（原名同）、`vrm_fit.py`（原 `karin_fit.py`）、`vrm_weights.py`（原 `weights_map.py`）、`vrm_assemble.py`（原 `assemble.py`）、`vrm_textures.py`（原 `build_textures.py`）、`build_from_vrm.py`（原 `build_karin_original.py`）、`package_mod.py`（原 `package_karin_original.py`）、`char01_paths.py`（原 `fat_paths.py`）；
+  - `profiles/karin_original.json`：Karin_Original 0.1.2 的材质分槽和次级骨链规则，从原脚本里写死的常量整理而来；
+  - PROVENANCE 记录每个文件的原始 SHA-256 和公开版 SHA-256。
+- **通用化改动：**
+  - 模型相关的常量移到配置文件：VRM 材质到 4 个槽位的映射、高光类别、头发和裙子的链规则（`match`/`under`/`to` 或 `to_side`/`shares`/`side_width`）；
+  - 链级原先取节点名的数字后缀，改为向上数到分叉节点或人形骨骼的步数。对 Karin_Original，两种算法在所有带权重的节点上结果一致；
+  - 贴图：同一槽位多张 base color 时按配置顺序上下拼或拼成网格，加复制边缘的缝隙；睫毛槽裁到实际用到的 UV 区域；合成尺寸取底包 donor 的实际尺寸，原先写死为 Karin 1.3.0 的尺寸；
+  - 拟合：根据左右大腿判断朝向，VRM 0.x（朝 −Z）先转 180°；VRM 0.x 的拇指改用 1.0 命名；可选人形骨骼和模板骨骼缺失时跳过对应步骤；
+  - 权重：除 0.1.2 已有的眼骨外，下巴也并入 `Head`；模板里缺少的 char01 骨骼退回最近的已映射祖先；
+  - 构建入口直接读底包 FAT/DAT，取出模板 XBG 和 donor XBT，不再依赖项目目录；新增 `build_report.json`；
+  - 打包：底包、pack 名、friendlyId、版本、描述和 ZIP 时间戳都由参数给出；modconfig.json 保持 CRLF；输出目录非空时默认拒绝写入；
+  - `repack_fat8.py` 拆出 `entry_hash` 和 `rebuild` 供打包调用，命令行行为不变。
+- **没有迁入：** `twist_profile.py`（扭转骨比例已作为常量写进 `vrm_weights.py`）、`eye_check.py`、`preview_*.py`、`inspect_*.py`、`pose_test.py`：只服务于本项目的诊断。VRM、贴图、底包和产物都不收录。
+- **等价性验证：**
+  - **条件：** Python 3.14.0、numpy 2.5.2、Pillow 12.3.0。输入为 Karin_Original 的 VRM（VRM 1.0）、`profiles/karin_original.json`、Karin 1.3.0 运行包作底包，modconfig 取自 0.1.2 包。
+  - **结果：** `build_from_vrm.py --package` 输出 `READBACK PASS`。char01.xbg（`CDE17BB0…`）、15 个 XBT、FAT、DAT、modconfig.json 和 ZIP（`20D92DD7…`）都与用户实机认可的 Karin_Original 0.1.2 逐字节相同。
+- **合成数据测试：** `WatchDogsVrmBuilder` 3 项。
+  - 用合成 VRM 1.0 和合成底包端到端构建并打包：回读通过；缩放、躯干保留与四肢关节移动；前臂摆姿势方向；眼睛权重并入 `Head`、头发链分给 `Spine2`、裙摆按左右分给两侧大腿；两张外套贴图上下拼、睫毛裁剪；新包只改动预期条目；输出目录非空时拒绝写入；
+  - VRM 0.x 的朝向判断和拇指改名：同一模型的 0.x 与 1.0 版本拟合结果一致；
+  - 配置漏列材质时报错；三张贴图拼成 2×2 网格。
+- **未验证：** 除 Karin_Original 外的任何模型都没有实机测试；VRM 0.x、缺失可选骨骼、多贴图拼图集只有合成数据测试。
+
 ## 2026-10-03：新增看门狗 XBG 写出器
 
 - **迁入内容：** 11 个 Python 文件，放在 `portable-kits/watch-dogs/scripts/`。
