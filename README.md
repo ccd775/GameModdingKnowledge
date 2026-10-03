@@ -21,7 +21,7 @@
 | 鬼泣5 | [DMC5](games/devil-may-cry-5/README.md) | KarinPT→V：标题画面经用户确认；Karin_Original→Nero / Dante / V 三包 v1.1：Nero / Dante 实战经用户验收（含裙摆碰撞修复）；Original V 的 v1.1 物理未在游戏里加载，魔人形态、过场、立绘未检查 |
 | 真三国无双 起源 | [DW Origins](games/dynasty-warriors-origins/README.md) | Karin PicodraTech→鸾翼将装：修复接缝/外套脏/翻领发糊（源模型重烘焙、UV 切开重排）经用户实机验收，脸部"可接受"；Karin_Original→鸾翼将装 v20261002a：从 FBX 构建、复用同网格的脸、按原版辅助骨分布迁移权重，仅由 agent 读档在旅馆/装备界面截图验证，用户未验收；无次级物理 |
 | 杀手暗杀世界 | [Hitman WOA](games/hitman-world-of-assassination/README.md) | Signature Suit 0.1.0 在 Dartmoor 的基础动作 |
-| 看门狗 | [Watch Dogs](games/watch-dogs/README.md) | 默认服装 v1.3.0，保留少数手指变形限制。2026-10-03 起不再需要 ZModeler：纯 Python 写出 XBG 的 1.4 / 1.5 和 Karin_Original 0.1.2 经用户实机认可；Karin_Original 只确认了读档和脸部 |
+| 看门狗 | [Watch Dogs](games/watch-dogs/README.md) | 默认服装 v1.3.0，保留少数手指变形限制。2026-10-03 起不再需要 ZModeler：纯 Python 写出 XBG 的 1.4 / 1.5 和 Karin_Original 0.1.2 经用户实机认可；Karin_Original 只确认了读档和脸部。附通用 VRM 构建器，配置驱动，可逐字节重建 0.1.2 |
 | 刺客信条黑旗记忆重置 | [Black Flag Resynced](games/assassins-creed-black-flag/README.md) | 角色替换及最终 1.6.1 修复，用户于 9 月 6 日确认 |
 | 生化危机4重制版 | [RE4R](games/resident-evil-4-remake/README.md) | 多个角色案例，具体场景/build 分别记录 |
 | 求生之路2 | [L4D2](games/left-4-dead-2/README.md) | 多个实机确认案例，另有静态完成待复测项目 |
@@ -42,22 +42,26 @@ python -B tools/export_kit.py --all --output ../Modding-Portable-Exports --zip
 
 ## 下载便携包
 
-MK1 已加入源码与导出器；现有 v0.1.0 Release 仍为原六游戏包。本次未改动该 Release。需要 MK1 独立包时运行：
-
-```powershell
-python -B tools/export_kit.py --game mortal-kombat-1 --output ../MK1-Portable --zip
-```
-
-[v0.1.0 Release](https://github.com/ccd775/GameModdingKnowledge/releases/tag/v0.1.0) 提供六款游戏的独立目录 ZIP，以及对应的文件 SHA-256 清单。下载后解压整个包，从包内 README.md 开始。
+[v0.2.0 Release](https://github.com/ccd775/GameModdingKnowledge/releases/tag/v0.2.0) 提供十款附便携工具包的游戏的独立目录 ZIP，以及对应的文件 SHA-256 清单（同名 `.files.json`）。下载后解压整个包，从包内 README.md 开始。[v0.1.0 Release](https://github.com/ccd775/GameModdingKnowledge/releases/tag/v0.1.0) 保留原六游戏包，不再更新。
 
 | 游戏 | 独立便携 ZIP |
 | --- | --- |
-| 杀手暗杀世界 | [下载](https://github.com/ccd775/GameModdingKnowledge/releases/download/v0.1.0/hitman-world-of-assassination.zip) |
-| 看门狗 | [下载](https://github.com/ccd775/GameModdingKnowledge/releases/download/v0.1.0/watch-dogs.zip) |
-| 黑旗记忆重置 | [下载](https://github.com/ccd775/GameModdingKnowledge/releases/download/v0.1.0/assassins-creed-black-flag.zip) |
-| 生化危机4重制版 | [下载](https://github.com/ccd775/GameModdingKnowledge/releases/download/v0.1.0/resident-evil-4-remake.zip) |
-| 求生之路2 | [下载](https://github.com/ccd775/GameModdingKnowledge/releases/download/v0.1.0/left-4-dead-2.zip) |
-| 绝地潜兵2 | [下载](https://github.com/ccd775/GameModdingKnowledge/releases/download/v0.1.0/helldivers-2.zip) |
+| 真人快打1 | [下载](https://github.com/ccd775/GameModdingKnowledge/releases/download/v0.2.0/mortal-kombat-1.zip) |
+| 地平线：西之绝境 | [下载](https://github.com/ccd775/GameModdingKnowledge/releases/download/v0.2.0/horizon-forbidden-west.zip) |
+| 战神：诸神黄昏 | [下载](https://github.com/ccd775/GameModdingKnowledge/releases/download/v0.2.0/god-of-war-ragnarok.zip) |
+| 对马岛之魂 导演剪辑版 | [下载](https://github.com/ccd775/GameModdingKnowledge/releases/download/v0.2.0/ghost-of-tsushima.zip) |
+| 杀手暗杀世界 | [下载](https://github.com/ccd775/GameModdingKnowledge/releases/download/v0.2.0/hitman-world-of-assassination.zip) |
+| 看门狗 | [下载](https://github.com/ccd775/GameModdingKnowledge/releases/download/v0.2.0/watch-dogs.zip) |
+| 黑旗记忆重置 | [下载](https://github.com/ccd775/GameModdingKnowledge/releases/download/v0.2.0/assassins-creed-black-flag.zip) |
+| 生化危机4重制版 | [下载](https://github.com/ccd775/GameModdingKnowledge/releases/download/v0.2.0/resident-evil-4-remake.zip) |
+| 求生之路2 | [下载](https://github.com/ccd775/GameModdingKnowledge/releases/download/v0.2.0/left-4-dead-2.zip) |
+| 绝地潜兵2 | [下载](https://github.com/ccd775/GameModdingKnowledge/releases/download/v0.2.0/helldivers-2.zip) |
+
+单独导出某一款时运行（导出目录旁会生成同名 ZIP 和 `.files.json` 清单）：
+
+```powershell
+python -B tools/export_kit.py --game watch-dogs --output ../WatchDogs-Portable --zip
+```
 
 ## 内容与证据
 
