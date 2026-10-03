@@ -7,7 +7,7 @@
 | Blender | [官方历史版本](https://download.blender.org/release/) | 4.2.23 与 4.5.12 曾用于不同项目，DMC5 用 4.0.2，战神5 用 5.0.1；匹配源文件与插件 |
 | RPKG Tool | [Glacier 工具页](https://glaciermodding.org/rpkg/) | CLI/GUI 2.34.0，导出 GLB/TGA 后重建并回读 |
 | SMF / GlacierKit | [维护者的 suit modding 指南](https://glaciermodding.org/docs/modding/hitman/guides/suitmodding/) | SMF 2.33.40、GlacierKit 1.12.15 为历史锁；使用当前实体补丁 |
-| ZModeler | [作者官网](https://www.zmodeler3.com/) | 3.3.1.1244；XBG filter、Skeleton Bind、L0/L1 Compound，需用户自己的授权 |
+| ZModeler | [作者官网](https://www.zmodeler3.com/) | 3.3.1.1244；XBG filter、Skeleton Bind、L0/L1 Compound，需用户自己的授权。Watch Dogs 自 2026-10-03 起可不用（纯 Python XBG 写出器），仅作对照 |
 | RE Mesh/Chain 工具 | [NSACloud](https://github.com/NSACloud) / [Chain 项目](https://github.com/NSACloud/RE-Chain-Editor) | Mesh 0.66、Chain 14.0；在 Blender 插件设置中安装并测试当前文件格式。DMC5 用 Mesh 0.44（无界面模式需屏蔽 `console_toggle`，MDF v10 只读不写），Chain 14.0 的 `file_re_chain` 可往返 chain .21 |
 | REFramework | [nightly 发布](https://github.com/praydog/REFramework-nightly/releases) | RE Engine 游戏的加载器；MHWs exe 1.42.0.2 上 nightly 01212 无法加载散装贴图，01424 可以。每次游戏更新后重新确认，记录日志中的 commit。RE9 用它的 Lua autorun 写只读探针，读 Chain2 组件、关节坐标与枚举值 |
 | BoneSystem（MHWs） | [作者发布帖（南风焓）](https://www.caimogu.cc/post/1937594.htm) | 26.1.13.1；REFramework 插件，独立骨骼与表情映射，配置见 MHWs 技术合同 |

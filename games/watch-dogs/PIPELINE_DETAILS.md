@@ -2,6 +2,8 @@
 
 Last updated: 2026-08-05
 
+> **2026-10-03 update:** the ZModeler steps below (double bind, L0/L1 Compound, export, fresh-process reimport) can be replaced by the project's pure-Python XBG writer. Karin 1.4, 1.5 and Karin_Original 0.1.2 were written without ZModeler and accepted in game. See [XBG without ZModeler](XBG_WITHOUT_ZMODELER.md). The 1.3.0 contract below is unchanged and remains the frozen release record.
+
 ## Current release contract
 
 The active release is `Karin Default Outfit Replacer 1.3.0`. It completely replaces only Aiden's default Vigilante outfit. Shop skins, DLC outfits, the prisoner/intro model, and story-forced models are out of scope.

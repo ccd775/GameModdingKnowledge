@@ -146,3 +146,41 @@ python pipeline\build_karin_runtime_v13.py `
 长期保留：不可变输入、1.2/1.3 发布物与 freeze、`.work/v13/35`、`38`、`39`、`40-42`、最终 atlas/LOD/FBX/Z3D/XBG、最小 fresh-process 证据、构建审计和游戏证据。
 
 1.3 已正式冻结，可删除被替代的重型候选、重复预览、临时对位渲染、ZModeler 逐点击截图和 `pipeline/__pycache__`。不得批量改写历史审计，也不得删除当前构建仍引用的 v1.1 v3j workspace。最终用户安装见 `DEPLOYMENT_WATCH_DOGS_KARIN.md`。
+
+## 12. 不用 ZModeler 的 XBG 写出器（2026-10-03，已实机验证）
+
+`.work/xbg_writer/` 提供不依赖 ZModeler 的 FBX → `char01.xbg` 写出器，替代 §6 第 5–9 步。
+
+- 工具侧：用 v1.3、v1.2、v4 三份 FBX 生成 XBG，与对应的 ZModeler 输出逐角点比对，位置差 ≤ 0.06 mm，法线差 ≤ 1 字节；回读精确，GPU 审计 `PASS_CLEAN_TARGET`。
+- 实机：1.4、1.5、Karin_Original 0.1.2 都由它写出并经用户认可。**ZModeler 不再是必需工具**，§5–§9 的 ZModeler 链保留作对照。
+
+用法与验收门见 `.work/xbg_writer/README.md`，格式见同目录 `XBG_FORMAT_NOTES.md`。调色板长度与模板不同时，注意 §15 的对齐教训。
+
+## 13. 1.4 候选：手指与脚跟修复（试验，2026-10-03）
+
+根因：方向修正步骤用骨架空间的骨骼头 Y 在网格空间做镜像，两个空间的 Y 反向，导致每个顶点前后偏移 `−2·Σw·headY`。手指因此偏离指骨（握持时扭曲、拉长），脚相对小腿前移 7.3 cm。`.work/karin_v14/v14_fix.py` 只在手链（以 Hand 为锚）和脚链（以 Calf 为锚）内局部撤销，头、颈、项圈不变。工具侧已验证，测试包 `.work/karin_v14/test_package/karin_replacer_v1_4_0_test.zip`，详情见 `.work/karin_v14/README.md`。实机通过前 1.3.0 仍为发布版；**以后从 Blender 重新导出 handoff 时必须重新应用 `v14_fix`**，否则问题会复现。
+
+1.4 已于 2026-10-03 实机认可（手指、脚跟）。
+
+## 14. 1.5 候选：肩宽收窄与手臂居中（试验，2026-10-03）
+
+重定向把肩关节钉在 Aiden 的位置（上臂骨间距 0.373 m），Karin 显得肩宽像成年男性；手臂也带着 §13 的支点偏移（上臂网格在骨前约 5 cm）。`.work/karin_v15/v15_fix.py` 做了两件事：手臂整棵子树以锁骨为锚撤销偏移（取代 `v14_fix` 的手链规则，手指相对手掌不变）；**修改 XBG 骨架**，两侧锁骨各缩短 4 cm（上臂骨间距 0.293 m，和游戏自带女性身体骨架 `com_f_tor_completebody01` 的 0.287 m 相当），并同步更新受影响的逆绑定矩阵和网格。这是本项目第一次改动骨架；依据是女性 NPC 身体自带不同比例的同名骨架，并能被 Aiden 的动作驱动，但这仍需实机确认。测试包 `.work/karin_v15/test_package/karin_replacer_v1_5_0_test.zip`，详情见 `.work/karin_v15/README.md`。**以后重新导出时，用 `build_v15.py` 代替 `build_v14.py`。**
+
+1.5 已于 2026-10-03 实机认可：肩宽明显改善，骨架修改在游戏中生效。遗留问题：肩到上臂的过渡还略不自然。
+
+## 15. Karin_Original（第二个角色 mod，试验，2026-10-03）
+
+源模型：`Mods/Shared/Models/Optimized/Karin_Original/Karin(Clone).vrm`，全流程用 Python 完成（`.work/karin_original/`），不需要 Blender、ZModeler 或 texconv。
+
+做法与旧 Karin 相反：骨架贴合模型，不把网格拉到 Aiden 的骨架上。
+
+- 整体缩放到 Aiden 的腿长，摆成 Aiden 的绑定姿势。
+- char01 的关节移到她的关节位置，骨骼朝向保持 Aiden 的；Pelvis 到 Spine2 保持 Aiden 的位置。
+- 权重按人形骨骼映射，扭转骨比例沿用旧 Karin 的。
+- 贴图装进同样的 4 个材质槽和 19 个 XBT 文件。
+
+它是独立的 mod（`friendlyId` 为 `karin_original_replacer`，pack 为 `karin_original`），与 `karin_replacer` 替换同一批文件，二者只能启用一个。测试包 `.work/karin_original/test_package/karin_original_replacer_v0_1_2_test.zip`，详情与风险见 `.work/karin_original/README.md`。
+
+0.1.0 在读取存档到一半时崩溃。原因是写出器的格式缺陷：节点表后的矩阵表必须从文件的 16 字节对齐位置开始，而写出器照抄了模板的补零。调色板长度一变（66 → 70 个骨骼），矩阵表就偏了 8 字节。旧 Karin 各版本的调色板都是 66，所以一直没暴露。0.1.1 已修复（`xbg_codec.encode` 重新计算补零）。**以后凡是调色板长度与模板不同的 XBG，都要确认矩阵表起点 `% 16 == 0`。**
+
+0.1.1 能进游戏，但瞳孔盖住了眼睑、偏向鼻子。原因是游戏的面部动画会把眼骨的局部位置重置为 Aiden 的，绑定里挪过的位置不起作用，带着 30% 眼骨权重的瞳孔就被拉到了眼睑前面。0.1.2 把瞳孔权重归到 Head，已于 2026-10-03 实机确认修好。**规律：身体骨骼的绑定位置游戏会采用，面部骨骼（`Facial_Hook` 下）的位置由动画决定；新模型的脸部顶点只蒙皮到 Head。**

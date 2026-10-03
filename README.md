@@ -21,7 +21,7 @@
 | 鬼泣5 | [DMC5](games/devil-may-cry-5/README.md) | KarinPT→V：标题画面经用户确认；Karin_Original→Nero / Dante / V 三包 v1.1：Nero / Dante 实战经用户验收（含裙摆碰撞修复）；Original V 的 v1.1 物理未在游戏里加载，魔人形态、过场、立绘未检查 |
 | 真三国无双 起源 | [DW Origins](games/dynasty-warriors-origins/README.md) | Karin PicodraTech→鸾翼将装：修复接缝/外套脏/翻领发糊（源模型重烘焙、UV 切开重排）经用户实机验收，脸部"可接受"；Karin_Original→鸾翼将装 v20261002a：从 FBX 构建、复用同网格的脸、按原版辅助骨分布迁移权重，仅由 agent 读档在旅馆/装备界面截图验证，用户未验收；无次级物理 |
 | 杀手暗杀世界 | [Hitman WOA](games/hitman-world-of-assassination/README.md) | Signature Suit 0.1.0 在 Dartmoor 的基础动作 |
-| 看门狗 | [Watch Dogs](games/watch-dogs/README.md) | 默认服装 v1.3.0；保留少数手指变形限制 |
+| 看门狗 | [Watch Dogs](games/watch-dogs/README.md) | 默认服装 v1.3.0，保留少数手指变形限制。2026-10-03 起不再需要 ZModeler：纯 Python 写出 XBG 的 1.4 / 1.5 和 Karin_Original 0.1.2 经用户实机认可；Karin_Original 只确认了读档和脸部 |
 | 刺客信条黑旗记忆重置 | [Black Flag Resynced](games/assassins-creed-black-flag/README.md) | 角色替换及最终 1.6.1 修复，用户于 9 月 6 日确认 |
 | 生化危机4重制版 | [RE4R](games/resident-evil-4-remake/README.md) | 多个角色案例，具体场景/build 分别记录 |
 | 求生之路2 | [L4D2](games/left-4-dead-2/README.md) | 多个实机确认案例，另有静态完成待复测项目 |

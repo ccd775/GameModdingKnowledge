@@ -6,7 +6,7 @@
 | --- | --- | --- |
 | MK1 | Atlas/索引检查、骨盆与颈部数学算子、三件套预检和备份部署 | 每角色骨架映射、定制UE导入/Cook、native多export/store/redirect写入、游戏复测 |
 | Hitman | GLB/PRIM 验证、roundtrip、六槽 TEXT 重建 | 当前实体 QuickEntity、rig/atlas、RPKG/SMF |
-| Watch Dogs | XBT 解析/注入/配对/PNG 转换 | 源模型 FBX、ZModeler Compound、XBG GPU 审计、FAT/DAT |
+| Watch Dogs | XBT 解析/注入/配对/PNG 转换 | 源模型 FBX；XBG 写出器（项目内已实机验证、格式见游戏文档，未进便携包）、XBG GPU 审计、FAT/DAT |
 | Black Flag | Forge v50 LZ4 提取/重建 | 当前 Mesh writer/target rig、纹理和角色局部资源合同 |
 | RE4R | KPKA v4 哈希/目录/提取 | RE Mesh/Chain 工具、每角色映射和 PFB/RSZ |
 | L4D2 | VPK 提取/校验、VTA 缩放、StudioMDL 记录器 | 源 SMD/QC、flex/procedural/physics、MDL 深审计 |

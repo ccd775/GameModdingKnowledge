@@ -1,6 +1,6 @@
 # 看门狗便携包
 
-先读 [游戏知识](../../games/watch-dogs/README.md) 和 [ZModeler 操作](../../games/watch-dogs/ZMODELER_OPERATOR_CHECKLIST.md)。以下从交接包根执行：
+先读 [游戏知识](../../games/watch-dogs/README.md) 和 [不用 ZModeler 生成 XBG](../../games/watch-dogs/XBG_WITHOUT_ZMODELER.md)。以下从交接包根执行：
 
 ```powershell
 python portable-kits/watch-dogs/scripts/xbt_tool.py inspect ../MyMod/Ref/low.xbt
@@ -12,4 +12,7 @@ python portable-kits/watch-dogs/scripts/build_xbt_pair.py ../MyMod/Ref/source.pn
 
 注入保留 donor header，拒绝 DDS 尺寸/mip/格式不一致及已有输出。`--force` 只用于格式实验。pair builder 限定 XBT 123 + legacy DXT1/DXT5，low 完整 mip/high 单 mip。模板审计搜索同一目录，不递归猜测配对。
 
-Blender 制作派生 FBX 后，在 ZModeler 分别绑定两个 LOD 并建立新 Compound；导出 XBG 后验证 GPU buffer 与新进程回读，再接入 XBT 和 FAT/DAT。专属 XBG 审计器仍需按当前 donor 的实际索引范围编写，不能沿用旧 423 骨与面数。ZModeler/NexusTools 不随包提供。见 [工具来源](../../references/TOOL_SOURCES.md)。
+XBG 有两条路线：
+
+- **推荐（2026-10-03 起）**：用纯 Python 写出器直接生成 `char01.xbg`，不需要 ZModeler。写出器脚本尚未随本包提供，格式、合同和检查步骤见 [不用 ZModeler 生成 XBG](../../games/watch-dogs/XBG_WITHOUT_ZMODELER.md)。
+- **历史**：Blender 制作派生 FBX 后，在 ZModeler 分别绑定两个 LOD 并建立新 Compound；导出 XBG 后验证 GPU buffer 与新进程回读，再接入 XBT 和 FAT/DAT。专属 XBG 审计器仍需按当前 donor 的实际索引范围编写，不能沿用旧 423 骨与面数。ZModeler/NexusTools 不随包提供。见 [工具来源](../../references/TOOL_SOURCES.md)。

@@ -2,6 +2,8 @@
 
 最后更新：2026-08-05（Asia/Shanghai）
 
+> **2026-10-03：ZModeler 已不是必需工具。** 项目的纯 Python 写出器直接生成 `char01.xbg`，1.4、1.5、Karin_Original 0.1.2 都由它写出并经实机认可，见 [不用 ZModeler 生成 XBG](XBG_WITHOUT_ZMODELER.md)。本清单记录 1.3.0 的历史路线，供复现、审计和对照使用。
+
 ## 1. 用途与状态
 
 本清单用于复现或审计默认“私法制裁者”服装的最终 `char01.xbg`。`1.3.0` 已完成双 LOD Compound、GPU buffer 审计、全新进程回读、ModManager 安装和实机验收；这里没有未完成的 GUI 游标。
