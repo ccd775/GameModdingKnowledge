@@ -1,0 +1,4 @@
+# Watch Dogs XBG writer, skeleton tools and xbt_encode (install together with the bundle-root requirements.txt for Pillow).
+# The XBT-only scripts (xbt_tool, audit_xbt_templates, build_xbt_pair, extract_fat8, repack_fat8) need nothing extra.
+# Tested on Python 3.14.0; this numpy pin needs Python 3.12+.
+numpy==2.5.2

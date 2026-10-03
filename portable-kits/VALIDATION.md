@@ -1,5 +1,47 @@
 # 迁移验证记录
 
+## 2026-10-03：新增看门狗 XBG 写出器
+
+- **迁入内容：** 11 个 Python 文件，放在 `portable-kits/watch-dogs/scripts/`。
+  - 写出器，来自项目的 `.work/xbg_writer/`：`xbg_model.py`、`xbg_codec.py`、`fbx_reader.py`、`fbx_mesh.py`、`fbx_to_xbg.py`，入口是 `build_xbg_from_fbx.py`；
+  - FAT v8，同一来源：`extract_fat8.py`、`repack_fat8.py`；
+  - 骨架：`xbg_skeleton.py` 来自 `.work/karin_v14/skeleton.py`，`xbg_skeleton_patch.py` 来自 `.work/karin_original/skeleton_patch.py`；
+  - 贴图：`xbt_encode.py`，来自 `.work/karin_original/`；
+  - PROVENANCE 分别记录每个文件的原始 SHA-256 和公开版 SHA-256。
+- **没有迁入：**
+  - `make_test_package.py`、`fat_paths.py`、`package_karin_original.py`：写死了本项目的发布目录和条目清单。打包改用 `repack_fat8.py` 和使用说明里的步骤；
+  - Karin_Original 的 VRM 构建脚本（`vrm_model.py`、`karin_fit.py`、`weights_map.py`、`assemble.py`、`build_karin_original.py`、`build_textures.py`）：与该模型的材质名、部件名绑定；
+  - 格式反推和对照工具（`roundtrip_test.py`、`compare_xbg_*.py`、`fit_*.py`），以及 1.4、1.5 的修复脚本：只服务于本项目的旧 FBX；
+  - 模板 XBG、样本、FBX 和贴图：它们来自游戏或模型。
+- **便携改动**在 6 个文件：
+  - `build_xbg_from_fbx.py`：新增 `--force`，默认拒绝覆盖已有的输出和报告；
+  - `extract_fat8.py`、`repack_fat8.py`：
+    - 改用 argparse。原来直接读 `sys.argv`，运行 `--help` 会出错；
+    - 默认拒绝覆盖已有输出；
+    - `repack_fat8.py` 新增 `path_hash`，替换键可以直接写游戏路径；
+  - `xbg_skeleton.py`：
+    - 改名，原名 `skeleton.py` 太泛；
+    - 从同目录导入 `xbg_model`；
+    - 命令行改为 argparse 的通用残差检查，去掉了 Karin 专用的关节打印；
+  - `xbg_skeleton_patch.py`：
+    - 改名；
+    - 新增 `rigid_world`，未列出的关节随父骨刚性移动；
+    - 新增带写后验证的命令行；
+    - 文档字符串里的逆绑定数量更正为 382；
+  - `xbt_encode.py`：
+    - 改为从同目录导入本包的 `xbt_tool.py`；
+    - 新增 argparse 命令行，默认拒绝覆盖；
+    - PSNR 改为输出普通浮点数。
+
+  其余 5 个文件与原文件逐字节相同，编解码和转换逻辑都没有改。
+- **等价性验证：**
+  - **条件：** Python 3.14.0、numpy 2.5.2、Pillow 12.3.0。全部用本包的脚本运行，输入是项目已有的文件。
+  - **写出器：** 输入为 v1.3 的 FBX 交接文件和 1.3.0 模板。`build_xbg_from_fbx.py` 输出 `READBACK PASS`，结果与项目写出器先前的输出逐字节相同（`4502953c…`）。
+  - **骨架：** 在 1.3.0 模板上把两侧上臂沿锁骨方向内移 4 cm。`xbg_skeleton_patch.py` 移动了 82 个节点，上臂间距从 0.3726 m 变为 0.2931 m，与实机认可的 1.5 一致，残差没有变大。
+  - **贴图：** `xbt_encode.py` 生成的头发和睫毛 XBT，与 Karin_Original 0.1.2 包内的文件逐字节相同。
+  - **FAT：** 不替换任何条目时，`repack_fat8.py` 重打 1.3.0 包，FAT 和 DAT 都与原文件逐字节相同；`extract_fat8.py` 解出 22 个条目。
+  - **合成测试：** `tests/test_portable_tools.py` 新增 5 项（`test_wd_*`）。把对齐测试换回旧的"照抄补零"写法时，4 个子用例全部失败；用修复后的写法全部通过。
+
 ## 2026-10-02：新增战神：诸神黄昏构建器
 
 - **迁入内容：** 29 个 Python 文件。

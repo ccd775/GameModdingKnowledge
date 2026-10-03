@@ -691,5 +691,104 @@
     "portable_sha256": "7b220b78ca7c04874856bc9e3c9c3e0904537b21992164f662959d2a0dba84cb",
     "portable_bytes": 975,
     "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/watch-dogs/scripts/xbg_model.py",
+    "source": "Mods/WatchDogs/.work/xbg_writer/xbg_model.py",
+    "original_sha256": "2fdf33be3b72587f7bdbe21953eaa468e34d5987c9e65a1ff01db098560d1d26",
+    "source_bytes": 6391,
+    "portable_sha256": "2fdf33be3b72587f7bdbe21953eaa468e34d5987c9e65a1ff01db098560d1d26",
+    "portable_bytes": 6391,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/watch-dogs/scripts/xbg_codec.py",
+    "source": "Mods/WatchDogs/.work/xbg_writer/xbg_codec.py",
+    "original_sha256": "a6c1ceeff8f6c0ac946e6d356437c2321bea1fbffab675ac97c8b870518f3799",
+    "source_bytes": 10056,
+    "portable_sha256": "a6c1ceeff8f6c0ac946e6d356437c2321bea1fbffab675ac97c8b870518f3799",
+    "portable_bytes": 10056,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/watch-dogs/scripts/fbx_reader.py",
+    "source": "Mods/WatchDogs/.work/xbg_writer/fbx_reader.py",
+    "original_sha256": "e76c7052b0f4c5d9196f16c1fbe57030830cd59e3d6a0347c3f629993ee9208d",
+    "source_bytes": 4748,
+    "portable_sha256": "e76c7052b0f4c5d9196f16c1fbe57030830cd59e3d6a0347c3f629993ee9208d",
+    "portable_bytes": 4748,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/watch-dogs/scripts/fbx_mesh.py",
+    "source": "Mods/WatchDogs/.work/xbg_writer/fbx_mesh.py",
+    "original_sha256": "8c1643afac5792f33117dcbf780d2b1aaf41702ee6628f5547795126437b4d48",
+    "source_bytes": 5738,
+    "portable_sha256": "8c1643afac5792f33117dcbf780d2b1aaf41702ee6628f5547795126437b4d48",
+    "portable_bytes": 5738,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/watch-dogs/scripts/fbx_to_xbg.py",
+    "source": "Mods/WatchDogs/.work/xbg_writer/fbx_to_xbg.py",
+    "original_sha256": "2d3117cde9ae6e305bdf0263f7f76aeda90cf59ad9a087177f1b648b0e75da5e",
+    "source_bytes": 6399,
+    "portable_sha256": "2d3117cde9ae6e305bdf0263f7f76aeda90cf59ad9a087177f1b648b0e75da5e",
+    "portable_bytes": 6399,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/watch-dogs/scripts/build_xbg_from_fbx.py",
+    "source": "Mods/WatchDogs/.work/xbg_writer/build_xbg_from_fbx.py",
+    "original_sha256": "985c0509b9395a21bc1c5802beaeee4d4cf53c92dd216af10b3628244ebb885c",
+    "source_bytes": 4885,
+    "portable_sha256": "06755938c002acfc2e6328e8fc43c4aa14eb3e55193a0be5773b92daa0ad13d5",
+    "portable_bytes": 5340,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/watch-dogs/scripts/extract_fat8.py",
+    "source": "Mods/WatchDogs/.work/xbg_writer/extract_fat8.py",
+    "original_sha256": "f508083fab17480e1ad74f234b8e66193515d6eb6e42db88117180e97e606369",
+    "source_bytes": 1734,
+    "portable_sha256": "90da45b93878166bde7697d58c5b817bba42a920b7f0cc65468cbc955b438c5a",
+    "portable_bytes": 2450,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/watch-dogs/scripts/repack_fat8.py",
+    "source": "Mods/WatchDogs/.work/xbg_writer/repack_fat8.py",
+    "original_sha256": "d990f37be8915024d62d3f2d4c891400f34ed29f9c73aea6d635140064f22a73",
+    "source_bytes": 2038,
+    "portable_sha256": "552f7ef3130c990f86e52f6512d6ef4d3307eea4dd76192488be8cbae501510a",
+    "portable_bytes": 3636,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/watch-dogs/scripts/xbg_skeleton.py",
+    "source": "Mods/WatchDogs/.work/karin_v14/skeleton.py",
+    "original_sha256": "68f12a672a18cd9377e8a02e83e5a0f7af0df6e8898fb662d420599ccc0bafbb",
+    "source_bytes": 4592,
+    "portable_sha256": "6484d886ab4f6c5b1b0fab544a6ef61a10b64e4e2bc3aad27a78008b2099b7fe",
+    "portable_bytes": 5069,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/watch-dogs/scripts/xbg_skeleton_patch.py",
+    "source": "Mods/WatchDogs/.work/karin_original/skeleton_patch.py",
+    "original_sha256": "a8dfc97809881d07044f9e5983384b6cd0fba01885596094e9f885bb608fa0fa",
+    "source_bytes": 2477,
+    "portable_sha256": "aa31d5b55e67881094b3a79fe5b774025ef214cc1ca645dc0067672b99cb967f",
+    "portable_bytes": 5633,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/watch-dogs/scripts/xbt_encode.py",
+    "source": "Mods/WatchDogs/.work/karin_original/xbt_encode.py",
+    "original_sha256": "764c328687327e986b3aa9ed4308328703a70dc1eeaca38b4107606d6d9a1064",
+    "source_bytes": 3116,
+    "portable_sha256": "c9086fbe1752e59608d89fde820612d172389f029d55e922a2fe229f402497c0",
+    "portable_bytes": 3888,
+    "modified_for_portability": true
   }
 ]

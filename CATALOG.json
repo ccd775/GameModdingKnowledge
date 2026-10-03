@@ -101,8 +101,8 @@
       "status": "runtime-confirmed-scoped",
       "milestone": "Karin default outfit replacer 1.3.0; ZModeler no longer required: Karin 1.4/1.5 and Karin_Original 0.1.2 written by a pure-Python XBG writer and accepted in game",
       "date": "2026-10-03",
-      "topics": ["XBG", "XBT", "ZModeler-free XBG writer", "16-byte matrix table alignment", "body bind translations honoured / facial bone translations reset by animation", "skeleton fitted to model", "VRM direct build", "FAT/DAT", "ModManager"],
-      "limits": ["minor residual finger deformation in some gun/pocket animations (1.3.0)", "1.5 shoulder-to-upper-arm transition slightly unnatural", "Karin_Original body (feet, two-handed grip, tail/skirt clipping) not separately confirmed", "no facial animation or secondary physics", "XBG writer scripts not yet in the portable kit"]
+      "topics": ["XBG", "XBT", "ZModeler-free XBG writer (bundled)", "16-byte matrix table alignment", "body bind translations honoured / facial bone translations reset by animation", "skeleton fitted to model", "VRM direct build", "FAT/DAT", "ModManager"],
+      "limits": ["minor residual finger deformation in some gun/pocket animations (1.3.0)", "1.5 shoulder-to-upper-arm transition slightly unnatural", "Karin_Original body (feet, two-handed grip, tail/skirt clipping) not separately confirmed", "no facial animation or secondary physics", "VRM direct-build scripts (Karin_Original) not in the portable kit; XBG writer, skeleton patch, FAT and XBT encoder are bundled"]
     },
     {
       "id": "assassins-creed-black-flag",

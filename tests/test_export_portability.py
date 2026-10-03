@@ -48,6 +48,12 @@ class DetachedExports(unittest.TestCase):
                                                              ('numpy', 'scipy', 'PIL', 'lz4', 'etcpak', 'texture2ddecoder')):
                         self.assertIn('test_gowr_joint_layouts_roundtrip', process.stderr)
                         self.assertFalse([l for l in process.stderr.splitlines() if 'test_gowr_' in l and 'skipped' in l])
+                    if game == 'watch-dogs':
+                        self.assertTrue((target/'portable-kits/watch-dogs/requirements.txt').is_file())
+                        self.assertIn('test_wd_fat8_repack_replace_and_extract', process.stderr)
+                    if game == 'watch-dogs' and all(importlib.util.find_spec(m) for m in ('numpy', 'PIL')):
+                        self.assertIn('test_wd_xbg_palette_growth_keeps_matrix_table_aligned', process.stderr)
+                        self.assertFalse([l for l in process.stderr.splitlines() if 'test_wd_' in l and 'skipped' in l])
                     print(f'{game}: detached tests passed (unselected games skipped)')
 
 

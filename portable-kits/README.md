@@ -6,7 +6,7 @@
 | --- | --- | --- |
 | MK1 | 图集拼合、hash/差异检查、PSK索引计划、比例/骨盆/颈部算子、三件套预检部署 | [使用](mortal-kombat-1/README.md) |
 | 杀手 WOA | PRIM/GLB 校验、roundtrip 比较、六槽 TEXT/TEXD 重建 | [使用](hitman-world-of-assassination/README.md) |
-| 看门狗 | XBT/DDS 提取、注入、配对审计、PNG 转 XBT pair | [使用](watch-dogs/README.md) |
+| 看门狗 | 不用 ZModeler 的 XBG 写出器（FBX→char01.xbg、写后回读）、骨架关节移动、FAT v8 解包/重打包、PNG 直接编码 XBT；XBT/DDS 提取、注入、配对审计 | [使用](watch-dogs/README.md) |
 | 黑旗记忆重置 | Forge v50 BMS 提取、LZ4 重建、显式资源替换 | [使用](assassins-creed-black-flag/README.md) |
 | RE4R | KPKA v4 路径哈希、目录和 payload 提取 | [使用](resident-evil-4-remake/README.md) |
 | L4D2 | VPK 提取/回读、VTA 缩放、StudioMDL 运行记录 | [使用](left-4-dead-2/README.md) |

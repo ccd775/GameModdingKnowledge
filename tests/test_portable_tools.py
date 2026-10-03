@@ -240,6 +240,7 @@ class PortableTools(unittest.TestCase):
             if path.parents[1].name == 'ghost-of-tsushima' and got_missing(): continue
             if path.parents[1].name == 'horizon-forbidden-west' and hfw_missing(): continue
             if path.parents[1].name == 'god-of-war-ragnarok' and gowr_missing(): continue
+            if path.parents[1].name == 'watch-dogs' and path.stem not in WD_STDLIB_SCRIPTS and wd_missing(pil=True): continue
             cli(path.parents[1].name,path.stem,'--help')
 
 
@@ -962,5 +963,271 @@ class MK1Tools(unittest.TestCase):
                                      cwd=ROOT, capture_output=True, text=True, timeout=30)
             self.assertEqual(process.returncode, 0, process.stdout+'\n'+process.stderr)
 
+
+WD_DEPENDENCIES = ('numpy',)
+WD_STDLIB_SCRIPTS = ('xbt_tool', 'audit_xbt_templates', 'build_xbt_pair', 'extract_fat8', 'repack_fat8')
+# synthetic char01-like skeleton: name, parent index, local translation (identity rotations)
+WD_NODES = (('char01', -1, (0, 0, 0)), ('Pelvis', 0, (0, 0, 1.0)), ('Spine', 1, (0, 0, 0.1)), ('Spine1', 2, (0, 0, 0.1)),
+            ('Spine2', 3, (0, 0, 0.1)), ('Neck', 4, (0, 0, 0.15)), ('Head', 5, (0, 0.02, 0.1)), ('L_Eye', 6, (-0.03, 0.08, 0.06)),
+            ('R_Eye', 6, (0.03, 0.08, 0.06)), ('L Clavicle', 4, (-0.02, 0, 0.12)), ('L UpperArm', 9, (-0.16, 0, 0)),
+            ('L Forearm', 10, (-0.28, 0, 0)))
+WD_MATERIALS = ('graphics\\_synthetic\\synthetic_head.material.bin', 'graphics\\_synthetic\\synthetic_coat.material.bin')
+
+
+def wd_missing(pil=False):
+    return [m for m in WD_DEPENDENCIES + (('PIL',) if pil else ()) if importlib.util.find_spec(m) is None]
+
+
+def wd(name, pil=False):
+    """Watch Dogs XBG/XBT module; skipped with the install hint when numpy (and Pillow) are absent."""
+    if not (KITS / 'watch-dogs' / 'scripts' / 'xbg_codec.py').is_file():
+        raise unittest.SkipTest('watch-dogs is not included in this single-game export')
+    if wd_missing(pil):
+        raise unittest.SkipTest('pip install -r requirements.txt -r portable-kits/watch-dogs/requirements.txt (missing '
+                                + ', '.join(wd_missing(pil)) + ')')
+    return module('watch-dogs', name)
+
+
+def wd_entry(text, h=0):
+    raw = text.encode() + b'\0'
+    return struct.pack('<II', h, len(raw)) + raw + b'\0' * (-len(raw) % 4)
+
+
+def wd_submesh(np, codec, material, vertex_type, bones, lift=0.0):
+    """Triangle fan with max(3, len(bones)) vertices; vertex i is fully weighted to bones[i % len(bones)]."""
+    n = max(3, len(bones))
+    angle = np.linspace(0, np.pi, n)
+    pos = np.c_[0.1 * np.cos(angle), np.full(n, 0.05), 1.2 + lift + 0.1 * np.sin(angle)]
+    w = np.zeros((n, 4), np.uint8)
+    w[:, 0] = 255
+    b = np.full((n, 4), -1, np.int64)
+    b[:, 0] = [bones[i % len(bones)] for i in range(n)]
+    uv = np.c_[np.linspace(0, 1, n), np.linspace(1, 0, n)]
+    return codec.Submesh(material, vertex_type, pos, np.tile([0, 1.0, 0], (n, 1)), uv, np.zeros((n, 2)),
+                         np.tile(np.array([254, 254, 254, 255], np.uint8), (n, 1)), w, b,
+                         np.array([[0, i + 1, i] for i in range(1, n - 1)]))
+
+
+def wd_template(path, palette_len=2):
+    """Write a synthetic char01-like template XBG: 2 material slots, WD_NODES, inverse binds and a filler block."""
+    import numpy as np
+    xm, codec = wd('xbg_model'), wd('xbg_codec')
+    out = bytearray(0x8C)
+    out[:4] = b'MOEG'
+    out += struct.pack('<I', len(WD_MATERIALS)) + b''.join(wd_entry(m) for m in WD_MATERIALS)
+    out += struct.pack('<I', 2) + wd_entry('head') + struct.pack('<I', 0) + wd_entry('coat') + struct.pack('<I', 1)
+    out += struct.pack('<I', 1) + wd_entry('char01', 0xCC97FA4A) + struct.pack('<I', 1)
+    palette_offset = len(out)
+    palette = list(range(palette_len))
+    out += struct.pack('<I', palette_len) + struct.pack(f'<{palette_len}H', *palette) + b'\0' * (2 * palette_len % 4)
+    out += struct.pack('<II', 1, len(WD_NODES))
+    world, nodes = [], []
+    for b, (name, parent, t) in enumerate(WD_NODES):
+        out += struct.pack('<I7f2H', 0x64, *t, 0, 0, 0, 1, parent & 0xFFFF, b) + wd_entry(name)
+        world.append(np.array(t, float) + (world[parent] if parent >= 0 else 0))
+        nodes.append({'name': name, 'parent': parent & 0xFFFF, 'b': b, 'xf': (*t, 0, 0, 0, 1), 'flags': 0x64})
+    nodes_end = len(out)
+    out += struct.pack('<II', len(WD_NODES), len(WD_NODES))
+    out += b'\0' * (-len(out) % 16)
+    for p in world:
+        inv = np.eye(4)
+        inv[:3, 3] = -p
+        out += inv.T.astype('<f4').tobytes()  # row-vector layout, as stored by the game
+    out += b'SYNTHETIC-PHYSICS-BLOCK.' * 2
+    fake = xm.Xbg(bytes(out), palette, palette_offset, nodes, len(out))
+    fake.nodes_end = nodes_end
+    lod = [wd_submesh(np, codec, 0, 0x17BA, [6]), wd_submesh(np, codec, 1, 0x179A, [1, 2], lift=-0.5)]
+    path.write_bytes(codec.encode(fake, [lod, lod]))
+    return xm.load(path)
+
+
+def wd_fbx(path, bone='Head', material='synthetic_coat.material.bin'):
+    """Minimal binary FBX 7400: two skinned LOD quads (Body_LOD0/1) with one material and one bone."""
+    def prop(v):
+        if isinstance(v, str):
+            raw = v.encode()
+            return b'S' + struct.pack('<I', len(raw)) + raw
+        if isinstance(v, int):
+            return b'L' + struct.pack('<q', v)
+        kind, values = v
+        data = struct.pack(f'<{len(values)}{kind}', *values)
+        return kind.encode() + struct.pack('<III', len(values), 0, len(data)) + data
+
+    def node(offset, name, props=(), children=()):
+        body = b''.join(prop(p) for p in props)
+        start = offset + 13 + len(name) + len(body)
+        kids = b''
+        for child in children:
+            kids += node(start + len(kids), *child)
+        if children:
+            kids += b'\0' * 13
+        return struct.pack('<III', start + len(kids), len(props), len(body)) + bytes([len(name)]) + name.encode() + body + kids
+
+    mat, limb = 900, 901
+    objects = [('Material', (mat, material + '\x00\x01Material', '')), ('Model', (limb, bone + '\x00\x01Model', 'LimbNode'))]
+    conns = []
+    for k, model in enumerate((100, 200)):
+        geom, skin, cluster = model + 1, model + 2, model + 3
+        objects += [
+            ('Geometry', (geom, f'Body_LOD{k}\x00\x01Geometry', 'Mesh'), [
+                ('Vertices', (('d', [0, 0, 1, 0.1, 0, 1, 0.1, 0, 1.2, 0, 0, 1.2]),)),
+                ('PolygonVertexIndex', (('i', [0, 1, 2, -4]),)),
+                ('LayerElementNormal', (0,), [('MappingInformationType', ('ByPolygonVertex',)),
+                                              ('ReferenceInformationType', ('Direct',)), ('Normals', (('d', [0, -1, 0] * 4),))]),
+                ('LayerElementUV', (0,), [('Name', ('UVMap',)), ('MappingInformationType', ('ByPolygonVertex',)),
+                                          ('ReferenceInformationType', ('Direct',)), ('UV', (('d', [0, 0, 1, 0, 1, 1, 0, 1]),))]),
+                ('LayerElementMaterial', (0,), [('MappingInformationType', ('AllSame',)),
+                                                ('ReferenceInformationType', ('IndexToDirect',)), ('Materials', (('i', [0]),))])]),
+            ('Model', (model, f'Body_LOD{k}\x00\x01Model', 'Mesh')),
+            ('Deformer', (skin, 'Skin\x00\x01Deformer', 'Skin')),
+            ('Deformer', (cluster, 'Cluster\x00\x01SubDeformer', 'Cluster'),
+             [('Indexes', (('i', [0, 1, 2, 3]),)), ('Weights', (('d', [1.0] * 4),))])]
+        conns += [('C', ('OO', geom, model)), ('C', ('OO', mat, model)), ('C', ('OO', skin, geom)),
+                  ('C', ('OO', cluster, skin)), ('C', ('OO', limb, cluster))]
+    data = b'Kaydara FBX Binary  \x00\x1a\x00' + struct.pack('<I', 7400)
+    for top in (('Objects', (), objects), ('Connections', (), conns)):
+        data += node(len(data), *top)
+    path.write_bytes(data + b'\0' * 13)
+
+
+def wd_fat(folder, blobs):
+    """Uncompressed FAT v8 / DAT pair with entries sorted by hash, each file 16-byte aligned."""
+    dat, entries = bytearray(), bytearray()
+    for h in sorted(blobs):
+        dat += b'\0' * (-len(dat) % 16)
+        entries += struct.pack('<4I', h, 0, len(blobs[h]), len(dat) >> 3)
+        dat += blobs[h]
+    fat = folder / 'pack.fat'
+    fat.write_bytes(b'3TAF' + struct.pack('<3I', 8, 0, len(blobs)) + bytes(entries) + b'\0' * 8)
+    fat.with_suffix('.dat').write_bytes(bytes(dat))
+    return fat
+
+
+class WatchDogsXbgTools(unittest.TestCase):
+    """ZModeler-free XBG writer, skeleton patch, FAT v8 and texconv-free XBT on synthetic data."""
+
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(prefix='modding wd ')
+        self.root = Path(self.temp.name)
+
+    def tearDown(self): self.temp.cleanup()
+
+    def test_wd_xbg_palette_growth_keeps_matrix_table_aligned(self):
+        import numpy as np
+        xm, codec, skel = wd('xbg_model'), wd('xbg_codec'), wd('xbg_skeleton')
+        template = wd_template(self.root / 'template.xbg')
+        tpl_table = (template.nodes_end + 8 + 15) & ~15
+        self.assertEqual(tpl_table % 16, 0)
+        block = template.data[tpl_table:template.lod_offset]
+        self.assertEqual(len(template.palette), 3)
+        # palettes of 1, 3, 7 and 10 bones move the node table end by -4, 0, +8 and +12 bytes against the template's 3;
+        # +8 is the in-game crash case (66 -> 70 bones) when the template padding was copied verbatim
+        for bones in ([6], [1, 2, 6], list(range(1, 8)), list(range(1, 11))):
+            with self.subTest(palette=len(bones)):
+                lods = [[wd_submesh(np, codec, 1, 0x179A, bones)]] * 2
+                path = self.root / f'palette_{len(bones)}.xbg'
+                path.write_bytes(codec.encode(template, lods))
+                x = xm.load(path)
+                table = (x.nodes_end + 8 + 15) & ~15
+                self.assertEqual(sorted(x.palette), sorted(bones))
+                self.assertFalse(any(x.data[x.nodes_end + 8:table]))
+                self.assertEqual(x.data[table:x.lod_offset], block)  # the inverse binds start on the 16-byte boundary
+                sk = skel.Skeleton(path)
+                worst = max(np.abs(sk.bind[n] @ sk.inv_bind[b] - np.eye(4)).max() for b, n in sk.node_of_b.items())
+                self.assertLess(worst, 1e-6)
+                scale, back = codec.decode(x)
+                for want, got in zip(lods, back):
+                    self.assertTrue(np.array_equal(want[0].triangles, got[0].triangles))
+                    self.assertTrue(np.array_equal(want[0].weights, got[0].weights))
+                    self.assertTrue(np.array_equal(np.where(want[0].weights > 0, want[0].bones, -1), got[0].bones))
+                    # ZModeler quantization (int)(x / scale + 0.5) truncates toward zero, so negatives err by up to 1.5 steps
+                    self.assertLessEqual(np.abs(want[0].positions - got[0].positions).max(), 1.5 * scale)
+
+    def test_wd_fbx_to_xbg_cli_readback_and_conventions(self):
+        import numpy as np
+        xm, codec = wd('xbg_model'), wd('xbg_codec')
+        template, fbx, out = self.root / 'template.xbg', self.root / 'karin.fbx', self.root / 'out' / 'char01.xbg'
+        wd_template(template)
+        wd_fbx(fbx)
+        result = cli('watch-dogs', 'build_xbg_from_fbx', '--fbx', fbx, '--template-xbg', template, '--output', out,
+                     '--report', self.root / 'report.json')
+        self.assertIn('READBACK PASS', result.stdout)
+        cli('watch-dogs', 'build_xbg_from_fbx', '--fbx', fbx, '--template-xbg', template, '--output', out, ok=False)
+        cli('watch-dogs', 'build_xbg_from_fbx', '--fbx', fbx, '--template-xbg', template, '--output', template, '--force', ok=False)
+        x = xm.load(out)
+        _, lods = codec.decode(x)
+        self.assertEqual(len(lods), 2)
+        sub = lods[0][0]
+        self.assertEqual((sub.material, sub.vertex_type), (1, 0x179A))  # FBX material name -> template slot
+        expected = {(0.0, 0.0, 1.0), (-0.1, 0.0, 1.0), (-0.1, 0.0, 1.2), (0.0, 0.0, 1.2)}  # (-x, -y, z)
+        self.assertEqual({tuple(np.round(p, 4) + 0.0) for p in sub.positions}, expected)
+        self.assertEqual(len(sub.triangles), 2)
+        head_b = next(n['b'] for n in x.nodes if n['name'] == 'Head')
+        self.assertTrue(np.all(sub.bones[:, 0] == head_b) and np.all(sub.weights[:, 0] == 255))
+        # the CCW FBX fan is stored CW: the geometric normal points against the stored normal
+        tri = sub.positions[sub.triangles[0]]
+        self.assertLess(np.cross(tri[1] - tri[0], tri[2] - tri[0]) @ sub.normals[sub.triangles[0][0]], 0)
+        self.assertTrue(np.allclose(sorted(sub.uv0[:, 1]), [0, 0, 1, 1], atol=1e-4))
+
+    def test_wd_skeleton_patch_moves_joint_and_children(self):
+        import numpy as np
+        skel = wd('xbg_skeleton')
+        src, targets, out = self.root / 'template.xbg', self.root / 'targets.json', self.root / 'narrow.xbg'
+        wd_template(src)
+        before = skel.Skeleton(src)
+        new = before.head('L UpperArm') + np.array([0.04, 0, 0])  # 4 cm shorter clavicle
+        targets.write_text(json.dumps({'L UpperArm': new.tolist()}))
+        report = json.loads(cli('watch-dogs', 'xbg_skeleton_patch', src, targets, out).stdout)
+        self.assertEqual(report['moved_nodes'], 2)  # L UpperArm and its child L Forearm
+        after = skel.Skeleton(out)
+        self.assertTrue(np.allclose(after.head('L UpperArm'), new, atol=1e-6))
+        self.assertTrue(np.allclose(after.head('L Forearm') - before.head('L Forearm'), [0.04, 0, 0], atol=1e-6))
+        self.assertTrue(np.allclose(after.head('Head'), before.head('Head')))
+        worst = max(np.abs(after.bind[n] @ after.inv_bind[b] - np.eye(4)).max() for b, n in after.node_of_b.items())
+        self.assertLess(worst, 1e-6)
+        cli('watch-dogs', 'xbg_skeleton_patch', src, targets, out, ok=False)
+        targets.write_text(json.dumps({'No Such Bone': [0, 0, 0]}))
+        cli('watch-dogs', 'xbg_skeleton_patch', src, targets, self.root / 'bad.xbg', ok=False)
+
+    def test_wd_fat8_repack_replace_and_extract(self):
+        if not (KITS / 'watch-dogs' / 'scripts' / 'repack_fat8.py').is_file():
+            raise unittest.SkipTest('watch-dogs is not included in this single-game export')
+        repack = module('watch-dogs', 'repack_fat8')
+        self.assertEqual(repack.path_hash('graphics/characters/char/char01/char01.xbg'), 0xE886A8DB)
+        coat = repack.path_hash('graphics/_synthetic/coat.xbt')
+        blobs = {0x10: b'MOEG' + b'\1' * 21, coat: b'TBX\0' + b'\2' * 40, 0xFFFFFFF0: b'other' * 3}
+        src = wd_fat(self.root, blobs)
+        replacement, texture = self.root / 'new.xbg', self.root / 'new.xbt'
+        replacement.write_bytes(b'MOEG' + b'\3' * 50)
+        texture.write_bytes(b'TBX\0' + b'\4' * 9)
+        out = self.root / 'out' / 'pack.fat'
+        cli('watch-dogs', 'repack_fat8', src, out, f'00000010={replacement}', f'graphics/_synthetic/coat.xbt={texture}')
+        cli('watch-dogs', 'repack_fat8', src, out, ok=False)
+        cli('watch-dogs', 'repack_fat8', src, self.root / 'x.fat', f'00000099={replacement}', ok=False)
+        cli('watch-dogs', 'extract_fat8', out, self.root / 'ex')
+        self.assertEqual((self.root / 'ex' / '00000010.xbg').read_bytes(), replacement.read_bytes())
+        self.assertEqual((self.root / 'ex' / f'{coat:08X}.xbt').read_bytes(), texture.read_bytes())
+        self.assertEqual((self.root / 'ex' / 'FFFFFFF0.bin').read_bytes(), blobs[0xFFFFFFF0])
+        cli('watch-dogs', 'extract_fat8', out, self.root / 'ex', ok=False)
+        fat = out.read_bytes()
+        offsets = [struct.unpack_from('<I', fat, 16 + 16 * i + 12)[0] << 3 for i in range(3)]
+        self.assertEqual([o % 16 for o in offsets], [0, 0, 0])
+        self.assertEqual(fat[16 + 48:], src.read_bytes()[16 + 48:])  # trailer kept
+
+    def test_wd_xbt_encode_keeps_donor_layout(self):
+        wd('xbt_encode', pil=True)
+        from PIL import Image
+        donor = bytearray(xbt(dds(8, 8, mips=4, payload=bytes(56))))  # DXT1 8x8: 32 + 8 + 8 + 8 bytes
+        struct.pack_into('<I', donor, 48 + 80, 4)  # DDPF_FOURCC
+        donor_path, png, out = self.root / 'donor.xbt', self.root / 'source.png', self.root / 'out.xbt'
+        donor_path.write_bytes(bytes(donor))
+        Image.new('RGB', (16, 16), (200, 40, 90)).save(png)
+        result = cli('watch-dogs', 'xbt_encode', png, donor_path, out)
+        self.assertIn("'mips': 4", result.stdout)
+        data = out.read_bytes()
+        self.assertEqual(len(data), len(donor))
+        self.assertEqual(data[:48 + 128], bytes(donor[:48 + 128]))
+        self.assertNotEqual(data[48 + 128:], bytes(56))
+        cli('watch-dogs', 'xbt_encode', png, donor_path, out, ok=False)
 
 if __name__ == '__main__': unittest.main(verbosity=2)
