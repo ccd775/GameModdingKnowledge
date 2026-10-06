@@ -13,7 +13,9 @@ writer's template) and whose XBTs serve as texture donors.  Steps:
   4. encode every composed texture into its low and high stream donors (xbt_encode, OUT/xbt/);
   5. with --package: replace those entries in the base pack, write modconfig.json and the ZIP (package_mod).
 OUT/build_report.json records the inputs' hashes, the fit, the skeleton change, the readback and the textures.
-The profile's "chains" hold the secondary-bone rules described in vrm_weights.py.
+The profile's "chains" hold the secondary-bone rules described in vrm_weights.py.  An optional "physics" section
+(vrm_physics.py) adds chains on spare physics nodes and hangs a skirt or coat on the template's coat cloth; --colliders
+takes a file written by `xbg_physics.py export-colliders` for the colliders the section names.
 """
 
 from __future__ import annotations
@@ -34,6 +36,7 @@ import package_mod  # noqa: E402
 import vrm_assemble  # noqa: E402
 import vrm_fit  # noqa: E402
 import vrm_model  # noqa: E402
+import vrm_physics  # noqa: E402
 import vrm_textures  # noqa: E402
 import vrm_weights  # noqa: E402
 import xbg_codec  # noqa: E402
@@ -71,7 +74,8 @@ def extract_base(base_fat: Path, out: Path) -> tuple[Path, dict[str, Path], dict
     return template, donors, sizes
 
 
-def build_xbg(vrm: Path, template_path: Path, profile: dict, layout: dict, out: Path) -> tuple[dict, list]:
+def build_xbg(vrm: Path, template_path: Path, profile: dict, layout: dict, out: Path,
+              colliders: dict | None = None) -> tuple[dict, list]:
     sk = Skeleton(template_path)
     fit = vrm_fit.build_fit(vrm, sk)
     base = xbg_model.load(template_path)
@@ -83,6 +87,11 @@ def build_xbg(vrm: Path, template_path: Path, profile: dict, layout: dict, out: 
     for name, p in fit.aiden_world.items():
         if np.abs(sk2.head(name) - p).max() > 1e-5:
             raise SystemExit(f"patched skeleton misplaces {name}")
+    physics = vrm_physics.Rig(profile["physics"], fit, sk, colliders) if profile.get("physics") else None
+    if physics:
+        rigged = physics.rig(patched)
+        (out / "template_phys.xbg").write_bytes(rigged)
+        template = xbg_model.load(out / "template_phys.xbg")
     mat_names = [mt.get("name", f"material{i}") for i, mt in enumerate(fit.vrm.json["materials"])]
     slot_of = {k: v["slot"] for k, v in layout["materials"].items()}
     rect_of = {k: tuple(v["rect"]) for k, v in layout["materials"].items()}
@@ -90,9 +99,13 @@ def build_xbg(vrm: Path, template_path: Path, profile: dict, layout: dict, out: 
     rules = vrm_weights.compile_rules(profile.get("chains", []))
     levels = vrm_weights.chain_levels(fit.vrm.parent, set(fit.human_node.values()))
     weights = [vrm_weights.map_part(fit, part, sk, rules=rules, levels=levels) for part in fit.parts]
-    slots = [slot_of[mat_names[p.material]] for p in fit.parts]
-    rects = [rect_of[mat_names[p.material]] for p in fit.parts]
-    mesh = vrm_assemble.build_mesh(fit.parts, weights, slots, rects, slot_files,
+    parts = fit.parts
+    if physics:
+        weights = [physics.override(part, w) for part, w in zip(fit.parts, weights)]
+        parts, weights = physics.mesh_parts(fit.parts, weights)
+    slots = [slot_of[mat_names[p.material]] for p in parts]
+    rects = [rect_of[mat_names[p.material]] for p in parts]
+    mesh = vrm_assemble.build_mesh(parts, weights, slots, rects, slot_files,
                                    tuple(layout.get("vertex_color_rgba", (1.0, 1.0, 1.0, 1.0))), layout.get("uv1", "zero"))
     lod0 = vrm_assemble.convert(mesh, template)
     lods = [lod0, lod0]  # LOD1 reuses LOD0
@@ -102,10 +115,12 @@ def build_xbg(vrm: Path, template_path: Path, profile: dict, layout: dict, out: 
         "scale": fit.scale, "facing": "+Z (VRM 1.0)" if np.array_equal(fit.axes, vrm_fit.G2X) else "-Z (turned 180 degrees)",
         "skeleton": skel_report,
         "parts": [{"part": p.name, "material": mat_names[p.material], "slot": s, "rect": list(r),
-                   "vertices": len(p.positions), "triangles": len(p.triangles)} for p, s, r in zip(fit.parts, slots, rects)],
+                   "vertices": len(p.positions), "triangles": len(p.triangles)} for p, s, r in zip(parts, slots, rects)],
         "submeshes": [{"slot": s.material, "vertices": len(s.positions), "triangles": len(s.triangles)} for s in lod0],
         "xbg_bytes": len(data), "xbg_sha256": sha(data), "readback": check,
     }
+    if physics:
+        report["physics"] = physics.report
     return report, lods
 
 
@@ -114,6 +129,7 @@ def main() -> None:
     ap.add_argument("--vrm", required=True, type=Path)
     ap.add_argument("--profile", required=True, type=Path, help="material slots and chain rules (JSON)")
     ap.add_argument("--base-fat", required=True, type=Path, help="existing char01 replacer FAT with a ZModeler-layout char01.xbg")
+    ap.add_argument("--colliders", type=Path, default=None, help="collider file from xbg_physics.py export-colliders")
     ap.add_argument("--out-dir", required=True, type=Path)
     ap.add_argument("--package", action="store_true", help="also write the ModManager package and ZIP")
     ap.add_argument("--pack")
@@ -136,7 +152,8 @@ def main() -> None:
     template, donors, sizes = extract_base(args.base_fat, out / "base")
     m = vrm_model.load(args.vrm)
     layout = vrm_textures.compose(m, profile, out / "textures", sizes)
-    report, _ = build_xbg(args.vrm, template, profile, layout, out)
+    colliders = json.loads(args.colliders.read_text(encoding="utf-8")) if args.colliders else None
+    report, _ = build_xbg(args.vrm, template, profile, layout, out, colliders)
 
     replacements = {path_hash(char01_paths.XBG): (out / "char01.xbg").read_bytes()}
     textures = {}

@@ -102,6 +102,49 @@ python -B $Kit/package_mod.py --base-fat ../MyMod/Ref/old_mod.fat --out-dir ../M
 - `--package` 时逐条回读新包，除替换的条目外全部逐字节保留。
 - 实机：读档、脸和眼睛、基础动作、双手持枪、长头发和裙子在走路下蹲时的穿模。
 
+## 物理：链与大衣布料
+
+VRM 构建器的配置文件加 `physics` 段后，构建时会做三件事：
+
+- 在闲置物理节点上搭链：头发、耳朵、发带、尾巴等；
+- 把裙子或大衣挂到模板自带的大衣布料上；
+- 给指定部件加背面。
+
+格式、实测行为和被否定的做法见 [char01 物理](../../games/watch-dogs/PHYSICS.md)。
+
+```powershell
+# 可选：从游戏角色 XBG 导出碰撞体（例如 Nicky 的 char10.xbg 里的马尾和刘海胶囊）；仓库不收录游戏数据
+python -B $Kit/xbg_physics.py export-colliders --xbg ../MyMod/Ref/char10.xbg --out ../MyMod/Work/colliders.json
+# 构建：配置里有 physics 段即生效；--colliders 可选，缺省时用骨架推出的胶囊
+python -B $Kit/build_from_vrm.py --vrm ../MyMod/Source/model.vrm --profile ../portable-kits/watch-dogs/profiles/karin_original_1_0_0.json `
+  --base-fat ../MyMod/Ref/karin_replacer.fat --colliders ../MyMod/Work/colliders.json --out-dir ../MyMod/Work/build
+```
+
+`physics` 段（完整字段见 `vrm_physics.py` 文件头）：
+
+- `chains`：每条链写明起始关节、挂点骨骼（`Head`、`Pelvis` 等）、碰撞组，以及重力、阻尼、拉力、半径、节点池。可选 `drop_end`，去掉无权重的末端关节。
+- `cloth`：
+  - `joints`：裙子关节前缀；
+  - `gravity`、`damping_scale`：布料参数；
+  - `k`、`sigma`：每个顶点混合几个粒子，以及衰减；
+  - `thigh_radius`：可选，加大大腿胶囊半径；
+  - `hang_from_pelvis`：短裙必开，把整块布料挂到胯部。
+- `colliders`：碰撞组。每项可以是：
+  - `{"from": 导出对象名, "mirror": [骨骼], "fallback": "body"|"face"}`；
+  - `{"legs": true}`（模板布料的大腿、骨盆、小腿胶囊）；
+  - `{"derived": ...}`（由骨架推出的胶囊）。
+- `double_sided`：要加背面的 VRM 部件名，例如 `skirt/0`。
+
+检查门：
+
+- 输出 `READBACK PASS`。
+- `build_report.json` 的 `physics` 中，保留对象数、去掉的表项、`global_cut`、改挂的粒子数与预期一致。
+- 每条链的 `clearance_cm` 为正，即静止时不在碰撞体里。
+- 实机检查：
+  - 跑动、急停、转身、蹲下、上坡；
+  - 各部件是否抽搐，尾巴和裙子是否黏在一起；
+  - 下蹲时是否露出大腿。
+
 ## XBT：原有工具
 
 ```powershell
@@ -135,12 +178,20 @@ python -B $Kit/build_xbt_pair.py ../MyMod/Ref/source.png ../MyMod/Ref/low.xbt ..
 | `vrm_assemble.py` | 把摆好姿势的部件转成写出器输入（子网格按槽位合并） |
 | `char01_paths.py` | char01 的 XBG/XBT 游戏路径、low/high 流和 FAT 哈希 |
 | `package_mod.py` | 底包换条目、写 modconfig.json（CRLF）、固定时间戳的可复现 ZIP |
+| `smu_format.py` | 物理块里 SMU 对象（链、jiggle；布料的头部和碰撞表）的读写，矩阵按文件偏移对齐 |
+| `xbg_physics.py` | 在闲置节点上搭链、移动或改挂节点并重写逆绑定；定位大衣布料、碰撞胶囊和表；粒子外推、按角度和高度分配权重；碰撞组；`export-colliders` 命令 |
+| `vrm_physics.py` | VRM 构建器的 `physics` 段：链、裙子或大衣挂到布料上、背面副本 |
 | `xbt_tool.py`、`audit_xbt_templates.py`、`build_xbt_pair.py` | 原有 XBT 解析、注入、模板审计和 texconv 配对构建 |
 
 ## 限制
 
 - 只支持 char01 骨架和模板里的材质槽。每个顶点最多 4 个权重，每个子网格最多 65,535 个顶点，调色板最多 255 根骨骼；超出时直接报错，不会静默拆分。
 - VRM 构建器只对 Karin_Original（VRM 1.0）做过逐字节核对：用样板配置重建的 XBG、15 个 XBT、FAT/DAT、modconfig 和 ZIP 与实机认可的 0.1.2 完全一致。VRM 0.x 和其他模型只有合成数据测试，未经实机。
-- VRM 构建器不做表情、视线和次级物理：脸是刚性的，嘴和眼睛不会动；头发、裙子只随骨骼按比例摆动。
+- VRM 构建器不做表情和视线：脸是刚性的，嘴和眼睛不会动。没有 `physics` 段时，头发和裙子只随骨骼按比例摆动。
+- 物理：
+  - `profiles/karin_original_1_0_0.json` 配合从 char10.xbg 导出的碰撞体，重建的 char01.xbg 与实机验收的 Karin_Original 1.0.0 逐字节相同；
+  - 游戏的链只会原地晃动，跑动时不会往后飘；
+  - 不给碰撞体文件时，用骨架推出的胶囊代替，这种胶囊未经实机验证；
+  - 只支持带 Aiden 原版物理块的模板。
 - 输出与 ZModeler 语义一致，但不逐字节一致。
 - 测试只用合成数据：`python -B tests/test_portable_tools.py`。

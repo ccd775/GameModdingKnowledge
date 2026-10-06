@@ -1,5 +1,39 @@
 # 迁移验证记录
 
+## 2026-10-06：看门狗物理（链、大衣布料、VRM 构建器的物理段）
+
+- **迁入内容：** 3 个 Python 文件和 1 个配置样板，放在 `portable-kits/watch-dogs/`。
+  - 来自项目的 `.work/physics/`：
+    - `smu_format.py`（原名同）；
+    - `xbg_physics.py`：合并自 `rig_physics.py`、`vanilla_skeleton.py`，以及 `build_coat_cloth_k15.py`、`build_k15_combined.py`、`build_ko_combined.py` 中的通用部分；
+    - `vrm_physics.py`：来自 `build_ko_combined.py`。
+  - `build_from_vrm.py` 新增可选的 `physics` 段和 `--colliders`。
+  - `profiles/karin_original_1_0_0.json`：Karin_Original 1.0.0 的链、裙子布料和背面设置。
+  - PROVENANCE 记录每个来源文件的原始 SHA-256；同一个公开文件合并了几个来源时，每个来源各占一行。
+- **通用化改动：**
+  - 保留的原版对象数原先写死为 16，改为"到大衣布料为止"；表的全局粒子分界原先写死为 161，改为按保留对象的节点数计算。对 Aiden 的模板，两种算法结果一致（16 和 161）。
+  - 碰撞体：原先直接读 Nicky 的 char10.xbg。现在改为读 `xbg_physics.py export-colliders` 导出的 JSON，缺省时退回由骨架推出的胶囊。仓库不收录游戏数据。
+  - 链、布料、背面的参数全部移到配置文件；项目里按模型写死的流程（蓝白 Karin 从源 BLEND 找回链权重）只写进文档，不迁入。
+  - 没有 `physics` 段时，构建路径与此前完全相同。
+- **等价性验证：**
+  - **条件：** Python 3.14.0、numpy 2.5.2、Pillow 12.3.0；输入为 Karin_Original 的 VRM，Karin 1.3.0 运行包作底包。
+  - **有物理：** `profiles/karin_original_1_0_0.json` 配合从 char10.xbg 导出的碰撞体，输出 `READBACK PASS`，char01.xbg 与用户实机验收的 Karin_Original 1.0.0 逐字节相同（`609B07FC…`）。
+  - **无物理：** `profiles/karin_original.json` 仍逐字节重建 0.1.2 的 char01.xbg（`CDE17BB0…`）。
+  - **不给碰撞体文件：** 用骨架推出的胶囊，构建通过，各链静止时都在碰撞体外。
+- **合成数据测试：** `WatchDogsPhysics` 3 项。
+  - SMU 对象写出与解析的往返：不同起始偏移下矩阵都按文件偏移 16 字节对齐；名字哈希错误时报错；
+  - 在合成模板上搭链：节点位置、父节点、+Y 朝向、逆绑定、保留对象逐字节不变、只有一个挂点时自由节点的挂点序号为 0、LOD 不变；`move()` 能移动和改挂节点；`export-colliders` 导出且拒绝覆盖；
+  - VRM 端到端：合成的 jiggle、大衣布料、领子链和表。检查：
+    - 保留和去掉的对象、表项分界；
+    - 布料参数和大腿胶囊半径；
+    - 改挂的粒子（仍固定的那个保持固定）；
+    - 链的挂点和 flags、碰撞组（碰撞体文件和骨架推出两种来源）；
+    - 裙子和头发的权重、背面副本。
+- **未验证：**
+  - 实机只有 Karin 1.6.0（FBX 路线，本包不含其流程）和 Karin_Original 1.0.0；
+  - 骨架推出的胶囊、其他模型、带不同物理块的模板都没有实机测试；
+  - 游戏的链做不到运动跟随，这是引擎限制，不是本包的缺陷。
+
 ## 2026-10-03：看门狗 VRM 构建器整理成通用版
 
 - **迁入内容：** 8 个 Python 文件和 1 个配置样板，放在 `portable-kits/watch-dogs/`。

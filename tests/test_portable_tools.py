@@ -1009,9 +1009,10 @@ def wd_submesh(np, codec, material, vertex_type, bones, lift=0.0):
                          np.array([[0, i + 1, i] for i in range(1, n - 1)]))
 
 
-def wd_template(path, palette_len=2, nodes_spec=WD_NODES, materials=WD_MATERIALS, slots=((0, 0x17BA, 6), (1, 0x179A, (1, 2)))):
+def wd_template(path, palette_len=2, nodes_spec=WD_NODES, materials=WD_MATERIALS, slots=((0, 0x17BA, 6), (1, 0x179A, (1, 2))),
+                physics=None):
     """Write a synthetic char01-like template XBG: material slots, nodes (name, parent, local t), inverse binds,
-    a filler block and one LOD submesh per (slot, vertex type, bone or bones)."""
+    a physics block (physics(file offset) -> bytes, or a filler) and one LOD submesh per (slot, vertex type, bones)."""
     import numpy as np
     xm, codec = wd('xbg_model'), wd('xbg_codec')
     out = bytearray(0x8C)
@@ -1036,7 +1037,7 @@ def wd_template(path, palette_len=2, nodes_spec=WD_NODES, materials=WD_MATERIALS
         inv = np.eye(4)
         inv[:3, 3] = -p
         out += inv.T.astype('<f4').tobytes()  # row-vector layout, as stored by the game
-    out += b'SYNTHETIC-PHYSICS-BLOCK.' * 2
+    out += physics(len(out)) if physics else b'SYNTHETIC-PHYSICS-BLOCK.' * 2
     fake = xm.Xbg(bytes(out), palette, palette_offset, nodes, len(out))
     fake.nodes_end = nodes_end
     lod = [wd_submesh(np, codec, slot, vtype, list(bones) if isinstance(bones, tuple) else [bones], lift=-0.5 * (i > 0))
@@ -1503,5 +1504,257 @@ class WatchDogsVrmBuilder(unittest.TestCase):
         layout = tex.compose(m, grid, self.root / 'b', {'coat': (8, 8)})
         self.assertEqual(layout['materials']['Hair']['rect'], [0.0, 0.5, 0.5, 1.0])  # third cell of a 2x2 grid
         self.assertNotIn('char01_hair_v2_d', layout['textures'])
+
+
+# ---------------------------------------------------------------- Watch Dogs physics (xbg_physics, vrm_physics)
+WD_COAT_ANCHORS = ('L Thigh', 'R Thigh', 'Pelvis', 'Spine', 'Spine1', 'Spine2')
+
+
+def wd_jiggle(smu, node, anchor='Spine2'):
+    return smu.Obj(offset=0, params=(0.0, -9.8, 0.9, 0.9, 0.7, 0.1, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0), type=4, sub=2, flag=0,
+                   nodes=[(node, 0.01, 0, 0.0, 0.0)], anchors=[anchor])
+
+
+def wd_physics_block(pos, particles=(), collar=(), coat=True):
+    """Synthetic physics block at file offset pos: FCB part, a jiggle, [a coat cloth (header 2,0,1, two thigh capsules,
+    particle records), a collar chain], and a table (one kind-2 entry inside the kept objects, one pointing at the
+    collar, one kind-6 entry)."""
+    import numpy as np
+    smu = wd('smu_format')
+    out = bytearray(struct.pack('<II', 1, 8) + b'nbCF' + b'\0' * 4)
+    out += struct.pack('<I', 3 if coat else 1)
+    out += smu.write_object(wd_jiggle(smu, 'Ph_Jig_Synthetic_SMUJiggle'), pos + len(out))
+    if not coat:
+        return bytes(out + struct.pack('<I', 0))
+    cloth = bytearray(struct.pack('<I12f3I', 0, 0.0, -12.5, 1.75, 1.5, 1.0, 1.0, 0.15, 0.015, 0.1, 0.01, 0.0, 0.0, 2, 0, 1))
+    cloth += struct.pack('<III', 0, 0, 2)  # lists A, B empty; C: two thigh capsules pointing down the legs
+    for bone in ('L Thigh', 'R Thigh'):
+        cloth += smu._name_bytes(bone)
+        cloth += b'\0' * (-(pos + len(out) + len(cloth)) % 16)
+        cloth += np.diag([1.0, -1.0, -1.0, 1.0]).astype('<f4').tobytes() + struct.pack('<7f', 0.06, 0, 0, 0.06, 0, 0, 0.4)
+    cloth += struct.pack('<II', 0, len(particles))  # list D empty, particle records
+    for name, flags in particles:
+        cloth += smu._name_bytes(name) + struct.pack('<fIff', 0.0255, flags, 0.5, 0.5)
+    cloth += struct.pack('<I', len(WD_COAT_ANCHORS)) + b''.join(smu._name_bytes(a) for a in WD_COAT_ANCHORS)
+    out += cloth
+    chain = smu.Obj(offset=0, params=(0.0, -9.8, 1.0, 1.0, 1.0, 0.1, 0.1, 0.0, 0.0, 0.1, 0.0, 0.0), type=4, sub=1, flag=0,
+                    nodes=[(n, 0.01, 1 if i == 0 else 0x10000, 0.0, 0.0) for i, n in enumerate(collar)],
+                    anchors=['Spine2'], links=[(i, i + 1, 1) for i in range(len(collar) - 1)])
+    out += smu.write_object(chain, pos + len(out))
+    cut = 1 + len(particles)
+    out += struct.pack('<I', 3) + struct.pack('<HHHHf', 2, 2, 1, 0, 0.5) + struct.pack('<HHHHf', cut, 2, 1, 0, 1.0)
+    out += struct.pack('<HH', 0, 6) + b'\0' * 20
+    return bytes(out)
+
+
+WD_PHYS_COLLAR = tuple(f'Ph_Pl_Sweater_Colar_SMUNode_{i}' for i in range(1, 5))
+
+
+def wd_physics_template(path):
+    """The synthetic human template plus physics nodes: a jiggle node, a ring of 12 coat particles on the Pelvis
+    (two pinned), two particles on a thigh helper, one pinned on the Spine, and four spare collar nodes."""
+    import numpy as np
+    world = list(WD_HUMAN_WORLD)
+    idx = {n: i for i, (n, _, _) in enumerate(world)}
+    world.append(('Ph_Jig_Synthetic_SMUJiggle', idx['Spine2'], (0, -0.1, 1.3)))
+    particles = []
+    for k in range(12):
+        a = np.radians(30 * k + 15)
+        z = 0.85 if k < 6 else 0.78
+        world.append((f'PL_Coat_SMUNode_{k + 1}', idx['Pelvis'], (0.12 * np.sin(a), -0.12 * np.cos(a), z)))
+        particles.append((f'PL_Coat_SMUNode_{k + 1}', (2 << 16) | (1 if k in (0, 6) else 0)))
+    world.append(('Rfx_LThigh_Back', idx['L Thigh'], (-0.1, -0.05, 0.85)))
+    helper = len(world) - 1
+    for k, p in ((13, (-0.14, -0.1, 0.8)), (14, (-0.16, 0.0, 0.72))):
+        world.append((f'PL_Coat_SMUNode_{k}', helper, p))
+        particles.append((f'PL_Coat_SMUNode_{k}', 0))
+    world.append(('PL_Coat_SMUNode_15', idx['Spine'], (0, -0.13, 1.05)))
+    particles.append(('PL_Coat_SMUNode_15', (3 << 16) | 1))
+    for i, n in enumerate(WD_PHYS_COLLAR):
+        world.append((n, idx['Spine2'], (0.02 * i, -0.08, 1.42)))
+    nodes = []
+    for name, parent, p in world:
+        base = world[parent][2] if parent >= 0 else (0, 0, 0)
+        nodes.append((name, parent, tuple(float(a - b) for a, b in zip(p, base))))
+    return wd_template(path, palette_len=4, nodes_spec=tuple(nodes), materials=WD_HUMAN_MATERIALS,
+                       slots=((0, 0x17BA, 6), (1, 0x179A, (1, 2)), (2, 0x179A, 6), (3, 0x11BA, 6)),
+                       physics=lambda pos: wd_physics_block(pos, particles, WD_PHYS_COLLAR))
+
+
+class WatchDogsPhysics(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(prefix='modding wd physics ')
+        self.root = Path(self.temp.name)
+
+    def tearDown(self): self.temp.cleanup()
+
+    def test_wd_smu_object_round_trip(self):
+        import numpy as np
+        smu = wd('smu_format')
+        m = tuple(np.eye(4).reshape(-1))
+        o = smu.Obj(offset=0, params=tuple(float(i) for i in range(12)), type=4, sub=1, flag=1,
+                    spheres=[('_Jaw', m, 0.04)], capsules=[('Head', m, (0.08, 0, 0, 0.08, 0, 0, 0.15))],
+                    nodes=[('Ph_A', 0.01, 1, 0.0, 0.0), ('Ph_B', 0.02, 0x10000, 0.0, 0.0)], anchors=['Facial_Hook', 'Head'],
+                    links=[(0, 1, 1)])
+        for pos in (0, 4, 12):
+            raw = b'\xAA' * pos + smu.write_object(o, pos)
+            r = smu.Reader(raw, pos)
+            back = smu.parse_object(r)
+            self.assertEqual(r.p, len(raw))
+            self.assertEqual((back.params, back.type, back.sub, back.flag), (o.params, 4, 1, 1))
+            self.assertEqual([n for n, *_ in back.nodes], ['Ph_A', 'Ph_B'])
+            self.assertEqual([f for _, _, f, _, _ in back.nodes], [1, 0x10000])
+            self.assertEqual((back.anchors, back.links), (['Facial_Hook', 'Head'], [(0, 1, 1)]))
+            self.assertEqual(back.spheres[0][0], '_Jaw')
+            self.assertAlmostEqual(back.capsules[0][2][6], 0.15, places=6)
+            m_at = raw.index(struct.pack('<16f', *m))
+            self.assertEqual(m_at % 16, 0)  # matrices are aligned to the file offset
+        bad = bytearray(smu.write_object(o, 0))
+        name_at = bytes(bad).index(b'_Jaw') - 8  # a wrong name hash is rejected
+        bad[name_at:name_at + 4] = b'\0\0\0\0'
+        with self.assertRaises(ValueError):
+            smu.parse_object(smu.Reader(bytes(bad), 0))
+
+    def test_wd_physics_chain_rig_move_and_colliders(self):
+        import numpy as np
+        phys, smu, skel, xm, codec = (wd(n) for n in ('xbg_physics', 'smu_format', 'xbg_skeleton', 'xbg_model', 'xbg_codec'))
+        nodes = WD_NODES + tuple((n, 4, (0.02 * i, -0.08, 0.12)) for i, n in enumerate(WD_PHYS_COLLAR[:3]))
+        path = self.root / 'template.xbg'
+        wd_template(path, palette_len=2, nodes_spec=nodes, physics=lambda pos: wd_physics_block(pos, coat=False))
+        before = skel.Skeleton(path)
+        x = xm.load(path)
+        b0, b1 = phys.block_range(x)
+        starts = phys.object_starts(x.data, b0, b1)
+        self.assertEqual(len(starts), 1)
+        keep_end = smu.parse_object(smu.Reader(x.data, starts[0])).end
+        head = before.head('Head')
+        points = [head + (0, -0.1, 0), head + (0, -0.15, -0.1), head + (0, -0.18, -0.2)]
+        o = smu.Obj(offset=0, params=(0.0, -4.0, 0.15, 0.15, 0.15, 0.1, 0.1, 0.0, 0.0, 0.1, 0.0, 0.0), type=4, sub=1,
+                    flag=1, anchors=['Head'])
+        chain = {'nodes': list(WD_PHYS_COLLAR[:3]), 'parent': 'Head', 'points': points, 'object': o,
+                 'radius': [0.01, 0.02, 0.01], 'link_kinds': [1, 1]}
+        rigged, report = phys.edit(path.read_bytes(), [chain], keep_objects=(1, keep_end), phys_table=struct.pack('<I', 0),
+                                   fix_anchor=True)
+        self.assertEqual((report['edited_nodes'], report['objects']), (3, 2))
+        out = self.root / 'rigged.xbg'
+        out.write_bytes(rigged)
+        after, y = skel.Skeleton(out), xm.load(out)
+        for n, p in zip(chain['nodes'], points):
+            i = after.index[n]
+            self.assertTrue(np.allclose(after.head(n), p, atol=1e-5))
+            self.assertEqual(after.names[after.parent[i]], 'Head')
+            self.assertTrue(np.allclose(after.bind[i] @ after.inv_bind[after.b[i]], np.eye(4), atol=1e-4))
+            k = chain['nodes'].index(n)
+            d = points[k + 1] - points[k] if k < 2 else points[k] - points[k - 1]  # local +Y runs down the chain
+            self.assertGreater(after.bind[i][:3, 1] @ d / np.linalg.norm(d), 0.999)
+        c0, c1 = phys.block_range(y)
+        self.assertEqual(y.data[c0 + 20:c0 + 20 + keep_end - (b0 + 20)], x.data[b0 + 20:keep_end])  # jiggle kept verbatim
+        r = smu.Reader(y.data, c0 + 20 + keep_end - (b0 + 20))
+        rigged_chain = smu.parse_object(r)
+        self.assertEqual([f for _, _, f, _, _ in rigged_chain.nodes], [1, 0, 0])  # one anchor -> free nodes use index 0
+        self.assertEqual(struct.unpack_from('<I', y.data, r.p)[0], 0)
+        self.assertEqual(r.p + 4, c1)
+        _, lods_before = codec.decode(x)
+        _, lods_after = codec.decode(y)
+        self.assertTrue(np.array_equal(lods_before[0][0].positions, lods_after[0][0].positions))
+        # move: push a node out, hang another from the Pelvis; world binds and inverse binds stay consistent
+        moved, rep = phys.move(path.read_bytes(), {'L_Eye': before.head('L_Eye') + (0, 0.05, 0)},
+                               {WD_PHYS_COLLAR[2]: 'Pelvis'})
+        self.assertEqual((rep['moved_nodes'], rep['reparented_nodes']), (1, 1))
+        out2 = self.root / 'moved.xbg'
+        out2.write_bytes(moved)
+        m2 = skel.Skeleton(out2)
+        i = m2.index[WD_PHYS_COLLAR[2]]
+        self.assertEqual(m2.names[m2.parent[i]], 'Pelvis')
+        self.assertTrue(np.allclose(m2.bind[i], before.bind[i], atol=1e-5))
+        self.assertTrue(np.allclose(m2.head('L_Eye'), before.head('L_Eye') + (0, 0.05, 0), atol=1e-5))
+        for k in range(len(m2.names)):
+            self.assertTrue(np.allclose(m2.bind[k] @ m2.inv_bind[m2.b[k]], np.eye(4), atol=1e-4))
+        # export-colliders reads the objects of an XBG (here the rigged one) into JSON
+        cols = self.root / 'colliders.json'
+        cli('watch-dogs', 'xbg_physics', 'export-colliders', '--xbg', out, '--out', cols)
+        data = json.loads(cols.read_text())
+        self.assertEqual(sorted(data['objects']), ['Ph_Jig_Synthetic_SMUJiggle', WD_PHYS_COLLAR[0]])
+        cli('watch-dogs', 'xbg_physics', 'export-colliders', '--xbg', out, '--out', cols, ok=False)  # no overwrite
+
+    def test_wd_vrm_physics_end_to_end(self):
+        import numpy as np
+        wd('build_from_vrm', pil=True)
+        phys, smu, skel, xm, codec = (wd(n) for n in ('xbg_physics', 'smu_format', 'xbg_skeleton', 'xbg_model', 'xbg_codec'))
+        template = self.root / 'template.xbg'
+        wd_physics_template(template)
+        base = self.root / 'base'
+        base.mkdir()
+        fat, _ = wd_base_pack(base, template)
+        vrm = self.root / 'model.vrm'
+        wd_vrm(vrm)
+        cloth_part = 'Body/' + str(list(WD_VRM_COLORS).index('Cloth'))
+        physics = {'colliders': {'hair': [{'from': 'Ph_Synthetic_SMUNode_1', 'fallback': 'body'}, {'legs': True}]},
+                   'chains': [{'start': 'Hair_tail_L', 'attach': 'Head', 'colliders': 'hair', 'gravity': -4.0,
+                               'damping': 0.15, 'pull': 0.1, 'radius': [0.01, 0.02, 0.01], 'pool': 'collar'}],
+                   'cloth': {'joints': 'Skirt_', 'skip': ['Skirt_root'], 'gravity': -2.0, 'damping_scale': 0.12, 'k': 4,
+                             'sigma': 0.08, 'thigh_radius': 0.07, 'hang_from_pelvis': True},
+                   'double_sided': [cloth_part]}
+        profile = self.root / 'profile.json'
+        profile.write_text(json.dumps({**WD_VRM_PROFILE, 'chains': [], 'physics': physics}))
+        cols = self.root / 'colliders.json'
+        m = tuple(np.eye(4).reshape(-1).tolist())
+        cols.write_text(json.dumps({'schema': 'watchdogs.physics_colliders.v1', 'objects': {
+            'Ph_Synthetic_SMUNode_1': {'spheres': [], 'capsules': [['Spine2', m, [0.09, 0, 0, 0.09, 0, 0, 0.2]]]}}}))
+        runs = {}
+        for tag, extra in (('file', ('--colliders', cols)), ('derived', ())):
+            out = self.root / tag
+            result = cli('watch-dogs', 'build_from_vrm', '--vrm', vrm, '--profile', profile, '--base-fat', fat,
+                         '--out-dir', out, *extra)
+            self.assertIn('READBACK PASS', result.stdout)
+            runs[tag] = out
+        out = runs['file']
+        report = json.loads((out / 'build_report.json').read_text())['physics']
+        self.assertEqual((report['objects_kept'], report['objects_dropped']), (2, 1))
+        self.assertEqual((report['table_entries'], report['table_dropped'], report['global_cut']), (3, 1, 16))
+        self.assertEqual(report['anchors_switched'], 3)  # two thigh-hung particles, one spine-pinned one
+        self.assertEqual(report['double_sided'], [cloth_part])
+        x, sk = xm.load(out / 'char01.xbg'), skel.Skeleton(out / 'char01.xbg')
+        b0, b1 = phys.block_range(x)
+        coat = phys.coat_object_offset(x.data, b0, b1)
+        prm = struct.unpack_from('<12f', x.data, coat + 4)
+        self.assertAlmostEqual(prm[1], -2.0, places=6)
+        self.assertAlmostEqual(prm[2], 1.75 * 0.12, places=6)
+        caps = phys.coat_capsules(x.data, coat)
+        self.assertAlmostEqual(struct.unpack_from('<f', x.data, caps['L Thigh'])[0], 0.07, places=6)
+        names = [n for n in sk.names if n.startswith('PL_Coat_SMUNode_')]
+        flags = {n: struct.unpack_from('<I', x.data, o)[0] for n, o in phys.coat_particle_flags(x.data, coat, names).items()}
+        for n in ('PL_Coat_SMUNode_13', 'PL_Coat_SMUNode_14', 'PL_Coat_SMUNode_15'):
+            self.assertEqual(sk.names[sk.parent[sk.index[n]]], 'Pelvis')
+            self.assertEqual(flags[n] >> 16, 2)
+        self.assertEqual(flags['PL_Coat_SMUNode_15'] & 1, 1)  # still pinned, now to the Pelvis
+        # block: jiggle and coat kept, the collar chain replaced by the hair chain, the collar table entry dropped
+        fcb = struct.unpack_from('<I', x.data, b0 + 4)[0]
+        self.assertEqual(struct.unpack_from('<I', x.data, b0 + 8 + fcb)[0], 3)
+        starts = phys.object_starts(x.data, b0, b1)
+        hair = smu.parse_object(smu.Reader(x.data, starts[-1]))
+        self.assertEqual(hair.anchors, ['Facial_Hook', 'Head'])
+        self.assertEqual([f for _, _, f, _, _ in hair.nodes], [1, 0x10000])
+        # colliders: the file's Spine2 capsule, then the template's thigh capsules as they were (0.06, not 0.07)
+        self.assertEqual([c[0] for c in hair.capsules], ['Spine2', 'L Thigh', 'R Thigh'])
+        self.assertAlmostEqual(hair.capsules[0][2][0], 0.09, places=6)
+        self.assertAlmostEqual(hair.capsules[1][2][0], 0.06, places=6)
+        for n, *_ in hair.nodes:
+            self.assertIn(n, WD_PHYS_COLLAR)
+            self.assertEqual(sk.names[sk.parent[sk.index[n]]], 'Head')
+        xd = xm.load(runs['derived'] / 'char01.xbg')
+        d0, d1 = phys.block_range(xd)
+        derived = smu.parse_object(smu.Reader(xd.data, phys.object_starts(xd.data, d0, d1)[-1]))
+        # without --colliders the "from" item falls back to capsules built from the skeleton (chest, neck, head)
+        self.assertEqual([c[0] for c in derived.capsules], ['Spine2', 'Neck', 'Head', 'L Thigh', 'R Thigh'])
+        self.assertAlmostEqual(derived.capsules[0][2][0], 0.12, places=6)
+        # weights: skirt level-1 vertices on coat particles, the hair tail on the chain nodes; the skirt has back faces
+        _, lods = codec.decode(x)
+        b_of = {n['name']: n['b'] for n in x.nodes}
+        used = {int(bb) for sub in lods[0] for row_b, row_w in zip(sub.bones, sub.weights) for bb in row_b[row_w > 0]}
+        self.assertTrue(used & {b_of[n] for n in names})
+        self.assertTrue(used & {b_of[n] for n, *_ in hair.nodes})
+        parts = json.loads((out / 'build_report.json').read_text())['parts']
+        self.assertIn(cloth_part + '/back', [p['part'] for p in parts])
 
 if __name__ == '__main__': unittest.main(verbosity=2)

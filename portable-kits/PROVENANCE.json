@@ -841,8 +841,8 @@
     "source": "Mods/WatchDogs/.work/karin_original/build_karin_original.py",
     "original_sha256": "89ea0711f36f88b8dbd4ff3f7a6af6d5ebdba5779c3808ab5c2c13294ed20981",
     "source_bytes": 4565,
-    "portable_sha256": "e0e9f372deb922ae85aed2a4ed76c635ac5a4a49dbe529528d4a851b195bda62",
-    "portable_bytes": 9419,
+    "portable_sha256": "ff244ab731567c2bd328fa57bdc2e0523cacfce5016d6105550268d36a9791a9",
+    "portable_bytes": 10479,
     "modified_for_portability": true
   },
   {
@@ -861,6 +861,69 @@
     "source_bytes": 1297,
     "portable_sha256": "a570c34b21043225e18050fea2e0d82f5bb21e5fb9cb7bb46d1ba749d6b6c646",
     "portable_bytes": 2101,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/watch-dogs/scripts/smu_format.py",
+    "source": "Mods/WatchDogs/.work/physics/smu_format.py",
+    "original_sha256": "46997b5b5b8401d52f17cb2842bad6c20f85fc46ab917498eaf752a99013eb68",
+    "source_bytes": 8062,
+    "portable_sha256": "18201b9b2dba4da40c0afcd41ea8154dbe6851cbfbc36340644b2e4ddbdaab8f",
+    "portable_bytes": 8274,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/watch-dogs/scripts/xbg_physics.py",
+    "source": "Mods/WatchDogs/.work/physics/rig_physics.py",
+    "original_sha256": "44a7f76763b059a925a6f7a93f23c520c46d6cb4b2d4ae547ef36820dbb28e69",
+    "source_bytes": 10252,
+    "portable_sha256": "1ab57259bf31df98dd9fc246b33a624ddf0b390afcd1288b178444ee18ccf115",
+    "portable_bytes": 26186,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/watch-dogs/scripts/xbg_physics.py",
+    "source": "Mods/WatchDogs/.work/physics/build_coat_cloth_k15.py",
+    "original_sha256": "accc06908fd1ee7ab4fffd20bf3de1d4c372ee3c1b2eade28eeea478f4600f2b",
+    "source_bytes": 17398,
+    "portable_sha256": "1ab57259bf31df98dd9fc246b33a624ddf0b390afcd1288b178444ee18ccf115",
+    "portable_bytes": 26186,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/watch-dogs/scripts/xbg_physics.py",
+    "source": "Mods/WatchDogs/.work/physics/build_k15_combined.py",
+    "original_sha256": "8e55a526cbd8b6e85246f7c64704ab8c63e3fa99845bb7955e48ebcc58a1cfc1",
+    "source_bytes": 22415,
+    "portable_sha256": "1ab57259bf31df98dd9fc246b33a624ddf0b390afcd1288b178444ee18ccf115",
+    "portable_bytes": 26186,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/watch-dogs/scripts/xbg_physics.py",
+    "source": "Mods/WatchDogs/.work/physics/build_ko_combined.py",
+    "original_sha256": "e3a6f1d5c48e1c258b300b32804b4ffea0a1eaf3887740fad69a241d7f12326e",
+    "source_bytes": 26781,
+    "portable_sha256": "1ab57259bf31df98dd9fc246b33a624ddf0b390afcd1288b178444ee18ccf115",
+    "portable_bytes": 26186,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/watch-dogs/scripts/xbg_physics.py",
+    "source": "Mods/WatchDogs/.work/physics/vanilla_skeleton.py",
+    "original_sha256": "b8d3be04101918f0e3e24dc1a0640bb905ef6741f3ab5a19813f6310984b4105",
+    "source_bytes": 3363,
+    "portable_sha256": "1ab57259bf31df98dd9fc246b33a624ddf0b390afcd1288b178444ee18ccf115",
+    "portable_bytes": 26186,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/watch-dogs/scripts/vrm_physics.py",
+    "source": "Mods/WatchDogs/.work/physics/build_ko_combined.py",
+    "original_sha256": "e3a6f1d5c48e1c258b300b32804b4ffea0a1eaf3887740fad69a241d7f12326e",
+    "source_bytes": 26781,
+    "portable_sha256": "52459eee0c9a819de8ebd9f9adea9fbec3caa4000ac8935900de2ca0c819472a",
+    "portable_bytes": 14132,
     "modified_for_portability": true
   }
 ]
