@@ -32,6 +32,84 @@
   - 20261004a 的成品本身没有实机测试。
   - 从源模型构建的脚本没有迁入。
 
+## 2026-10-12：新增龙之信条2便携包
+
+- **迁入内容：** 32 个文件，放在 `portable-kits/dragons-dogma-2/`。
+  - `scripts/` 下 7 个 Python：`devcmd.py`、`make_chain_spec.py`、`patch_mesh_header.py`、`build_karin_textures.py`、`make_original_lua.py`、`clsp_dump.py`、`clear_cet_flag.py`；
+  - `scripts/blender/` 下 3 个 Blender 脚本：`build_karin_body.py`、`re_common.py`、`prepare_karin_original.py`；
+  - `reframework/` 下 4 个 Lua：`karin_replacer.lua`、`karin_dev.lua`、`karin_probe_dump.lua`、`karin_pipeline_probe.lua`；
+  - `devqueries/` 下 12 个 Lua 查询；
+  - `dd2tool/` 下 DD2Tool 的 5 个 C# 源文件和 `DD2Tool.csproj`；
+  - 来源是项目的 `Scripts/`、`Scripts/blender/`、`Scripts/reframework/`、`Scripts/devqueries/` 和 `Tools/src/DD2Tool/`。PROVENANCE 每个文件一行，记录原始和公开版的 SHA-256；
+  - 新增 `requirements.txt`（numpy，只给贴图脚本用）。仓库检查允许的文件类型加上了 `.lua`、`.cs`、`.csproj`。
+- **没有迁入：**
+  - `karin_replacer_original.lua`：由 `make_original_lua.py` 生成；
+  - 驱动游戏窗口的脚本：`dd2_reload.py`、`dd2_reset_scripts.py`、`ui_find.py`、`ref_menu_find.py`、`fglock.py`、AHK 和 `.sh`。它们依赖本机的窗口布局、截图模板和前台锁；
+  - `build_all.sh`：整理成 README 里的分步命令；
+  - `probe_karin.py`、`probe_body_roundtrip.py`：一次性诊断；
+  - 生成的规格 JSON（含绝对路径）、发行 PAK、RE-Engine-Lib 源码、游戏和模型数据。
+- **便携改动**在 10 个文件：
+  - `devcmd.py`：游戏目录原先写死，改为 `--game-dir` 或环境变量 `DD2_GAME_DIR`。没给目录、或目录下没有 `reframework/` 时报错，不创建文件；
+  - `make_chain_spec.py`：
+    - 原生链模板原先在项目的 `work/native`，改为 `--native-dir` 或 `DD2_NATIVE_DIR`，规格里仍写解析后的绝对路径；
+    - 骨骼表原先按 profile 写死在项目的 `work/` 下，改为 `--inventory`；
+    - 手写的参数解析改为 argparse，位置参数不变，`--profile=original` 的写法照样可用；
+  - `build_karin_textures.py`：源图（PicodraTech 原先是绝对路径）、临时目录和清单、原生模板贴图、texconv、DD2Tool 原先都写死，改为 `--src`、`--work-dir`、`--manifest`、`--native-dir`、`--texconv`、`--dd2tool`（后三个也可用环境变量）；
+  - `make_original_lua.py`：输入默认为本包的 `reframework/karin_replacer.lua`，输出改为必填的 `--out`，`--check` 改用 argparse。生成的文本没有变；
+  - `clsp_dump.py`：改用 argparse，参数不变；
+  - `clear_cet_flag.py`：加说明和 argparse，CRLF 改为 LF；
+  - `blender/build_karin_body.py`：源 blend（PicodraTech 原先是绝对路径）和原生身体网格改为必填的 `--source-blend`、`--dd2-body`。这两个参数也会出现在 `build_report.json` 的 `args` 里；
+  - `blender/re_common.py`：RE Mesh Editor 的插件目录原先写死为另一个项目的路径，改为可选的环境变量 `DD2_BLENDER_ADDONS`；
+  - `blender/prepare_karin_original.py`：FBX 路径原先写死，改为 `--` 之后的第二个参数，SHA-256 检查不变；
+  - `DD2Tool.csproj`：RE-Engine-Lib 位置提成属性 `ReeLibDir`，默认值仍是同级的 `../RE-Engine-Lib`；
+  - 只把 CRLF 改为 LF：`MdfTools.cs`，以及 `audit_foreign_refs.lua`、`audit_joints.lua`、`container_joints.lua`、`native_refs.lua`、`skirt_rec.lua`。
+
+  其余 16 个文件与原文件逐字节相同，包括 `patch_mesh_header.py`、4 个 `reframework/` 脚本和另外 4 个 C# 源文件。处理逻辑没有改。
+- **等价性验证（离线）：**
+  - **条件：**
+    - build `25290080` 的原生文件；
+    - Python 3.14.0、numpy 2.5.2、Pillow 12.3.0；
+    - Blender 4.5.12 LTS、RE Mesh Editor 0.66，插件经 `DD2_BLENDER_ADDONS` 加载；
+    - texconv 2026.5.8.1；
+    - DD2Tool 由本包源码编译：放在 RE-Engine-Lib（`bf0e5e5`）旁边，用 .NET SDK 10.0.401 编译通过，在 .NET 8 运行时上运行。
+  - **DD2Tool：** 对同一个 mesh 的 `meshinfo` 输出，与项目里的 DD2Tool 相同，只有记录的输入路径不同。
+  - **PicodraTech v1.3.0：** 依次运行本包的 Blender 脚本、DD2Tool `meshconv` / `meshreorder`、`patch_mesh_header.py`、`meshinfo`、贴图脚本、`mdfbuild`、`make_chain_spec.py` + `chainbuild`、`pack`：
+    - `mdfbuild` 用的是项目的 MDF 规格，路径改到临时目录；
+    - `.240423143` 和 `.260421070` 网格都与项目的构建相同，12 张贴图与项目缓存相同；
+    - PAK 与发行包逐字节相同（`2E8E9EFE…`）。
+  - **Original v1.0.1：** 从项目当时的 Blender 输出（`.240423143`）开始，走同样的流程：
+    - 15 张贴图相同；
+    - PAK 与发行包逐字节相同（`4FE56A2D…`）。
+  - **Original 的 Blender 这一步：**
+    - 用本包脚本重跑，网格与项目的相差约 11 字节（共 3.56 MB）；两次重跑之间也差这么多，固定 `PYTHONHASHSEED` 也一样；
+    - 两次的 `build_report.json` 除路径外相同；
+    - 这一步本身不是逐字节稳定的。这个差异对游戏有没有影响，没有测试；
+    - PicodraTech 那一步重跑逐字节相同。
+  - **Original 的源模型转换：** `prepare_karin_original.py` 用脚本里记了 SHA-256 的那个 FBX 重跑：`inventory.json` 和 5 张图片与项目的逐字节相同，blend 文件不同（Blender 文件里有路径等信息）。共享模型目录里现在那个 FBX 是 2026-10-02 为战神项目烘焙过膝盖的版本，脚本按 SHA-256 拒绝了它。
+  - **链规格：**
+    - `make_chain_spec.py` 的 PicodraTech F、child、Original O 三种输出，与项目原脚本逐字节相同；
+    - F 和 O 也与两个发行版当时用的规格相同；
+    - 用 README 里的 Blender 片段从源 blend 导出的骨骼表，得到的 F 规格也相同。
+  - **Lua：**
+    - 本包的 `karin_replacer.lua` 与 PicodraTech v1.3.0 发行脚本相同（`E6947AAD…`）；
+    - `make_original_lua.py` 用它生成的脚本，与 Original v1.0.1 发行脚本逐字节相同（`3A2AD3FB…`）；
+    - 对项目里的生成文件，`--check` 输出 `up to date`。
+  - **`clsp_dump.py`：** 对原生 `body_female.clsp.3` 打印的内容和写出的 JSON，都与项目原脚本相同。
+- **合成数据测试：** `DragonsDogma2Tools` 4 项。
+  - 链规格的四元数：`swing_from_x` 把 +X 精确转到 7 个方向（含 ±X），是单位四元数，没有绕 X 的扭转。`tilt_outward` 用的是合成的裙子骨架：4 个根围着一根偏离原点的竖轴，父骨坐标系都转过。检查每个节点的锥轴与静止方向的夹角正好是 0.25 rad，锥轴落在静止方向和外向量所在的平面里，并且朝外转；别的 setting 的组不变；
+  - `patch_mesh_header.py`：只改偏移 22 的 2 个字节，`--flags` 有效，旧版本（240423143）报错且文件不变；
+  - `clsp_dump.py`：MurmurHash3 的公开测试向量，`L_Breast` 的哈希与 DD2Tool（REE-Lib）打印的值相同，胶囊和球两种预设的解析，命令行写 JSON；
+  - `devcmd.py`：没有游戏目录时报错；目录下没有 `reframework/` 时报错，也不创建目录；用假的游戏目录走一遍命令文件和结果文件。
+
+  `--help` 测试覆盖 `scripts/` 下全部 7 个脚本；`build_karin_textures.py` 在缺 numpy 或 Pillow 时跳过。根测试共 46 项，全部通过。
+- **未验证：**
+  - 便携版没有装进游戏测试，实机结论来自项目用原脚本构建的发行包；
+  - DD2Tool（C#）和 Lua 不在 Python 测试里，只用在上面的离线重建中；
+  - `devcmd.py` 和 `karin_dev.lua` 没有连游戏测试；
+  - 测试套件对 Blender 脚本只做语法检查；
+  - 非 Windows 系统、其他 build、其他工具版本下的逐字节一致性；
+  - 新模型的案例常量。
+
 ## 2026-10-06：看门狗物理（链、大衣布料、VRM 构建器的物理段）
 
 - **迁入内容：** 3 个 Python 文件和 1 个配置样板，放在 `portable-kits/watch-dogs/`。

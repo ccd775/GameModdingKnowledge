@@ -1,0 +1,83 @@
+{
+  "game": "Dragon's Dogma 2 (PC, Steam App 2054970)",
+  "status": "runtime-load-pass",
+  "tools": [
+    {
+      "name": "DD2Tool (dd2tool/, C# on RE-Engine-Lib)",
+      "version": "project-pinned; RE-Engine-Lib commit bf0e5e5222700716516797613a54b9b61fedfc35",
+      "role": "PAK toc / path-list resolve / extract / pack; mesh .260421070 info, version conversion and native joint order; tex<->dds; mdf2 .51 build; chain .55 build",
+      "required": true
+    },
+    {
+      "name": ".NET SDK",
+      "version": "10.0.401 to build (RE-Engine-Lib needs C# 14); the tool targets net8.0 and runs on the .NET 8 runtime",
+      "role": "builds dd2tool/",
+      "required": true
+    },
+    {
+      "name": "Blender with RE Mesh Editor",
+      "version": "Blender 4.5.12 LTS, RE Mesh Editor 0.66",
+      "role": "body build: fit Karin to the native 192-joint female skeleton, weights, expression joints, export .mesh.240423143 (scripts/blender/)",
+      "required": true
+    },
+    {
+      "name": "texconv (DirectXTex)",
+      "version": "2026.5.8.1",
+      "role": "PNG to BC7 / BC1 DDS for build_karin_textures.py",
+      "required": true
+    },
+    {
+      "name": "REFramework nightly",
+      "version": ">= 01421 (injects <game>/pak_mods/*.pak); tested 01424, revision d1461375aee4ec3f313170f8eaad12064eb542d9",
+      "role": "loads the mod PAK and runs reframework/autorun Lua (replacer, dev console, probes)",
+      "required": true
+    },
+    {
+      "name": "make_chain_spec.py / patch_mesh_header.py / build_karin_textures.py / make_original_lua.py",
+      "version": "project-pinned",
+      "role": "chain spec (rest-direction swing quaternions, outward-tilted skirt cones), mesh header flags, texture sets, Original replacer script",
+      "required": true
+    }
+  ],
+  "entry_documents": [
+    "../../games/dragons-dogma-2/README.md",
+    "../../games/dragons-dogma-2/BUILD_PIPELINE.md"
+  ],
+  "runtime_boundary": "Game build 25290080 (2026-10 update + Dark Arisen DLC), REFramework nightly 01424. The user ran PicodraTech up to v1.2.0 in game (and reported the proportion bug that v1.2.0 fixed) and confirmed Karin Original v1.0.1 (skirt fix) on their own machine. PicodraTech v1.3.0 and Original v1.0.0 (expressions, the 2026-10 build with DLC) were agent self-tests on a DLC test machine: save load, equipment preview, portrait, physics, expressions, photo mode, talk gestures, walk/jump/attack/crouch; the user has not separately confirmed the expressions. Female human bodies only; male and Beastren bodies keep their look. Cutscenes, climbing large monsters, ladders, ragdoll/death and character editing are unchecked. The portable copies were checked offline only (byte-identical rebuilds, see VALIDATION.md), not in game.",
+  "bundled_scripts": [
+    "scripts/devcmd.py",
+    "scripts/make_chain_spec.py",
+    "scripts/patch_mesh_header.py",
+    "scripts/build_karin_textures.py",
+    "scripts/make_original_lua.py",
+    "scripts/clsp_dump.py",
+    "scripts/clear_cet_flag.py",
+    "scripts/blender/build_karin_body.py",
+    "scripts/blender/re_common.py",
+    "scripts/blender/prepare_karin_original.py",
+    "reframework/karin_replacer.lua",
+    "reframework/karin_dev.lua",
+    "reframework/karin_probe_dump.lua",
+    "reframework/karin_pipeline_probe.lua",
+    "devqueries/audit_foreign_refs.lua",
+    "devqueries/audit_joints.lua",
+    "devqueries/audit_scene_refs.lua",
+    "devqueries/chain_live.lua",
+    "devqueries/chain_probe.lua",
+    "devqueries/container_joints.lua",
+    "devqueries/mockup_state.lua",
+    "devqueries/native_refs.lua",
+    "devqueries/player_state.lua",
+    "devqueries/skirt_get.lua",
+    "devqueries/skirt_rec.lua",
+    "devqueries/ubt_lists.lua",
+    "dd2tool/DD2Tool.csproj",
+    "dd2tool/Program.cs",
+    "dd2tool/MeshTools.cs",
+    "dd2tool/MdfTools.cs",
+    "dd2tool/ChainTools.cs",
+    "dd2tool/RszTools.cs"
+  ],
+  "python": "3.10+ (standard library); build_karin_textures.py needs 3.12+ with numpy 2.5 and Pillow; tested 3.14.0",
+  "dependency_install": "python -m pip install -r requirements.txt -r portable-kits/dragons-dogma-2/requirements.txt (from bundle root; only needed for build_karin_textures.py)"
+}

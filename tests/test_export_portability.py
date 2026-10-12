@@ -64,6 +64,10 @@ class DetachedExports(unittest.TestCase):
                         self.assertIn('test_wd_vrm_build_end_to_end', process.stderr)
                         self.assertIn('test_wd_vrm_physics_end_to_end', process.stderr)
                         self.assertFalse([l for l in process.stderr.splitlines() if 'test_wd_' in l and 'skipped' in l])
+                    if game == 'dragons-dogma-2':
+                        self.assertTrue((target/'portable-kits/dragons-dogma-2/requirements.txt').is_file())
+                        self.assertIn('test_dd2_chain_spec_swing_and_tilt', process.stderr)
+                        self.assertFalse([l for l in process.stderr.splitlines() if 'test_dd2_' in l and 'skipped' in l])
                     print(f'{game}: detached tests passed (unselected games skipped)')
 
 

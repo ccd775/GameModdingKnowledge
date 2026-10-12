@@ -1042,5 +1042,293 @@
     "portable_sha256": "5ad59e767bd208e58436cafbf8952a341c9fdfa7923029dff5cfdcc1f421e1b6",
     "portable_bytes": 3852,
     "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/dragons-dogma-2/scripts/devcmd.py",
+    "source": "Mods/DragonDogma2/Scripts/devcmd.py",
+    "original_sha256": "50580702931278dce10d1f966e4da38eed40b2287dd67afbb589ae515ab70680",
+    "source_bytes": 1358,
+    "portable_sha256": "0ece54664f60d26244ab055601861c46321b0785757fa127809bbb2a7658ecf2",
+    "portable_bytes": 2585,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/dragons-dogma-2/scripts/make_chain_spec.py",
+    "source": "Mods/DragonDogma2/Scripts/make_chain_spec.py",
+    "original_sha256": "0bda911beb4af22f624e07ecaceadbc06bc3032d2c4761b118933b37dae64272",
+    "source_bytes": 14788,
+    "portable_sha256": "b19b26ba07db750fa989b9f71a53f0a229a67ad628803657a67c93ab1c4839f3",
+    "portable_bytes": 16503,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/dragons-dogma-2/scripts/patch_mesh_header.py",
+    "source": "Mods/DragonDogma2/Scripts/patch_mesh_header.py",
+    "original_sha256": "91fd369404f3798a2fc33562b07626f1a10e592910c5a4174d74f6102604df88",
+    "source_bytes": 693,
+    "portable_sha256": "91fd369404f3798a2fc33562b07626f1a10e592910c5a4174d74f6102604df88",
+    "portable_bytes": 693,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/dragons-dogma-2/scripts/build_karin_textures.py",
+    "source": "Mods/DragonDogma2/Scripts/build_karin_textures.py",
+    "original_sha256": "fee0e404bbd93482aa61c28646dad085ebf3289498625e83745f1cb83d0ab3c3",
+    "source_bytes": 6738,
+    "portable_sha256": "02aae4b84b0e19d161ce64f39b77bcac3812d26798c785d69da3894a00e32399",
+    "portable_bytes": 8629,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/dragons-dogma-2/scripts/make_original_lua.py",
+    "source": "Mods/DragonDogma2/Scripts/make_original_lua.py",
+    "original_sha256": "fe407166783b0b352debd85ca303e46712f376d91a72292e801a2c92e2c80025",
+    "source_bytes": 4376,
+    "portable_sha256": "1f62165b86d0ec4afc6e9ae788a7152abb79c1f3c7459741c395a31fb2cdd3b4",
+    "portable_bytes": 4937,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/dragons-dogma-2/scripts/clsp_dump.py",
+    "source": "Mods/DragonDogma2/Scripts/clsp_dump.py",
+    "original_sha256": "c4b7975eace37c947e79c3b6435a43e62883c999565d730ef3c27e412b743035",
+    "source_bytes": 3228,
+    "portable_sha256": "ea5e8f65295ac8eee2a0b892c2d2df6baab151e739f59e97f6d9b7c1caa7a524",
+    "portable_bytes": 3551,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/dragons-dogma-2/scripts/clear_cet_flag.py",
+    "source": "Mods/DragonDogma2/Scripts/clear_cet_flag.py",
+    "original_sha256": "18ab753647d5e92b6a11acf6450d9ffe04a32215d29d01ed2b26df4cafadeba5",
+    "source_bytes": 1355,
+    "portable_sha256": "20c66a3c67e0cc2eac8d844ba2d7fe39e813e80da38ebd6c5d28c14ae8c3f261",
+    "portable_bytes": 2121,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/dragons-dogma-2/scripts/blender/build_karin_body.py",
+    "source": "Mods/DragonDogma2/Scripts/blender/build_karin_body.py",
+    "original_sha256": "bbebe0a680d625ea56f51225033378ba806dcb64003ee04eacbf8a58846053d6",
+    "source_bytes": 46067,
+    "portable_sha256": "bb8b89cb93c1b39967edb5642c5472c97f0ebd3ceb2dc7ef52c5c4a0744ce35c",
+    "portable_bytes": 46546,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/dragons-dogma-2/scripts/blender/re_common.py",
+    "source": "Mods/DragonDogma2/Scripts/blender/re_common.py",
+    "original_sha256": "8cb932c0ca6522e6c586a3865d6d95929fa3a3f4aeeceb027c7132b80459fb85",
+    "source_bytes": 2254,
+    "portable_sha256": "b4f7ef233ee9e8799d52299ffd3c099fc4d78c8a271befcaabfb2408ec31be3d",
+    "portable_bytes": 2556,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/dragons-dogma-2/scripts/blender/prepare_karin_original.py",
+    "source": "Mods/DragonDogma2/Scripts/blender/prepare_karin_original.py",
+    "original_sha256": "a051a0cd8111a961c1ddaeb7cc58c15f4277ce2bc76df94535572586d16c7763",
+    "source_bytes": 7068,
+    "portable_sha256": "20f6ecd74eeba44f963ec7a3a367ad87d98ead770e673fff1784445005cdf528",
+    "portable_bytes": 7491,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/dragons-dogma-2/reframework/karin_replacer.lua",
+    "source": "Mods/DragonDogma2/Scripts/reframework/karin_replacer.lua",
+    "original_sha256": "e6947aad83a98fe6ae90f1d62c2f396f10ba1e2a50debed177d54314e1f1bd8b",
+    "source_bytes": 49704,
+    "portable_sha256": "e6947aad83a98fe6ae90f1d62c2f396f10ba1e2a50debed177d54314e1f1bd8b",
+    "portable_bytes": 49704,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/dragons-dogma-2/reframework/karin_dev.lua",
+    "source": "Mods/DragonDogma2/Scripts/reframework/karin_dev.lua",
+    "original_sha256": "89eae792dcb214929fa8862ed6812cd6e5bdbe9532b4ad2a5170ddb341619093",
+    "source_bytes": 3066,
+    "portable_sha256": "89eae792dcb214929fa8862ed6812cd6e5bdbe9532b4ad2a5170ddb341619093",
+    "portable_bytes": 3066,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/dragons-dogma-2/reframework/karin_probe_dump.lua",
+    "source": "Mods/DragonDogma2/Scripts/reframework/karin_probe_dump.lua",
+    "original_sha256": "ded9888204da81e6107b82348e0619f3fae310286d1c5e32e1099eb2684a1330",
+    "source_bytes": 8375,
+    "portable_sha256": "ded9888204da81e6107b82348e0619f3fae310286d1c5e32e1099eb2684a1330",
+    "portable_bytes": 8375,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/dragons-dogma-2/reframework/karin_pipeline_probe.lua",
+    "source": "Mods/DragonDogma2/Scripts/reframework/karin_pipeline_probe.lua",
+    "original_sha256": "763416f8e9f8e8e9e9c39f5cf12779495fc388418a5f0ad3357d82ceb8d4c819",
+    "source_bytes": 6662,
+    "portable_sha256": "763416f8e9f8e8e9e9c39f5cf12779495fc388418a5f0ad3357d82ceb8d4c819",
+    "portable_bytes": 6662,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/dragons-dogma-2/devqueries/audit_foreign_refs.lua",
+    "source": "Mods/DragonDogma2/Scripts/devqueries/audit_foreign_refs.lua",
+    "original_sha256": "69cc6185d6258f598a76dd613e385ea0549d9f7ad87ac4de478d3f46966728fb",
+    "source_bytes": 4910,
+    "portable_sha256": "6c06aeb98f496c1c8ca56171114496a82cbf70da7cad44309c4334171b6a3111",
+    "portable_bytes": 4806,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/dragons-dogma-2/devqueries/audit_joints.lua",
+    "source": "Mods/DragonDogma2/Scripts/devqueries/audit_joints.lua",
+    "original_sha256": "f2027a71d1ed44eb13858a3002c5b63cff926912a4b855f9b08cf024251e8d01",
+    "source_bytes": 5016,
+    "portable_sha256": "13fba8069b11d8a79345290123fce476d1a0d585b1d505592a2596a5535915da",
+    "portable_bytes": 4918,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/dragons-dogma-2/devqueries/audit_scene_refs.lua",
+    "source": "Mods/DragonDogma2/Scripts/devqueries/audit_scene_refs.lua",
+    "original_sha256": "2abdac4065f603c8146fde6c80c38a53c508c1566cb440ca38609e3cad0c4580",
+    "source_bytes": 4611,
+    "portable_sha256": "2abdac4065f603c8146fde6c80c38a53c508c1566cb440ca38609e3cad0c4580",
+    "portable_bytes": 4611,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/dragons-dogma-2/devqueries/chain_live.lua",
+    "source": "Mods/DragonDogma2/Scripts/devqueries/chain_live.lua",
+    "original_sha256": "e98ada8ce7d41c7c75e657a919385568ad35ab217f8bc553661efbe231bbc183",
+    "source_bytes": 1264,
+    "portable_sha256": "e98ada8ce7d41c7c75e657a919385568ad35ab217f8bc553661efbe231bbc183",
+    "portable_bytes": 1264,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/dragons-dogma-2/devqueries/chain_probe.lua",
+    "source": "Mods/DragonDogma2/Scripts/devqueries/chain_probe.lua",
+    "original_sha256": "6e5a1ece9a78a773165097d6c46deeb92b223a9cc53785049e7cae73e629ec75",
+    "source_bytes": 1116,
+    "portable_sha256": "6e5a1ece9a78a773165097d6c46deeb92b223a9cc53785049e7cae73e629ec75",
+    "portable_bytes": 1116,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/dragons-dogma-2/devqueries/container_joints.lua",
+    "source": "Mods/DragonDogma2/Scripts/devqueries/container_joints.lua",
+    "original_sha256": "202f2fe496b4b7cc7fad80b0ac8a494ddc914586da9ae4e7af3d42cae2f9341e",
+    "source_bytes": 3684,
+    "portable_sha256": "725765fddc4548630f27b900ef8fa9374e9dd2940a20394d19f828531d04619c",
+    "portable_bytes": 3600,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/dragons-dogma-2/devqueries/mockup_state.lua",
+    "source": "Mods/DragonDogma2/Scripts/devqueries/mockup_state.lua",
+    "original_sha256": "f58212ce31b9646e9f47edf237ce919be36351083d10f1e63167b75174eb0b42",
+    "source_bytes": 983,
+    "portable_sha256": "f58212ce31b9646e9f47edf237ce919be36351083d10f1e63167b75174eb0b42",
+    "portable_bytes": 983,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/dragons-dogma-2/devqueries/native_refs.lua",
+    "source": "Mods/DragonDogma2/Scripts/devqueries/native_refs.lua",
+    "original_sha256": "f0698c2a37e811b8da89357eb3386a437068056261635054ea3a6b957590ad16",
+    "source_bytes": 3620,
+    "portable_sha256": "c9432ecbdfe85651c9ef3d4d697cc448da2240ebc5717bfa4f6994ba2fe67f85",
+    "portable_bytes": 3539,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/dragons-dogma-2/devqueries/player_state.lua",
+    "source": "Mods/DragonDogma2/Scripts/devqueries/player_state.lua",
+    "original_sha256": "1362be21a5483a550fedcb366af07236c350980fa77e8fbfeabb49206d012a68",
+    "source_bytes": 600,
+    "portable_sha256": "1362be21a5483a550fedcb366af07236c350980fa77e8fbfeabb49206d012a68",
+    "portable_bytes": 600,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/dragons-dogma-2/devqueries/skirt_get.lua",
+    "source": "Mods/DragonDogma2/Scripts/devqueries/skirt_get.lua",
+    "original_sha256": "f7aacebc7c2071958b8e761be54c13c689168cc1bb40503ad81e01fbec37506c",
+    "source_bytes": 165,
+    "portable_sha256": "f7aacebc7c2071958b8e761be54c13c689168cc1bb40503ad81e01fbec37506c",
+    "portable_bytes": 165,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/dragons-dogma-2/devqueries/skirt_rec.lua",
+    "source": "Mods/DragonDogma2/Scripts/devqueries/skirt_rec.lua",
+    "original_sha256": "687fd07d65d702ddf28150515a1d6373603d968e6809083566f0aface7342541",
+    "source_bytes": 2127,
+    "portable_sha256": "efe5fe8a07efe0526ebd3a71190d947fd935286a93e73eaa3192a288a3b44932",
+    "portable_bytes": 2084,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/dragons-dogma-2/devqueries/ubt_lists.lua",
+    "source": "Mods/DragonDogma2/Scripts/devqueries/ubt_lists.lua",
+    "original_sha256": "ac96062e8c119c843091337c6d47925b48b57f7e820cd64d5158dd3a5794dc30",
+    "source_bytes": 326,
+    "portable_sha256": "ac96062e8c119c843091337c6d47925b48b57f7e820cd64d5158dd3a5794dc30",
+    "portable_bytes": 326,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/dragons-dogma-2/dd2tool/DD2Tool.csproj",
+    "source": "Mods/DragonDogma2/Tools/src/DD2Tool/DD2Tool.csproj",
+    "original_sha256": "99c9b29df3d21dafe6c4b7b8f7cfdfa15fb6deef73c65f880d18a88a55f94d2a",
+    "source_bytes": 645,
+    "portable_sha256": "5f9410cb04413d8646fd6195197eef28e16f6ce56320a526866d35bf9b46255b",
+    "portable_bytes": 994,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/dragons-dogma-2/dd2tool/Program.cs",
+    "source": "Mods/DragonDogma2/Tools/src/DD2Tool/Program.cs",
+    "original_sha256": "a56c35d3246ca2ef1355999140269c12763d6ec226b66f1421bc5c647b80f462",
+    "source_bytes": 7707,
+    "portable_sha256": "a56c35d3246ca2ef1355999140269c12763d6ec226b66f1421bc5c647b80f462",
+    "portable_bytes": 7707,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/dragons-dogma-2/dd2tool/MeshTools.cs",
+    "source": "Mods/DragonDogma2/Tools/src/DD2Tool/MeshTools.cs",
+    "original_sha256": "8e0b344617a7cd0180ae9db3c2327461b17c52cbc26f57865d94ea88f8a4b97f",
+    "source_bytes": 11126,
+    "portable_sha256": "8e0b344617a7cd0180ae9db3c2327461b17c52cbc26f57865d94ea88f8a4b97f",
+    "portable_bytes": 11126,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/dragons-dogma-2/dd2tool/MdfTools.cs",
+    "source": "Mods/DragonDogma2/Tools/src/DD2Tool/MdfTools.cs",
+    "original_sha256": "815ccffbd49dc72163eea0facf4e138de054a463fadde8d3f36feb78eb4cd40e",
+    "source_bytes": 6952,
+    "portable_sha256": "7f0464964b67c3a3d62c6eba9f9f85485c0e2b62a70acc781030fbe741047dbb",
+    "portable_bytes": 6807,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/dragons-dogma-2/dd2tool/ChainTools.cs",
+    "source": "Mods/DragonDogma2/Tools/src/DD2Tool/ChainTools.cs",
+    "original_sha256": "2db031e6d8d0ff4ae66803c52920409a2ca878b3aeec5158d5d7dbc1262973b4",
+    "source_bytes": 10284,
+    "portable_sha256": "2db031e6d8d0ff4ae66803c52920409a2ca878b3aeec5158d5d7dbc1262973b4",
+    "portable_bytes": 10284,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/dragons-dogma-2/dd2tool/RszTools.cs",
+    "source": "Mods/DragonDogma2/Tools/src/DD2Tool/RszTools.cs",
+    "original_sha256": "da7f1d197da3d37757a91add4a1390ff9d753da99f406161c43bb6032bbcd72f",
+    "source_bytes": 5974,
+    "portable_sha256": "da7f1d197da3d37757a91add4a1390ff9d753da99f406161c43bb6032bbcd72f",
+    "portable_bytes": 5974,
+    "modified_for_portability": false
   }
 ]

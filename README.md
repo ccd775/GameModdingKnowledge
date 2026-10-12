@@ -1,7 +1,7 @@
 如果你觉得内容有帮助，可以前往https://ifdian.net/a/ccd775 赞助我以获得贴贴！
 # Game Modding Shared Knowledge
 
-供人和 agent 接续长线 Mod 项目的知识库与便携工具包。它包含十七款游戏的实际项目方法、成功与失败记录（其中十一款附便携工具包）、19 个原项目迁移脚本、MK1 参数化工具、对马岛 / 西之绝境 / 战神5 构建器、浪人崛起的 KT 引擎格式工具和公共运行工具；不需要注册 Skill。
+供人和 agent 接续长线 Mod 项目的知识库与便携工具包。它包含十八款游戏的实际项目方法、成功与失败记录（其中十二款附便携工具包）、19 个原项目迁移脚本、MK1 参数化工具、对马岛 / 西之绝境 / 战神5 构建器、浪人崛起的 KT 引擎格式工具、龙之信条2 的 DD2Tool 与 REFramework 注入脚本和公共运行工具；不需要注册 Skill。
 
 ## 从这里开始
 
@@ -13,6 +13,7 @@
 | 游戏 | 知识入口 | 已验证历史范围 |
 | --- | --- | --- |
 | 真人快打1 | [MK1](games/mortal-kombat-1/README.md) | 多角色可见效果验收、骨架/骨盆/材质与 IoStore 排障；T1000 v8 材质复发仍在调查，未宣称全动作通过 |
+| 龙之信条2 | [Dragon's Dogma 2](games/dragons-dogma-2/README.md) | Karin PicodraTech v1.3.0 / Karin_Original v1.0.1 替换玩家角色（build 25290080 + DLC）：不改原生文件，REFramework Lua 在游戏构建身体时递入网格 / 材质 / chain，皮肤烘焙改道、体型表清空、骨驱动表情；用户本机实机用到 PicodraTech v1.2.0（比例问题由用户发现后修复），Original v1.0.1 裙摆修复经用户确认（「这次好了」）；v1.3.0、表情与 DLC build 由 agent 在测试机实机自测（读档、装备预览、头像、物理、表情、拍照、走跑跳攻蹲），表情幅度用户未单独确认；过场 / 攀爬 / 死亡未测，只替换女性人类 |
 | 鬼武者：新生 | [Onimusha WotS](games/onimusha-way-of-the-sword/README.md) | Karin→宫本武藏 v1.11.0：几何与 chain2 v17 次级物理均由用户实机确认；仅散装文件路线可用 |
 | 怪物猎人：荒野 | [MHWs](games/monster-hunter-wilds/README.md) | Karin_Original→女装备 ch03_060_000 r6（BoneSystem 独立骨骼）：武器挂点、野外地图、裙摆碰撞与哑光材质经用户验收；依赖新版 REFramework 散装贴图加载；表情未单独签收 |
 | 地平线：西之绝境 | [Horizon Forbidden West](games/horizon-forbidden-west/README.md) | Karin_Original 替换贝塔 v4（经 Mod Manager 角色切换扮演）：读档、外观、奔跑转身由 agent 实机自测（2026-10-02），用户未单独确认；身体只换 LOD0，无次级物理与表情 |
@@ -39,7 +40,7 @@ python -B tools/check_repository.py
 python -B tools/export_kit.py --all --output ../Modding-Portable-Exports --zip
 ```
 
-输出十一份不依赖父仓库的目录，以及对应 ZIP/文件哈希清单。每份包含该游戏文档、脚本、公共层和安装依赖说明。[验证记录](portable-kits/VALIDATION.md) 明确哪些进行了组件测试，哪些还需要专用工具和游戏实测。
+输出十二份不依赖父仓库的目录，以及对应 ZIP/文件哈希清单。每份包含该游戏文档、脚本、公共层和安装依赖说明。[验证记录](portable-kits/VALIDATION.md) 明确哪些进行了组件测试，哪些还需要专用工具和游戏实测。
 
 ## 下载便携包
 
@@ -58,7 +59,7 @@ python -B tools/export_kit.py --all --output ../Modding-Portable-Exports --zip
 | 求生之路2 | [下载](https://github.com/ccd775/GameModdingKnowledge/releases/download/v0.2.0/left-4-dead-2.zip) |
 | 绝地潜兵2 | [下载](https://github.com/ccd775/GameModdingKnowledge/releases/download/v0.2.0/helldivers-2.zip) |
 
-浪人崛起的便携包是 v0.2.0 之后加入的，还不在 Release 里，请用下面的命令自行导出。
+浪人崛起与龙之信条2 的便携包是 v0.2.0 之后加入的，还不在 Release 里，请用下面的命令自行导出。
 
 单独导出某一款时运行（导出目录旁会生成同名 ZIP 和 `.files.json` 清单）：
 

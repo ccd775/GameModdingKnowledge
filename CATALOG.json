@@ -34,6 +34,17 @@
       "limits": ["表情幅度为估计值、未单独签收", "腰挂武器种类未逐一检查", "PAK 路线在新 REFramework 上未测", "自测只到标题画面"]
     },
     {
+      "id": "dragons-dogma-2",
+      "path": "games/dragons-dogma-2",
+      "status": "runtime-confirmed-scoped",
+      "milestone": "Karin PicodraTech v1.3.0 / Karin Original v1.0.1 替换玩家角色（构建时注入网格 / 材质 / chain、表情、裙摆外倾角度限制）",
+      "date": "2026-10-11",
+      "game_build": "25290080",
+      "topics": ["RE Engine", "TU3.2 单包 KPKA feature 0x40", "mesh 260421070", "REE-Lib 自建 CLI", "pak_mods 注入", "PartSwap 构建时注入", "皮肤烘焙状态机改道", "体型编辑表", "joint 缓存重绑教训", "chain .55 angleLimitDirection", "链静止姿势回位", "非对称裙摆角度限制", "形态键 → 平移骨表情", "REFramework 开发控制台"],
+      "limits": ["只替换女性人类玩家（男性 / 兽人保持原样）", "过场 / 攀爬 / 死亡 / 角色编辑未测", "表情幅度与 Original 双马尾摆幅未单独签收", "依赖 REFramework nightly（实测 01424）"],
+      "portable_kit": "portable-kits/dragons-dogma-2"
+    },
+    {
       "id": "ghost-of-tsushima",
       "path": "games/ghost-of-tsushima",
       "status": "runtime-confirmed-scoped",

@@ -242,6 +242,7 @@ class PortableTools(unittest.TestCase):
             if path.parents[1].name == 'god-of-war-ragnarok' and gowr_missing(): continue
             if path.parents[1].name == 'watch-dogs' and path.stem not in WD_STDLIB_SCRIPTS and wd_missing(pil=True): continue
             if path.parents[1].name == 'rise-of-the-ronin' and path.stem in RONIN_NUMPY_SCRIPTS and ronin_missing(): continue
+            if path.parents[1].name == 'dragons-dogma-2' and path.stem in DD2_NUMPY_SCRIPTS and dd2_missing(): continue
             cli(path.parents[1].name,path.stem,'--help')
 
 
@@ -2066,5 +2067,187 @@ class RiseOfTheRoninTools(unittest.TestCase):
         self.assertTrue(all((x * 2048).is_integer() for _, x in q))
         self.assertEqual(len(q), 3)
 
+
+DD2_NUMPY_SCRIPTS = ('build_karin_textures',)
+
+
+def dd2_missing():
+    return [m for m in ('numpy', 'PIL') if importlib.util.find_spec(m) is None]
+
+
+def quat_rotate(q, v):
+    """Rotate v by the unit quaternion q = (x, y, z, w)."""
+    x, y, z, w = q
+    t = [2 * (y * v[2] - z * v[1]), 2 * (z * v[0] - x * v[2]), 2 * (x * v[1] - y * v[0])]
+    return [v[0] + w * t[0] + y * t[2] - z * t[1], v[1] + w * t[1] + z * t[0] - x * t[2],
+            v[2] + w * t[2] + x * t[1] - y * t[0]]
+
+
+def unit(v):
+    n = sum(c * c for c in v) ** 0.5
+    return [c / n for c in v]
+
+
+def dot(a, b):
+    return sum(x * y for x, y in zip(a, b))
+
+
+def rot_rows(axis, deg):
+    """Rotation by deg about axis, as rows = the rotated X, Y, Z axes (the RE row-major matrix convention)."""
+    import math
+    x, y, z = unit(axis)
+    c, s = math.cos(math.radians(deg)), math.sin(math.radians(deg))
+    m = [[c + x * x * (1 - c), x * y * (1 - c) - z * s, x * z * (1 - c) + y * s],
+         [y * x * (1 - c) + z * s, c + y * y * (1 - c), y * z * (1 - c) - x * s],
+         [z * x * (1 - c) - y * s, z * y * (1 - c) + x * s, c + z * z * (1 - c)]]
+    return [[m[j][i] for j in range(3)] for i in range(3)]
+
+
+def dd2_bone(name, parent, rows, pos, local_x):
+    """meshinfo-style bone: global = 16 floats (rows 0..2 axes in model space, row 3 position), local row 0 = X."""
+    glob = [c for r in rows for c in (*r, 0.0)] + [*pos, 1.0]
+    return {'name': name, 'parent': parent, 'global': glob, 'local': [*unit(local_x), 0.0] + [0.0] * 12}
+
+
+class DragonsDogma2Tools(unittest.TestCase):
+    """Chain spec math, mesh header patch, CLSP reader and the dev console client, on synthetic data. DD2Tool (C#),
+    the REFramework Lua scripts and the Blender scripts need .NET, the game or Blender and are not run here."""
+
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(prefix='modding dd2 ')
+        self.root = Path(self.temp.name)
+
+    def tearDown(self): self.temp.cleanup()
+
+    def test_dd2_chain_spec_swing_and_tilt(self):
+        import math
+        m = module('dragons-dogma-2', 'make_chain_spec')
+        for d in ([1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, 0, -1], [0.3, -0.8, 0.5], [-0.99, 0.01, 0.1], [2, 2, -1]):
+            q = m.swing_from_x(d)
+            self.assertAlmostEqual(dot(q, q), 1.0, places=12)
+            self.assertEqual(q[0], 0.0)                        # a swing: no twist about X
+            for a, b in zip(quat_rotate(q, [1.0, 0.0, 0.0]), unit(d)):
+                self.assertAlmostEqual(a, b, places=12)
+        # skirt-like rig: four roots around a vertical axis off the origin, under a tilted hip; two-node chains whose
+        # rest directions point mostly down, in rotated parent frames
+        centre = (0.05, 0.9, -0.02)
+        bones = [dd2_bone('Hip', None, rot_rows([0.3, 1.0, 0.2], 25), (0.0, 1.0, 0.0), [1, 0, 0])]
+        groups = []
+        for k in range(4):
+            t = math.radians(90 * k + 10)
+            pos = (centre[0] + 0.15 * math.cos(t), centre[1], centre[2] + 0.12 * math.sin(t))
+            root, tip = f'K_Skirt_{k}', f'K_Skirt_{k}_1'
+            bones.append(dd2_bone(root, 'Hip', rot_rows([math.cos(t), 0.4, math.sin(t)], 40 + 7 * k), pos,
+                                  [0.2 * math.cos(t), -1.0, 0.25 * math.sin(t) + 0.1]))
+            bones.append(dd2_bone(tip, root, rot_rows([0, 0, 1], 0), (pos[0], pos[1] - 0.1, pos[2]), [0.05, -1.0, 0.3]))
+            groups.append({'joints': [root, tip], 'setting': 'skirt'})
+        groups.append({'joints': ['K_Skirt_0'], 'setting': 'hair'})      # other settings are left alone
+        angle = 0.25
+        m.tilt_outward({'bones': bones}, groups, 'skirt', angle)
+        self.assertNotIn('aldir', groups[-1])
+        by = {b['name']: b for b in bones}
+        cx = sum(by[g['joints'][0]]['global'][12] for g in groups[:4]) / 4
+        cz = sum(by[g['joints'][0]]['global'][14] for g in groups[:4]) / 4
+        for g in groups[:4]:
+            r = by[g['joints'][0]]['global']
+            u = [r[12] - cx, 0.0, r[14] - cz]                    # outward, horizontal, from the roots' centre axis
+            self.assertEqual(len(g['aldir']), len(g['joints']))
+            for j, q in zip(g['joints'], g['aldir']):
+                pm = by[by[j]['parent']]['global']
+                axes = [pm[4 * i:4 * i + 3] for i in range(3)]    # parent axes in model space
+                d = by[j]['local'][0:3]                          # rest direction, parent frame
+                v = quat_rotate(q, [1.0, 0.0, 0.0])               # cone axis, parent frame
+                self.assertAlmostEqual(math.acos(max(-1.0, min(1.0, dot(v, d)))), angle, places=9)
+
+                def to_model(c):
+                    return [sum(c[i] * axes[i][k] for i in range(3)) for k in range(3)]
+                self.assertGreater(dot(to_model(v), u), dot(to_model(d), u) + 1e-3)   # turned away from the axis
+                up = [dot(axes[i], u) for i in range(3)]
+                normal = [d[1] * up[2] - d[2] * up[1], d[2] * up[0] - d[0] * up[2], d[0] * up[1] - d[1] * up[0]]
+                self.assertAlmostEqual(dot(v, normal), 0.0, places=9)   # turned in the plane of d and u
+
+    def test_dd2_patch_mesh_header(self):
+        body = (struct.pack('<II', 0x4853454D, 251205828) + bytes(range(14)) + struct.pack('<H', 33411)
+                + bytes(range(200, 240)))
+        mesh = self.root / 'karin body.mesh.260421070'
+        mesh.write_bytes(body)
+        out = cli('dragons-dogma-2', 'patch_mesh_header', mesh).stdout
+        self.assertIn('flags 33411 -> 4099', out)
+        patched = mesh.read_bytes()
+        self.assertEqual(struct.unpack_from('<H', patched, 22)[0], 4099)
+        self.assertEqual(patched[:22] + patched[24:], body[:22] + body[24:])
+        cli('dragons-dogma-2', 'patch_mesh_header', mesh, '--flags', 3)
+        self.assertEqual(struct.unpack_from('<H', mesh.read_bytes(), 22)[0], 3)
+        old = self.root / 'old.mesh.240423143'
+        old_bytes = struct.pack('<II', 0x4853454D, 240423143) + bytes(32)
+        old.write_bytes(old_bytes)
+        cli('dragons-dogma-2', 'patch_mesh_header', old, ok=False)      # only the DD2 V3 (.260421070) layout
+        self.assertEqual(old.read_bytes(), old_bytes)
+
+    def test_dd2_clsp_dump_reads_presets(self):
+        m = module('dragons-dogma-2', 'clsp_dump')
+        self.assertEqual(m.murmur3(b'', 1), 0x514E28B7)              # MurmurHash3 x86_32 reference vectors
+        self.assertEqual(m.murmur3(b'Hello, world!', 1234), 0xFAF6CDB3)
+        self.assertEqual(m.name_hash('L_Breast'), 1164880656)          # the value DD2Tool (REE-Lib) prints for it
+        capsule = bytearray(112)
+        struct.pack_into('<IIIIii', capsule, 0, 1, m.name_hash('L_Leg_Upper'), m.name_hash(''), 0, 1 << 14, 0)
+        struct.pack_into('<3f', capsule, 32, 0.1, 0.2, 0.3)
+        struct.pack_into('<3f', capsule, 48, 0.4, 0.5, 0.6)
+        struct.pack_into('<f', capsule, 64, 0.05)
+        sphere = bytearray(112)
+        struct.pack_into('<IIIIii', sphere, 0, 0, 0x1234, m.name_hash(''), 0, 0, 7)
+        struct.pack_into('<4f', sphere, 32, 1.0, 2.0, 3.0, 0.25)
+        clsp = self.root / 'synthetic.clsp.3'
+        clsp.write_bytes(struct.pack('<IiQ', 0x50534C43, 2, 32) + bytes(16) + capsule + sphere)
+        rows = m.parse(clsp, {m.name_hash('L_Leg_Upper'): 'L_Leg_Upper', m.name_hash(''): '<none>'})
+        self.assertEqual([r['shape'] for r in rows], ['Capsule', 'Sphere'])
+        self.assertEqual((rows[0]['joint'], rows[0]['pair'], rows[0]['flags1']), ('L_Leg_Upper', '<none>', 16384))
+        self.assertEqual((rows[0]['p0'], rows[0]['p1'], rows[0]['r']), ([0.1, 0.2, 0.3], [0.4, 0.5, 0.6], 0.05))
+        self.assertEqual((rows[1]['joint'], rows[1]['flags2'], rows[1]['pos'], rows[1]['r']),
+                         ('0x1234', 7, [1.0, 2.0, 3.0], 0.25))
+        meshinfo = self.root / 'meshinfo.json'
+        meshinfo.write_text(json.dumps({'bones': [{'name': 'L_Leg_Upper'}]}))
+        out = self.root / 'rows.json'
+        cli('dragons-dogma-2', 'clsp_dump', clsp, meshinfo, '--json', out)
+        self.assertEqual(json.loads(out.read_text())[0]['joint'], 'L_Leg_Upper')
+
+    def test_dd2_devcmd_round_trip_and_missing_game(self):
+        import time
+        script = KITS / 'dragons-dogma-2' / 'scripts' / 'devcmd.py'
+        if not script.is_file():
+            self.skipTest('dragons-dogma-2 is not included in this single-game export')
+        env = {k: v for k, v in os.environ.items() if k != 'DD2_GAME_DIR'}
+
+        def run(*args):
+            return subprocess.run([sys.executable, '-B', str(script), *map(str, args)], capture_output=True, text=True,
+                                  env=env, timeout=30)
+        missing = run('-e', 'return 1')
+        self.assertNotEqual(missing.returncode, 0)
+        self.assertIn('DD2_GAME_DIR', missing.stderr)
+        game = self.root / 'Dragons Dogma 2'
+        self.assertNotEqual(run('-e', 'return 1', '--game-dir', game).returncode, 0)
+        self.assertFalse(game.exists())                                  # nothing is created for a wrong folder
+        (game / 'reframework').mkdir(parents=True)
+        data = game / 'reframework' / 'data' / 'karin_dev'
+        process = subprocess.Popen([sys.executable, '-B', str(script), '-e', 'return K.player() ~= nil', '--timeout', '20',
+                                    '--game-dir', str(game)], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
+                                   env=env)
+        try:
+            cmd, deadline = None, time.time() + 15
+            while cmd is None and time.time() < deadline:            # stand in for karin_dev.lua: answer the command
+                try:
+                    cmd = json.loads((data / 'cmd.json').read_text(encoding='utf-8'))
+                except (OSError, ValueError):
+                    time.sleep(0.05)
+            self.assertIsNotNone(cmd)
+            self.assertEqual(cmd['lua'], 'return K.player() ~= nil')
+            (data / 'result.json').write_text(json.dumps({'id': cmd['id'], 'result': True}), encoding='utf-8')
+            stdout, stderr = process.communicate(timeout=20)
+        finally:
+            if process.poll() is None:
+                process.kill()
+                process.communicate()
+        self.assertEqual(process.returncode, 0, stderr)
+        self.assertEqual(json.loads(stdout), {'id': cmd['id'], 'result': True})
 
 if __name__ == '__main__': unittest.main(verbosity=2)

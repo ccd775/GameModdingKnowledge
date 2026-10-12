@@ -38,6 +38,7 @@ before authoring. Never use this root document as a live candidate state file.
 - Devil May Cry 5 -> `games/devil-may-cry-5/`
 - Dynasty Warriors: Origins -> `games/dynasty-warriors-origins/`
 - Rise of the Ronin -> `games/rise-of-the-ronin/`
+- Dragon's Dogma 2 -> `games/dragons-dogma-2/`
 
 - Hitman: World of Assassination -> `games/hitman-world-of-assassination/`
 - Watch Dogs -> `games/watch-dogs/`
