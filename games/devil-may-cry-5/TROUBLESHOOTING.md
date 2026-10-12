@@ -10,6 +10,7 @@
 | 衣褶、鞋底、缝线处法线发糊 | RE 导出器每个顶点只保留第一个角的法线 | 在法线不连续（> 2°）的边上拆顶点，再写回自定义法线 | `offline-accepted` |
 | 皮肤局部发黑或发亮 | 源 `body_2` 的自定义法线损坏（零向量角、朝内） | 皮肤改用平滑几何法线 | `offline-accepted` |
 | 实战中站立、跑动时大腿和臀部从裙子后面露出 | PT 下半身胶囊太细（0.08，在骨轴上），臀部没覆盖；裙 setting 重力 −20、回弹 0.007 | 按网格表面拟合胶囊，加骨盆胶囊；裙 setting 与角度限制收紧（[chain 物理](CHAIN_PHYSICS.md) §4） | `runtime-confirmed`（v1.1） |
+| 实战正常，但部分过场里四肢和躯干被拉长 | 这些 event 动作在每根身体骨上带有原角色骨长的常量平移轨 | 去掉 48 根身体骨的 T 轨（[过场动作](CUTSCENE_MOTION.md) §3） | V：`runtime-confirmed`（v1.2）；Nero / Dante：同法，未在游戏里看过 |
 | 小飘带一出生就被弹飞或抖动 | 飘带节点静止时就嵌在身体胶囊里 | 这类节点关碰撞 | `offline-accepted` |
 | Blender 预览全黑 | 贴图按预乘 alpha 解释 | 图像 `alpha_mode = 'NONE'` | `offline-accepted` |
 | Blender 无界面导入 / 导出时崩溃（`EXCEPTION_ACCESS_VIOLATION`） | RE Mesh Editor 调用 `wm.console_toggle()` | 在工作副本里把这一调用改成 `pass` | 工具层 |
@@ -26,6 +27,8 @@
   （54% 顶点在碰撞范围外）。
 - **「三个身体共用一份 chain」**：骨盆胶囊挂在 Hip 上，三套网格的 Hip bind 不同。被 v1.1 的「每个身体一份」取代
   （supersedes v1.0）。
+- **「过场拉伸是 fbxskel 或网格 bind 的问题」**：实战动作正常说明 bind 没错；差别在动作文件本身带不带身体骨的 T 轨。
+  也不必改 fbxskel 去迁就原角色的骨长，那会让实战外形变样。
 - **「为了 1.5 cm 余量把骨盆胶囊再放大一点」**：会把后侧裙片在静止时顶起 1.7 cm，改变外形。取余量 0.7 cm 的版本。
 
 ## 反复出现的元错误

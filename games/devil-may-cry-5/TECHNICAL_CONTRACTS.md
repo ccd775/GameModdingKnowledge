@@ -12,6 +12,7 @@
 | 物理 | `.chain.21` | RE Chain Editor 14.0 的 `file_re_chain` 模块读写，往返无损 |
 | 骨架 | `.fbxskel.3` | 自写：只改骨位置（§4） |
 | 场景 | `.scn.19` | 本项目只比对，不修改 |
+| 动作 | `.motlist.85`（内含 `.mot.65`） | 自写解析与原地改写（[过场动作](CUTSCENE_MOTION.md) §2） |
 
 工具的坑：
 

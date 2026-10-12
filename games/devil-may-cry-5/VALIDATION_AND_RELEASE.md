@@ -17,6 +17,9 @@ fbxskel 方法能复现 Nero mod 的结果；生成的 MDF 与 Nero 材质签名
 
 chain（`ko_chain` 内置）：37 组可回读；静止穿透为 0；臀部和大腿的覆盖余量（见 [chain 物理](CHAIN_PHYSICS.md) §4）。
 
+过场动作（`ko_cutscene` 内置 `verify`）：修补前后文件大小相同；只有被改的 clip 头有字节差异；新的轨头偏移
+指向原来的 R 轨头，内容逐字节一致；指定骨上不再有 T。骨集合要对 KO 与 PT 两种网格都算一遍，结果应相同。
+
 预览：Blender 平光渲染 T 姿势的正 / 侧 / 背面和一个弯腿姿势（`ko_render check`）。只算 `offline-accepted`。
 
 打包（`ko_package`）：
@@ -49,7 +52,8 @@ chain（`ko_chain` 内置）：37 组可回读；静止穿透为 0；臀部和�
 - Fluffy 会一直占用正在预览的 mod 的 zip。替换 zip 前先正常关闭 Fluffy（CloseMainWindow），换完再启动。
 - **原地更新**：文件列表不变时（例如 v1.1 只改了 chain 内容），按 `installed.ini` 的路径直接覆盖游戏目录里的散装文件，
   同时替换 `Mods` 里的 zip，然后逐个核对哈希。这样 `installed.ini` 仍然准确，卸载时也能删干净。
-  文件列表一旦变了，就必须在 Fluffy 里卸载再重装。
+  文件列表一旦变了，就必须在 Fluffy 里卸载再重装（例如 v1.2 加入了过场 motlist）。
+- Fluffy 的版本号显示可能还是旧值（缓存），以 `installed.ini` 和游戏目录文件的哈希为准。
 - 不要改变用户当前的安装选择。例如用户把 V 换回 PT 版时，只更新 zip，不替用户切换。
 
 ## 4. 运行时分层
@@ -57,7 +61,8 @@ chain（`ko_chain` 内置）：37 组可回读；静止穿透为 0；臀部和�
 | 级别 | 做法 | 本项目 |
 | --- | --- | --- |
 | `offline-accepted` | §1 闸门 + 预览 | 全部版本 |
-| `runtime-load-pass` | §2 标题画面自测 | PT V；Original v1.0 三个角色；Original v1.1 的 Nero / Dante |
-| `runtime-confirmed` | 用户验收 | PT V（标题画面）；Original Nero / Dante（实战，v1.1 修复裙摆后） |
+| `runtime-load-pass` | §2 标题画面自测 | PT V；Original v1.0 三个角色；Original v1.1 的 Nero / Dante；Original v1.2 三个角色 |
+| `runtime-confirmed` | 用户验收 | PT V（标题画面）；Original Nero / Dante（实战，v1.1 修复裙摆后）；Original V（实战与过场，v1.2） |
 
-Original V 的 v1.1 chain 没有在游戏里加载过：用户测试时 V 装的是 PT 版。
+过场是标题画面自测覆盖不到的：动作文件只在对应关卡的过场里加载，只能由用户在游戏里看。
+PT V v1.1 和 Original Nero / Dante v1.2 加入的过场修补都还没有在过场里看过。

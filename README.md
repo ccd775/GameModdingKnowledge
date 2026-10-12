@@ -19,7 +19,7 @@
 | 地平线：西之绝境 | [Horizon Forbidden West](games/horizon-forbidden-west/README.md) | Karin_Original 替换贝塔 v4（经 Mod Manager 角色切换扮演）：读档、外观、奔跑转身由 agent 实机自测（2026-10-02），用户未单独确认；身体只换 LOD0，无次级物理与表情 |
 | 战神：诸神黄昏 | [God of War Ragnarök](games/god-of-war-ragnarok/README.md) | Karin_Original 替换奎托斯与同伴芙蕾雅：外观与行走由 agent 实机自测；用户实机看过芙蕾雅并反馈膝盖穿模，已修正共享源模型（烘焙 `kisekae_Knee`）后重建，修复版用户未单独确认；无次级物理与表情 |
 | 对马岛之魂 导演剪辑版 | [Ghost of Tsushima](games/ghost-of-tsushima/README.md) | Karin 替换忠赖的铠甲：PicodraTech 第四构建经用户实机验收；Karin_Original 经用户认可（未指明版本，当时发布为 v4）（均为 2026-09-30，场景未逐项列出）；只替换 LOD0，无次级物理 |
-| 鬼泣5 | [DMC5](games/devil-may-cry-5/README.md) | KarinPT→V：标题画面经用户确认；Karin_Original→Nero / Dante / V 三包 v1.1：Nero / Dante 实战经用户验收（含裙摆碰撞修复）；Original V 的 v1.1 物理未在游戏里加载，魔人形态、过场、立绘未检查 |
+| 鬼泣5 | [DMC5](games/devil-may-cry-5/README.md) | KarinPT→V：标题画面经用户确认；Karin_Original→Nero / Dante / V 三包 v1.2：Nero / Dante 实战经用户验收（含裙摆碰撞修复），V 实战与过场经用户确认（含过场拉伸修复）；Nero / Dante 的过场修补、魔人形态、立绘未检查 |
 | 真三国无双 起源 | [DW Origins](games/dynasty-warriors-origins/README.md) | Karin PicodraTech→鸾翼将装：修复接缝/外套脏/翻领发糊（源模型重烘焙、UV 切开重排）经用户实机验收，脸部"可接受"；Karin_Original→鸾翼将装 v20261002a：从 FBX 构建、复用同网格的脸、按原版辅助骨分布迁移权重，仅由 agent 读档在旅馆/装备界面截图验证，用户未验收；无次级物理 |
 | 浪人崛起 | [Rise of the Ronin](games/rise-of-the-ronin/README.md) | Karin_Picodra：头发 / 脸 / 下身材质 / 背标 / 上衣 UV / 手指动画逐项经用户验收（20260908f 为基线）；20261004a 的腿部分段权重、13 张共用贴图恢复（NPC 发白）与下身 SHADING 仅离线检查；Karin_Original 从 FBX 构建，两种头部变体由 agent 实机自测；无物理与表情，室内绑腿未解决 |
 | 杀手暗杀世界 | [Hitman WOA](games/hitman-world-of-assassination/README.md) | Signature Suit 0.1.0 在 Dartmoor 的基础动作 |

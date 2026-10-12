@@ -3,12 +3,13 @@
 ## 范围
 
 这里整理 Steam《Devil May Cry 5》（App `601150`，RE Engine）角色替换的可复用合同，
-来自 2026-10-01 的两项交付：
+来自 2026-10-01 的两项交付，以及 2026-10-07 的过场修复：
 
 | 交付 | 内容 | 最高证据级 |
 | --- | --- | --- |
 | KarinPT replace V v1.0 | 参照用户已有的「KarinPT 替换 Nero / Dante」两个 mod，把同一个 Karin_PicodraTech 身体网格改造成 V（`pl0200` / `pl0210`） | `runtime-confirmed`（仅标题画面：用户确认「看起来挺好的，V的脚基本也是贴在地面上的」） |
-| KarinOriginal replace Nero / Dante / V v1.1 | 从 Karin_Original 源模型完整构建三个包；骨架、材质、目录结构以 PT 包为模板 | Nero / Dante：`runtime-confirmed`（用户实战报裙片穿模 → v1.1 修复后「看起来好了」）；V：v1.0 只做过标题画面自测，v1.1 的 V chain 没有在游戏里加载过 |
+| KarinOriginal replace Nero / Dante / V v1.1 | 从 Karin_Original 源模型完整构建三个包；骨架、材质、目录结构以 PT 包为模板 | Nero / Dante：`runtime-confirmed`（用户实战报裙片穿模 → v1.1 修复后「看起来好了」）；V：用户后来在游戏里玩过，反馈「在游戏中是正常的」 |
+| 过场修复：KarinOriginal 三包 v1.2、KarinPT V v1.1 | 部分过场里身体被拉长：去掉 event 动作中身体骨的平移轨 | V：`runtime-confirmed`（「V的过场好了」）；Nero / Dante / PT V：同一方法，离线校验 + 标题画面加载，相关过场未在游戏里看过 |
 
 所有后缀号、骨数、偏移、缩放和参数都是 `build-sensitive` 或 `case-derived` 快照，只对
 build `24901913` 有效。
@@ -26,6 +27,8 @@ build `24901913` 有效。
   这一点在标题画面用 A/B 实验确认过。
 - **短裙物理**：PT 链里那套为大衣设计的胶囊和重力不适合短裙，要按网格表面重新拟合碰撞胶囊。
   Hip 的 bind 位置在 Nero、Dante、V 三套网格里不同，所以每个身体要单独生成一份 chain。
+- **过场拉伸**：部分 event 动作在每根身体骨上带有原角色骨长的常量平移轨，换了比例的身体会被拉开。
+  去掉这些骨的 T 轨（只改 clip 头，文件大小不变），过场就和实战一样使用网格 bind。
 
 ## 核心方法
 
@@ -52,6 +55,7 @@ v1.1 的碰撞体、重力、回弹和角度限制**一起**被接受，文档�
 - [技术合同](TECHNICAL_CONTRACTS.md)：资源版本、槽位、PAK 与 Fluffy、MDF / TEX / fbxskel / 网格导出器
 - [角色替换](CHARACTER_REPLACEMENT.md)：PT 模板、V 改造、Karin_Original 构建、贴图与材质、立绘与签名
 - [chain 物理](CHAIN_PHYSICS.md)：chain .21 结构、链组映射、裙摆碰撞拟合
+- [过场动作](CUTSCENE_MOTION.md)：motlist .85 布局、过场拉伸的成因与修补
 - [验证与发布](VALIDATION_AND_RELEASE.md)：离线闸门、标题画面自测、Fluffy 安装与原地更新
 - [排障手册](TROUBLESHOOTING.md)：症状导向的定位表与已被证伪的捷径
 - [案例：Karin × DMC5](cases/KARIN_DMC5.md)：版本轨迹与每一轮反馈

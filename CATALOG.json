@@ -81,11 +81,11 @@
       "id": "devil-may-cry-5",
       "path": "games/devil-may-cry-5",
       "status": "runtime-confirmed-scoped",
-      "milestone": "KarinPT 替换 V（标题画面用户确认）；Karin_Original 替换 Nero / Dante / V 三包 v1.1（Nero / Dante 实战经用户验收，含裙摆碰撞修复）",
-      "date": "2026-10-01",
+      "milestone": "KarinPT 替换 V（标题画面用户确认）；Karin_Original 替换 Nero / Dante / V 三包 v1.2（Nero / Dante 实战经用户验收，含裙摆碰撞修复；V 实战与过场经用户确认，含过场拉伸修复）",
+      "date": "2026-10-07",
       "game_build": "24901913",
-      "topics": ["RE Engine", "mesh 1808282334 / mdf2 v10 / tex 11 / chain 21", "以已有替换 mod 为骨架模板", "fbxskel 按网格 bind 改写", "Env_Emissive albm alpha 控制自发光", "MDF v10 最小改动编辑", "Fluffy invalidate 与原地更新", "chain .21 裙摆碰撞胶囊拟合", "标题画面自测与 A/B"],
-      "limits": ["Original V 的 v1.1 chain 未在游戏里加载；V 的实战未报告", "魔人形态、过场、裂纹形态未检查", "无表情 / 眼动", "菜单 UI 立绘未检查", "v1.1 物理改动未逐项归因"]
+      "topics": ["RE Engine", "mesh 1808282334 / mdf2 v10 / tex 11 / chain 21", "以已有替换 mod 为骨架模板", "fbxskel 按网格 bind 改写", "Env_Emissive albm alpha 控制自发光", "MDF v10 最小改动编辑", "Fluffy invalidate 与原地更新", "chain .21 裙摆碰撞胶囊拟合", "标题画面自测与 A/B", "motlist .85 过场身体骨平移轨修补"],
+      "limits": ["Nero / Dante / PT V 的过场修补未在游戏里看过", "魔人形态、裂纹形态未单独检查", "无表情 / 眼动", "菜单 UI 立绘未检查", "v1.1 物理改动未逐项归因"]
     },
     {
       "id": "dynasty-warriors-origins",
