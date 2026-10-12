@@ -241,6 +241,7 @@ class PortableTools(unittest.TestCase):
             if path.parents[1].name == 'horizon-forbidden-west' and hfw_missing(): continue
             if path.parents[1].name == 'god-of-war-ragnarok' and gowr_missing(): continue
             if path.parents[1].name == 'watch-dogs' and path.stem not in WD_STDLIB_SCRIPTS and wd_missing(pil=True): continue
+            if path.parents[1].name == 'rise-of-the-ronin' and path.stem in RONIN_NUMPY_SCRIPTS and ronin_missing(): continue
             cli(path.parents[1].name,path.stem,'--help')
 
 
@@ -1756,5 +1757,314 @@ class WatchDogsPhysics(unittest.TestCase):
         self.assertTrue(used & {b_of[n] for n, *_ in hair.nodes})
         parts = json.loads((out / 'build_report.json').read_text())['parts']
         self.assertIn(cloth_part + '/back', [p['part'] for p in parts])
+
+RONIN_KIT = KITS / 'rise-of-the-ronin'
+RONIN_NUMPY_SCRIPTS = ('leg_weights',)
+RONIN_DEPENDENCIES = ('numpy', 'scipy')
+
+
+def ronin_missing():
+    return [m for m in RONIN_DEPENDENCIES if importlib.util.find_spec(m) is None]
+
+
+def ronin(name, numpy=False):
+    """Rise of the Ronin module; the leg tool is skipped with the install hint when numpy / scipy are absent."""
+    if not RONIN_KIT.is_dir():
+        raise unittest.SkipTest('rise-of-the-ronin is not included in this single-game export')
+    if numpy and ronin_missing():
+        raise unittest.SkipTest('pip install -r portable-kits/rise-of-the-ronin/requirements.txt (missing '
+                                + ', '.join(ronin_missing()) + ')')
+    return module('rise-of-the-ronin', name)
+
+
+def ronin_chunk(magic, body, version=b'0000'):
+    return magic + version + struct.pack('<I', 12 + len(body)) + body
+
+
+def ronin_g1m(joints, binds, materials, vertices, palettes, submeshes, indices, mm_extra=0):
+    """Minimal little-endian G1M: FM1G (MM1G count at +24), SM1G, MM1G, GM1G with the nine gust sections.
+    joints: (bone id, parent storage index, local position); storage order = list order, bone ids may be sparse.
+    vertices: list of (position, weights[8], palette slots[8]); one vertex buffer of stride 36."""
+    ids = [0xFFFF] * (max(b for b, _, _ in joints) + 1)
+    for j, (b, _, _) in enumerate(joints):
+        ids[b] = j
+    head = struct.pack('<2I4H', 0, 0, len(joints), len(ids), 1, 0) + struct.pack(f'<{len(ids)}H', *ids)
+    head += b'\0' * (-(12 + len(head)) % 16)
+    joint_offset = 12 + len(head)
+    sm = head[:0] + struct.pack('<I', joint_offset) + head[4:]
+    for _b, parent, pos in joints:
+        sm += struct.pack('<3fi4f4f', 1, 1, 1, parent, 0, 0, 0, 1, *pos, 1)
+    mm = struct.pack('<I', len(binds)) + b''.join(struct.pack('<16f', *[v for r in m for v in r]) for m in binds)
+    fm = struct.pack('<4I', 0, 0, 0, len(binds) + mm_extra)
+    secs = []
+    mat = b''.join(struct.pack('<4I', 0, len(s), 0, 0) + b''.join(struct.pack('<6H', i, 0, t, 0, 1, 1) for i, t in s)
+                   for s in materials)
+    secs.append((0x00010002, len(materials), mat))
+    vb = struct.pack('<4I', 0, 36, len(vertices), 0) + b''.join(
+        struct.pack('<3f4e4e8B', *p, *w[:4], *w[4:], *s) for p, w, s in vertices)
+    secs.append((0x00010004, 1, vb))
+    attrs = [(0, 0x02, 0, 0), (12, 0x0B, 1, 0), (20, 0x0B, 1, 1), (28, 0x05, 2, 0), (32, 0x05, 2, 1)]
+    secs.append((0x00010005, 1, struct.pack('<2I', 1, 0) + struct.pack('<I', len(attrs)) +
+                 b''.join(struct.pack('<2H4B', 0, off, typ, 0, sem, layer) for off, typ, sem, layer in attrs)))
+    secs.append((0x00010006, len(palettes), b''.join(
+        struct.pack('<I', len(p)) + b''.join(struct.pack('<3I', g, 0, b) for g, b in p) for p in palettes)))
+    ib = struct.pack('<3I', len(indices), 16, 0) + struct.pack(f'<{len(indices)}H', *indices)
+    ib += b'\0' * (-len(ib) % 4)
+    secs.append((0x00010007, 1, ib))
+    secs.append((0x00010008, len(submeshes), b''.join(
+        struct.pack('<14I', 0, 0, pal, 0, 0, 0, mat_i, 0, 0, 3, voff, vcnt, ioff, icnt)
+        for pal, mat_i, voff, vcnt, ioff, icnt in submeshes)))
+    body = b'DX1\0' + struct.pack('<I6f', 0, *([0.0] * 6)) + struct.pack('<I', len(secs))
+    for magic, count, payload in secs:
+        body += struct.pack('<3I', magic, 12 + len(payload), count) + payload
+    chunks = [ronin_chunk(b'FM1G', fm), ronin_chunk(b'SM1G', sm), ronin_chunk(b'MM1G', mm),
+              ronin_chunk(b'GM1G', body, b'0440')]
+    data = b''.join(chunks)
+    return b'_M1G0037' + struct.pack('<4I', 24 + len(data), 24, 0, len(chunks)) + data
+
+
+def ronin_g1t(fmt, log_w, log_h, mips, payload, storage=0):
+    # 8-byte texture header, then a 12-byte extra header: size, 4 unknown bytes, u16 layers, storage flag, pad
+    tex = bytes([mips << 4 | 1, fmt, log_h << 4 | log_w, 0, 0, 0, 0, 1]) + struct.pack('<I', 12) + bytes(4) + \
+        bytes([0, 0, storage, 0])
+    body = struct.pack('<I', 4) + tex + payload
+    return b'GT1G0600' + struct.pack('<4I', 24 + len(body), 24, 1, 0) + body
+
+
+class RiseOfTheRoninTools(unittest.TestCase):
+    """KT engine formats on synthetic data. Real work needs the game's fdata_package_dx12."""
+
+    # storage order: root, left thigh / knee / foot, right thigh / knee / foot; bone ids are sparse on purpose
+    JOINTS = ((0, -1, (0, 0, 0)), (11, 0, (10, 90, 0)), (12, 1, (0, -40, 0)), (13, 2, (0, -40, 0)),
+              (21, 0, (-10, 90, 0)), (22, 4, (0, -40, 0)), (23, 5, (0, -40, 0)))
+    CHAINS = ((11, 12, 13), (21, 22, 23))
+
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(prefix='modding ronin ')
+        self.root = Path(self.temp.name)
+
+    def tearDown(self): self.temp.cleanup()
+
+    def native(self, g, bone_world_pos):
+        return g.native_bind([[1, 0, 0, bone_world_pos[0]], [0, 1, 0, bone_world_pos[1]], [0, 0, 1, bone_world_pos[2]],
+                              [0, 0, 0, 1]])
+
+    def legs(self, g, segmented, bones=(11, 12, 13, 21, 22, 23)):
+        """Two legs of vertices from y 90 down to 2 plus a separate 3-vertex placeholder submesh. segmented: like the
+        game (knee / foot split); otherwise everything below the knee on the knee bone (the defect)."""
+        world = {11: (10, 90, 0), 12: (10, 50, 0), 13: (10, 10, 0), 21: (-10, 90, 0), 22: (-10, 50, 0), 23: (-10, 10, 0)}
+        palette = [(0, 0)] + [(k + 1, b) for k, b in enumerate(bones)]
+        binds = [self.native(g, (0, 0, 0))] + [self.native(g, world[b]) for _, b in palette[1:]]
+        slot = {b: 3 * i for i, (_, b) in enumerate(palette)}
+        verts = []
+        for x, chain in ((10, self.CHAINS[0]), (-10, self.CHAINS[1])):
+            for y in range(90, 0, -8):
+                for dz in (-2.0, 2.0):
+                    if y > 50:
+                        w = {chain[0]: (y - 50) / 40, chain[1]: (90 - y) / 40}
+                    elif segmented:
+                        w = {chain[1]: y / 50, chain[2]: 1 - y / 50}
+                    else:
+                        w = {chain[1]: 1.0}
+                    items = [(b, v) for b, v in w.items() if v > 0][:8]
+                    ws = [v for _, v in items] + [0] * (8 - len(items))
+                    ss = [slot[b] for b, _ in items] + [slot[items[0][0]]] * (8 - len(items))
+                    verts.append(((x + dz / 4, y, dz), ws, ss))
+        n = len(verts)
+        tris = [i for k in range(0, n - 3, 2) for i in (k, k + 1, k + 2)]
+        return ronin_g1m(self.JOINTS, binds, [[(0, 1)]], verts + verts[:3], [palette],
+                         [(0, 0, 0, n, 0, len(tris)), (0, 0, n, 3, len(tris), 3)], tris + [n, n + 1, n + 2])
+
+    def test_ronin_g1m_parse_hide_and_binds(self):
+        g = ronin('g1m_tool')
+        data = self.legs(g, True)
+        m = g.parse(data)
+        joints, by_id = g.skeleton(m)
+        self.assertEqual(by_id[13], 3)
+        self.assertEqual([round(v, 4) for v in joints[3]['world_p']], [10.0, 10.0, 0.0])
+        self.assertTrue(all(abs(r['error']) < 1e-5 for r in g.bind_errors(m)))
+        src = self.root / 'legs.g1m'; src.write_bytes(data)
+        out = self.root / 'hidden.g1m'
+        cli('rise-of-the-ronin', 'g1m_tool', 'hide', src, '--submeshes', '0', '--output', out)
+        hidden = out.read_bytes()
+        self.assertEqual(len(hidden), len(data))
+        self.assertTrue(g.is_hidden(g.parse(hidden), g.parse(hidden).submeshes[0]))
+        cli('rise-of-the-ronin', 'g1m_tool', 'hide', src, '--all', '--output', out, ok=False)      # never overwrites
+        # a G1H is a header plus embedded G1Ms; hiding works through the container and keeps its length
+        g1h = b'_H1G0000' + struct.pack('<2I', 0, 0) + data + b'\0' * 8 + data
+        models = g.embedded_models(g1h)
+        self.assertEqual([x.base for x in models], [16, 16 + len(data) + 8])
+        both, edits = g.collapse(g1h, models[1], models[1].submeshes[:1])
+        self.assertEqual(len(both), len(g1h)); self.assertEqual(both[:16 + len(data)], g1h[:16 + len(data)])
+        self.assertTrue(edits)
+        # appended binds raise MM1G and FM1G counts together
+        grown, before = g.append_binds(data, [self.native(g, (1, 2, 3))])
+        gm = g.parse(grown)
+        self.assertEqual(len(g.binds(gm)), before + 1)
+        self.assertEqual(struct.unpack_from('<I', grown, gm.chunks['FM1G'].offset + 24)[0], before + 1)
+        self.assertEqual(struct.unpack_from('<I', grown, 8)[0], len(grown))
+
+    def test_ronin_g1t_storage_constant_and_compare(self):
+        t = ronin('g1t_tool')
+        linear = bytes(range(256)) * (524288 // 256) + bytes(131072)          # BC1 1024x1024, 2 mips
+        g1t = ronin_g1t(0x59, 10, 10, 2, linear)
+        info = t.describe(g1t)[0]
+        self.assertEqual((info['name'], info['width'], info['mips'], info['storage']), ('BC1', 1024, 2, 0))
+        tiled = t.rewrite_storage(g1t, True)
+        self.assertNotEqual(tiled, g1t)
+        self.assertEqual(t.rewrite_storage(tiled, False), g1t)
+        self.assertEqual(t.to_dds(tiled, t.describe(tiled)[0])[148:], linear[:524288])   # dds undoes the tiles
+        for fmt, rgba, want in ((0x59, [8, 150, 232, 255], [8, 150, 231]), (0x5D, [32, 129, 0, 255], [32, 129]),
+                                (0x5F, [12, 12, 12, 200], [12, 12, 12, 200]), (0x5C, [77, 0, 0, 255], [77])):
+            unit = t.BLOCKS[fmt][0]
+            src = ronin_g1t(fmt, 3, 3, 2, bytes(range(unit)) * 4 + bytes(range(unit)))
+            out = t.constant(src, rgba)
+            self.assertEqual(len(out), len(src))
+            self.assertEqual(t.summary(out)['textures'][0]['uniform'], want)
+        one = ronin_g1t(0x02, 0, 0, 1, struct.pack('<f', 1.0), storage=1)
+        zero = t.constant(one, [0, 0, 0, 0], 0.0)
+        self.assertEqual([i for i, (a, b) in enumerate(zip(one, zero)) if a != b], [len(one) - 2, len(one) - 1])
+        a, b = self.root / 'a.g1t', self.root / 'b.g1t'
+        a.write_bytes(one); b.write_bytes(zero)
+        report = json.loads(cli('rise-of-the-ronin', 'g1t_tool', 'compare', a, b).stdout)
+        self.assertEqual((report['identical'], report['same_layout']), (False, True))
+        self.assertEqual(report['a']['textures'][0]['uniform'], [1.0])
+        out = self.root / 'c.g1t'
+        cli('rise-of-the-ronin', 'g1t_tool', 'constant', a, '--float', '1.0', '--output', out)
+        self.assertEqual(out.read_bytes(), one)
+        mips = json.loads(cli('rise-of-the-ronin', 'g1t_tool', 'mips', a, '--reference', b).stdout)
+        self.assertTrue(mips['matches_reference'])
+
+    def ronin_game(self, g, k):
+        """root.rdb / root.rdx / two fdata packages: a kidsobjdb, two KTIDs, two models, two textures."""
+        def kids_entry(name, first, refs=()):
+            props = [(5, 1, 0xA0, struct.pack('<I', first))] + [(5, 1, 0xB0 + i, struct.pack('<I', r)) for i, r in enumerate(refs)]
+            body = struct.pack('<4I', 0, name, 0x77, len(props)) + b''.join(struct.pack('<3I', t, n, p) for t, n, p, _ in props)
+            body += b''.join(v for *_, v in props)
+            body += b'\0' * (-len(body) % 4)
+            return b'IDOK0000' + body
+        m1, m2, k1, k2, t1, t2 = 0x11110001, 0x11110002, 0x22220001, 0x22220002, 0x33330001, 0x33330002
+        kids = b'_DOK0000' + bytes(20) + b''.join([
+            kids_entry(0x1000, m1, (0x2000,)), kids_entry(0x2000, k1), kids_entry(0x1001, m2, (0x2001,)),
+            kids_entry(0x2001, k2), kids_entry(0x3001, t1), kids_entry(0x3002, t2)])
+        model1 = ronin_g1m(self.JOINTS[:1], [self.native(g, (0, 0, 0))], [[(0, 1), (1, 2)]],
+                           [((0, 0, 0), [1] + [0] * 7, [0] * 8)] * 4, [[(0, 0)]], [(0, 0, 0, 4, 0, 6)], [0, 1, 2, 1, 2, 3])
+        model2 = ronin_g1m(self.JOINTS[:1], [self.native(g, (0, 0, 0))], [[(0, 5)]],
+                           [((0, 0, 0), [1] + [0] * 7, [0] * 8)] * 4, [[(0, 0)]], [(0, 0, 0, 4, 0, 6)], [0, 1, 2, 1, 2, 3])
+        tex1, tex2 = ronin_g1t(0x02, 0, 0, 1, struct.pack('<f', 1.0)), ronin_g1t(0x59, 2, 2, 1, bytes(8))
+        resources = [(k.CHARACTER_EDITOR_DB, k.KIDSOBJDB_TYPE, kids), (k1, 0x8E39AA37, struct.pack('<4I', 0, 0x3001, 1, 0x3002)),
+                     (k2, 0xBE144B78, struct.pack('<2I', 0, 0x3001)), (m1, k.G1M_TYPE, model1), (m2, k.G1M_TYPE, model2),
+                     (t1, 0xAFBEC60C, tex1), (t2, 0xAFBEC60C, tex2)]
+        packages = {0: bytearray(b'PDRK0000' + bytes(8)), 1: bytearray(b'PDRK0000' + bytes(8))}
+        rdb = bytearray(b'_DRK0000' + struct.pack('<2I', 16, 0))
+        for n, (h, typ, payload) in enumerate(resources):
+            pkg, mode = n % 2, n % 3          # stored, zlib with u32 chunk sizes, zlib with u16 sizes + 8 bytes
+            if mode == 0:
+                stored, flags = payload, 0
+            elif mode == 1:
+                half = len(payload) // 2
+                stored = b''.join(struct.pack('<I', len(z)) + z for z in (zlib.compress(payload[:half]), zlib.compress(payload[half:])))
+                flags = 0x100000
+            else:
+                z = zlib.compress(payload)
+                stored, flags = struct.pack('<H', len(z)) + bytes(8) + z, 0
+            if len(stored) == len(payload):     # equal sizes mean "stored" to the reader, as in the game
+                stored, flags = payload, 0
+            offset = len(packages[pkg])
+            entry = b'IDRK0000' + struct.pack('<3Q4I', 48 + len(stored), len(stored), len(payload), 0, h, typ, flags) + stored
+            packages[pkg] += entry + b'\0' * (-len(entry) % 16)
+            trailer = (struct.pack('<HII', 0x401, offset, len(entry)) + struct.pack('<H', 100 + pkg) + b'\0') if n % 2 == 0 else \
+                (struct.pack('<HB3sII', 0x401, 0, b'\0\0\0', offset, len(entry)) + struct.pack('<H', 100 + pkg) + b'\0')
+            rec = b'IDRK0000' + struct.pack('<QI4sQ4s3I', 0x30 + len(trailer), len(trailer), b'\0' * 4, len(payload),
+                                            b'\0' * 4, h, typ, 0) + trailer
+            rdb += rec + b'\0' * (-len(rec) % 4)
+        game = self.root / 'game'; game.mkdir()
+        (game / 'root.rdb').write_bytes(bytes(rdb))
+        (game / 'root.rdx').write_bytes(struct.pack('<HhI', 100, -1, 0xF0000000) + struct.pack('<HhI', 101, -1, 0xF0000001))
+        (game / '0xf0000000.fdata').write_bytes(bytes(packages[0])); (game / '0xf0000001.fdata').write_bytes(bytes(packages[1]))
+        mod = self.root / 'mod'; mod.mkdir()
+        (mod / '0x33330001.g1t').write_bytes(ronin_g1t(0x02, 0, 0, 1, struct.pack('<f', 0.0)))   # the 1.0 -> 0 defect
+        (mod / '0x33330002.g1t').write_bytes(tex2)
+        return game, mod, (m1, m2, t1, t2), (model1, tex1)
+
+    def test_ronin_game_data_slots_and_shared_texture_audit(self):
+        g, k = ronin('g1m_tool'), ronin('ktdata')
+        game, mod, (m1, m2, t1, t2), (model1, tex1) = self.ronin_game(g, k)
+        data = k.GameData(game)
+        self.assertEqual(data.read(m1), model1)
+        self.assertEqual(data.read(t1), tex1)
+        self.assertEqual(k.ktid_candidates(m1, data.kids, data.records), [0x22220001])
+        out = self.root / 'out'
+        rows = json.loads(cli('rise-of-the-ronin', 'ktdata', 'extract', '--game-data', game, '--hash', hex(m1),
+                              '--hash', hex(t1), '--output', out).stdout)
+        self.assertEqual([r['file'] for r in rows], ['0x11110001.g1m', '0x33330001.g1t'])
+        cli('rise-of-the-ronin', 'ktdata', 'extract', '--game-data', game, '--hash', hex(m1), '--output', out, ok=False)
+        slots = json.loads(cli('rise-of-the-ronin', 'ktdata', 'slots', '--game-data', game, '--model', hex(m1),
+                               '--mod-root', mod).stdout)
+        rows = slots['tables'][0]['slots']
+        self.assertEqual([(r['g1t'], r['mod']) for r in rows], [('0x33330001', 'changed'), ('0x33330002', 'same as game')])
+        self.assertEqual(rows[0]['uses'][0]['type'], 'COLOR')
+        audit = json.loads(cli('rise-of-the-ronin', 'ktdata', 'usage', '--game-data', game, '--mod-root', mod,
+                               '--own-models', hex(m1)).stdout)
+        self.assertEqual(audit['changed_and_shared'], ['0x33330001'])          # the other model draws it as DIRT
+        self.assertEqual(audit['textures'][0]['examples'], ['0x11110002'])
+
+    def test_ronin_shader_blobs(self):
+        s = ronin('shader_dump')
+        def blob(stage, extra=b''):
+            dxil = b'DXIL' + struct.pack('<2I', 12, stage << 16) + extra
+            body = struct.pack('<I', 36) + dxil
+            return b'DXBC' + bytes(16) + struct.pack('<3I', 1, 32 + len(body), 1) + body
+        payload = b'pad' + blob(0) + blob(1) + blob(1, b'BLENDWEIGHT')
+        z = zlib.compress(payload)
+        entry = b'IDRK0000' + struct.pack('<3Q4I', 48 + 4 + len(z), 4 + len(z), len(payload), 0, 1, 2, 0x100000) + \
+            struct.pack('<I', len(z)) + z
+        self.assertEqual(s.unpack(entry), payload)
+        found = s.blobs(payload)
+        self.assertEqual([(b['stage'], b['blend_weights']) for b in found], [(0, False), (1, False), (1, True)])
+        src = self.root / 'shader.file'; src.write_bytes(entry)
+        cli('rise-of-the-ronin', 'shader_dump', src, '--output', self.root / 'dump')
+        self.assertTrue((self.root / 'dump' / 'vertex-skin.dxil').is_file())
+
+    def test_ronin_leg_reskin_follows_the_ankle(self):
+        g, L = ronin('g1m_tool'), ronin('leg_weights', numpy=True)
+        import numpy as np
+        game_legs, broken = self.legs(g, True), self.legs(g, False)
+        ref_path, tpl, out = self.root / 'ref.g1m', self.root / 'tpl.g1m', self.root / 'new.g1m'
+        ref_path.write_bytes(game_legs); tpl.write_bytes(broken)
+        chains = ['--left', '11,12,13', '--right', '21,22,23']
+        cli('rise-of-the-ronin', 'leg_weights', 'reference', '--body', ref_path, '--wear', ref_path, '--skeleton', tpl,
+            *chains, '--output', self.root / 'ref.npz')
+        report = json.loads(cli('rise-of-the-ronin', 'leg_weights', 'apply', tpl, '--submesh', '0', '--reference',
+                                self.root / 'ref.npz', '--foot-blend', '30', '25', '--output', out).stdout)
+        self.assertEqual(report['palette_added'], [])            # every bone was already in the palette
+        check = json.loads(cli('rise-of-the-ronin', 'leg_weights', 'check', tpl, out, '--submesh', '0').stdout)
+        self.assertEqual(check['errors'], [])
+        self.assertEqual(check['stored_weight_sum'], [1.0, 1.0])
+        m0, m1 = g.parse(broken), g.parse(out.read_bytes())
+        j0, b0 = g.skeleton(m0); j1, b1 = g.skeleton(m1)
+        pose = {13: ('x', 35)}                                     # bend the left foot bone
+        P, rest0 = L.skin(m0, m0.submeshes[0], L.worlds(m0)[0])
+        _, q0 = L.skin(m0, m0.submeshes[0], L.posed_worlds(j0, b0, pose))
+        _, rest1 = L.skin(m1, m1.submeshes[0], L.worlds(m1)[0])
+        _, q1 = L.skin(m1, m1.submeshes[0], L.posed_worlds(j1, b1, pose))
+        feet = (P[:, 1] < 20) & (P[:, 0] > 0)
+        self.assertLess(float(np.abs(q0[feet] - rest0[feet]).max()), 1e-6)    # before: the foot ignores the ankle
+        self.assertGreater(float(np.linalg.norm(q1[feet] - rest1[feet], axis=1).mean()), 0.5)
+        # a bone the palette lacks (the foot) is appended with a native bind
+        short = self.legs(g, False, bones=(11, 12, 21, 22, 23))
+        grown, rep = L.reskin(short, 0, dict(np.load(self.root / 'ref.npz')), None,
+                              ((11, 12, 13), (21, 22, 23)), (30.0, 25.0))
+        self.assertEqual(rep['palette_added'], [13])
+        gm = g.parse(grown)
+        self.assertTrue(all(r['error'] < 1e-4 for r in g.bind_errors(gm) if r['joint'] == 13))
+        self.assertQuantised(L)
+
+    def assertQuantised(self, L):
+        q = L.quantise({1: 0.333333, 2: 0.333333, 3: 0.333334, 4: 1e-5})
+        self.assertEqual(sum(x for _, x in q), 1.0)
+        self.assertTrue(all((x * 2048).is_integer() for _, x in q))
+        self.assertEqual(len(q), 3)
+
 
 if __name__ == '__main__': unittest.main(verbosity=2)

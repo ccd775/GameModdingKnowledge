@@ -48,6 +48,14 @@ class DetachedExports(unittest.TestCase):
                                                              ('numpy', 'scipy', 'PIL', 'lz4', 'etcpak', 'texture2ddecoder')):
                         self.assertIn('test_gowr_joint_layouts_roundtrip', process.stderr)
                         self.assertFalse([l for l in process.stderr.splitlines() if 'test_gowr_' in l and 'skipped' in l])
+                    if game == 'rise-of-the-ronin':
+                        self.assertTrue((target/'portable-kits/rise-of-the-ronin/requirements.txt').is_file())
+                        self.assertIn('test_ronin_game_data_slots_and_shared_texture_audit', process.stderr)
+                        self.assertFalse([l for l in process.stderr.splitlines()
+                                          if 'test_ronin_' in l and 'skipped' in l and 'leg_reskin' not in l])
+                    if game == 'rise-of-the-ronin' and all(importlib.util.find_spec(m) for m in ('numpy', 'scipy')):
+                        self.assertIn('test_ronin_leg_reskin_follows_the_ankle', process.stderr)
+                        self.assertFalse([l for l in process.stderr.splitlines() if 'test_ronin_' in l and 'skipped' in l])
                     if game == 'watch-dogs':
                         self.assertTrue((target/'portable-kits/watch-dogs/requirements.txt').is_file())
                         self.assertIn('test_wd_fat8_repack_replace_and_extract', process.stderr)

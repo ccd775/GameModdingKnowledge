@@ -87,6 +87,17 @@
       "limits": ["无次级物理（头发/马尾/尾巴/裙摆刚性）", "脸部部分光照偏暗、下半部斑块", "Original 版只做读档界面自测，战斗/过场未测、用户未验收", "肩关节比游戏窄 7 cm，抬臂腋下拉伸", "构建脚本未进便携包"]
     },
     {
+      "id": "rise-of-the-ronin",
+      "path": "games/rise-of-the-ronin",
+      "status": "mixed-runtime-confirmed-and-open-issues",
+      "milestone": "Karin_Picodra 修复：头发 / 脸 / 下身材质 / 背标 / 上衣 UV / 手指动画逐项经用户验收（20260908f 基线）；20261004a 腿部分段权重、13 张共用贴图恢复（NPC 发白）、下身 SHADING 原版均值，仅离线检查；Karin_Original 从 FBX 构建，hidehead / wrap 两种头部由 agent 实机自测",
+      "date": "2026-10-12",
+      "game_build": "20673762",
+      "topics": ["KT 引擎 G1M / G1T / G1H", "RONPATCHER 散装哈希文件", "rdb / rdx / fdata / kidsobjdb / KTID 槽表", "TextureAlias", "DX12 64 KB tile 贴图", "共用贴图审计（全局默认值 0x1E76FD2D）", "原生逆绑定与骨号映射", "8 骨蒙皮 7 + 余量", "原版腿部辅助骨分段权重", "玩家捏脸头 G1H 清空", "占位三角形塌缩", "手指绑定校准", "Streamline 阻断 RenderDoc", "实机自测流程"],
+      "limits": ["20261004a 与 Karin_Original 20261004a/b 未实机测试", "室内出现原版绑腿未解决（疑为 0x8D74E8C2）", "右手与 8DC 的手未验收", "下身冷启动亮度不稳定的机制未闭合", "无物理与表情", "从源模型构建的脚本未进便携包"],
+      "portable_kit": "portable-kits/rise-of-the-ronin"
+    },
+    {
       "id": "hitman-world-of-assassination",
       "path": "games/hitman-world-of-assassination",
       "status": "runtime-confirmed-scoped",

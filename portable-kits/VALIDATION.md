@@ -1,5 +1,37 @@
 # 迁移验证记录
 
+## 2026-10-12：浪人崛起（KT 引擎格式工具与腿部权重）
+
+- **迁入内容：** 5 个 Python 文件，放在 `portable-kits/rise-of-the-ronin/scripts/`。来源是项目的 `tools/`、`original/tools/` 和 `repair/20261004/tools/`，按职责合并改写（每个来源各占 PROVENANCE 一行）：
+  - `g1m_tool.py`：合并 `lib_g1m_sections.py`、`collapse_hidden_triangles.py`、`ko_hide_face.py`，以及 `ko_common.py` 的块读写；
+  - `g1t_tool.py`：来自 `g1t_layout.py`，以及 `ko_fix_textures.py` 的常量块；
+  - `ktdata.py`：来自 `build_current_g1t_usage_map.py`、`dump_ktid_slots.py`；
+  - `leg_weights.py`：来自 `ko_leg_ref.py`、`ko_conform.py` 的 `leg_distributions`、`pico_legs.py`、`pico_legs_check.py`；
+  - `shader_dump.py`：来自 `read_skin_shader.py`。
+- **通用化改动：**
+  - 去掉本机路径、模板路径和 Karin 专用的文件表，改为命令行参数；所有写文件的命令都拒绝覆盖。
+  - G1M 解析不再依赖 gust_stuff 和 pyquaternion（只用标准库）。调色板骨号到骨架存储序号的映射改为显式处理：项目脚本按 gust 的命名间接用对了，但没有写明。
+  - 腿部权重改为原地写入 G1M（只改混合字节、调色板、MM1G 和 FM1G 计数），不再经过 gust 导出 / 导入。原版参考也直接从 G1M 读出。
+  - G1T 常量填充增加 R32_FLOAT / RGBA8；读回时能识别 BC1 / BC4 / BC5 / BC7（mode 6）/ 浮点的单一颜色。
+  - 共用贴图审计（`ktdata.py usage`）把项目里的一次性扫描脚本做成了命令。
+- **等价性验证：**
+  - **条件：** Python 3.14.0、numpy 2.5.2、scipy 1.18.0。输入是项目留下的 Picodra 20260916a 模板、三个原版腿部模型、10-04 发布的成品，以及原版 G1T。
+  - **腿部参考：** 59097 个参考顶点，作为集合与项目的 `leg_ref.npz` 逐值相同。
+  - **651 sub6：** 原地重做后，每个顶点的有效权重、调色板和追加的 12 个绑定都与发布的 20261004a 相同。回读得到静止姿态偏移 0.00198、弯脚踝时脚的平均位移 0 → 5.53。
+  - **8DC sub7：** 有 2 个顶点相差一个 2^-11 量化步长，原因是骨架世界矩阵的浮点误差；调色板和 8 个绑定相同；静止姿态偏移 0.0065。
+  - **贴图：** 5 张常量修复与发布包逐字节相同。对原版 `0x1E76FD2D` 写入 0.0，得到的正是上游 mod 的错误版本（只差 +0x3A / +0x3B）。85 张原版 G1T 全部能解析，其中 76 张是 tile 存储，抽查 3 张 tile 往返一致。
+  - **G1H：** 能列出捏脸头 G1H 的 41 个嵌入模型；在 hidehead 包里，最大模型的 38 个子网格全部识别为已隐藏。
+- **合成数据测试：** `RiseOfTheRoninTools` 共 5 项：
+  - G1M 解析、隐藏（含 G1H 容器）、追加绑定；
+  - G1T tile 往返、DDS 还原 tile、各格式常量填充与读回、比较与 mip；
+  - 资源表的存储和两种 zlib 分块、两种 RDB 尾部、kidsobjdb、KTID、槽表与共用贴图审计；
+  - shader 包拆分；
+  - 腿部：从「膝下全绑膝骨」重分后，弯脚骨时脚会跟着动；缺失的骨被追加原生绑定；量化后权重之和为 1。
+- **未验证：**
+  - 便携版的 `ktdata.py` 没有在游戏数据上重跑：整理时游戏未安装。它沿用的解析逻辑在项目里用真实数据跑过。
+  - 20261004a 的成品本身没有实机测试。
+  - 从源模型构建的脚本没有迁入。
+
 ## 2026-10-06：看门狗物理（链、大衣布料、VRM 构建器的物理段）
 
 - **迁入内容：** 3 个 Python 文件和 1 个配置样板，放在 `portable-kits/watch-dogs/`。

@@ -15,13 +15,13 @@
 
 ### 与 KT 引擎其它项目的关系
 
-本作和《浪人崛起》（Rise of the Ronin，本库暂未收录）共用以下格式：
+本作和《浪人崛起》（Rise of the Ronin，[本库条目](../rise-of-the-ronin/README.md)）共用以下格式：
 - `_DRK` 资源表 `root.rdb/rdx`；
 - IDRK fdata；
 - KTID / kidsobjdb；
 - G1M / G1T。
 
-浪人项目的解析器（`parse_rdb` / `read_fdata_entry` / `parse_kidsobjdb`）在本作原样可用，加载器也是同一作者的同类 DLL。
+浪人项目的解析器（`parse_rdb` / `read_fdata_entry` / `parse_kidsobjdb`）在本作原样可用，现已整理进[浪人便携包](../../portable-kits/rise-of-the-ronin/README.md)的 `ktdata.py`。加载器也是同一作者的同类 DLL。
 骨架、材质槽和贴图语义是本作自己的，不能互相套用。
 
 ## 主要结论

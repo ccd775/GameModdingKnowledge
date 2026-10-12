@@ -925,5 +925,122 @@
     "portable_sha256": "52459eee0c9a819de8ebd9f9adea9fbec3caa4000ac8935900de2ca0c819472a",
     "portable_bytes": 14132,
     "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/rise-of-the-ronin/scripts/g1m_tool.py",
+    "source": "Mods/Ronin/tools/lib_g1m_sections.py",
+    "original_sha256": "1773409cb2bf647332791abdde04946a4d2a88cccdcba691ae320a673ff6fda8",
+    "source_bytes": 10054,
+    "portable_sha256": "873179f4088379c463d672d8c3a60ef12ed7a39d4f566a2ee85b392054cc3dbc",
+    "portable_bytes": 21756,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/rise-of-the-ronin/scripts/g1m_tool.py",
+    "source": "Mods/Ronin/tools/collapse_hidden_triangles.py",
+    "original_sha256": "c3bc96b486e77cdbe67c4bb3a5bdd44f1fba0fb4170f9a1e034bbb7050355b44",
+    "source_bytes": 2277,
+    "portable_sha256": "873179f4088379c463d672d8c3a60ef12ed7a39d4f566a2ee85b392054cc3dbc",
+    "portable_bytes": 21756,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/rise-of-the-ronin/scripts/g1m_tool.py",
+    "source": "Mods/Ronin/original/tools/ko_hide_face.py",
+    "original_sha256": "5a2dc0e004f29652daa85544396a2205bfa6533f79ee934e15c99ff10005421a",
+    "source_bytes": 3330,
+    "portable_sha256": "873179f4088379c463d672d8c3a60ef12ed7a39d4f566a2ee85b392054cc3dbc",
+    "portable_bytes": 21756,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/rise-of-the-ronin/scripts/g1m_tool.py",
+    "source": "Mods/Ronin/original/tools/ko_common.py",
+    "original_sha256": "43883d14e1133b8b50244893392990ba7a4e153f9100820b1470bb0322c36676",
+    "source_bytes": 2286,
+    "portable_sha256": "873179f4088379c463d672d8c3a60ef12ed7a39d4f566a2ee85b392054cc3dbc",
+    "portable_bytes": 21756,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/rise-of-the-ronin/scripts/g1t_tool.py",
+    "source": "Mods/Ronin/tools/g1t_layout.py",
+    "original_sha256": "f12c6847d1099f66535a7b3f2c003136fbfe3c6c6b985f92dabce716c95d3126",
+    "source_bytes": 5382,
+    "portable_sha256": "c773d0aaa3f6f06a060894d557883f8c61ad9d14be1f5a5a16e51929ce6afc12",
+    "portable_bytes": 16627,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/rise-of-the-ronin/scripts/g1t_tool.py",
+    "source": "Mods/Ronin/original/tools/ko_fix_textures.py",
+    "original_sha256": "b76dea51900bce492299a1a1966cd74a04c31abf5729d8ebe9841ae0f01421d0",
+    "source_bytes": 7620,
+    "portable_sha256": "c773d0aaa3f6f06a060894d557883f8c61ad9d14be1f5a5a16e51929ce6afc12",
+    "portable_bytes": 16627,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/rise-of-the-ronin/scripts/ktdata.py",
+    "source": "Mods/Ronin/tools/build_current_g1t_usage_map.py",
+    "original_sha256": "aa370e0a78ba6c1ae7c6b93ec96792462e04c7fe1b8a96f22e81865c20f85ca4",
+    "source_bytes": 54807,
+    "portable_sha256": "efe5f771c77aea23fb9cce9c705380856b55bc8f4dcdf2850a319f134c1111f1",
+    "portable_bytes": 16976,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/rise-of-the-ronin/scripts/ktdata.py",
+    "source": "Mods/Ronin/tools/dump_ktid_slots.py",
+    "original_sha256": "4e29b1a9ec35059d94259205edc4ba8d6a38f1a69af313600b42c4d84459829d",
+    "source_bytes": 4978,
+    "portable_sha256": "efe5f771c77aea23fb9cce9c705380856b55bc8f4dcdf2850a319f134c1111f1",
+    "portable_bytes": 16976,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/rise-of-the-ronin/scripts/leg_weights.py",
+    "source": "Mods/Ronin/original/tools/ko_leg_ref.py",
+    "original_sha256": "a69e7a0975f6d66ca3ce093cb84f7bbd27a89901c79d232dc98708eb59a19f18",
+    "source_bytes": 5692,
+    "portable_sha256": "3928ebb784c3fea5745aebb539585d3be6129f67fb150390da06e7a79e00663f",
+    "portable_bytes": 24355,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/rise-of-the-ronin/scripts/leg_weights.py",
+    "source": "Mods/Ronin/original/tools/ko_conform.py",
+    "original_sha256": "2040791612bafe1a2d9ac02c0a348d36323128e6884c16dd36af24745b1eb2df",
+    "source_bytes": 27724,
+    "portable_sha256": "3928ebb784c3fea5745aebb539585d3be6129f67fb150390da06e7a79e00663f",
+    "portable_bytes": 24355,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/rise-of-the-ronin/scripts/leg_weights.py",
+    "source": "Mods/Ronin/repair/20261004/tools/pico_legs.py",
+    "original_sha256": "127111fdcc9ac69952f68e8eda90966b89120ad30e3e9461356adf0cbdfcdee4",
+    "source_bytes": 10108,
+    "portable_sha256": "3928ebb784c3fea5745aebb539585d3be6129f67fb150390da06e7a79e00663f",
+    "portable_bytes": 24355,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/rise-of-the-ronin/scripts/leg_weights.py",
+    "source": "Mods/Ronin/repair/20261004/tools/pico_legs_check.py",
+    "original_sha256": "2c3f2f4bccc5bf3ce381c3d6f23109dd108e718c691a2237da34e724c3cab03d",
+    "source_bytes": 6968,
+    "portable_sha256": "3928ebb784c3fea5745aebb539585d3be6129f67fb150390da06e7a79e00663f",
+    "portable_bytes": 24355,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/rise-of-the-ronin/scripts/shader_dump.py",
+    "source": "Mods/Ronin/tools/read_skin_shader.py",
+    "original_sha256": "0467e7f18b257c96d9c0a4e99db8666559a0ab2e204fbb7e7ddc1c8991baea84",
+    "source_bytes": 2595,
+    "portable_sha256": "5ad59e767bd208e58436cafbf8952a341c9fdfa7923029dff5cfdcc1f421e1b6",
+    "portable_bytes": 3852,
+    "modified_for_portability": true
   }
 ]

@@ -1,0 +1,74 @@
+{
+  "game": "Rise of the Ronin (PC, Steam app 1340990)",
+  "status": "mixed-runtime-confirmed-and-open-issues",
+  "tools": [
+    {
+      "name": "g1m_tool.py",
+      "version": "kit",
+      "role": "G1M / G1H reader (chunks, G1MG sections, palettes, G1MS skeleton, MM1G binds), in-place hiding of submeshes, placeholder collapse, native-bind check",
+      "required": true
+    },
+    {
+      "name": "g1t_tool.py",
+      "version": "kit",
+      "role": "G1T header, DX12 64 KB tile order, DDS export, constant fill in the original container, comparison and mip-chain check",
+      "required": true
+    },
+    {
+      "name": "ktdata.py",
+      "version": "kit",
+      "role": "root.rdb / root.rdx / fdata extraction, kidsobjdb and KTID texture tables, audit of overridden textures that other models share",
+      "required": true
+    },
+    {
+      "name": "leg_weights.py",
+      "version": "kit",
+      "role": "vanilla leg reference and leg-weight redistribution onto the game's helper bones, with read-back and offline poses",
+      "required": false
+    },
+    {
+      "name": "shader_dump.py",
+      "version": "kit",
+      "role": "split a native shader package into DXIL blobs and disassemble with dxc",
+      "required": false
+    },
+    {
+      "name": "ROTR Mod Loader (RONPATCHER)",
+      "version": "1.0 (Nexus Mods riseoftheronin/mods/9, file of 2025-03)",
+      "role": "dinput8.dll proxy; loose files named 0x<hash>.<ext> in RONPATCHER/root override game resources; logs to RONPATCHER/patcher_log.txt",
+      "required": true
+    },
+    {
+      "name": "gust_stuff",
+      "version": "v1.3.13 (eArmada8)",
+      "role": "G1M export / import to fmt/ib/vb/vgmap for building new geometry; the field layouts the kit follows",
+      "required": false
+    },
+    {
+      "name": "DirectXTex texconv",
+      "version": "2026.5.8.1 tested",
+      "role": "BC encoding of new colour maps and decoding of DDS exported by g1t_tool",
+      "required": false
+    },
+    {
+      "name": "dxc.exe (Windows SDK 10.0.26100.0)",
+      "version": "SDK-pinned",
+      "role": "shader disassembly for shader_dump.py",
+      "required": false
+    }
+  ],
+  "entry_documents": [
+    "../../games/rise-of-the-ronin/README.md",
+    "../../games/rise-of-the-ronin/TECHNICAL_CONTRACTS.md"
+  ],
+  "runtime_boundary": "User-accepted in game: Karin_Picodra 20260908f (hair, face, lower-body material and brightness, back emblem, chest and coat UV, wrist and finger animation). Agent self-test in game: Karin_Original 20261001h/i (front and back views, player head hidden or wrapped). 20261004a (leg segments, shared-texture restore, lower-body shading) and both Karin_Original 20261004 builds are offline-checked only: the game was not installed on the build machine. The kit's leg tool reproduces the shipped 20261004a weights (651 identical; 8DC two vertices one 2^-11 step apart); the constant writer reproduces the shipped texture fixes byte for byte.",
+  "bundled_scripts": [
+    "scripts/g1m_tool.py",
+    "scripts/g1t_tool.py",
+    "scripts/ktdata.py",
+    "scripts/leg_weights.py",
+    "scripts/shader_dump.py"
+  ],
+  "python": "3.10+ for the standard-library scripts; leg_weights.py needs numpy 2.5 / scipy 1.18 wheels (3.12+); tested 3.14.0",
+  "dependency_install": "python -m pip install -r requirements.txt -r portable-kits/rise-of-the-ronin/requirements.txt (from bundle root)"
+}

@@ -1,0 +1,4 @@
+# Rise of the Ronin leg_weights.py only (g1m_tool, g1t_tool, ktdata and shader_dump use the standard library).
+# These pins need Python 3.12+; tested on Python 3.14.0.
+numpy==2.5.2
+scipy==1.18.0

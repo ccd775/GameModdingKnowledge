@@ -14,7 +14,12 @@
 | Fluffy Mod Manager | [作者官网](https://www.fluffyquack.com/) | MHWs、DMC5、RE9 的 mod 安装/回退（DMC5 为 invalidate 方式）；以其 `installed.ini` 为游戏目录的权威记录 |
 | REE.PAK.Tool 路径表 | [Ekey](https://github.com/Ekey/REE.PAK.Tool) | `Projects/*_STM_Release.list`：RE Engine 游戏的文件路径表，用于按表提取与枚举部件/mdf2 变体（PRAGMATA、RE9）；游戏更新后重新下载 |
 | REasy | [seifhassine/REasy](https://github.com/seifhassine/REasy) | `resources/data/dumps/` 下的 RSZ 类型库：PRAGMATA 用 `rszpragmata.json`，RE9 用 `rszre9.json`（2026-10-01 取自 main）；先对原生 prefab 做逐字节往返再用 |
-| gust_stuff | [eArmada8](https://github.com/eArmada8/gust_stuff) | v1.3.13：KT 引擎 G1M 导出 / 导入（fmt/ib/vb/vgmap + `mesh_metadata.json`）；真三国无双 起源先验证往返逐字节一致，再作为网格写回通道 |
+| gust_stuff | [eArmada8](https://github.com/eArmada8/gust_stuff) | v1.3.13：KT 引擎 G1M 导出 / 导入（fmt/ib/vb/vgmap + `mesh_metadata.json`）；真三国无双 起源先验证往返逐字节一致，再作为网格写回通道。浪人崛起便携包的 G1M 解析按它的 `parseG1MS` / `parseG1MG` 字段布局独立实现；导出会丢弃未被索引引用的顶点 |
+| ROTR Mod Loader（RONPATCHER） | [Nexus Mods：Rise of the Ronin 第 9 号 mod](https://www.nexusmods.com/riseoftheronin/mods/9) | 1.0（2025-03 的文件）：`dinput8.dll` 代理；`RONPATCHER/root` 下按哈希命名的散装文件覆盖资源；mod 包不附带其 ini / Patches / system；同包附带的 g1ttools 与 qrdbtool 是独立工具 |
+| RDBExplorer | [MrIkso](https://github.com/MrIkso/RDBExplorer)（MIT，commit `22e72d8`） | 面向仁王 3 的 rdb / fdata 浏览器；浪人崛起便携包的 G1T 64 KB tile 布局按它的 G1TParser 核实 |
+| Project-G1M | [Joschuka](https://github.com/Joschuka/Project-G1M)（[浪人贴图格式 issue #42](https://github.com/Joschuka/Project-G1M/issues/42)） | 浪人崛起 G1T tile 存储的社区讨论；本项目未直接使用其插件 |
+| dxc（Windows SDK） | [微软 Windows SDK](https://developer.microsoft.com/windows/downloads/windows-sdk/) | 10.0.26100.0 的 `dxc.exe -dumpbin` 反汇编浪人崛起的 DXIL 蒙皮着色器（`shader_dump.py --dxc`） |
+| RenderDoc | [官方](https://renderdoc.org/) | 1.46：在浪人崛起上抓不到帧（设备经 NVIDIA Streamline 创建），已放弃；只作记录 |
 | DWO Mod Loader（DWOPATCHER） | 作者 vagonumero13（Nexus Mods 的 DYNASTY WARRIORS: ORIGINS 页面） | `dinput8.dll` 代理；`DWOPATCHER/root` 下按哈希命名的散装文件覆盖资源；mod 包不附带其 ini / Patches，启动日志 `patcher_log.txt` 可确认加载 |
 | Crowbar | [作者项目](https://github.com/ZeqMacaw/Crowbar) | 0.74，Source 伴随文件反编译 |
 | Source 工具 | [Valve Source SDK](https://github.com/ValveSoftware/source-sdk-2013) | StudioMDL/VTEX/VPK/HLMV 使用目标 L4D2 安装提供的版本，不以 SDK2013 编译器替代 |
