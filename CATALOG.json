@@ -109,6 +109,16 @@
       "portable_kit": "portable-kits/rise-of-the-ronin"
     },
     {
+      "id": "stellar-blade",
+      "path": "games/stellar-blade",
+      "status": "runtime-confirmed-scoped",
+      "milestone": "Karin_Original 替换 EVE 初始服装 CH_P_EVE_09 v1.0：从 VRM 完整构建；后处理 AnimBP（ControlRig + 运行时改腿长 + 28 个 KawaiiPhysics，物理链借用游戏骨架配件链）；比例、材质、物理与裙摆穿模修复经用户实机验收（「这次好了」）",
+      "date": "2026-10-13",
+      "game_build": "24463856",
+      "topics": ["UE 4.26 SB 分支", "IoStore / retoc to-zen", "Animation 平移重定向与运行时改比例", "KawaiiPhysics 按 USkeleton 建链", "编辑器插件无界面编写 AnimBP", "BtoB_CtrlRig", "碰撞胶囊拟合", "裙摆跟腿权重与 BoneDrivenController", "紧身段复制皮肤权重", "诊断标记与连拍取证"],
+      "limits": ["表情未在游戏里检查", "服装变体 _TypeB / _TypeC / _NoHair 未替换", "手腕丝带无物理", "深蹲 / 跪地 / 攀爬等交互未逐一检查", "物理参数整套验收，未逐项归因", "构建脚本未进便携包"]
+    },
+    {
       "id": "hitman-world-of-assassination",
       "path": "games/hitman-world-of-assassination",
       "status": "runtime-confirmed-scoped",
