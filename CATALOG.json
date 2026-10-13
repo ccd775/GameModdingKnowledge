@@ -185,6 +185,17 @@
       "game_build": "23634047",
       "topics": ["RE Engine", "mesh 250925211 八权重 raw 模式", "参考 mod 配方反推", "部件变体与 mdf2 变体全覆盖", "montage 套件与展柜 figure prefab", "PFB.18 / RSZ v16 组件注入", "chain2 .15", "Chain2 CollisionTarget", "NullNormal 粗糙度 0", "REFramework 运行时探针"],
       "limits": ["只在展柜验证（agent 截图 + 探针），实际游玩未测、用户未验收", "格蕾丝展柜里身体物理被游戏关闭", "无表情/眼动", "GPU 发丝未处理", "refskel 影响同角色其它服装", "Leon Karin 哑光修复未进游戏"]
+    },
+    {
+      "id": "sifu",
+      "path": "games/sifu",
+      "status": "runtime-confirmed-scoped",
+      "milestone": "Karin_Original 替换女主默认服装 v6（W 骨架、面部姿势资产驱动表情、RigidBody 后处理骨链、NvCloth 裙摆 + backstop）经用户实机确认；另外四个 Karin 模型 v1 仅离线检查",
+      "date": "2026-10-13",
+      "game_build": "18739835",
+      "topics": ["UE 4.26（Sloclap 改版）", "pak v11 加密索引与 AES 扫描", "~mods + .sig", "只 cook 自己资产的内容工程与游戏路径占位", "W 材质实例做 MIC 父级", "槽位 0–10 约束", "Base_skeleton 备用骨", "OrientAndScale 重定向", "面部姿势资产与 TPS 面部权重", "注视混合空间与眼片权重", "后处理动画蓝图 RigidBody 骨链", "PhysX 加速度驱动调参", "NvCloth 代理、锥形胶囊与 backstop", "离线裙摆 PBD 替身", "UE Python 结构体副本", "CUE4Parse 读回检查", "多源模型 profile 构建"],
+      "limits": ["对话口型、过场、完整战斗、第 2/3 套服装、女性分身敌人未测", "另外四个 Karin 模型未进游戏", "法线贴图为平法线，正面强光下亮度未调", "骨链是单摆式，长摆 / 长袖不是布料", "游戏 AES 密钥不随库发布"],
+      "portable_kit": "portable-kits/sifu"
     }
   ]
 }

@@ -1330,5 +1330,338 @@
     "portable_sha256": "da7f1d197da3d37757a91add4a1390ff9d753da99f406161c43bb6032bbcd72f",
     "portable_bytes": 5974,
     "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/sifu/scripts/dyn_tuning.py",
+    "source": "Mods/SIFU/Karin_Original_W/Scripts/dyn_tuning.py",
+    "original_sha256": "67ff38926b82714e38939c44173537776c41c8ba5e2f6aea3352b0768f00cc5a",
+    "source_bytes": 6357,
+    "portable_sha256": "3f35c8ec0fa8b5299c8fe56a67a1681634a20ec712c28cbc49b18f672a6ce88e",
+    "portable_bytes": 6609,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/sifu/scripts/make_textures.py",
+    "source": "Mods/SIFU/Karin_Original_W/Scripts/make_textures.py",
+    "original_sha256": "ac5e354d4c4e2603ad1193744bd8e754413fe6e752eccef781b55b28fa272859",
+    "source_bytes": 4275,
+    "portable_sha256": "16d2fdac22c2cc8644ca3b2e6b6f160a35bf46a4b3ecf79d6aacb1200beac8d9",
+    "portable_bytes": 5579,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/sifu/scripts/package_release.py",
+    "source": "Mods/SIFU/Karin_Original_W/Scripts/package_release.py",
+    "original_sha256": "7f31ec0a74b215703edd57ba1b5f773650931cbdc34df286fbc06a599422978b",
+    "source_bytes": 4691,
+    "portable_sha256": "ae2c44c053429169493e248f41c761126497a53507731d6e4afa2707bfdc80f9",
+    "portable_bytes": 5953,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/sifu/scripts/frames_to_gif.py",
+    "source": "ModTools/SIFU/remote_tools/frames_to_gif.py",
+    "original_sha256": "9e6800384a480c8b1d5dc2ff9566ae7d8ccd4e7e6f7720ba0835914e6a384ad7",
+    "source_bytes": 1381,
+    "portable_sha256": "136abdb414610b3c24a323f50a51b2db2f1743a455c61febec6bb17c03fd1847",
+    "portable_bytes": 2014,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/sifu/scripts/blender/build_karin.py",
+    "source": "Mods/SIFU/Karin_Original_W/Scripts/build_karin.py",
+    "original_sha256": "d1fda541a48a4e21cdcf7b5e6f99473f966c4e08dea4a0575dbce4d9d96d9d9b",
+    "source_bytes": 21432,
+    "portable_sha256": "937d882ddfae1d5a479dd343b6431c9991f7707d348fb0315e0847120f1d2e4f",
+    "portable_bytes": 21097,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/sifu/scripts/blender/source_prep.py",
+    "source": "Mods/SIFU/Karin_Original_W/Scripts/source_prep.py",
+    "original_sha256": "49b8c10af6d258cca4a883dbe75a41ec666a0be27de85bb71ea331746fe49284",
+    "source_bytes": 10760,
+    "portable_sha256": "49b8c10af6d258cca4a883dbe75a41ec666a0be27de85bb71ea331746fe49284",
+    "portable_bytes": 10760,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/sifu/scripts/blender/profiles.py",
+    "source": "Mods/SIFU/Karin_Original_W/Scripts/profiles.py",
+    "original_sha256": "75206dec4ae046dfc14c7ac14f527811549c4800afbb3bb1cfdda9a71511dd97",
+    "source_bytes": 20957,
+    "portable_sha256": "1aa6ce7828e03dd813d09539fddb0817b8bea7cdadda56e95f3f44397ae51b98",
+    "portable_bytes": 20844,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/sifu/scripts/blender/sifu_common.py",
+    "source": "Mods/SIFU/Karin_Original_W/Scripts/sifu_common.py",
+    "original_sha256": "5d51bde49eecb1ba791da35eed58b7556932b3d3179fcdff35bfe925777dca77",
+    "source_bytes": 3662,
+    "portable_sha256": "7c180ad10c97193a1f8d492d2a618569f1e88e2109bf03d27472481a52fbd0e7",
+    "portable_bytes": 3800,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/sifu/scripts/blender/face_stage.py",
+    "source": "Mods/SIFU/Karin_Original_W/Scripts/face_stage.py",
+    "original_sha256": "d9d06b1c7e7408a7a3c7f6b04a4c4707067e2190a15e706498b5b73194e9ce50",
+    "source_bytes": 21076,
+    "portable_sha256": "94d6442b22961ffb6806826c35ab4647787b02e31d5a3e299a0f0bbca40b2090",
+    "portable_bytes": 20644,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/sifu/scripts/blender/cloth_stage.py",
+    "source": "Mods/SIFU/Karin_Original_W/Scripts/cloth_stage.py",
+    "original_sha256": "e492ce1fdedf740bad7ff857d5b52f9a1a33b124be3c433ee7f28f47a777c201",
+    "source_bytes": 25803,
+    "portable_sha256": "ae23ff2bf39889af21e2b2aee02adf8c724dbec16b450c8af9ad86e2ac7c802c",
+    "portable_bytes": 25342,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/sifu/scripts/blender/dyn_stage.py",
+    "source": "Mods/SIFU/Karin_Original_W/Scripts/dyn_stage.py",
+    "original_sha256": "970723f1dc6b0db9dafd34c25d151c5eb23120907de40c9ae190cf172af440ad",
+    "source_bytes": 13317,
+    "portable_sha256": "854e1a8814a457f85305ca952accd76ed38f65c982bca431731b4b7253a37480",
+    "portable_bytes": 13042,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/sifu/scripts/blender/torso_weights.py",
+    "source": "Mods/SIFU/Karin_Original_W/Scripts/torso_weights.py",
+    "original_sha256": "1209408c1fbb9f4f41d81979ff45ef32643d439274efc03c405912cb85b60f9d",
+    "source_bytes": 7220,
+    "portable_sha256": "de589260ee09284c4e626affa1d5409db5814b93fee965f25710cdcf8f2b0a4f",
+    "portable_bytes": 7071,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/sifu/scripts/blender/bake_ao.py",
+    "source": "Mods/SIFU/Karin_Original_W/Scripts/bake_ao.py",
+    "original_sha256": "e3644a002487ef07a2bd58b11208300d09f7d50ae494a6fb8774543fce2146a4",
+    "source_bytes": 4543,
+    "portable_sha256": "1e16f0d4ac6718289d2976762ac647d30c78156b9157fd3ec1830b277df684fd",
+    "portable_bytes": 4442,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/sifu/scripts/blender/preview_model.py",
+    "source": "Mods/SIFU/Karin_Original_W/Scripts/preview_model.py",
+    "original_sha256": "15643f4f101809391c905217d03fa9e50b70c7ae9d69d68bdfb4a1657b64b4b7",
+    "source_bytes": 3825,
+    "portable_sha256": "15643f4f101809391c905217d03fa9e50b70c7ae9d69d68bdfb4a1657b64b4b7",
+    "portable_bytes": 3825,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/sifu/scripts/blender/pose_preview.py",
+    "source": "Mods/SIFU/Karin_Original_W/Scripts/pose_preview.py",
+    "original_sha256": "c11e3c09b558c950d8428342b789d65996e8ccf1e43eef17b86910aa1784568e",
+    "source_bytes": 4491,
+    "portable_sha256": "ec9b8c4a52e72cddac87c6e9ade6212c5758988b7649b26f3a369d23a3badd89",
+    "portable_bytes": 4379,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/sifu/scripts/blender/preview_face.py",
+    "source": "Mods/SIFU/Karin_Original_W/Scripts/preview_face.py",
+    "original_sha256": "10e55c9bdf9380f4c9e80b1b37e8dd2f1e66b08c6d9c9c9e2f696c7717156af7",
+    "source_bytes": 3835,
+    "portable_sha256": "10e55c9bdf9380f4c9e80b1b37e8dd2f1e66b08c6d9c9c9e2f696c7717156af7",
+    "portable_bytes": 3835,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/sifu/scripts/blender/skirt_sim.py",
+    "source": "Mods/SIFU/Karin_Original_W/Scripts/skirt_sim.py",
+    "original_sha256": "4368cd75dc6e606d993a7a5a4379fcd9d185b62e2a35245362fb60da4d3e16d9",
+    "source_bytes": 16003,
+    "portable_sha256": "8c482fae5914fb446414cc93a4af858bd36e4982fac0fabd289d01f144cd4bc3",
+    "portable_bytes": 15688,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/sifu/scripts/blender/make_skeleton_fbx.py",
+    "source": "Mods/SIFU/Karin_Original_W/Scripts/make_skeleton_fbx.py",
+    "original_sha256": "53a45ad195507806bb67fe73b55c2af49e84d28f60bb58945e6006ab46ffb139",
+    "source_bytes": 1577,
+    "portable_sha256": "6669c896dd455c052b9c41bff7e3b8604d54a9d0626f560784abe8e6189a5798",
+    "portable_bytes": 1538,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/sifu/scripts/ue/ue_build_mesh.py",
+    "source": "Mods/SIFU/Karin_Original_W/Scripts/ue_build_mesh.py",
+    "original_sha256": "ccb145c20cab20f32f73738d2df46e9ffa59df90ce908d42fa6e32d38a3130be",
+    "source_bytes": 13963,
+    "portable_sha256": "6b0af4bfcea33e8a28c698601d5c429881ec9b081f15d4a55d0fea911b387f05",
+    "portable_bytes": 13773,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/sifu/scripts/ue/ue_import_skeleton.py",
+    "source": "Mods/SIFU/Karin_Original_W/Scripts/ue_import_skeleton.py",
+    "original_sha256": "0841cd5cdc0c7124d7d6ea103f7178a38ca4506966ad4135d127120a7abc92d6",
+    "source_bytes": 2479,
+    "portable_sha256": "22d231da9e99686727cd53b4e6e93f0dc1a2e5d01d49b837023f0e75d0507de6",
+    "portable_bytes": 2438,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/sifu/scripts/ue/verify_mesh.py",
+    "source": "ModTools/SIFU/ue/verify_mesh.py",
+    "original_sha256": "35b3e980d166cb6a197c39b8913abd1881609f3e7c062014a16e47790a11b268",
+    "source_bytes": 300,
+    "portable_sha256": "1ae176bc2c2a8e22a8b04273287edccfbb7f5d6af0e3f06f8508c7028f5bc22b",
+    "portable_bytes": 410,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/sifu/scripts/ue/scripts_smoke.py",
+    "source": "ModTools/SIFU/ue/scripts_smoke.py",
+    "original_sha256": "5151a01ed5f03ad955c078fb2531e7ff09ca17e19f1e7fc4ee66d2ecd012c1b8",
+    "source_bytes": 250,
+    "portable_sha256": "fd8634bbdbef273f325d3757328e9581db3153f9cef7563e404fca1b26a0f8c6",
+    "portable_bytes": 409,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/sifu/tools/sfx_run.ps1",
+    "source": "ModTools/SIFU/sfx_run.ps1",
+    "original_sha256": "a0b55bdf4696d91e7ffaab912ade31341a6d77816ce594e6883b7a6da93b4f98",
+    "source_bytes": 565,
+    "portable_sha256": "76770ed544a2b37181e51d5f15ff4e3e44fc1abdbba0aea0c2d267db87a10063",
+    "portable_bytes": 1257,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/sifu/tools/ue_run.ps1",
+    "source": "ModTools/SIFU/ue_run.ps1",
+    "original_sha256": "bf71edd0a27ec18cff6ee8d14bd6f62fb906dd57ace54272cac23160945b0dc9",
+    "source_bytes": 949,
+    "portable_sha256": "ee56f2e2d058f5f7edfb36bc1c6540b54638565c62d5b651e00329eff3eb9bef",
+    "portable_bytes": 1650,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/sifu/tools/cook_pak.ps1",
+    "source": "ModTools/SIFU/cook_pak.ps1",
+    "original_sha256": "53ff72c1b2dc12c96fabaa2e85861cdfc691ab2d349c374a5972e80d8500e6c0",
+    "source_bytes": 1993,
+    "portable_sha256": "d78e747a845f53e3b7fa90eced7dfbdffbee8cd22b7fd009e4a0ab2323c90173",
+    "portable_bytes": 2833,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/sifu/tools/build_plugin.ps1",
+    "source": "ModTools/SIFU/build_plugin.ps1",
+    "original_sha256": "e73080fdf00a50712d0f878602b2cb904415b6e53fcc3fc9f7e38b9a4651593a",
+    "source_bytes": 736,
+    "portable_sha256": "0fd761970063e4a663b442160a08bba0bad4e1cf98ba2a4da3cde89ba70ed54c",
+    "portable_bytes": 1687,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/sifu/tools/burst.ps1",
+    "source": "ModTools/SIFU/remote_tools/burst.ps1",
+    "original_sha256": "181ffb6e0feaf4cd348c5852e627e9349f210218f1059b64841b205ccaee4791",
+    "source_bytes": 2741,
+    "portable_sha256": "dd5333d5c195cde2c60e8d0ad1dd73f0fbeed04e45a8e874620f2fa8ee70ebea",
+    "portable_bytes": 2894,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/sifu/sifuexport/Program.cs",
+    "source": "ModTools/SIFU/src/SifuExport/Program.cs",
+    "original_sha256": "de0e3b347b04bdd1c4d8198d8bc878527698316650b3459e9cd22bdf5643ffde",
+    "source_bytes": 10981,
+    "portable_sha256": "aa2256f12b079bb8516fd38451cacc148ecb806ef8578872e578f6e41e57e77f",
+    "portable_bytes": 10766,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/sifu/sifuexport/SifuExport.csproj",
+    "source": "ModTools/SIFU/src/SifuExport/SifuExport.csproj",
+    "original_sha256": "8cdf8af3642edb2e56e86c00ee2a2b40f11073055bd6e628156b2a176b86e7e2",
+    "source_bytes": 540,
+    "portable_sha256": "8cdf8af3642edb2e56e86c00ee2a2b40f11073055bd6e628156b2a176b86e7e2",
+    "portable_bytes": 540,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/sifu/ue/SifuModTools/SifuModTools.uplugin",
+    "source": "ModTools/SIFU/ue/SifuModTools/SifuModTools.uplugin",
+    "original_sha256": "c43b260cc73ca2f15e25fcdcd02d649eda8600b8c95dbea868ff51a634c35bef",
+    "source_bytes": 425,
+    "portable_sha256": "c43b260cc73ca2f15e25fcdcd02d649eda8600b8c95dbea868ff51a634c35bef",
+    "portable_bytes": 425,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/sifu/ue/SifuModTools/Source/SifuModTools/SifuModTools.Build.cs",
+    "source": "ModTools/SIFU/ue/SifuModTools/Source/SifuModTools/SifuModTools.Build.cs",
+    "original_sha256": "5461719f599f07edca31a30b641f05583d0cdf8bfbf71dbfa9ed1dcccc8eaca5",
+    "source_bytes": 651,
+    "portable_sha256": "d032b6d6f639de15660672d5bcc9a2521ee128746ff63ce452c4f795ba054a29",
+    "portable_bytes": 635,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/sifu/ue/SifuModTools/Source/SifuModTools/Public/SifuModToolsLibrary.h",
+    "source": "ModTools/SIFU/ue/SifuModTools/Source/SifuModTools/Public/SifuModToolsLibrary.h",
+    "original_sha256": "1b113bb3e46b2f5669d91b99182d3a59c5baded03be57399a145db130c45c67c",
+    "source_bytes": 3824,
+    "portable_sha256": "0a677fee07a5fcfdbb5b96ea6fa8c2c59bf61a59062a8a51c22c8dfbe718ae54",
+    "portable_bytes": 3753,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/sifu/ue/SifuModTools/Source/SifuModTools/Private/SifuModToolsLibrary.cpp",
+    "source": "ModTools/SIFU/ue/SifuModTools/Source/SifuModTools/Private/SifuModToolsLibrary.cpp",
+    "original_sha256": "2761c8c1f2d6f702711fdb61fc53cc22eec905b4a807bfc95df14dc6ff8d8c96",
+    "source_bytes": 27568,
+    "portable_sha256": "2ca15b707cf306dbc44ade3beec1e5292b778c5b3bbd22a7be9681cbc25530f4",
+    "portable_bytes": 26795,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/sifu/ue/SifuProj/Sifu.uproject",
+    "source": "ModTools/SIFU/ue/SifuProj/Sifu.uproject",
+    "original_sha256": "12a6c082c2385dd33ced6e95a4b21f03fbc797f1710f1bcdc38ff898201ca8d5",
+    "source_bytes": 335,
+    "portable_sha256": "12a6c082c2385dd33ced6e95a4b21f03fbc797f1710f1bcdc38ff898201ca8d5",
+    "portable_bytes": 335,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/sifu/ue/SifuProj/Config/DefaultEditor.ini",
+    "source": "ModTools/SIFU/ue/SifuProj/Config/DefaultEditor.ini",
+    "original_sha256": "289bc6cdf44a8dd4393f263c9cb25b7cf2f21a27716eabcbbb28654a5bea0947",
+    "source_bytes": 80,
+    "portable_sha256": "289bc6cdf44a8dd4393f263c9cb25b7cf2f21a27716eabcbbb28654a5bea0947",
+    "portable_bytes": 80,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/sifu/ue/SifuProj/Config/DefaultEngine.ini",
+    "source": "ModTools/SIFU/ue/SifuProj/Config/DefaultEngine.ini",
+    "original_sha256": "f52bff89ab58ceab86ef40d204855a99061f847af1be3cae2fb30c119755b7e0",
+    "source_bytes": 466,
+    "portable_sha256": "f52bff89ab58ceab86ef40d204855a99061f847af1be3cae2fb30c119755b7e0",
+    "portable_bytes": 466,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/sifu/ue/SifuProj/Config/DefaultGame.ini",
+    "source": "ModTools/SIFU/ue/SifuProj/Config/DefaultGame.ini",
+    "original_sha256": "bd5f826a090e9aa69d940d4279bfc653cd96af2e807a52b96615f8f489d0160e",
+    "source_bytes": 277,
+    "portable_sha256": "bd5f826a090e9aa69d940d4279bfc653cd96af2e807a52b96615f8f489d0160e",
+    "portable_bytes": 277,
+    "modified_for_portability": false
   }
 ]

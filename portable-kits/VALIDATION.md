@@ -1,5 +1,61 @@
 # 迁移验证记录
 
+## 2026-10-13：新增 Sifu 便携包
+
+- **迁入内容：** 37 个文件，放在 `portable-kits/sifu/`。
+  - `scripts/` 下 4 个 Python 命令：`dyn_tuning.py`、`make_textures.py`、`package_release.py`、`frames_to_gif.py`；
+  - `scripts/blender/` 下 14 个 Blender 脚本：`build_karin.py`、`source_prep.py`、`profiles.py`、`sifu_common.py`、`face_stage.py`、`cloth_stage.py`、`dyn_stage.py`、`torso_weights.py`、`bake_ao.py`、`preview_model.py`、`pose_preview.py`、`preview_face.py`、`skirt_sim.py`、`make_skeleton_fbx.py`；
+  - `scripts/ue/` 下 4 个 UE 编辑器 Python：`ue_build_mesh.py`、`ue_import_skeleton.py`、`verify_mesh.py`、`scripts_smoke.py`；
+  - `tools/` 下 5 个 PowerShell：`sfx_run.ps1`、`ue_run.ps1`、`cook_pak.ps1`、`build_plugin.ps1`、`burst.ps1`；
+  - `sifuexport/` 下 SifuExport 的 `Program.cs`、`SifuExport.csproj`；`ue/SifuModTools/` 下编辑器插件的 4 个文件（`.uplugin`、`Build.cs`、`.h`、`.cpp`）；`ue/SifuProj/` 下内容工程模板（`Sifu.uproject` 和 3 个 `Config/*.ini`）；
+  - 来源是项目的 `Karin_Original_W/Scripts/`（Blender 脚本、Python 命令、两个 UE 脚本）和本机工具目录 `ModTools/SIFU/`（PowerShell、抓屏、SifuExport、插件、工程模板、`verify_mesh.py`、`scripts_smoke.py`）。两处的副本与构建机上的相同。PROVENANCE 每个文件一行，记录原始和公开版的 SHA-256；
+  - 新增 `README.md`、`toolchain.json`、`requirements.txt`（numpy，只给 `make_textures.py` 用）。仓库检查允许的文件类型加上了 `.h`、`.cpp`、`.uplugin`、`.uproject`、`.ini`。
+- **没有迁入：**
+  - 一次性探针：`analyze_weights.py`、`face_probe.py`、`inspect_sources.py`、`measure_w_head.py`、`pdbgrep*.py`、构建目录里的 `fbxcheck.py`、`normcheck.py`、`uvcheck.py`、`vcol.py`、`tagwalk.py`；
+  - `patch_rigidbody.py`：给插件源码追加 `SetupRigidBodyPostProcess` 的一次性脚本，改动已在随包的插件源码里；
+  - `preview.py`、`preview_proxies.py`：早期快速预览，已被 `preview_model.py`、`pose_preview.py` 取代；
+  - `build_model.sh`、`ship_model.sh`：整理成 README 里的分步命令。它们写死了本机目录和 ssh 别名，`.sh` 也不是仓库允许的类型；
+  - 游戏 AES 密钥（项目日志和本机 `sfx_run.ps1` 里有）；
+  - 源模型、游戏数据、提取出的 JSON / glTF / 动画、生成的贴图、FBX、blend、pak 和发行包；各 `build_cfg.json` 和 Original 手写的 `ue_build.json`（含绝对路径）。
+- **便携改动**在 17 个文件：
+  - `blender/profiles.py`：源模型根目录原先写死，改为环境变量 `SIFU_MODELS_DIR`；没设时路径里是 `<SIFU_MODELS_DIR>`，载入会报找不到文件；
+  - `blender/sifu_common.py`：`Base_skeleton` JSON 的默认路径原先写死，改为环境变量 `SIFU_BASE_SKEL`；build_cfg 的 `base_skel` 照旧优先，两个都没有时报错；
+  - `blender/build_karin.py`：把上一级目录加进 `sys.path`，因为 `dyn_tuning.py` 放在 `scripts/` 下；
+  - `blender/skirt_sim.py`：`pose_preview.py` 和 `sifu_common.py` 原先从写死的项目目录读，改为脚本自己所在的目录（换成正斜杠，因为它被拼进 `exec` 的字符串字面量）；
+  - `make_textures.py`：改用 argparse，位置参数不变；平法线 `T_Karin_Flat_N.png`（64×64，RGB 128/128/255）和黑遮罩 `T_Karin_Black.png`（16×16）原先从本机目录复制，现在默认直接生成，字节与原文件相同；`--flat-dir` 保留复制的做法；`profiles.py` 从 `scripts/blender/` 导入；
+  - `package_release.py`：pak 来源目录和发行目录原先写死（后者按脚本位置推算），改为必填的 `--out-root`、`--release-dir`；安装说明里的示例游戏目录原先写死，改为 `--game-dir`（默认 `SIFU_GAME_DIR`，都没有时是占位文字）；profile 只接受有发行文字的四个变体，原先 `karin_original` 会在中途报 `KeyError`；
+  - `dyn_tuning.py`、`frames_to_gif.py`：改用 argparse，参数不变；
+  - `ue/ue_build_mesh.py`、`ue/ue_import_skeleton.py`、`ue/verify_mesh.py`：`py_args.json` 原先是写死的路径，改为读环境变量 `SIFU_PY_ARGS`（由 `ue_run.ps1` 设置）；
+  - `ue/scripts_smoke.py`：输出路径原先写死，改为 `py_args.json` 里的第一个参数；
+  - `tools/sfx_run.ps1`：删掉写死的 AES 密钥，改从 `SIFU_AES` / `-Aes` 读，没有就报错；SifuExport、游戏和缓存目录改为 `-Exe`、`SIFU_GAME_DIR`、`SIFU_WORK_ROOT`；
+  - `tools/ue_run.ps1`、`tools/cook_pak.ps1`、`tools/build_plugin.ps1`：UE 安装、工程、工作目录和游戏目录改为 `SIFU_UE_ROOT`、`SIFU_PROJECT`、`SIFU_WORK_ROOT`、`SIFU_GAME_DIR`（都有同名参数）。位置参数改用显式 `Position`，新参数只能按名字给；`cook_pak.ps1` 把工程目录解析成完整路径后再截取相对路径；`build_plugin.ps1` 会先建日志目录；
+  - `tools/burst.ps1`：抓图目录原先写死，改为 `-Dir`，默认 `<SIFU_WORK_ROOT>\cap`；
+  - 只把 CRLF 改为 LF：7 个 Blender 脚本（`face_stage.py`、`cloth_stage.py`、`dyn_stage.py`、`torso_weights.py`、`bake_ao.py`、`pose_preview.py`、`make_skeleton_fbx.py`），`Program.cs`，以及插件的 `Build.cs`、`.h`、`.cpp`。
+
+  其余 9 个文件与原文件逐字节相同：`source_prep.py`、`preview_model.py`、`preview_face.py`、`SifuExport.csproj`、`.uplugin`、`Sifu.uproject` 和 3 个 `.ini`。处理逻辑没有改。
+- **等价性验证（离线，本机）：**
+  - **条件：** Windows 10 19044；Blender 4.2.23 LTS（`-b --factory-startup`）；Python 3.14.0、numpy 2.5.2、Pillow 12.3.0；项目缓存的 W 骨架 JSON、W glTF、面部姿势 JSON 和 `Base_skeleton` JSON（经 `SIFU_BASE_SKEL`）；源模型经 `SIFU_MODELS_DIR`；输出写到临时目录，build_cfg 只改了 4 个输出路径。参照是项目用同一版脚本做的构建：Original 为 `work/regress/`（其 `cloth.json` 与 v6 发行时的相同），变体为 `work/y/`；
+  - **`karin_original`：** `cloth.json` 与 v6 逐字节相同；`build_report.json` 除 `config` 里 4 个输出路径外相同；构建日志除时间和 FBX 路径外相同；
+  - **`y`（用到 `drop_meshes`、`hang`、`mesh_materials`）：** `cloth.json` 逐字节相同；`build_report.json` 除 4 个输出路径外相同（`source_prep.src` 也相同，因为 `SIFU_MODELS_DIR` 给的是同一个目录）；
+  - **FBX：** 两个 profile 的字节都不同。按 FBX 二进制节点树解码比较（数组解压后比较）：Blender 每次运行随机生成对象 ID（来自 Python 的随机化 `hash()`），把 ID 换成对象名后，Original 的 41 050 个节点（13 029 个数组）和 `y` 的 122 823 个节点（42 547 个数组）只差创建时间戳、SceneInfo 里的源 `.blend` 路径，以及 Original 的贴图 / 视频节点里的输出目录。几何、法线、UV、顶点色、权重、绑定姿势和连接都相同；
+  - **`.blend`：** 字节不同（Blender 文件里有内存指针和路径）。在 Blender 里逐数据块比较：网格的顶点坐标、面、UV、颜色和其他属性、材质、形状键，物体的父子关系、变换和修改器，顶点组权重，骨架的骨（头、尾、矩阵、父骨）全部相同（Original 11 个网格 34 398 个顶点，`y` 35 个网格 192 793 个顶点）；
+  - **`y` 的贴图：** 本包的 `bake_ao.py` 在本包构建的 blend 上烘焙，5 张 `AO_<页>.png` 与项目的逐字节相同；接着 `make_textures.py` 写出的 13 张 PNG 和 `ue_build.json`（第三个参数给项目当时用的构建机目录）都与项目的逐字节相同。单独用项目的 AO 跑 `make_textures.py`，结果也逐字节相同；
+  - **`package_release.py`：** 用项目取回的 `y` pak 重做 v1（`--game-dir` 给项目说明里的目录），发行文件夹里的 pak、sig、`安装说明.txt` 与发行包逐字节相同；zip 的成员名、顺序和内容相同，zip 文件本身只差 `安装说明.txt` 成员的修改时间（脚本运行时写的）；
+  - **没有重跑的部分：** UE 一侧（`ue_run.ps1`、`cook_pak.ps1`、`build_plugin.ps1`、`sfx_run.ps1`、`burst.ps1`、`scripts/ue/*.py`）、插件（C++）和 SifuExport（C#）要用构建机上的 UE 4.26 和游戏，本次只核对了改动：PowerShell 脚本过了 PowerShell 解析器，缺环境变量时 4 个工具都在动手前报错；`frames_to_gif.py`、`skirt_sim.py`、`preview_model.py`、`pose_preview.py`、`preview_face.py`、`make_skeleton_fbx.py` 没有在真实数据上重跑。
+- **合成数据测试：** `SifuTools` 共 4 项：
+  - `dyn_tuning.py`：两条链加两个运动学碰撞体。每个关节的驱动刚度与阻尼与按平行轴定理独立算的子链惯量一致，驱动作用在 I_com 上时给出的正好是设定的模态频率；没有 `tune` 的链用模块里的 `CHAINS`；碰撞过滤只放行链自己的碰撞体，静止时重叠的对加入禁用表，链与链之间全部禁用；命令行就地改写 `cloth.json`，其他段落不变；
+  - `make_textures.py`：合成图集页和 AO 页（profile `y`），检查平法线和黑遮罩、BaseColor 的 alpha（皮肤 255、布料 0）、ComboMap 四个通道（各 kind 的粗糙度、金属 0、按强度换算的 AO、alpha 230 / 255）、`ue_build.json` 的路径、父材质和贴图引用；`--flat-dir`；没设 `SIFU_MODELS_DIR` 时失败；
+  - `package_release.py`：发行文件夹、CRLF 说明文字、MD5、zip 成员；示例目录取 `--game-dir`、`SIFU_GAME_DIR` 或占位文字；`karin_original` 和缺 `--release-dir` 时报错且不写文件；
+  - `frames_to_gif.py`：帧数、帧时长（GIF 以 10 ms 为单位）、默认 6 列的联系表、裁剪和列数参数。
+
+  `--help` 测试覆盖 `scripts/` 下全部 4 个脚本；`make_textures.py` 缺 numpy 或 Pillow、`frames_to_gif.py` 缺 Pillow 时跳过。
+- **未验证：**
+  - 便携版没有装进游戏测试，也没有在构建机上跑 UE 一侧；实机结论来自项目用原脚本构建的发行包（Original v6 由用户在游戏里确认，四个变体只做了离线检查）；
+  - `opt`、`pt`、`umb` 三个变体的构建没有用本包重跑；
+  - 测试套件对 Blender 和 UE 脚本只做语法检查；
+  - 非 Windows 系统、其他 Blender / UE / 游戏版本下的结果；
+  - 新模型的案例常量。
+
 ## 2026-10-12：浪人崛起（KT 引擎格式工具与腿部权重）
 
 - **迁入内容：** 5 个 Python 文件，放在 `portable-kits/rise-of-the-ronin/scripts/`。来源是项目的 `tools/`、`original/tools/` 和 `repair/20261004/tools/`，按职责合并改写（每个来源各占 PROVENANCE 一行）：

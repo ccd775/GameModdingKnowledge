@@ -68,6 +68,15 @@ class DetachedExports(unittest.TestCase):
                         self.assertTrue((target/'portable-kits/dragons-dogma-2/requirements.txt').is_file())
                         self.assertIn('test_dd2_chain_spec_swing_and_tilt', process.stderr)
                         self.assertFalse([l for l in process.stderr.splitlines() if 'test_dd2_' in l and 'skipped' in l])
+                    if game == 'sifu':
+                        self.assertTrue((target/'portable-kits/sifu/requirements.txt').is_file())
+                        self.assertIn('test_sifu_dyn_tuning_drives_and_collision_filter', process.stderr)
+                        self.assertIn('test_sifu_package_release_folder_and_zip', process.stderr)
+                        self.assertFalse([l for l in process.stderr.splitlines() if 'test_sifu_' in l and 'skipped' in l
+                                          and ('dyn_tuning' in l or 'package_release' in l)])
+                    if game == 'sifu' and all(importlib.util.find_spec(m) for m in ('numpy', 'PIL')):
+                        self.assertIn('test_sifu_make_textures_channels_and_ue_build', process.stderr)
+                        self.assertFalse([l for l in process.stderr.splitlines() if 'test_sifu_' in l and 'skipped' in l])
                     print(f'{game}: detached tests passed (unselected games skipped)')
 
 

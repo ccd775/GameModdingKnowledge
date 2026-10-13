@@ -11,7 +11,8 @@ from urllib.parse import unquote, urlsplit
 from markdown_it import MarkdownIt
 
 MD = MarkdownIt('commonmark').enable('table')
-ALLOWED = {'.md', '.json', '.py', '.ps1', '.txt', '.yml', '.yaml', '.toml', '.csv', '.lua', '.cs', '.csproj'}
+ALLOWED = {'.md', '.json', '.py', '.ps1', '.txt', '.yml', '.yaml', '.toml', '.csv', '.lua', '.cs', '.csproj',
+           '.h', '.cpp', '.uplugin', '.uproject', '.ini'}
 ABSOLUTE = re.compile(r'(?i)\b[A-Z]:[\\/](?![\\/])|/(?:Users|home)/[^/\s]+')
 SECRET = re.compile(r'(?:gh[pousr]_[A-Za-z0-9]{30,}|sk-[A-Za-z0-9_-]{30,}|-----BEGIN (?:RSA |OPENSSH )?PRIVATE KEY-----)')
 

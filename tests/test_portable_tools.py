@@ -243,6 +243,7 @@ class PortableTools(unittest.TestCase):
             if path.parents[1].name == 'watch-dogs' and path.stem not in WD_STDLIB_SCRIPTS and wd_missing(pil=True): continue
             if path.parents[1].name == 'rise-of-the-ronin' and path.stem in RONIN_NUMPY_SCRIPTS and ronin_missing(): continue
             if path.parents[1].name == 'dragons-dogma-2' and path.stem in DD2_NUMPY_SCRIPTS and dd2_missing(): continue
+            if path.parents[1].name == 'sifu' and sifu_missing(path.stem): continue
             cli(path.parents[1].name,path.stem,'--help')
 
 
@@ -2249,5 +2250,231 @@ class DragonsDogma2Tools(unittest.TestCase):
                 process.communicate()
         self.assertEqual(process.returncode, 0, stderr)
         self.assertEqual(json.loads(stdout), {'id': cmd['id'], 'result': True})
+
+
+SIFU_KIT = KITS / 'sifu'
+SIFU_DEPENDENCIES = {'make_textures': ('numpy', 'PIL'), 'frames_to_gif': ('PIL',)}
+
+
+def sifu_missing(script):
+    """Modules a Sifu plain-Python script needs that are not installed (the other scripts use the standard library)."""
+    return [m for m in SIFU_DEPENDENCIES.get(script, ()) if importlib.util.find_spec(m) is None]
+
+
+def sifu_run(name, *args, env=None, ok=True):
+    """Run a Sifu kit script with its own SIFU_* environment (profiles.py reads SIFU_MODELS_DIR at import time)."""
+    path = SIFU_KIT / 'scripts' / f'{name}.py'
+    if not path.is_file():
+        raise unittest.SkipTest('sifu is not included in this single-game export')
+    if sifu_missing(name):
+        raise unittest.SkipTest('pip install -r requirements.txt -r portable-kits/sifu/requirements.txt (missing '
+                                + ', '.join(sifu_missing(name)) + ')')
+    full = {k: v for k, v in os.environ.items() if not k.startswith('SIFU_')}
+    full.update(env or {}, PYTHONIOENCODING='utf-8')
+    process = subprocess.run([sys.executable, '-B', str(path), *map(str, args)], capture_output=True, text=True,
+                             encoding='utf-8', env=full, timeout=300)
+    if (process.returncode == 0) != ok:
+        raise AssertionError(f'{name}: exit {process.returncode}\n{process.stdout}\n{process.stderr}')
+    return process
+
+
+def png(path, mode, size, colour):
+    from PIL import Image
+    path.parent.mkdir(parents=True, exist_ok=True)
+    Image.new(mode, size, colour).save(path)
+
+
+class SifuTools(unittest.TestCase):
+    """Bone-chain tuning, textures, release packaging and burst GIFs on synthetic data. The Blender build, the UE
+    Python, the PowerShell tools, the editor plugin (C++) and SifuExport (C#) need Blender, UE 4.26 or the game."""
+
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(prefix='modding sifu ')
+        self.root = Path(self.temp.name)
+
+    def tearDown(self): self.temp.cleanup()
+
+    @staticmethod
+    def dynamics():
+        """Two simulated chains on spare bones plus two kinematic colliders, in the layout dyn_stage.py writes."""
+        def body(bone, length, radius, kinematic=False):
+            return {'bone': bone, 'type': 'capsule', 'center': [length / 2, 0.0, 0.0], 'radius': radius,
+                    'length': length, 'kinematic': kinematic}
+        bodies = [body('pelvis', 20.0, 9.0, True), body('head', 18.0, 8.0, True),
+                  body('cloth_a_01', 12.0, 2.0), body('cloth_a_02', 10.0, 1.5), body('acc_side_l', 8.0, 1.0)]
+        joints = [{'child': b, 'parent': p} for b, p in (('cloth_a_01', 'pelvis'), ('cloth_a_02', 'cloth_a_01'),
+                                                         ('acc_side_l', 'head'))]
+        tune = dict(masses=[0.3, 0.2], freq=1.5, zeta=0.5, lin_damp=8.0, ang_damp=4.0, swing=[40, 30], twist=6,
+                    collide=['pelvis'])
+        chains = [{'name': 'A', 'bones': ['cloth_a_01', 'cloth_a_02'], 'tune': tune},
+                  {'name': 'Hair_side_L', 'bones': ['acc_side_l']}]           # no tune: the module's CHAINS entry
+        return {'bodies': bodies, 'joints': joints, 'chains': chains, 'rest_overlap_pairs': [['cloth_a_01', 'pelvis']]}
+
+    def test_sifu_dyn_tuning_drives_and_collision_filter(self):
+        import math
+        m = module('sifu', 'dyn_tuning')
+        dyn = self.dynamics()
+        node = {'stale': True}
+        report = m.apply(dyn, node)
+        self.assertEqual(node, m.NODE)                                       # node replaced, not merged
+        bodies = {b['bone']: b for b in dyn['bodies']}
+        joints = {j['child']: j for j in dyn['joints']}
+
+        def icom(b):                                                         # capsule inertia about its COM
+            length = b['length'] + 2 * b['radius']
+            return b['mass'] * (length * length / 12 + b['radius'] ** 2 / 4)
+        # chain A: sub-chain inertia about each joint by the parallel-axis theorem along the straight chain
+        a1, a2 = bodies['cloth_a_01'], bodies['cloth_a_02']
+        self.assertEqual((a1['mass'], a2['mass'], a1['lin_damp'], a2['ang_damp']), (0.3, 0.2, 8.0, 4.0))
+        s1, s2 = 12.0, 10.0
+        isub = [icom(a1) + 0.3 * (s1 / 2) ** 2 + icom(a2) + 0.2 * (s1 + s2 / 2) ** 2, icom(a2) + 0.2 * (s2 / 2) ** 2]
+        w = 2 * math.pi * 1.5
+        for k, (bone, body) in enumerate((('cloth_a_01', a1), ('cloth_a_02', a2))):
+            jt = joints[bone]
+            self.assertEqual(jt['drive_stiffness'], round(w * w * isub[k] / icom(body), 1))
+            self.assertEqual(jt['drive_damping'], round(2 * 0.5 * w * isub[k] / icom(body), 2))
+            self.assertEqual((jt['swing1'], jt['swing2'], jt['twist']), ([40.0, 30.0][k],) * 2 + (6.0,))
+            # acceleration drive on I_com gives the sub-chain its mode frequency about the joint
+            self.assertAlmostEqual(jt['drive_stiffness'] * icom(body) / isub[k] / (w * w), 1.0, places=3)
+            self.assertEqual(report['A'][k]['bone'], bone)
+        side = m.CHAINS['Hair_side_L']
+        self.assertEqual(bodies['acc_side_l']['mass'], side['masses'][0])
+        self.assertEqual(joints['acc_side_l']['swing1'], float(side['swing'][0]))
+        # collisions: only the chain's own colliders, plus pairs overlapping at rest; chains never touch each other
+        expected = {('cloth_a_01', 'head'), ('cloth_a_02', 'head'), ('cloth_a_01', 'pelvis'), ('acc_side_l', 'pelvis'),
+                    ('cloth_a_01', 'acc_side_l'), ('cloth_a_02', 'acc_side_l')}
+        self.assertEqual(dyn['disable_pairs'], sorted([list(p) for p in expected]))
+        self.assertNotIn(['cloth_a_02', 'pelvis'], dyn['disable_pairs'])
+        self.assertNotIn(['acc_side_l', 'head'], dyn['disable_pairs'])
+        # command line: re-tunes cloth.json in place, keeps the other sections, prints the per-joint report
+        cloth = self.root / 'cloth.json'
+        cloth.write_text(json.dumps({'cloth': [{'name': 'Cloth_Skirt'}], 'dynamics': self.dynamics(),
+                                     'rigidbody': {'stale': True}}), encoding='utf-8')
+        printed = json.loads(sifu_run('dyn_tuning', cloth).stdout)
+        data = json.loads(cloth.read_text(encoding='utf-8'))
+        self.assertEqual(data['dynamics'], json.loads(json.dumps(dyn)))
+        self.assertEqual(data['rigidbody'], m.NODE)
+        self.assertEqual(data['cloth'], [{'name': 'Cloth_Skirt'}])
+        self.assertEqual(printed, json.loads(json.dumps(report)))
+
+    def test_sifu_make_textures_channels_and_ue_build(self):
+        if sifu_missing('make_textures'):
+            self.skipTest('pip install -r portable-kits/sifu/requirements.txt (missing '
+                          + ', '.join(sifu_missing('make_textures')) + ')')
+        import numpy as np
+        from PIL import Image
+        models, work, remote = self.root / 'models', self.root / 'work y', 'Remote/work/y'
+        colours = {'SkinFace': (200, 150, 120), 'HairCostume': (240, 240, 250), 'ClothUV123': (20, 30, 90),
+                   'ClothUV4567': (180, 20, 40), 'AccentsProps': (90, 90, 90)}
+        for page, colour in colours.items():                       # profile "y": Atlas_<page>_BaseColor.png pages
+            png(models / 'Karin_Y_BlenderSafe' / 'textures' / f'Atlas_{page}_BaseColor.png', 'RGBA', (8, 8), colour + (37,))
+            ao = Image.fromarray(np.array([[0, 128], [255, 64]], np.uint8), 'L')
+            (work / 'ao').mkdir(parents=True, exist_ok=True)
+            ao.save(work / 'ao' / f'AO_{page}.png')
+        env = {'SIFU_MODELS_DIR': str(models)}
+        out = sifu_run('make_textures', 'y', work, remote, env=env).stdout
+        self.assertIn('TEXTURES_DONE 13 textures, 6 materials', out)
+        tex = work / 'tex'
+        flat, black = Image.open(tex / 'T_Karin_Flat_N.png'), Image.open(tex / 'T_Karin_Black.png')
+        self.assertEqual((flat.mode, flat.size, black.mode, black.size), ('RGB', (64, 64), 'RGB', (16, 16)))
+        self.assertTrue((np.asarray(flat) == [128, 128, 255]).all() and not np.asarray(black).any())
+        for name, page, alpha in (('T_Y_SkinFace_CS', 'SkinFace', 255), ('T_Y_ClothUV123_C', 'ClothUV123', 0)):
+            a = np.asarray(Image.open(tex / f'{name}.png'))
+            self.assertEqual(a.shape, (2048, 2048, 4))                 # skin keeps alpha 255, cloth and hair 0 (W-like)
+            self.assertTrue((a[..., 3] == alpha).all())
+            src = Image.open(models / 'Karin_Y_BlenderSafe' / 'textures' / f'Atlas_{page}_BaseColor.png')
+            self.assertTrue((a[..., :3] == np.asarray(src.convert('RGBA').resize((2048, 2048), Image.LANCZOS))[..., :3]).all())
+        ao = np.array([[0, 128], [255, 64]]) / 255.0
+        for name, rough, calpha, strength in (('T_Y_SkinFace_S_face', 140, 230, 0.6), ('T_Y_SkinFace_S_skin', 150, 230, 0.8),
+                                              ('T_Y_HairCostume_S_hair', 115, 255, 0.9), ('T_Y_ClothUV123_S_cloth', 205, 255, 1.0)):
+            s = np.asarray(Image.open(tex / f'{name}.png')).astype(int)
+            self.assertEqual(s.shape, (2, 2, 4))                       # ComboMap: R rough, G metal 0, B AO, A mask
+            self.assertTrue((s[..., 0] == rough).all() and not s[..., 1].any() and (s[..., 3] == calpha).all())
+            want = np.round(np.clip(1.0 - strength * (1.0 - ao), 0, 1) ** 0.8 * 255)
+            self.assertLessEqual(np.abs(s[..., 2] - want).max(), 1)
+        cfg = json.loads((work / 'ue_build.json').read_text(encoding='utf-8'))
+        self.assertEqual((cfg['fbx'], cfg['cloth_json'], cfg['out_json'], cfg['asset_dir']),
+                         (remote + '/SK_W_MainChar_01.fbx', remote + '/cloth.json', remote + '/ue_build_out.json', 'Karin_Y'))
+        self.assertEqual(sorted(cfg['textures']), sorted(p.stem for p in tex.glob('*.png')))
+        self.assertTrue(all(path == f'{remote}/tex/{name}.png' for name, (path, _) in cfg['textures'].items()))
+        self.assertEqual(cfg['textures']['T_Karin_Flat_N'][1], 'normal')
+        face, body, cloth = cfg['materials']['Karin_Face'], cfg['materials']['Karin_Body'], cfg['materials']['Karin_Cloth123']
+        self.assertEqual((face['parent'], face['BaseColor'], face['ComboMap'], face['textures']['Color_Old']),
+                         ('w_head', 'T_Y_SkinFace_CS', 'T_Y_SkinFace_S_face', 'T_Y_SkinFace_CS'))
+        self.assertEqual((body['parent'], body['ComboMap']), ('w_body', 'T_Y_SkinFace_S_skin'))
+        self.assertEqual((cloth['parent'], cloth['Normal'], cloth['ComboMap']), ('w_cloth', 'T_Karin_Flat_N', 'T_Y_ClothUV123_S_cloth'))
+        # --flat-dir copies existing files instead of generating them
+        given, work2 = self.root / 'flat', self.root / 'work2'
+        png(given / 'T_Karin_Flat_N.png', 'RGB', (2, 2), (1, 2, 3))
+        png(given / 'T_Karin_Black.png', 'RGB', (2, 2), (4, 5, 6))
+        (work2 / 'ao').mkdir(parents=True)
+        for page in colours:
+            (work2 / 'ao' / f'AO_{page}.png').write_bytes((work / 'ao' / f'AO_{page}.png').read_bytes())
+        sifu_run('make_textures', 'y', work2, remote, '--flat-dir', given, env=env)
+        self.assertEqual(Image.open(work2 / 'tex' / 'T_Karin_Flat_N.png').getpixel((1, 1)), (1, 2, 3))
+        # without SIFU_MODELS_DIR the atlas pages are not found
+        sifu_run('make_textures', 'y', self.root / 'work3', remote, ok=False)
+
+    def test_sifu_package_release_folder_and_zip(self):
+        import hashlib
+        import zipfile
+        pak = 'pakchunk99-KarinY_P'
+        out, release = self.root / 'out', self.root / 'release'
+        (out / 'y').mkdir(parents=True)
+        (out / 'y' / f'{pak}.pak').write_bytes(b'synthetic pak ' * 100)
+        (out / 'y' / f'{pak}.sig').write_bytes(b'synthetic sig')
+        game = 'Games\\Steam\\steamapps\\common\\Sifu'
+        sifu_run('package_release', 'y', 3, '2026-10-13', '--out-root', out, '--release-dir', release, '--game-dir', game + '\\')
+        folder = release / pak
+        self.assertEqual(sorted(p.name for p in folder.iterdir()), sorted([f'{pak}.pak', f'{pak}.sig', '安装说明.txt']))
+        for ext in ('.pak', '.sig'):
+            self.assertEqual((folder / f'{pak}{ext}').read_bytes(), (out / 'y' / f'{pak}{ext}').read_bytes())
+        raw = (folder / '安装说明.txt').read_bytes()
+        self.assertEqual(raw.count(b'\n'), raw.count(b'\r\n'))            # CRLF text for Windows users
+        text = raw.decode('utf-8')
+        self.assertIn('版本 v3（2026-10-13）', text)
+        self.assertIn(f'   {game}\\Sifu\\Content\\Paks\\\r\n', text)          # trailing separator of --game-dir dropped
+        for ext in ('.pak', '.sig'):
+            self.assertIn(f'{pak}{ext}  {hashlib.md5((out / "y" / f"{pak}{ext}").read_bytes()).hexdigest()}', text)
+        self.assertIn('苦无', text)                                         # the profile's own note
+        with zipfile.ZipFile(release / f'{pak}_v3.zip') as z:
+            self.assertIsNone(z.testzip())
+            self.assertEqual(z.namelist(), [f'{pak}/{pak}.pak', f'{pak}/{pak}.sig', f'{pak}/安装说明.txt'])
+            for name in z.namelist():
+                self.assertEqual(z.read(name), (folder / name.split('/', 1)[1]).read_bytes())
+        # the example path falls back to SIFU_GAME_DIR, then to a placeholder
+        for env, want in (({'SIFU_GAME_DIR': 'Games\\Sifu'}, 'Games\\Sifu\\Sifu'), ({}, '<Steam 库>\\steamapps\\common\\Sifu\\Sifu')):
+            target = self.root / f'release {len(env)}'
+            sifu_run('package_release', 'y', 3, '2026-10-13', '--out-root', out, '--release-dir', target, env=env)
+            self.assertIn(want, (target / pak / '安装说明.txt').read_text(encoding='utf-8'))
+        # profiles without release text, and a missing release folder argument, are refused before anything is written
+        bad = self.root / 'bad'
+        sifu_run('package_release', 'karin_original', 1, '2026-10-13', '--out-root', out, '--release-dir', bad, ok=False)
+        sifu_run('package_release', 'y', 1, '2026-10-13', '--out-root', out, ok=False)
+        self.assertFalse(bad.exists())
+
+    def test_sifu_frames_to_gif_timings_and_sheet(self):
+        if sifu_missing('frames_to_gif'):
+            self.skipTest('pip install -r requirements.txt (missing Pillow)')
+        from PIL import Image
+        cap = self.root / 'cap'
+        cap.mkdir()
+        for i, colour in enumerate(((255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0))):
+            Image.new('RGB', (20, 10), colour).save(cap / f'run_{i:03d}.jpg', quality=95)
+        (cap / 'run.txt').write_text('0.0\n66.4\n133.0\n200.2', encoding='utf-8')
+        out = sifu_run('frames_to_gif', cap, 'run', self.root / 'run').stdout
+        self.assertIn('4 frames', out)
+        with Image.open(self.root / 'run.gif') as gif:
+            self.assertEqual((gif.n_frames, gif.size), (4, (20, 10)))
+            durations = []
+            for i in range(gif.n_frames):
+                gif.seek(i)
+                durations.append(gif.info['duration'])
+        for got, want in zip(durations, (66, 67, 67, 100)):                 # GIF stores 10 ms units
+            self.assertLess(abs(got - want), 10)
+        sifu_run('frames_to_gif', cap, 'run', self.root / 'crop', 0, 0, 10, 5, 2)
+        for name, size in (('run_sheet.jpg', (6 * 20, 10)), ('crop.gif', (10, 5)), ('crop_sheet.jpg', (2 * 10, 2 * 5))):
+            with Image.open(self.root / name) as im:                          # sheet: 6 columns by default
+                self.assertEqual(im.size, size)
 
 if __name__ == '__main__': unittest.main(verbosity=2)

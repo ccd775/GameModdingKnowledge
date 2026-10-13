@@ -1,0 +1,82 @@
+{
+  "game": "Sifu (PC, Steam App 2138710)",
+  "status": "runtime-load-pass",
+  "tools": [
+    {
+      "name": "Blender",
+      "version": "4.2.23 LTS, run with -b --factory-startup",
+      "role": "body build: re-pose the source model into the W A-pose, Sifu joints and weights, facial rig, skirt proxy and collision capsules, bone chains, W torso weights; FBX + cloth.json export; AO bake; previews (scripts/blender/)",
+      "required": true
+    },
+    {
+      "name": "Unreal Engine",
+      "version": "4.26.2 (Epic launcher build) with PythonScriptPlugin and EditorScriptingUtilities",
+      "role": "content project Sifu (ue/SifuProj): mesh import on Base_skeleton, MICs on placeholder W materials, NvCloth proxy, physics assets, post-process RigidBody anim blueprint (scripts/ue/ via tools/ue_run.ps1); cook and UnrealPak (tools/cook_pak.ps1)",
+      "required": true
+    },
+    {
+      "name": "SifuModTools editor plugin (ue/SifuModTools, C++)",
+      "version": "kit source; built with RunUAT BuildPlugin (Visual Studio C++ build tools, project used MSVC 14.44)",
+      "role": "cloth proxy with backstops, physics assets from JSON (incl. tapered capsules), RigidBody post-process graph, ref-skeleton and section dumps",
+      "required": true
+    },
+    {
+      "name": "SifuExport (sifuexport/, C# on CUE4Parse)",
+      "version": "CUE4Parse / CUE4Parse-Conversion 1.2.2.202610 NuGet, net10.0 win-x64, built with the .NET 10 SDK",
+      "role": "list / json / raw / export (glTF, psk, uemodel) / skel / anim / file / grep over the game paks (AES key from SIFU_AES) and read-back of the mod pak",
+      "required": true
+    },
+    {
+      "name": "dyn_tuning.py / make_textures.py / package_release.py / frames_to_gif.py",
+      "version": "kit",
+      "role": "bone-chain drive and collision tuning, BaseColor / ComboMap textures and ue_build.json, release folder and zip, burst-capture GIF and contact sheet",
+      "required": true
+    }
+  ],
+  "entry_documents": [
+    "../../games/sifu/README.md",
+    "../../games/sifu/BUILD_PIPELINE.md"
+  ],
+  "runtime_boundary": "Game build 18739835 (v_1.29_6.775), pak in Sifu/Content/Paks/~mods with the game's own .sig. The user confirmed Karin Original v6 in game (skirt proxy 11 x 32 rings, solver 240 Hz); earlier agent captures cover title screen, Wuguan garden walk, blink, bone-chain physics settle. The four variants (opt, pt, umb, y) v1 were checked offline only (preview sheets, face poses, cooked-mesh references read back with CUE4Parse); none was run in game. The portable copies were checked offline only: the Blender build of karin_original and y, the y AO / textures / ue_build.json and package_release reproduce the project outputs (see VALIDATION.md); the UE-side scripts, PowerShell tools, plugin and SifuExport were reviewed, not re-run.",
+  "bundled_scripts": [
+    "scripts/dyn_tuning.py",
+    "scripts/make_textures.py",
+    "scripts/package_release.py",
+    "scripts/frames_to_gif.py",
+    "scripts/blender/build_karin.py",
+    "scripts/blender/source_prep.py",
+    "scripts/blender/profiles.py",
+    "scripts/blender/sifu_common.py",
+    "scripts/blender/face_stage.py",
+    "scripts/blender/cloth_stage.py",
+    "scripts/blender/dyn_stage.py",
+    "scripts/blender/torso_weights.py",
+    "scripts/blender/bake_ao.py",
+    "scripts/blender/preview_model.py",
+    "scripts/blender/pose_preview.py",
+    "scripts/blender/preview_face.py",
+    "scripts/blender/skirt_sim.py",
+    "scripts/blender/make_skeleton_fbx.py",
+    "scripts/ue/ue_build_mesh.py",
+    "scripts/ue/ue_import_skeleton.py",
+    "scripts/ue/verify_mesh.py",
+    "scripts/ue/scripts_smoke.py",
+    "tools/sfx_run.ps1",
+    "tools/ue_run.ps1",
+    "tools/cook_pak.ps1",
+    "tools/build_plugin.ps1",
+    "tools/burst.ps1",
+    "sifuexport/Program.cs",
+    "sifuexport/SifuExport.csproj",
+    "ue/SifuModTools/SifuModTools.uplugin",
+    "ue/SifuModTools/Source/SifuModTools/SifuModTools.Build.cs",
+    "ue/SifuModTools/Source/SifuModTools/Public/SifuModToolsLibrary.h",
+    "ue/SifuModTools/Source/SifuModTools/Private/SifuModToolsLibrary.cpp",
+    "ue/SifuProj/Sifu.uproject",
+    "ue/SifuProj/Config/DefaultEditor.ini",
+    "ue/SifuProj/Config/DefaultEngine.ini",
+    "ue/SifuProj/Config/DefaultGame.ini"
+  ],
+  "python": "3.10+ (standard library) for dyn_tuning.py and package_release.py; make_textures.py needs numpy 2.5 (3.12+) and Pillow, frames_to_gif.py needs Pillow; Blender scripts run in Blender's Python 3.11; tested 3.14.0",
+  "dependency_install": "python -m pip install -r requirements.txt -r portable-kits/sifu/requirements.txt (from bundle root; only needed for make_textures.py and frames_to_gif.py)"
+}

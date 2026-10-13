@@ -4,7 +4,7 @@
 
 | 工具 | 作者/维护者入口 | 在本工作区的用法 |
 | --- | --- | --- |
-| Blender | [官方历史版本](https://download.blender.org/release/) | 4.2.23 与 4.5.12 曾用于不同项目，DMC5 用 4.0.2，战神5 用 5.0.1；匹配源文件与插件 |
+| Blender | [官方历史版本](https://download.blender.org/release/) | 4.2.23 与 4.5.12 曾用于不同项目，DMC5 用 4.0.2，战神5 用 5.0.1，师父用 4.2.23（后台一律 `--factory-startup`）；匹配源文件与插件 |
 | RPKG Tool | [Glacier 工具页](https://glaciermodding.org/rpkg/) | CLI/GUI 2.34.0，导出 GLB/TGA 后重建并回读 |
 | SMF / GlacierKit | [维护者的 suit modding 指南](https://glaciermodding.org/docs/modding/hitman/guides/suitmodding/) | SMF 2.33.40、GlacierKit 1.12.15 为历史锁；使用当前实体补丁 |
 | ZModeler | [作者官网](https://www.zmodeler3.com/) | 3.3.1.1244；XBG filter、Skeleton Bind、L0/L1 Compound，需用户自己的授权。Watch Dogs 自 2026-10-03 起可不用（纯 Python XBG 写出器），仅作对照 |
@@ -36,6 +36,8 @@
 | RE-Engine-Lib（REE-Lib） | [kagenocookie/RE-Engine-Lib](https://github.com/kagenocookie/RE-Engine-Lib)（MIT） | 龙之信条2 DD2Tool 的读写核心，commit `bf0e5e5222700716516797613a54b9b61fedfc35`（2026-09-19），未修改。它支持 TU3.2 起的 PAK（feature 0x40 remap 表）、mesh `.260421070`（DD2_V3）和 tex `.251211553`。便携包只带 DD2Tool 的 C# 源码，REE-Lib 要自己取 |
 | REFramework nightly（龙之信条2） | [nightly 发布](https://github.com/praydog/REFramework-nightly/releases) / [pak_mods 注入（PR #1830）](https://github.com/praydog/REFramework/pull/1830) | 01421 起才注入 `<游戏>/pak_mods/*.pak`。build 25290080 上用 01424：revision `d1461375aee4ec3f313170f8eaad12064eb542d9`，`REFramework.zip` SHA-256 `f035f1da6c9b199ef8348256abfd6bacef4a903485f75d9ab73be5249ae2b14c`，装进游戏的只有其中的 `dinput8.dll`（`14f4d6fd65218f850f39781fb53fb07ba28da6601c1954529098b91608e6ae88`）。退出游戏时可能崩溃或卡住（上游已知） |
 | .NET SDK 10 | [微软下载页](https://dotnet.microsoft.com/download/dotnet/10.0) | 10.0.401，用来编译龙之信条2的 DD2Tool（REE-Lib 用到 C# 14）；DD2Tool 面向 net8.0，运行用 .NET 8 运行时。Windows 10 19044 未装 CET 修复时，对私有 SDK 副本运行便携包的 `clear_cet_flag.py` |
+| CUE4Parse | [FabianFG/CUE4Parse](https://github.com/FabianFG/CUE4Parse)（NuGet `CUE4Parse` / `CUE4Parse-Conversion`） | 师父的 SifuExport 以 1.2.2.202610 编译（.NET 10）：`GAME_UE4_26`、AES 索引解密、JSON / glTF / 骨架 / 动画帧导出，以及烘焙后 mod pak 的引用读回；游戏 AES 密钥由用户自备 |
+| Unreal Engine 4.26.2 | [Epic Games Launcher](https://www.unrealengine.com/) | 师父的内容工程（名为 `Sifu`）、Python 插件、cook 与 UnrealPak；编辑器插件 SifuModTools 用 `RunUAT BuildPlugin` 编译（Windows 上需 Visual Studio 2019/2022 的 C++ 生成工具，本项目 UBT 选用 MSVC 14.44）。插件的 backstop 与加速度驱动结论来自 4.26 引擎源码 |
 | UnPSARC | [rm-NoobInCoding](https://github.com/rm-NoobInCoding/UnPSARC/releases) | 对马岛 DSAR / PSARC 解包参考（本项目未直接使用；mod 包用自写的不压缩 PSARC 写入器） |
 
 黑旗使用的 AnvilToolkit 1.3.6 与 Forge Injector 只是格式比较来源；实测表明它们不是此项目 BFR 的最终编译器。最终 field-4 Forge 实现已在便携包中提供。Oodle 是按需外部依赖，必须由用户合法取得原 DLL，保持脚本中的 SHA 验证。

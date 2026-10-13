@@ -1,0 +1,4 @@
+# Sifu: scripts/make_textures.py only (install together with the bundle-root requirements.txt for Pillow, which
+# frames_to_gif.py also needs). The other plain-Python scripts use the standard library; the Blender scripts use
+# Blender's bundled Python and numpy. Tested on Python 3.14.0 with numpy 2.5.2 and Pillow 12.3.0.
+numpy==2.5.2

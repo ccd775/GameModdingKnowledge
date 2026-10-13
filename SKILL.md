@@ -40,6 +40,7 @@ before authoring. Never use this root document as a live candidate state file.
 - Rise of the Ronin -> `games/rise-of-the-ronin/`
 - Dragon's Dogma 2 -> `games/dragons-dogma-2/`
 - Stellar Blade -> `games/stellar-blade/`
+- Sifu -> `games/sifu/`
 
 - Hitman: World of Assassination -> `games/hitman-world-of-assassination/`
 - Watch Dogs -> `games/watch-dogs/`

@@ -64,6 +64,19 @@ The game workflows use different formats, but the same engineering loop.
   a range check and bound a whole mesh to the wrong bones in game.
 - Bind only to bones that carry skin in the vanilla meshes. Rigs can stack non-deforming FK controls on the same
   joints, and a position-based role or mirror search will happily pick them (the skirt and tail then flip).
+- Read the cooked or packed asset back before tuning its look. Sifu: UE editor Python hands out struct copies, so
+  material slots edited through them stayed `null` in the cooked mesh; four in-game tests chased dark lighting until a
+  CUE4Parse read-back of the pak showed the empty slots.
+- Re-posing a source model (T to A) also rotates the pieces hanging from the limb (sleeves, strings): they end up in
+  the legs at rest. Turn their hang bones back to their source world direction after aligning the limb.
+- Tune joint drives from the source model's own physics parameters and the engine's drive formula, not by trial.
+  PhysX body angular damping acts only on the inertia about the centre of mass, a small fraction of a slender chain's
+  inertia about its root, so it barely damps a pendulum swing. UE 4.26 PhysX drives are acceleration drives: for a
+  sub-chain of inertia I_sub about the joint and mode frequency w, stiffness = w^2 * I_sub / I_com and damping =
+  2 * zeta * w * I_sub / I_com (`games/sifu/PHYSICS.md`).
+- Reproduce a cloth clipping report offline with the game's own animation of that move before changing parameters.
+  A coarse time-stepped stand-in is enough to rank candidates when only conclusions that hold at two solver settings
+  are trusted (Sifu `skirt_sim.py`).
 - Shared source model: since 2026-10-02 Karin_Original's FBX and VRM have body_2's `kisekae_Knee` shape key baked
   into the base mesh (key zeroed, name kept; originals beside them as `*.orig`; VRM `971a150d…` → `8f930404…`,
   FBX `0b6e268d…` → `18f00e1a…`). Projects built before that date used the unbaked source. The first copy into
