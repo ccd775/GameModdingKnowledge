@@ -1663,5 +1663,248 @@
     "portable_sha256": "bd5f826a090e9aa69d940d4279bfc653cd96af2e807a52b96615f8f489d0160e",
     "portable_bytes": 277,
     "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/palworld/scripts/gen_ue_config.py",
+    "source": "ModTools/Palworld/scripts/gen_ue_config.py",
+    "original_sha256": "0b45fe5739a9929e6a0f04efe612c4fce8228ab0dbde55f4bb092b6bfed642bc",
+    "source_bytes": 4058,
+    "portable_sha256": "5bc37f74f717093d77512e0567d02c0c669d1665bd7a77dab9a80548f7254c98",
+    "portable_bytes": 4536,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/palworld/scripts/physics_tune.json",
+    "source": "ModTools/Palworld/scripts/physics_tune.json",
+    "original_sha256": "3e5ccaf8ac955e6f9cbfe1b36c9e263f82c307d46a5dd7ac5b0104cf9d06b121",
+    "source_bytes": 3517,
+    "portable_sha256": "7aa7f272f19726bff544515afbb7daa1a110875a6b02a629fad348c5dfe418dd",
+    "portable_bytes": 3285,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/palworld/scripts/blender/build_pal.py",
+    "source": "ModTools/Palworld/scripts/build_pal.py",
+    "original_sha256": "9dfd46ca27da704a5d8eb90ff9eaf7c35dcc2b7255c9391d7fc8b4fd8fbcf50d",
+    "source_bytes": 33355,
+    "portable_sha256": "ff3bed693595b8649a7f55846093d8bea52b2950fb351e42987fe6decf245004",
+    "portable_bytes": 32725,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/palworld/scripts/blender/palcommon.py",
+    "source": "ModTools/Palworld/scripts/palcommon.py",
+    "original_sha256": "5e0db041b686ab11f3ce2c551e680ecf04615d01877d43a31e763905b684c5c6",
+    "source_bytes": 1076,
+    "portable_sha256": "dada6929032722b3bb7628d16bfc9a73b6873072e4dc9e32c51f70ca70b6645d",
+    "portable_bytes": 1484,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/palworld/scripts/blender/kawaii_sim.py",
+    "source": "ModTools/Palworld/scripts/kawaii_sim.py",
+    "original_sha256": "92555cd22ff327c1cb604222a81abef1c7c4fb0f1407a13100164bea1386bed7",
+    "source_bytes": 19002,
+    "portable_sha256": "14bd6476f6f1b91d8befb0d2c1336137c5a2d5c02269ece1778b52c1f371d96c",
+    "portable_bytes": 18711,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/palworld/scripts/blender/probe_run_pose.py",
+    "source": "ModTools/Palworld/scripts/probe_run_pose.py",
+    "original_sha256": "3e21aae7ded3c4e9ce9bacd30dbde94fd6c16943a96383155eec5cdbb175e35e",
+    "source_bytes": 5324,
+    "portable_sha256": "3e21aae7ded3c4e9ce9bacd30dbde94fd6c16943a96383155eec5cdbb175e35e",
+    "portable_bytes": 5324,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/palworld/scripts/blender/render_preview.py",
+    "source": "ModTools/Palworld/scripts/render_preview.py",
+    "original_sha256": "c8368d182792c4195a69bc8026e1a2dfc488ee0e0d439d6b47debb50d1dcf341",
+    "source_bytes": 2245,
+    "portable_sha256": "c8368d182792c4195a69bc8026e1a2dfc488ee0e0d439d6b47debb50d1dcf341",
+    "portable_bytes": 2245,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/palworld/scripts/blender/render_views.py",
+    "source": "ModTools/Palworld/scripts/render_views.py",
+    "original_sha256": "7db4d59bb5da3fa59b0c3d8a9cac26643914701b915ca9dc0a299458095a304f",
+    "source_bytes": 1026,
+    "portable_sha256": "7db4d59bb5da3fa59b0c3d8a9cac26643914701b915ca9dc0a299458095a304f",
+    "portable_bytes": 1026,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/palworld/scripts/blender/render_keys.py",
+    "source": "ModTools/Palworld/scripts/render_keys.py",
+    "original_sha256": "ec4fbad27e0384d6f6021b29943fab4c66ff9fd6d42c57c81acc53fb37fbad89",
+    "source_bytes": 1199,
+    "portable_sha256": "ec4fbad27e0384d6f6021b29943fab4c66ff9fd6d42c57c81acc53fb37fbad89",
+    "portable_bytes": 1199,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/palworld/scripts/ue/ue_import.py",
+    "source": "ModTools/Palworld/ue/ue_import.py",
+    "original_sha256": "729faa5d98123ca09789c45d7a4f403509cc6208ae8a1793b41cc23f13b9df74",
+    "source_bytes": 12843,
+    "portable_sha256": "b5fb29d732f49354140a89e8961b27ae3a37672c550e9debe3483f11fe8a548d",
+    "portable_bytes": 12688,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/palworld/scripts/ue/ue_build_abp.py",
+    "source": "ModTools/Palworld/ue/ue_build_abp.py",
+    "original_sha256": "999a8e450bc77b91a537c70b56fe9d5d4a2578b10f07794012b803f4fa1a670a",
+    "source_bytes": 8942,
+    "portable_sha256": "54a660bab99f65b849d84e9172d6c5bc8882ffda476ce25f16a70648295247e1",
+    "portable_bytes": 8901,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/palworld/tools/cook_and_pack.ps1",
+    "source": "ModTools/Palworld/ue/cook_and_pack.ps1",
+    "original_sha256": "f1b6bc5ebe9ac91fa0756b8993fa3d6014dd6a90a85a2bae092690cc95437ecb",
+    "source_bytes": 4059,
+    "portable_sha256": "d14c9f64fb610f87de018b8892f2dd80f5f07fa87b76acaee045c00fcbd9fb34",
+    "portable_bytes": 5165,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/palworld/tools/build_plugin.ps1",
+    "source": "ModTools/Palworld/ue/build_plugin.ps1",
+    "original_sha256": "c5cb316e04d1b4c48dc9ed973071b6d689c71d40653192adc8d212be6f7fc519",
+    "source_bytes": 619,
+    "portable_sha256": "0d09f3c9ba14289f59fc29adc1545a30cd6793a0e820d0aa5be6fdfc75e3ec1b",
+    "portable_bytes": 1385,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/palworld/tools/run_py.ps1",
+    "source": "ModTools/Palworld/ue/run_py.ps1",
+    "original_sha256": "b2f81bbd9d72f4057f9396361cf6d93759e717c2578b52f9dcbef85ff7329a50",
+    "source_bytes": 650,
+    "portable_sha256": "7b58e16f0f6fc66c99e2cabd2b75549356e17503d6fe017f9ce9e89c9aaa3bfb",
+    "portable_bytes": 1510,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/palworld/tools/verify_paks.ps1",
+    "source": "ModTools/Palworld/ue/verify_paks.ps1",
+    "original_sha256": "b380beca40bacad74f9734ca8a2c2cda91bbf27079dca01a7fb361f4cfffc18a",
+    "source_bytes": 1312,
+    "portable_sha256": "922794f28227003951ade4ae6c4d357a1466448d0d6477ff521d01c10aa7d2ad",
+    "portable_bytes": 2013,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/palworld/tools/palx_run.ps1",
+    "source": "PalModding/tools/palx_run.ps1",
+    "original_sha256": "96bc200ae846bcc414e0aaf2014c725e584d8b906a5035d5e5ab793454b16911",
+    "source_bytes": 398,
+    "portable_sha256": "322cc5262f062c37765230d777f50a068fa3f94d6400af7efebbc2a2627643f6",
+    "portable_bytes": 1415,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/palworld/ue/PalProj/Pal.uproject",
+    "source": "ModTools/Palworld/ue/project/Pal.uproject",
+    "original_sha256": "a5653f0b59cd7e001e4864d938b0e90e1b81e61a1e884625d8026bc18bc5402d",
+    "source_bytes": 594,
+    "portable_sha256": "a5653f0b59cd7e001e4864d938b0e90e1b81e61a1e884625d8026bc18bc5402d",
+    "portable_bytes": 594,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/palworld/ue/PalProj/Config/DefaultEditor.ini",
+    "source": "ModTools/Palworld/ue/project/Config/DefaultEditor.ini",
+    "original_sha256": "289bc6cdf44a8dd4393f263c9cb25b7cf2f21a27716eabcbbb28654a5bea0947",
+    "source_bytes": 80,
+    "portable_sha256": "289bc6cdf44a8dd4393f263c9cb25b7cf2f21a27716eabcbbb28654a5bea0947",
+    "portable_bytes": 80,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/palworld/ue/PalProj/Config/DefaultEngine.ini",
+    "source": "ModTools/Palworld/ue/project/Config/DefaultEngine.ini",
+    "original_sha256": "4d0d9dd507015ddb11ae297da48a30986da241c2bf499ecdbdb44a4a933228e0",
+    "source_bytes": 944,
+    "portable_sha256": "4d0d9dd507015ddb11ae297da48a30986da241c2bf499ecdbdb44a4a933228e0",
+    "portable_bytes": 944,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/palworld/ue/PalProj/Config/DefaultGame.ini",
+    "source": "ModTools/Palworld/ue/project/Config/DefaultGame.ini",
+    "original_sha256": "f050fd291084c4801144c21863e27d37fe764f1c8ab8024ddd6533e4ff2b27ee",
+    "source_bytes": 274,
+    "portable_sha256": "f050fd291084c4801144c21863e27d37fe764f1c8ab8024ddd6533e4ff2b27ee",
+    "portable_bytes": 274,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/palworld/ue/PalModTools/PalModTools.uplugin",
+    "source": "ModTools/Palworld/ue/project/Plugins/PalModTools/PalModTools.uplugin",
+    "original_sha256": "7178b4dc96de757779283b01add33ede70deddd9a52ba2b08f22b36241d749ea",
+    "source_bytes": 417,
+    "portable_sha256": "7178b4dc96de757779283b01add33ede70deddd9a52ba2b08f22b36241d749ea",
+    "portable_bytes": 417,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/palworld/ue/PalModTools/Source/PalModTools/PalModTools.Build.cs",
+    "source": "ModTools/Palworld/ue/project/Plugins/PalModTools/Source/PalModTools/PalModTools.Build.cs",
+    "original_sha256": "b6e7ae45cdf68e50a0f7db96feab5b5027f3f5ffbc89454d032a3b50b2f76b75",
+    "source_bytes": 408,
+    "portable_sha256": "b6e7ae45cdf68e50a0f7db96feab5b5027f3f5ffbc89454d032a3b50b2f76b75",
+    "portable_bytes": 408,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/palworld/ue/PalModTools/Source/PalModTools/Public/PalGraphLib.h",
+    "source": "ModTools/Palworld/ue/project/Plugins/PalModTools/Source/PalModTools/Public/PalGraphLib.h",
+    "original_sha256": "b64eafa9df02da20c3b6d89108c44f0c343a211559fa2fd03cc9a9952a5d90cd",
+    "source_bytes": 4642,
+    "portable_sha256": "b64eafa9df02da20c3b6d89108c44f0c343a211559fa2fd03cc9a9952a5d90cd",
+    "portable_bytes": 4642,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/palworld/ue/PalModTools/Source/PalModTools/Private/PalGraphLib.cpp",
+    "source": "ModTools/Palworld/ue/project/Plugins/PalModTools/Source/PalModTools/Private/PalGraphLib.cpp",
+    "original_sha256": "b5ad21d63ba998cd9494d74296a1fa1100c30dbd942854e5249084adf2c27cad",
+    "source_bytes": 11983,
+    "portable_sha256": "139700a90dcea17adb0cd8024a52c63f5def67f2f4acc0463a59c104c374ab99",
+    "portable_bytes": 11546,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/palworld/ue/PalModTools/Source/PalModTools/Private/PalModToolsModule.cpp",
+    "source": "ModTools/Palworld/ue/project/Plugins/PalModTools/Source/PalModTools/Private/PalModToolsModule.cpp",
+    "original_sha256": "aa363ff164f8f5e56b73f522f31acfd293d3a80009b92e2cec4265c813226e7e",
+    "source_bytes": 85,
+    "portable_sha256": "aa363ff164f8f5e56b73f522f31acfd293d3a80009b92e2cec4265c813226e7e",
+    "portable_bytes": 85,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/palworld/palexport/Program.cs",
+    "source": "ModTools/Palworld/src/PalExport/Program.cs",
+    "original_sha256": "95cfb14ae96158290db19b18533c83786a8bb126edc72fb2dd2b89c8ebc59f29",
+    "source_bytes": 8654,
+    "portable_sha256": "95cfb14ae96158290db19b18533c83786a8bb126edc72fb2dd2b89c8ebc59f29",
+    "portable_bytes": 8654,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/palworld/palexport/PalExport.csproj",
+    "source": "ModTools/Palworld/src/PalExport/PalExport.csproj",
+    "original_sha256": "8cdf8af3642edb2e56e86c00ee2a2b40f11073055bd6e628156b2a176b86e7e2",
+    "source_bytes": 540,
+    "portable_sha256": "8cdf8af3642edb2e56e86c00ee2a2b40f11073055bd6e628156b2a176b86e7e2",
+    "portable_bytes": 540,
+    "modified_for_portability": false
   }
 ]

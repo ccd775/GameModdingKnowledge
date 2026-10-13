@@ -77,6 +77,16 @@ class DetachedExports(unittest.TestCase):
                     if game == 'sifu' and all(importlib.util.find_spec(m) for m in ('numpy', 'PIL')):
                         self.assertIn('test_sifu_make_textures_channels_and_ue_build', process.stderr)
                         self.assertFalse([l for l in process.stderr.splitlines() if 'test_sifu_' in l and 'skipped' in l])
+                    if game == 'palworld':
+                        self.assertTrue((target/'portable-kits/palworld/requirements.txt').is_file())
+                        for name in ('test_pal_kawaii_merge_and_curve', 'test_pal_physics_tune_covers_build_groups',
+                                     'test_pal_provenance_and_portability'):
+                            self.assertIn(name, process.stderr)
+                        self.assertFalse([l for l in process.stderr.splitlines() if 'test_pal_' in l and 'skipped' in l
+                                          and ('kawaii' in l or 'physics_tune' in l or 'provenance' in l)])
+                    if game == 'palworld' and all(importlib.util.find_spec(m) for m in ('numpy', 'PIL')):
+                        self.assertIn('test_pal_gen_ue_config_paths_and_helpers', process.stderr)
+                        self.assertFalse([l for l in process.stderr.splitlines() if 'test_pal_gen_ue_config' in l and 'skipped' in l])
                     print(f'{game}: detached tests passed (unselected games skipped)')
 
 

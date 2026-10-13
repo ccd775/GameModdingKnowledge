@@ -1,0 +1,96 @@
+{
+  "game": "Palworld (PC, Steam App 1623730)",
+  "status": "runtime-load-pass",
+  "tools": [
+    {
+      "name": "Blender",
+      "version": "4.2.23 LTS with the UEFormat add-on (io_scene_ueformat, manifest 0.10.0) and the bundled io_scene_fbx; run with --background --factory-startup",
+      "role": "body / face / hidden-mesh build from the source VRM onto the OldCloth001 skeleton (vanilla orientations, Karin joint positions), weights, chain renaming onto game NPC accessory chains, 11 facial morphs, physics.json; previews and pose probes; offline KawaiiPhysics 1.17.1 simulation and resolved-parameter export (scripts/blender/)",
+      "required": true
+    },
+    {
+      "name": "Unreal Engine",
+      "version": "5.1.1 (Epic launcher build, CL 23901901) with PythonScriptPlugin, EditorScriptingUtilities and StructUtils",
+      "role": "content project Pal (ue/PalProj): mesh, texture and MI import with game-path placeholders, cloth-layer anim blueprint ABP_F_OldCloth001_Implimentation (scripts/ue/ via tools/run_py.ps1); -unversioned cook (tools/cook_and_pack.ps1)",
+      "required": true
+    },
+    {
+      "name": "KawaiiPhysics (pafuhana1213/KawaiiPhysics, MIT)",
+      "version": "1.17.1, obtained separately (not bundled) into <PAL_PROJECT>/Plugins/KawaiiPhysics",
+      "role": "anim graph node class used by ue_build_abp.py; built with the project by tools/build_plugin.ps1; the game ships its own runtime with the same property layout",
+      "required": true
+    },
+    {
+      "name": "PalModTools editor plugin (ue/PalModTools, C++)",
+      "version": "kit source; built with UnrealBuildTool (tools/build_plugin.ps1, -Compiler VisualStudio2019 by default)",
+      "role": "unreal.PalGraphLib: headless anim graph authoring (nodes, layers, pins, nested properties, interfaces, compile), ref-pose / socket / morph helpers",
+      "required": true
+    },
+    {
+      "name": "PalExport (palexport/, C# on CUE4Parse)",
+      "version": "CUE4Parse / CUE4Parse-Conversion 1.2.2.202610 NuGet, net10.0 win-x64, built with the .NET 10 SDK",
+      "role": "list / json / raw / export (uemodel, ueanim, glTF, psk) / skel / mappings over the game paks with the usmap and Oodle DLL (tools/palx_run.ps1), read-back of the mod paks (tools/verify_paks.ps1)",
+      "required": true
+    },
+    {
+      "name": "repak (trumank/repak)",
+      "version": "v0.2.3 CLI",
+      "role": "legacy pak V11 with mount point ../../../ (tools/cook_and_pack.ps1)",
+      "required": true
+    },
+    {
+      "name": "usmap (PalworldModding/UsefulFiles Mappings)",
+      "version": "1.0.5 (matches buildid 25246127)",
+      "role": "type mappings for the unversioned game packages (PalExport)",
+      "required": true
+    },
+    {
+      "name": "Oodle oo2core_9_win64.dll",
+      "version": "user-supplied",
+      "role": "decompression for PalExport",
+      "required": true
+    },
+    {
+      "name": "gen_ue_config.py",
+      "version": "kit",
+      "role": "ue_config.json (textures, MIs and game parents, female head / hair path lists, socket) and 4x4 helper textures",
+      "required": true
+    }
+  ],
+  "entry_documents": [
+    "../../games/palworld/README.md",
+    "../../games/palworld/BUILD_PIPELINE.md"
+  ],
+  "runtime_boundary": "Game buildid 25246127 (v1.0.5.102999), UE 5.1.1, three *_P.pak in Pal/Content/Paks/~mods (no .sig, no UE4SS). r3 loaded in game with the face aligned and physics running, blink confirmed by the user; the user judged its physics stiff and saw thigh roots poke through the skirt when running. r4 (r3 meshes + physics_r4.json retuned with kawaii_sim.py) loads in game; its feel is awaiting the user's verdict. Other expressions and swimming / gliding / combat skirt behaviour untested. The portable copies were checked offline only: kawaii_sim.py reproduces physics_r4.json (apart from the tune path) and the RESULT lines of the original, build_pal.py reproduces physics.json, report.json, textures and the FBX / blend data of the original and r3, gen_ue_config.py reproduces ue_config.json and helper textures (see VALIDATION.md); the PowerShell tools were run with fake executables only; the UE-side scripts, plugin, real cook and PalExport were reviewed, not re-run.",
+  "bundled_scripts": [
+    "scripts/gen_ue_config.py",
+    "scripts/physics_tune.json",
+    "scripts/blender/build_pal.py",
+    "scripts/blender/palcommon.py",
+    "scripts/blender/kawaii_sim.py",
+    "scripts/blender/probe_run_pose.py",
+    "scripts/blender/render_preview.py",
+    "scripts/blender/render_views.py",
+    "scripts/blender/render_keys.py",
+    "scripts/ue/ue_import.py",
+    "scripts/ue/ue_build_abp.py",
+    "tools/palx_run.ps1",
+    "tools/run_py.ps1",
+    "tools/cook_and_pack.ps1",
+    "tools/verify_paks.ps1",
+    "tools/build_plugin.ps1",
+    "palexport/Program.cs",
+    "palexport/PalExport.csproj",
+    "ue/PalModTools/PalModTools.uplugin",
+    "ue/PalModTools/Source/PalModTools/PalModTools.Build.cs",
+    "ue/PalModTools/Source/PalModTools/Public/PalGraphLib.h",
+    "ue/PalModTools/Source/PalModTools/Private/PalGraphLib.cpp",
+    "ue/PalModTools/Source/PalModTools/Private/PalModToolsModule.cpp",
+    "ue/PalProj/Pal.uproject",
+    "ue/PalProj/Config/DefaultEditor.ini",
+    "ue/PalProj/Config/DefaultEngine.ini",
+    "ue/PalProj/Config/DefaultGame.ini"
+  ],
+  "python": "3.10+ for gen_ue_config.py (numpy 2.5 needs 3.12+, plus Pillow); Blender scripts run in Blender's Python 3.11; tested 3.14.0",
+  "dependency_install": "python -m pip install -r requirements.txt -r portable-kits/palworld/requirements.txt (from bundle root; only needed for gen_ue_config.py)"
+}

@@ -2477,4 +2477,257 @@ class SifuTools(unittest.TestCase):
             with Image.open(self.root / name) as im:                          # sheet: 6 columns by default
                 self.assertEqual(im.size, size)
 
+
+PAL_KIT = KITS / 'palworld'
+PAL_GROUPS = {'skirt', 'tail', 'twintails', 'sidehair', 'fronthair', 'ears', 'ribbons'}
+PAL_SETTINGS = ('damping', 'stiffness', 'world_loc', 'world_rot', 'radius', 'limit_angle')
+
+
+def pal_kit():
+    if not PAL_KIT.is_dir():
+        raise unittest.SkipTest('palworld is not included in this single-game export')
+    return PAL_KIT
+
+
+def pal_source(rel):
+    return (pal_kit() / rel).read_text(encoding='utf-8')
+
+
+def pal_functions(rel, names, **namespace):
+    """Top-level functions of a Blender script compiled on their own (the script itself needs bpy at import time)."""
+    tree = ast.parse(pal_source(rel))
+    body = [n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name in names]
+    if sorted(n.name for n in body) != sorted(names):
+        raise AssertionError(f'{rel}: expected functions {names}, found {[n.name for n in body]}')
+    exec(compile(ast.Module(body=body, type_ignores=[]), str(pal_kit() / rel), 'exec'), namespace)
+    return namespace
+
+
+def pal_strings(rel, function=None):
+    """String constants of a script, or of one of its top-level functions."""
+    tree = ast.parse(pal_source(rel))
+    if function:
+        tree = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == function)
+    return {n.value for n in ast.walk(tree) if isinstance(n, ast.Constant) and isinstance(n.value, str)}
+
+
+class PalworldTools(unittest.TestCase):
+    """Kawaii tune merge and curves, the tuning file, gen_ue_config.py and the PowerShell tools on synthetic data. The
+    Blender build and simulator, the UE Python, the PalModTools plugin (C++) and PalExport (C#) need Blender, UE 5.1 or
+    the game."""
+
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(prefix='modding palworld ')
+        self.root = Path(self.temp.name)
+
+    def tearDown(self): self.temp.cleanup()
+
+    def test_pal_kawaii_merge_and_curve(self):
+        tune = {'skirt': {'damping': 0.15, 'limit_angle': 65, 'gravity': [0, 0, -80], 'stiffness_curve': [[0, 1], [1, 0.7]],
+                          'capsule_radius': {'thigh_l': 7.5}, 'extra_capsules': [{'bone': 'pelvis', 'a': [0, 0, 80],
+                                                                                  'b': [1, 0, 80], 'radius': 9.0}],
+                          'note': 'ignored'},
+                'tail': {'capsules': [{'bone': 'pelvis', 'a': [-4, 0, 82], 'b': [4, 0, 82], 'radius': 9.75},
+                                      {'bone': 'thigh_r', 'a': [-9, 0, 82], 'b': [-9, 1, 76], 'radius': 9.5}],
+                         'capsule_radius': {'pelvis': 3.0}, 'dummy': 2.0, 'ring_levels': [1, 2], 'compliance': 'Rubber'}}
+        ns = pal_functions('scripts/blender/kawaii_sim.py', ['merged', 'curve'], json=json, TUNE=tune)
+        merged, curve = ns['merged'], ns['curve']
+        # curves: linear multipliers over the length rate from the root, clamped to the end keys, 1.0 when absent
+        keys = [[0, 1], [0.5, 0.8], [1, 0.5]]
+        self.assertEqual(curve(None, 0.3), 1.0)
+        self.assertEqual(curve([], 0.3), 1.0)
+        for x, want in ((-1, 1.0), (0, 1.0), (0.25, 0.9), (0.5, 0.8), (0.75, 0.65), (1, 0.5), (2, 0.5)):
+            self.assertAlmostEqual(curve(keys, x), want)
+        # physics.json group (geometry and default dynamics) + physics_tune.json dynamics
+        settings = dict(damping=0.25, stiffness=0.12, world_loc=0.8, world_rot=0.8, radius=2.5, limit_angle=40)
+        derived = [{'bone': 'thigh_l', 'a': [9, 0, 80], 'b': [9, 1, 70], 'radius': 9.0, 'vrm_radius': 10.0},
+                   {'bone': 'thigh_r', 'a': [-9, 0, 80], 'b': [-9, 1, 70], 'radius': 9.0, 'vrm_radius': 10.0}]
+        skirt = {'name': 'skirt', 'roots': ['skirtA_02', 'skirtB_02'], 'settings': dict(settings), 'capsules': derived,
+                 'gravity': [0, 0, -60]}
+        before = json.dumps(skirt)
+        m = merged(skirt)
+        self.assertEqual(json.dumps(skirt), before)                          # the input group is not modified
+        self.assertEqual(m['settings'], dict(settings, damping=0.15, limit_angle=65))
+        self.assertEqual((m['gravity'], m['stiffness_curve'], m['roots']), ([0, 0, -80], [[0, 1], [1, 0.7]], skirt['roots']))
+        self.assertNotIn('note', m)
+        self.assertEqual([(c['bone'], c['radius']) for c in m['capsules']], [('thigh_l', 7.5), ('thigh_r', 9.0), ('pelvis', 9.0)])
+        # explicit capsules replace the derived ones (radius overrides still apply) and are copied, not shared
+        tail = merged({'name': 'tail', 'roots': ['cloth_A_01'], 'settings': dict(settings), 'capsules': derived})
+        self.assertEqual([(c['bone'], c['radius']) for c in tail['capsules']], [('pelvis', 3.0), ('thigh_r', 9.5)])
+        self.assertEqual((tail['dummy'], tail['ring_levels'], tail['compliance'], tail['settings']), (2.0, [1, 2], 'Rubber', settings))
+        self.assertNotIn('gravity', tail)
+        tail['capsules'][0]['radius'] = 99
+        self.assertEqual(tune['tail']['capsules'][0]['radius'], 9.75)
+        # every physics.json group needs a physics_tune.json entry
+        with self.assertRaises(KeyError):
+            merged({'name': 'ears', 'roots': ['ear_01'], 'settings': dict(settings)})
+
+    def test_pal_physics_tune_covers_build_groups(self):
+        tune = json.loads(pal_source('scripts/physics_tune.json'))['groups']
+        # the groups build_pal.py writes to physics.json (group("<name>", ...) calls) all have tuning entries
+        tree = ast.parse(pal_source('scripts/blender/build_pal.py'))
+        built = {n.args[0].value for n in ast.walk(tree) if isinstance(n, ast.Call) and getattr(n.func, 'id', None) == 'group'
+                 and n.args and isinstance(n.args[0], ast.Constant)}
+        self.assertEqual(built, PAL_GROUPS)
+        self.assertEqual(set(tune), PAL_GROUPS)
+        known = pal_strings('scripts/blender/kawaii_sim.py', 'merged')       # keys merged() reads; others are ignored
+        number = (int, float)
+        for name, t in tune.items():
+            with self.subTest(group=name):
+                self.assertFalse(set(t) - known, 'keys the simulator and ue_build_abp.py would ignore')
+                for k in ('damping', 'stiffness', 'world_loc', 'world_rot'):
+                    if k in t: self.assertTrue(0 <= t[k] <= 1, k)
+                if 'radius' in t: self.assertGreater(t['radius'], 0)
+                if 'limit_angle' in t: self.assertTrue(0 <= t['limit_angle'] <= 180)
+                if 'gravity' in t: self.assertTrue(len(t['gravity']) == 3 and all(isinstance(v, number) for v in t['gravity']))
+                for k in ('stiffness_curve', 'damping_curve', 'limit_angle_curve'):
+                    if k in t:
+                        xs = [p[0] for p in t[k]]
+                        self.assertTrue(all(len(p) == 2 and p[1] >= 0 for p in t[k]) and xs == sorted(set(xs)))
+                        self.assertTrue(0 <= xs[0] and xs[-1] <= 1)
+                for c in t.get('capsules', []) + t.get('extra_capsules', []):
+                    self.assertTrue(isinstance(c['bone'], str) and c['radius'] > 0 and len(c['a']) == len(c['b']) == 3)
+        # merged against a synthetic physics.json: every node gets numeric settings, ue_build_abp.py reads all of them
+        ns = pal_functions('scripts/blender/kawaii_sim.py', ['merged'], json=json, TUNE=tune)
+        defaults = dict(damping=0.3, stiffness=0.15, world_loc=0.8, world_rot=0.8, radius=1.5, limit_angle=35)
+        for name in sorted(PAL_GROUPS):
+            g = ns['merged']({'name': name, 'roots': [f'{name}_01'], 'settings': dict(defaults), 'capsules': []})
+            self.assertTrue(all(isinstance(g['settings'][k], number) for k in PAL_SETTINGS))
+        abp = pal_strings('scripts/ue/ue_build_abp.py')
+        self.assertTrue(set(PAL_SETTINGS) | {'gravity', 'dummy', 'capsules', 'stiffness_curve', 'damping_curve',
+                                             'limit_angle_curve'} <= abp)
+
+    def test_pal_gen_ue_config_paths_and_helpers(self):
+        missing = [m for m in ('numpy', 'PIL') if importlib.util.find_spec(m) is None]
+        if missing:
+            self.skipTest('pip install -r requirements.txt -r portable-kits/palworld/requirements.txt (missing '
+                          + ', '.join(missing) + ')')
+        from PIL import Image
+        script = pal_kit() / 'scripts' / 'gen_ue_config.py'
+        player = 'Pal/Content/Pal/Model/Character/Player'
+        listing = self.root / 'player list.txt'
+        listing.write_text('\n'.join([
+            'mounted 1 containers, 9 files',                                   # PalExport's stderr line (2>&1)
+            f'{player}/Head/Head010/SK_Player_Female_Head010.uasset', f'{player}/Head/Head010/SK_Player_Female_Head010.uexp',
+            f'{player}/Head/Head002/SK_Player_Female_Head002.uasset', f'{player}/Head/Head002/SK_Player_Male_Head002.uasset',
+            f'{player}/Head/Head002/MI_Player_Female_Head002.uasset', f'{player}/Hair/Hair003/SK_Player_Hair003.uasset',
+            f'{player}/Hair/Hair001/SK_Player_Hair001.uasset ', f'{player}/Hair/Hair001/SK_Player_Hair001_Physics.uasset']),
+            encoding='utf-8')
+        run = self.root / 'run 1'
+        process = subprocess.run([sys.executable, '-B', str(script), str(run), str(listing)], capture_output=True, text=True)
+        self.assertEqual(process.returncode, 0, process.stderr)
+        self.assertIn('heads 2 hairs 2', process.stdout)
+        cfg = json.loads((run / 'ue_config.json').read_text(encoding='utf-8'))
+        game = '/Game/Pal/Model/Character/Player'
+        self.assertEqual(cfg['head_paths'], [f'{game}/Head/Head002/SK_Player_Female_Head002', f'{game}/Head/Head010/SK_Player_Female_Head010'])
+        self.assertEqual(cfg['hair_paths'], [f'{game}/Hair/Hair001/SK_Player_Hair001', f'{game}/Hair/Hair003/SK_Player_Hair003'])
+        self.assertEqual(cfg['hidden_material'], 'MI_Karin_Skin')
+        for name, rgba in (('T_Karin_FlatN', (128, 128, 255, 255)), ('T_Karin_Black', (0, 0, 0, 255)),
+                           ('T_Karin_SkinM', (0, 102, 255, 255)), ('T_Karin_SkinSSS', (176, 97, 79, 255))):
+            spec = cfg['textures'][name]
+            with Image.open(run / 'textures' / spec['file']) as im:
+                self.assertEqual((im.mode, im.size, im.getpixel((3, 3))), ('RGBA', (4, 4), rgba))
+        self.assertEqual((cfg['textures']['T_Karin_FlatN']['normal'], cfg['textures']['T_Karin_SkinSSS']['srgb']), (True, True))
+        self.assertEqual(cfg['textures']['T_Karin_Body'], {'file': 'Karin_Body.png', 'srgb': True, 'normal': False})
+        mats = cfg['materials']
+        self.assertEqual(sorted(mats), ['MI_Karin_Costume', 'MI_Karin_Face', 'MI_Karin_Hair', 'MI_Karin_Skin'])
+        self.assertEqual((mats['MI_Karin_Skin']['parent'], mats['MI_Karin_Face']['textures']['Base Texture']),
+                         ('/Game/Pal/Material/Character/Common/MI_PalLit_HumanSkin', 'T_Karin_Face'))
+        self.assertTrue(all(t in cfg['textures'] for m in mats.values() for t in m['textures'].values()))
+        sock = cfg['body_sockets'][0]
+        self.assertEqual((sock['name'], sock['bone']), ('Socket_BackWeapon_R', 'spine_03'))
+        self.assertAlmostEqual(sock['loc'][0], 8.96 * 0.85)
+        bad = subprocess.run([sys.executable, '-B', str(script), str(run)], capture_output=True, text=True)
+        self.assertNotEqual(bad.returncode, 0)
+
+    def test_pal_tools_environment_and_staging(self):
+        import shutil
+        tools = pal_kit() / 'tools'
+        pwsh = shutil.which('pwsh')
+        if not pwsh or sys.platform != 'win32':
+            self.skipTest('needs PowerShell 7 (pwsh) on Windows')
+        names = ('palx_run.ps1', 'cook_and_pack.ps1', 'verify_paks.ps1', 'run_py.ps1', 'build_plugin.ps1')
+        env = {k: v for k, v in os.environ.items() if not k.startswith('PAL_')}
+
+        def ps(script, *args, extra=None, ok=True):
+            process = subprocess.run([pwsh, '-NoProfile', '-NonInteractive', '-File', str(script), *map(str, args)],
+                                     capture_output=True, text=True, encoding='utf-8', errors='replace',
+                                     env=dict(env, **(extra or {})), timeout=120)
+            if (process.returncode == 0) != ok:
+                raise AssertionError(f'{script}: exit {process.returncode}\n{process.stdout}\n{process.stderr}')
+            return process.stdout
+        # every tool parses, and stops before doing anything when its machine paths are not given
+        driver = self.root / 'driver.ps1'
+        driver.write_text("$r = [ordered]@{}\nforeach ($f in $args) {\n  $e = $null; $t = $null\n"
+                          "  [void][System.Management.Automation.Language.Parser]::ParseFile($f, [ref]$t, [ref]$e)\n"
+                          "  try { & $f *> $null; $m = 'ran' } catch { $m = \"$_\" }\n"
+                          "  $r[(Split-Path $f -Leaf)] = @{ parse = $e.Count; error = $m } }\n$r | ConvertTo-Json -Compress\n",
+                          encoding='utf-8')
+        report = json.loads(ps(driver, *(tools / n for n in names)))
+        for name, want in zip(names, ('PAL_GAME_DIR', 'PAL_WORK_ROOT', 'PAL_WORK_ROOT', 'PAL_UE_ROOT', 'PAL_UE_ROOT')):
+            self.assertEqual(report[name]['parse'], 0, name)
+            self.assertIn(want, report[name]['error'], name)
+        # fake executables: PalExport echoes its arguments, repak lists the stage folder into the pak file
+        echo, repak = self.root / 'echo.cmd', self.root / 'repak.cmd'
+        echo.write_text('@echo off\r\necho ARGS %*\r\n', encoding='ascii')
+        repak.write_text('@echo off\r\nif not "%~1"=="pack" exit /b 3\r\ndir /s /b /a-d "%~6" > "%~7"\r\n', encoding='ascii')
+        work, game, project = self.root / 'work root', self.root / 'game dir', self.root / 'project'
+        (work / 'tools').mkdir(parents=True)
+        out = ps(tools / 'palx_run.ps1', 'ue', 'list', 'Player/', '-Exe', echo, extra={'PAL_WORK_ROOT': str(work), 'PAL_GAME_DIR': str(game)})
+        self.assertIn(f'ARGS "{game}\\Pal\\Content\\Paks" "{work}\\tools\\Mappings.usmap" "{work}\\tools\\oo2core_9_win64.dll" '
+                      f'"{work}\\extract\\ue" list Player/', out)
+        out = ps(tools / 'verify_paks.ps1', 'r9', '-Exe', echo, '-Usmap', 'm.usmap', '-Oodle', 'o.dll', extra={'PAL_WORK_ROOT': str(work)})
+        self.assertEqual(out.count(f'ARGS "{work}\\out\\r9" m.usmap o.dll "{work}\\extract\\verify_r9"'), 3)
+        self.assertIn('VERIFY_DONE', out)
+        cooked = project / 'Saved/Cooked/Windows/Pal/Content'
+        content = {'Karin_Body_P': ['Pal/Model/Character/Player/Outfit/SK_Player_Female_Outfit_OldCloth001/SK_Player_Female_Outfit_OldCloth001.uasset',
+                                    'Pal/Blueprint/Character/Player/Imp_Cloth/ABP_F_OldCloth001_Implimentation.uexp',
+                                    'Mods/KarinPal/Textures/T_Karin_Body.uasset', 'Mods/KarinPal/Materials/MI_Karin_Skin.uasset'],
+                   'Karin_Face_P': ['Pal/Model/Character/Player/Head/Head001/SK_Player_Female_Head001.uasset',
+                                    'Pal/Model/Character/Player/Head/Head026/SK_Player_Female_Head026.ubulk'],
+                   'Karin_HideHair_P': ['Pal/Model/Character/Player/Hair/Hair001/SK_Player_Hair001.uasset']}
+        dummies = ['Pal/Model/Character/Skeleton/Human/SK_PalHuman_Skeleton.uasset',
+                   'Pal/Blueprint/Character/Player/Female/ALI_HumanCloth.uasset',
+                   'Pal/Model/Character/Player/Outfit/SK_Player_Female_Outfit_OldCloth001/MI_Other.uasset',
+                   'Pal/Model/Character/Player/Head/Head001/SK_Player_Male_Head001.uasset']
+        for rel in [r for v in content.values() for r in v] + dummies:
+            (cooked / rel).parent.mkdir(parents=True, exist_ok=True)
+            (cooked / rel).write_bytes(b'synthetic')
+        ps(tools / 'cook_and_pack.ps1', '-SkipCook', '-Install', 't1', '-Repak', repak, extra={'PAL_WORK_ROOT': str(work), 'PAL_UE_ROOT': str(self.root / 'ue'),
+           'PAL_PROJECT': str(project), 'PAL_GAME_DIR': str(game)})
+        mods = game / 'Pal/Content/Paks/~mods'
+        self.assertEqual(sorted(p.name for p in mods.iterdir()), sorted(f'{n}.pak' for n in content))
+        for name, files in content.items():
+            listed = (mods / f'{name}.pak').read_text(encoding='utf-8', errors='replace').splitlines()
+            stage = work / 'stage' / 't1' / name
+            self.assertEqual(sorted(listed), sorted(str(stage / 'Pal/Content' / f).replace('/', '\\') for f in files))
+        ps(tools / 'cook_and_pack.ps1', '-SkipCook', '-Install', 't2', '-Repak', repak,
+           extra={'PAL_WORK_ROOT': str(work), 'PAL_UE_ROOT': str(self.root / 'ue'), 'PAL_PROJECT': str(project)}, ok=False)
+        self.assertFalse((work / 'out' / 't2').exists())                     # -Install without the game folder: refused first
+
+    def test_pal_provenance_and_portability(self):
+        import hashlib
+        import re
+        kit = pal_kit()
+        rows = [r for r in json.loads((KITS / 'PROVENANCE.json').read_text(encoding='utf-8-sig'))
+                if r['path'].startswith('portable-kits/palworld/')]
+        files = sorted(p.relative_to(ROOT).as_posix() for p in kit.rglob('*') if p.is_file() and '__pycache__' not in p.parts)
+        own = {'portable-kits/palworld/' + n for n in ('README.md', 'toolchain.json', 'requirements.txt')}
+        self.assertEqual(sorted(r['path'] for r in rows), sorted(set(files) - own))
+        for r in rows:
+            data = (ROOT / r['path']).read_bytes()
+            self.assertEqual((hashlib.sha256(data).hexdigest(), len(data)), (r['portable_sha256'], r['portable_bytes']), r['path'])
+            self.assertTrue(r['source'].startswith('ModTools/Palworld/') or r['source'] == 'PalModding/tools/palx_run.ps1')
+            self.assertEqual(r['modified_for_portability'], r['portable_sha256'] != r['original_sha256'], r['path'])
+        bundled = json.loads((kit / 'toolchain.json').read_text(encoding='utf-8'))['bundled_scripts']
+        self.assertEqual(sorted('portable-kits/palworld/' + s for s in bundled), sorted(r['path'] for r in rows))
+        # no machine paths, LF only, and no third-party plugin source (KawaiiPhysics is obtained separately)
+        drive = re.compile(r'(?i)(?<![\w<])[a-z]:[\\/](?![\\/])|[\\/]users[\\/]')
+        for rel in files:
+            data = (ROOT / rel).read_bytes()
+            text = data.decode('utf-8')
+            self.assertFalse(drive.search(text), f'{rel}: {drive.search(text)}')
+            self.assertNotIn(b'\r', data, rel)
+            self.assertNotIn('kawaiiphysics', Path(rel).name.lower())
+
 if __name__ == '__main__': unittest.main(verbosity=2)

@@ -4,7 +4,7 @@
 
 | 工具 | 作者/维护者入口 | 在本工作区的用法 |
 | --- | --- | --- |
-| Blender | [官方历史版本](https://download.blender.org/release/) | 4.2.23 与 4.5.12 曾用于不同项目，DMC5 用 4.0.2，战神5 用 5.0.1，师父用 4.2.23（后台一律 `--factory-startup`）；匹配源文件与插件 |
+| Blender | [官方历史版本](https://download.blender.org/release/) | 4.2.23 与 4.5.12 曾用于不同项目，DMC5 用 4.0.2，战神5 用 5.0.1，师父用 4.2.23（后台一律 `--factory-startup`），幻兽帕鲁用 4.2.23 + UEFormat 插件（读 `.uemodel` / `.ueanim`）；匹配源文件与插件 |
 | RPKG Tool | [Glacier 工具页](https://glaciermodding.org/rpkg/) | CLI/GUI 2.34.0，导出 GLB/TGA 后重建并回读 |
 | SMF / GlacierKit | [维护者的 suit modding 指南](https://glaciermodding.org/docs/modding/hitman/guides/suitmodding/) | SMF 2.33.40、GlacierKit 1.12.15 为历史锁；使用当前实体补丁 |
 | ZModeler | [作者官网](https://www.zmodeler3.com/) | 3.3.1.1244；XBG filter、Skeleton Bind、L0/L1 Compound，需用户自己的授权。Watch Dogs 自 2026-10-03 起可不用（纯 Python XBG 写出器），仅作对照 |
@@ -36,8 +36,13 @@
 | RE-Engine-Lib（REE-Lib） | [kagenocookie/RE-Engine-Lib](https://github.com/kagenocookie/RE-Engine-Lib)（MIT） | 龙之信条2 DD2Tool 的读写核心，commit `bf0e5e5222700716516797613a54b9b61fedfc35`（2026-09-19），未修改。它支持 TU3.2 起的 PAK（feature 0x40 remap 表）、mesh `.260421070`（DD2_V3）和 tex `.251211553`。便携包只带 DD2Tool 的 C# 源码，REE-Lib 要自己取 |
 | REFramework nightly（龙之信条2） | [nightly 发布](https://github.com/praydog/REFramework-nightly/releases) / [pak_mods 注入（PR #1830）](https://github.com/praydog/REFramework/pull/1830) | 01421 起才注入 `<游戏>/pak_mods/*.pak`。build 25290080 上用 01424：revision `d1461375aee4ec3f313170f8eaad12064eb542d9`，`REFramework.zip` SHA-256 `f035f1da6c9b199ef8348256abfd6bacef4a903485f75d9ab73be5249ae2b14c`，装进游戏的只有其中的 `dinput8.dll`（`14f4d6fd65218f850f39781fb53fb07ba28da6601c1954529098b91608e6ae88`）。退出游戏时可能崩溃或卡住（上游已知） |
 | .NET SDK 10 | [微软下载页](https://dotnet.microsoft.com/download/dotnet/10.0) | 10.0.401，用来编译龙之信条2的 DD2Tool（REE-Lib 用到 C# 14）；DD2Tool 面向 net8.0，运行用 .NET 8 运行时。Windows 10 19044 未装 CET 修复时，对私有 SDK 副本运行便携包的 `clear_cet_flag.py` |
-| CUE4Parse | [FabianFG/CUE4Parse](https://github.com/FabianFG/CUE4Parse)（NuGet `CUE4Parse` / `CUE4Parse-Conversion`） | 师父的 SifuExport 以 1.2.2.202610 编译（.NET 10）：`GAME_UE4_26`、AES 索引解密、JSON / glTF / 骨架 / 动画帧导出，以及烘焙后 mod pak 的引用读回；游戏 AES 密钥由用户自备 |
+| CUE4Parse | [FabianFG/CUE4Parse](https://github.com/FabianFG/CUE4Parse)（NuGet `CUE4Parse` / `CUE4Parse-Conversion`） | 师父的 SifuExport 以 1.2.2.202610 编译（.NET 10）：`GAME_UE4_26`、AES 索引解密、JSON / glTF / 骨架 / 动画帧导出，以及烘焙后 mod pak 的引用读回；游戏 AES 密钥由用户自备。幻兽帕鲁的 PalExport 用同一版本（`GAME_UE5_1`；unversioned 包要配 usmap，读 pak 要 Oodle 的 `oo2core_9_win64.dll`）：列文件、JSON、`.uemodel` / `.ueanim` 导出、参考骨架和变形 dump、usmap 结构查询，以及 mod pak 读回 |
 | Unreal Engine 4.26.2 | [Epic Games Launcher](https://www.unrealengine.com/) | 师父的内容工程（名为 `Sifu`）、Python 插件、cook 与 UnrealPak；编辑器插件 SifuModTools 用 `RunUAT BuildPlugin` 编译（Windows 上需 Visual Studio 2019/2022 的 C++ 生成工具，本项目 UBT 选用 MSVC 14.44）。插件的 backstop 与加速度驱动结论来自 4.26 引擎源码 |
+| Unreal Engine 5.1.1 | [Epic Games Launcher](https://www.unrealengine.com/) | 幻兽帕鲁的内容工程（名为 `Pal`，CL 23901901）、Python 插件、`-unversioned` cook；编辑器插件 PalModTools 和 KawaiiPhysics 由 UnrealBuildTool 随工程编译（`-Compiler=VisualStudio2019`，需 Visual Studio 的 C++ 生成工具） |
+| KawaiiPhysics | [pafuhana1213/KawaiiPhysics](https://github.com/pafuhana1213/KawaiiPhysics)（MIT） | 幻兽帕鲁用 1.17.1（`VersionName`）：游戏内置的 KawaiiPhysics 与它属性布局相同，只装进 UE 5.1 工程的 `Plugins\KawaiiPhysics\` 用来编写服装层动画蓝图，不进 pak；便携包不含其源码，`kawaii_sim.py` 是按它 1.17.1 每帧步进写的 Python 移植。剑星用的是游戏方修改的 KawaiiPhysics-SB 1.11 |
+| UEFormat | [h4lfheart/UEFormat](https://github.com/h4lfheart/UEFormat) | Blender 插件 `io_scene_ueformat`（manifest 0.10.0，需 Blender 自带的 `zstandard`）：幻兽帕鲁的 Blender 脚本按模块名启用它，读 CUE4Parse 导出的 `.uemodel` / `.ueanim`；放在 Blender 的 `scripts/addons_core/`，或用 `PAL_BLENDER_ADDONS` 指向其所在目录 |
+| repak | [trumank/repak](https://github.com/trumank/repak/releases) | v0.2.3 CLI（`repak_cli-x86_64-pc-windows-msvc.zip` SHA-256 `6720d602144d75df477a99d5bedb6ea780997546afc335901d4937cafeaa73fa`，与发布页的校验文件一致；`repak.exe` `fcd538e5994b9bb833622d425ae346f4e0692f02d4b0025114a559f9b6286022`）：幻兽帕鲁 mod 用 `pack --version V11 --mount-point ../../../` 打 legacy pak |
+| 幻兽帕鲁 usmap | [PalworldModding/UsefulFiles](https://github.com/PalworldModding/UsefulFiles)（Mappings） | `Mappings_1.0.5.usmap`（master 分支，2026-09-20 取，SHA-256 `e919d45fa8eebc38e6f864ba9594706ce84a531f6970a2b2dd8dfa453d0705d9`），对应 buildid 25246127；游戏是 unversioned cook，没有它 CUE4Parse 读不出属性。游戏更新后换对应版本 |
 | UnPSARC | [rm-NoobInCoding](https://github.com/rm-NoobInCoding/UnPSARC/releases) | 对马岛 DSAR / PSARC 解包参考（本项目未直接使用；mod 包用自写的不压缩 PSARC 写入器） |
 
 黑旗使用的 AnvilToolkit 1.3.6 与 Forge Injector 只是格式比较来源；实测表明它们不是此项目 BFR 的最终编译器。最终 field-4 Forge 实现已在便携包中提供。Oodle 是按需外部依赖，必须由用户合法取得原 DLL，保持脚本中的 SHA 验证。

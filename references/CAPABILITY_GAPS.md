@@ -18,6 +18,7 @@
 | DW Origins | 仅文档（合同、排障、读档自测流程），无便携脚本；构建脚本留在项目目录 | gust_stuff、DirectXTex；rdb/fdata/KTID 解析可用浪人便携包的 `ktdata.py`；新 build 的 KTID 槽表与原版权重分布重新统计；次级物理（NUNO / 链骨）未做；实际战斗复测 |
 | Rise of the Ronin | G1M / G1H 读取与原地隐藏、占位面塌缩、原生绑定检查；G1T tile 互转、DDS 导出、原容器常量填充、mip 检查；rdb / fdata / KTID 提取与槽表、共用贴图审计；按原版分段重分腿部权重（含回读与离线姿势）；shader 包拆分 | 游戏数据（`fdata_package_dx12`）、gust_stuff 与 Blender（新几何）、texconv（新颜色图）；从源模型构建的贴合 / 分件 / 图集脚本未收录；物理与表情未做；室内绑腿未解决；实机复测 |
 | Sifu | Blender 构建器（源模型归一化、W 骨架拟合、TPS 面部权重、W 躯干分布、NvCloth 代理与碰撞、备用骨上的骨链、按 profile 构建多个模型）、AO 与贴图、离线姿势预览与裙摆替身；UE 4.26 编辑器插件（NvCloth 代理 + backstop、物理资产、RigidBody 后处理蓝图）与 commandlet 构建脚本；cook / pak 与 CUE4Parse 读回；发行打包 | UE 4.26.2 与 C++ 生成工具、游戏 AES 密钥（自备）、CUE4Parse 编译；新模型的 profile（网格角色、材质分槽、悬挂件、链规格）；对话口型、过场、其它服装与分身敌人复测；真正的法线贴图 |
+| Palworld | Blender 构建器（VRM → OldCloth001 骨架：原版朝向 + Karin 位置的重摆、权重映射、物理链改名到游戏骨架配件链、11 个面部形变、双面裙、隐藏发型、VRM 碰撞体 → 胶囊）、KawaiiPhysics 1.17.1 离线模拟与参数导出、姿势探针与预览；UE 5.1 编辑器插件 PalModTools（无界面编写 AnimBP）与导入 / AnimBP 脚本；cook、按白名单分包、repak 打包与 CUE4Parse 读回 | UE 5.1.1 与 C++ 生成工具、KawaiiPhysics 1.17.1 源码插件、与 build 对应的 usmap、Oodle DLL、CUE4Parse 编译（均自备）；新模型的链映射与配件链复核、胶囊与参数；r4 手感的实机判断；除眨眼外的表情、游泳 / 滑翔 / 战斗场景复测；头发色调 |
 | RE9 Requiem | 仅文档（合同、排障、展柜自测与运行时探针方法），无便携脚本 | RE Mesh/Chain 工具、REasy RSZ 类型库、REFramework；每角色部件/变体覆盖、refskel 映射、chain2 拟合与 prefab 注入；实际游玩复测 |
 
 完整清单见 [便携入口](../portable-kits/README.md)。带有 --help 的脚本也有明确格式限制，不能把旧角色合同当成所有模型的常量。

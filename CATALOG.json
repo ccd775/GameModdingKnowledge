@@ -196,6 +196,17 @@
       "topics": ["UE 4.26（Sloclap 改版）", "pak v11 加密索引与 AES 扫描", "~mods + .sig", "只 cook 自己资产的内容工程与游戏路径占位", "W 材质实例做 MIC 父级", "槽位 0–10 约束", "Base_skeleton 备用骨", "OrientAndScale 重定向", "面部姿势资产与 TPS 面部权重", "注视混合空间与眼片权重", "后处理动画蓝图 RigidBody 骨链", "PhysX 加速度驱动调参", "NvCloth 代理、锥形胶囊与 backstop", "离线裙摆 PBD 替身", "UE Python 结构体副本", "CUE4Parse 读回检查", "多源模型 profile 构建"],
       "limits": ["对话口型、过场、完整战斗、第 2/3 套服装、女性分身敌人未测", "另外四个 Karin 模型未进游戏", "法线贴图为平法线，正面强光下亮度未调", "骨链是单摆式，长摆 / 长袖不是布料", "游戏 AES 密钥不随库发布"],
       "portable_kit": "portable-kits/sifu"
+    },
+    {
+      "id": "palworld",
+      "path": "games/palworld",
+      "status": "runtime-confirmed-scoped",
+      "milestone": "Karin_Original 替换女性玩家默认服装 OldCloth001 r4（Karin 自己的比例、服装层 AnimBP 里 7 个 KawaiiPhysics 节点、全部女性脸型带 11 个面部形变、隐藏发型）：加载、物理运行、眨眼经用户实机确认；r3 手感被判偏硬并有大腿穿出裙片，r4 按离线 Kawaii 模拟重调，手感待用户反馈",
+      "date": "2026-10-13",
+      "game_build": "25246127",
+      "topics": ["UE 5.1.1", "legacy pak V11 + ~mods（无 sig、无 UE4SS）", "unversioned cook 与 usmap", "Skeleton 平移重定向：网格 bind 姿势决定比例", "KawaiiPhysics 按 USkeleton 建链：借 NPC 配件链", "服装层链接动画层 ALI_HumanCloth / ClothLayer", "编辑器插件无界面编写 AnimBP（UE 5.1）", "PalFacialComponent 形变名驱动表情", "游戏 MI 做父级只覆盖贴图", "KawaiiPhysics 1.17.1 离线移植与调参", "角度限制在碰撞之后", "游戏自带幻化（古典式化妆台 初期装备）", "CUE4Parse 读回检查"],
+      "limits": ["r4 手感未经用户判断", "除眨眼外的表情未在游戏里确认", "游泳、滑翔、骑乘、战斗中的裙摆未测", "头发偏淡紫未查", "隐藏发型对男性角色同样生效", "幻化流程未在游戏里实走"],
+      "portable_kit": "portable-kits/palworld"
     }
   ]
 }

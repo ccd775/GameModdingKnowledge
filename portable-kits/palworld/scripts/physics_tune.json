@@ -1,0 +1,233 @@
+{
+ "_doc": [
+  "Dynamics for every KawaiiPhysics node of ABP_F_OldCloth001_Implimentation; geometry (roots, derived capsules) comes from <run>/physics.json.",
+  "Tested offline with scripts/kawaii_sim.py; ue_build_abp.py builds from the resolved export of that script.",
+  "Curves are multipliers over LengthRateFromRoot (0 = root, 1 = tip), linear keys.",
+  "skirt capsules (UE bind-pose component space): thigh root 9.5 (flesh 9.4) + lower thigh 12.0 so the cloth between two chains clears a lifted thigh; skirt joint radius 1.0 keeps the bind pose collision-free."
+ ],
+ "groups": {
+  "skirt": {
+   "damping": 0.15,
+   "stiffness": 0.1,
+   "world_loc": 0.95,
+   "world_rot": 0.7,
+   "radius": 1.0,
+   "limit_angle": 65,
+   "gravity": [
+    0,
+    0,
+    -60
+   ],
+   "stiffness_curve": [
+    [
+     0,
+     1
+    ],
+    [
+     1,
+     0.7
+    ]
+   ],
+   "capsules": [
+    {
+     "bone": "thigh_l",
+     "a": [
+      9.061,
+      0.072,
+      82
+     ],
+     "b": [
+      9.061,
+      0.394,
+      76
+     ],
+     "radius": 9.5
+    },
+    {
+     "bone": "thigh_l",
+     "a": [
+      9.061,
+      0.555,
+      73
+     ],
+     "b": [
+      9.061,
+      1.654,
+      52.5
+     ],
+     "radius": 12.0
+    },
+    {
+     "bone": "thigh_r",
+     "a": [
+      -9.061,
+      0.072,
+      82
+     ],
+     "b": [
+      -9.061,
+      0.394,
+      76
+     ],
+     "radius": 9.5
+    },
+    {
+     "bone": "thigh_r",
+     "a": [
+      -9.061,
+      0.555,
+      73
+     ],
+     "b": [
+      -9.061,
+      1.654,
+      52.5
+     ],
+     "radius": 12.0
+    },
+    {
+     "bone": "pelvis",
+     "a": [
+      -4.225,
+      0.52,
+      81.824
+     ],
+     "b": [
+      4.225,
+      0.52,
+      81.824
+     ],
+     "radius": 9.75
+    }
+   ]
+  },
+  "tail": {
+   "damping": 0.1,
+   "stiffness": 0.05,
+   "world_loc": 0.75,
+   "world_rot": 0.6,
+   "radius": 4.0,
+   "limit_angle": 70,
+   "gravity": [
+    0,
+    0,
+    -80
+   ],
+   "stiffness_curve": [
+    [
+     0,
+     1
+    ],
+    [
+     1,
+     0.5
+    ]
+   ]
+  },
+  "twintails": {
+   "damping": 0.08,
+   "stiffness": 0.05,
+   "world_loc": 0.8,
+   "world_rot": 0.65,
+   "radius": 3.0,
+   "limit_angle": 55,
+   "gravity": [
+    0,
+    0,
+    -100
+   ],
+   "stiffness_curve": [
+    [
+     0,
+     1
+    ],
+    [
+     1,
+     0.5
+    ]
+   ]
+  },
+  "sidehair": {
+   "damping": 0.15,
+   "stiffness": 0.08,
+   "world_loc": 0.85,
+   "world_rot": 0.7,
+   "radius": 1.5,
+   "limit_angle": 40,
+   "gravity": [
+    0,
+    0,
+    -40
+   ],
+   "stiffness_curve": [
+    [
+     0,
+     1
+    ],
+    [
+     1,
+     0.6
+    ]
+   ]
+  },
+  "fronthair": {
+   "damping": 0.2,
+   "stiffness": 0.12,
+   "world_loc": 0.9,
+   "world_rot": 0.75,
+   "radius": 1.5,
+   "limit_angle": 28,
+   "gravity": [
+    0,
+    0,
+    0
+   ],
+   "stiffness_curve": [
+    [
+     0,
+     1
+    ],
+    [
+     1,
+     0.7
+    ]
+   ]
+  },
+  "ears": {
+   "damping": 0.1,
+   "stiffness": 0.12,
+   "world_loc": 0.985,
+   "world_rot": 0.6,
+   "radius": 1.0,
+   "limit_angle": 40,
+   "gravity": [
+    0,
+    0,
+    0
+   ],
+   "stiffness_curve": [
+    [
+     0,
+     1
+    ],
+    [
+     1,
+     0.6
+    ]
+   ]
+  },
+  "ribbons": {
+   "damping": 0.12,
+   "stiffness": 0.07,
+   "world_loc": 0.8,
+   "world_rot": 0.7,
+   "radius": 1.0,
+   "limit_angle": 50,
+   "gravity": [
+    0,
+    0,
+    -60
+   ]
+  }
+ }
+}

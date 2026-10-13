@@ -1,0 +1,13 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "PalModTools",
+	"Description": "Headless graph authoring helpers (anim graph nodes, layers, pins, properties, compile) for editor Python. Port of SBModTools to UE 5.1.",
+	"Category": "Editor",
+	"EnabledByDefault": true,
+	"CanContainContent": false,
+	"Modules": [
+		{ "Name": "PalModTools", "Type": "Editor", "LoadingPhase": "Default" }
+	]
+}

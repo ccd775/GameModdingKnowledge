@@ -77,6 +77,19 @@ The game workflows use different formats, but the same engineering loop.
 - Reproduce a cloth clipping report offline with the game's own animation of that move before changing parameters.
   A coarse time-stepped stand-in is enough to rank candidates when only conclusions that hold at two solver settings
   are trusted (Sifu `skirt_sim.py`).
+- Read the skeleton's translation retargeting mode before deciding where proportions change. Palworld's human
+  skeleton uses `Skeleton` mode for almost every bone, so the mesh's own bind pose sets the proportions (only bone
+  orientations must match vanilla); Stellar Blade uses `Animation` mode, so proportions can only change in a
+  post-process AnimBP.
+- Replace the narrowest runtime hook the game already links. Palworld links each outfit's physics through an anim
+  layer interface (`ALI_HumanCloth` / `ClothLayer`) chosen by a data table; a new implementation blueprint at the
+  vanilla path runs on the replaced mesh without touching the player AnimBP.
+- Turn "too stiff" into a measurement. Port the engine's secondary-physics step offline and drive it with the game's
+  locomotion animation (Palworld `kawaii_sim.py`, KawaiiPhysics 1.17.1). Chains that sit at their angle limit most of
+  the time read as stiff: steady-state lag is about (1 - WorldDampingLocation) x per-frame travel / Stiffness, and in
+  KawaiiPhysics the angle limit runs after collisions, so a tight limit also drags cloth back into a lifted thigh.
+- Check for a built-in cosmetic override before building a workaround for gear that hides a replaced outfit.
+  Palworld's dresser (since v0.5.0) can show the starting outfit over any armour.
 - Shared source model: since 2026-10-02 Karin_Original's FBX and VRM have body_2's `kisekae_Knee` shape key baked
   into the base mesh (key zeroed, name kept; originals beside them as `*.orig`; VRM `971a150d…` → `8f930404…`,
   FBX `0b6e268d…` → `18f00e1a…`). Projects built before that date used the unbaked source. The first copy into

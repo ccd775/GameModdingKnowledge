@@ -1,5 +1,54 @@
 # 迁移验证记录
 
+## 2026-10-13：新增幻兽帕鲁便携包
+
+- **迁入内容：** 27 个文件，放在 `portable-kits/palworld/`。
+  - `scripts/` 下 1 个 Python 命令 `gen_ue_config.py` 和调参文件 `physics_tune.json`；
+  - `scripts/blender/` 下 7 个 Blender 脚本：`build_pal.py`、`palcommon.py`、`kawaii_sim.py`、`probe_run_pose.py`、`render_preview.py`、`render_views.py`、`render_keys.py`；
+  - `scripts/ue/` 下 2 个 UE 编辑器 Python：`ue_import.py`、`ue_build_abp.py`；
+  - `tools/` 下 5 个 PowerShell：`palx_run.ps1`、`run_py.ps1`、`cook_and_pack.ps1`、`verify_paks.ps1`、`build_plugin.ps1`；
+  - `palexport/` 下 PalExport 的 `Program.cs`、`PalExport.csproj`；`ue/PalModTools/` 下编辑器插件的 5 个文件（`.uplugin`、`Build.cs`、`PalGraphLib.h`、`PalGraphLib.cpp`、`PalModToolsModule.cpp`）；`ue/PalProj/` 下内容工程模板（`Pal.uproject` 和 3 个 `Config/*.ini`）；
+  - 来源是本机工具目录 `ModTools/Palworld/`（`scripts/`、`ue/`、`ue/project/`、`src/PalExport/`），`palx_run.ps1` 来自构建机的 `PalModding/tools/`。构建机上的 UE 脚本副本与本机的逐字节相同。PROVENANCE 每个文件一行，记录原始和公开版的 SHA-256；
+  - 新增 `README.md`、`toolchain.json`、`requirements.txt`（numpy，只给 `gen_ue_config.py` 用）。公共层 `modkit.py` 的游戏列表加上 `palworld`，导出器和导出测试因此覆盖它。
+- **没有迁入：**
+  - KawaiiPhysics 1.17.1 插件源码（pafuhana1213/KawaiiPhysics，MIT，第三方）：README 说明自己取来放进工程的 `Plugins\KawaiiPhysics\`；
+  - `probe_frames.py`：一次性探针，打印原版和 Karin 骨架的骨朝向，用来定骨架合同；没有参数，结论已在 `build_pal.py` 的注释和技术合同里；
+  - `ue_debug_mat.py`：一次性探针，查占位母材质和 MI 的参数；查到的「UE 5.1 设贴图参数成功也返回 False」已写在 `ue_import.py` 的注释里；
+  - 源模型、参考 mod、游戏数据、提取出的 JSON / uemodel / ueanim、usmap、Oodle DLL、生成的贴图、FBX、blend、pak 和发行包；项目构建目录里的 `ue_config.json`、`physics_r4.json`（后者含本机路径）。
+- **便携改动**在 13 个文件：
+  - `blender/palcommon.py`：UEFormat 插件目录、PalExport 缓存目录和源 VRM 原先写死，改为环境变量 `PAL_BLENDER_ADDONS`、`PAL_CACHE`（脚本在后面拼上 `Pal\Content\Pal\Model\Character\Player`）、`PAL_SOURCE_VRM`；没设时路径里是 `<PAL_…>`，载入会报找不到文件；
+  - `blender/kawaii_sim.py`：默认参数文件原先是脚本同目录的 `physics_tune.json`，改为本包的 `scripts/physics_tune.json`（脚本的上一级目录，绝对路径）；CRLF 改为 LF；
+  - `gen_ue_config.py`：改用 argparse，两个位置参数不变（`--help` 在导入 numpy 之前处理）；
+  - `ue/ue_import.py`、`ue/ue_build_abp.py`：只改了用法注释里的构建机路径（换成 `<PAL_WORK_ROOT>`，并补一行 `run_py.ps1` 的写法）；CRLF 改为 LF；
+  - `tools/palx_run.ps1`：PalExport、游戏 pak 目录、usmap、Oodle DLL 和输出目录原先写死，改为 `-Exe`、`PAL_GAME_DIR`、`PAL_USMAP`、`PAL_OODLE`、`PAL_WORK_ROOT`（都有同名参数；后三个的默认值在 `<PAL_WORK_ROOT>\tools\`）；
+  - `tools/verify_paks.ps1`：同上，pak 目录和输出目录改为 `<PAL_WORK_ROOT>\out\<tag>`、`<PAL_WORK_ROOT>\extract\verify_<tag>`；
+  - `tools/run_py.ps1`、`tools/build_plugin.ps1`：UE 安装和工程目录改为 `PAL_UE_ROOT`、`PAL_PROJECT`（默认 `<PAL_WORK_ROOT>\UEProject\Pal`）；`build_plugin.ps1` 的编译器开关改为 `-Compiler`，默认仍是 `VisualStudio2019`；
+  - `tools/cook_and_pack.ps1`：UE、工程、repak、工作目录和 `~mods` 改为 `PAL_UE_ROOT`、`PAL_PROJECT`、`-Repak`、`PAL_WORK_ROOT`、`PAL_GAME_DIR`；工作目录和工程目录先解析成完整路径（暂存时按长度截取相对路径）；`-Install` 缺游戏目录时在动手前报错；注释里的构建机名删掉；
+  - 位置参数改用显式 `Position`，新参数只能按名字给；
+  - 只把 CRLF 改为 LF：`physics_tune.json`、`blender/build_pal.py`、插件的 `PalGraphLib.cpp`。
+
+  其余 14 个文件与原文件逐字节相同：`probe_run_pose.py`、`render_preview.py`、`render_views.py`、`render_keys.py`、`Program.cs`、`PalExport.csproj`、插件的 `.uplugin`、`Build.cs`、`PalGraphLib.h`、`PalModToolsModule.cpp`，`Pal.uproject` 和 3 个 `.ini`。处理逻辑没有改。
+- **等价性验证（离线，本机）：**
+  - **条件：** Windows 10 19044；项目的私有 Blender 4.2.23 LTS（UEFormat 在 `addons_core` 里）；Python 3.14.0、numpy 2.5.2、Pillow 12.3.0；项目缓存的 OldCloth001 `.uemodel`（经 `PAL_CACHE`）、源 VRM（经 `PAL_SOURCE_VRM`）、冲刺和慢跑 `.ueanim`、项目的玩家资产列表。项目 r3 构建目录（`build.blend`、`physics.json`、`report.json`、`physics_r4.json`）先复制到临时目录，原脚本也复制到临时目录运行，源目录只读；
+  - **`kawaii_sim.py`：** 在 r3 的副本上用冲刺动画、本包的 `physics_tune.json`、`export=` 运行（项目原用法，不加 `--factory-startup`）：导出文件除 `tune` 那一行外与项目的 `physics_r4.json` 逐字节相同，`groups` 与原脚本这次导出的也相同。同一输入下原脚本和本包脚本的 `NODE`、`skirt verts`、`RESULT`、`FLARE` 行相同：冲刺 `mean skirt verts inside thigh 13.8 (>1cm 11.3), worst 16 verts depth 5.95 cm at step 83, max flare front 65.0 back 56.4 deg`（与项目记录的 r4 值 13.8 一致）；慢跑动画（同样默认 700 cm/s）两边都是 `8.6 (>1cm 5.7)`、最差 8 个顶点 5.94 cm。本包脚本加 `--factory-startup` 再跑冲刺，导出文件与不加时逐字节相同，`RESULT` 相同；
+  - **`build_pal.py`：** 原脚本和本包脚本各构建一次（`--factory-startup`，默认缩放 1.30）：`physics.json`、`report.json` 和 5 张贴图逐字节相同，也与项目 r3 的相同。FBX 和 `build.blend` 的字节因输出路径而不同；在 Blender 里导入三个 FBX、打开 blend，逐对象比较网格顶点、面、角法线、UV、材质槽、顶点组权重、形态键、修改器和骨架（头、尾、矩阵、父骨），原脚本、本包脚本和项目 r3 三者相同（189 根骨，身体 32 232 个顶点，头 3 375 个顶点和 12 个形态键含 Basis，隐藏网格 3 个顶点）；
+  - **`gen_ue_config.py`：** 用项目的玩家资产列表，原脚本和本包脚本的 `ue_config.json` 和 6 张辅助贴图逐字节相同，也与项目 r3 的相同（26 个女性脸型、37 个发型）；
+  - **PowerShell 工具：** 5 个都过了 PowerShell 7 解析器；缺环境变量时都在动手前报错。用假的 PalExport（回显参数的 `.cmd`）和假的 repak（把暂存目录列进 pak 文件）在带空格的临时路径里跑了 `palx_run.ps1`、`verify_paks.ps1`、`cook_and_pack.ps1 -SkipCook -Install`：参数顺序和默认路径与原脚本相同，三个包只收白名单内的文件（占位骨架、`ALI_HumanCloth`、其他 MI、男性脸型被排除），装进 `<游戏目录>\Pal\Content\Paks\~mods`；
+  - **没有重跑的部分：** UE 一侧（`run_py.ps1`、`build_plugin.ps1`、真实的 cook 和 repak、`scripts/ue/*.py`）、插件（C++）和 PalExport（C#）要用构建机上的 UE 5.1 和游戏，本次只核对了改动；`render_preview.py`、`render_views.py`、`render_keys.py`、`probe_run_pose.py` 与原文件逐字节相同，没有重跑，`kawaii_sim.py` 的 `render=1` 分支也没有跑。
+- **合成数据测试：** `PalworldTools` 共 5 项：
+  - `kawaii_sim.py` 的 `merged()` 和 `curve()`（从源码里单独编译，脚本本身要 bpy）：参数只覆盖给出的键、未知键忽略、显式胶囊替换派生胶囊、按骨改半径、附加胶囊、输入不被修改、组缺参数时报 `KeyError`；曲线的线性插值、两端截断、没有曲线时为 1；
+  - `physics_tune.json`：组名与 `build_pal.py` 写进 `physics.json` 的 7 个组相同；每个键都是 `merged()` 认的；取值范围、曲线递增、胶囊字段；合并后的数值键都是 `ue_build_abp.py` 读的；
+  - `gen_ue_config.py`：合成资产列表（混入 `.uexp`、男性脸型、MI、带后缀的发型、PalExport 的 stderr 行）得到排好序的脸型和发型路径；辅助贴图的尺寸和颜色、材质实例引用的贴图都已定义、插槽偏移；缺参数时失败；
+  - PowerShell 工具（要 pwsh 7 和 Windows，否则跳过）：解析、缺环境变量时报出变量名、`palx_run.ps1` / `verify_paks.ps1` 的参数转发和默认路径、`cook_and_pack.ps1` 的白名单分包和安装、`-Install` 缺游戏目录时不写文件；
+  - PROVENANCE：每个迁入文件一行，哈希和字节数对得上，修改标记与哈希一致，与 `toolchain.json` 的 `bundled_scripts` 相同；本包文件里没有盘符路径和用户目录、只有 LF、不含 KawaiiPhysics 源码。
+
+  `--help` 测试覆盖 `scripts/gen_ue_config.py`（在导入 numpy 之前退出）；`gen_ue_config.py` 的测试缺 numpy 或 Pillow 时跳过。
+- **未验证：**
+  - 便携版没有装进游戏测试，也没有在构建机上跑 UE 一侧；实机结论来自项目用原脚本构建的 r3 / r4；
+  - 测试套件对 Blender 脚本只做语法检查和上面两个函数，UE 脚本只做语法检查；
+  - 非 Windows 系统、其他 Blender / UE / 游戏版本、以扩展方式安装的 UEFormat；
+  - 新模型的案例常量。
+
 ## 2026-10-13：新增 Sifu 便携包
 
 - **迁入内容：** 37 个文件，放在 `portable-kits/sifu/`。

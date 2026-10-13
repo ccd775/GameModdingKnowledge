@@ -1,0 +1,16 @@
+{
+	"FileVersion": 3,
+	"EngineAssociation": "5.1",
+	"Category": "",
+	"Description": "Palworld mod authoring project (Karin_Original). Project name must stay Pal so cooked paths are Pal/Content.",
+	"Plugins": [
+		{ "Name": "PythonScriptPlugin", "Enabled": true },
+		{ "Name": "EditorScriptingUtilities", "Enabled": true },
+		{ "Name": "StructUtils", "Enabled": true },
+		{ "Name": "KawaiiPhysics", "Enabled": true },
+		{ "Name": "PalModTools", "Enabled": true },
+		{ "Name": "OpenXR", "Enabled": false },
+		{ "Name": "OculusVR", "Enabled": false },
+		{ "Name": "SteamVR", "Enabled": false }
+	]
+}
