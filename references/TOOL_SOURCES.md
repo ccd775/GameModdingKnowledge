@@ -43,6 +43,8 @@
 | UEFormat | [h4lfheart/UEFormat](https://github.com/h4lfheart/UEFormat) | Blender 插件 `io_scene_ueformat`（manifest 0.10.0，需 Blender 自带的 `zstandard`）：幻兽帕鲁的 Blender 脚本按模块名启用它，读 CUE4Parse 导出的 `.uemodel` / `.ueanim`；放在 Blender 的 `scripts/addons_core/`，或用 `PAL_BLENDER_ADDONS` 指向其所在目录 |
 | repak | [trumank/repak](https://github.com/trumank/repak/releases) | v0.2.3 CLI（`repak_cli-x86_64-pc-windows-msvc.zip` SHA-256 `6720d602144d75df477a99d5bedb6ea780997546afc335901d4937cafeaa73fa`，与发布页的校验文件一致；`repak.exe` `fcd538e5994b9bb833622d425ae346f4e0692f02d4b0025114a559f9b6286022`）：幻兽帕鲁 mod 用 `pack --version V11 --mount-point ../../../` 打 legacy pak |
 | 幻兽帕鲁 usmap | [PalworldModding/UsefulFiles](https://github.com/PalworldModding/UsefulFiles)（Mappings） | `Mappings_1.0.5.usmap`（master 分支，2026-09-20 取，SHA-256 `e919d45fa8eebc38e6f864ba9594706ce84a531f6970a2b2dd8dfa453d0705d9`），对应 buildid 25246127；游戏是 unversioned cook，没有它 CUE4Parse 读不出属性。游戏更新后换对应版本 |
+| ALERT（dat1lib） | [Tkachov/ALERT](https://github.com/Tkachov/ALERT)（GPLv3） | 漫威蜘蛛侠2 用 commit `bc90ed9b53fbcaa3b7acf94b36f00e77eab0dacb`（2024-06-05）：读 toc、DSAR 解压、crc32 / crc64。注意它按 i29 的 36 B 切资产头，i30 的头是变长的，本库脚本自己解析。便携包不带 ALERT，用 `SM2_ALERT` 指向自取的副本 |
+| Overstrike | [Tkachov/Overstrike](https://github.com/Tkachov/Overstrike) | 漫威蜘蛛侠2 的 `.stage` 格式与安装逻辑（MetaInstaller_I29 + StageInstaller_I29_V2）的参照；便携包的 `sm2_install.py` 是按其行为重写的纯标准库安装器，未复制其代码。用户也可以直接用 Overstrike 安装发行的 `.stage` |
 | UnPSARC | [rm-NoobInCoding](https://github.com/rm-NoobInCoding/UnPSARC/releases) | 对马岛 DSAR / PSARC 解包参考（本项目未直接使用；mod 包用自写的不压缩 PSARC 写入器） |
 
 黑旗使用的 AnvilToolkit 1.3.6 与 Forge Injector 只是格式比较来源；实测表明它们不是此项目 BFR 的最终编译器。最终 field-4 Forge 实现已在便携包中提供。Oodle 是按需外部依赖，必须由用户合法取得原 DLL，保持脚本中的 SHA 验证。

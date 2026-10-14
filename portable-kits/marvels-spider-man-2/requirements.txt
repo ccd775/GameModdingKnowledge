@@ -1,0 +1,9 @@
+# Marvel's Spider-Man 2 fit, builders and offline checks (install together with the bundle-root requirements.txt).
+# The installer (sm2_install, sm2_stage, sm2_dat1, crc64_table), index / find / extract and the .actor codec need only
+# the standard library. scipy is imported by the fit (sm2_karin_geo) and sm2_pose_check, etcpak by the texture builder
+# (sm2_assets via sm2_batch), both on first use. ALERT's dat1lib (GPLv3) is not on PyPI and not bundled: see README.md.
+# These pins need Python 3.12+; tested on Python 3.14.0.
+numpy==2.5.2
+Pillow==12.3.0
+scipy==1.18.0
+etcpak==0.9.15

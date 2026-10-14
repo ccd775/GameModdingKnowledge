@@ -42,6 +42,7 @@ before authoring. Never use this root document as a live candidate state file.
 - Stellar Blade -> `games/stellar-blade/`
 - Sifu -> `games/sifu/`
 - Palworld -> `games/palworld/`
+- Marvel's Spider-Man 2 (PC) -> `games/marvels-spider-man-2/`
 
 - Hitman: World of Assassination -> `games/hitman-world-of-assassination/`
 - Watch Dogs -> `games/watch-dogs/`

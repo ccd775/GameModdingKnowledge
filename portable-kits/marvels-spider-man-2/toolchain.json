@@ -1,0 +1,71 @@
+{
+  "game": "Marvel's Spider-Man 2 (PC, launcher v1.130.1.0, toc SHA-1 318f4345f3a1)",
+  "status": "runtime-confirmed-scoped",
+  "tools": [
+    {
+      "name": "ALERT dat1lib (Tkachov/ALERT, GPLv3)",
+      "version": "commit bc90ed9b53fbcaa3b7acf94b36f00e77eab0dacb, obtained separately (not bundled), located through SM2_ALERT",
+      "role": "toc reading (dat1lib.read, toc2 sections, archive extraction) and the crc32 / crc64 name hashes; imported on first use, not needed by the installer, the .stage codec or the .actor codec",
+      "required": true
+    },
+    {
+      "name": "Overstrike (Tkachov/Overstrike)",
+      "version": "any release that reads .stage format_version 2 (MSM2)",
+      "role": "alternative installer for the released .stage; sm2_install.py reproduces its MetaInstaller_I29 + StageInstaller_I29_V2 behaviour without it",
+      "required": false
+    },
+    {
+      "name": "Spider-Man 2 kit scripts (scripts/)",
+      "version": "kit",
+      "role": "i30 toc / DAT1 / .model / .texture / .material / .actor read-write, .stage read-write and installer, name index and extraction, VRM fit, batch builder for every suit and outfit model, facial rig transfer, AnimDynamics chains, cat-prop and head-actor physics carriers, offline readbacks",
+      "required": true
+    }
+  ],
+  "entry_documents": [
+    "../../games/marvels-spider-man-2/README.md",
+    "../../games/marvels-spider-man-2/BUILD_PIPELINE.md"
+  ],
+  "runtime_boundary": "Game launcher v1.130.1.0 (toc SHA-1 318f4345f3a1), mods installed as d\\mods\\mod<i> with toc.BAK. v1 (static all suits + cat-backpack physics) and v2 (head-actor carrier physics on all 91 masked suits) were confirmed in game by the user; both were built with the original scripts. The portable copies were checked offline only (2026-10-14, same game build and VRM): the installer reproduces the v2 install / uninstall toc hashes, the index / extract / actor / dynamics round trips and the offline readbacks of the v2 release give the same output as the original scripts, and reduced builds (one target model; plain, --dyn, --dyn --face; cat prop; head carrier for one suit) are asset-for-asset identical apart from the empty default author (see VALIDATION.md). The full v1 / v2 builds were not rerun with the kit.",
+  "bundled_scripts": [
+    "scripts/sm2_common.py",
+    "scripts/sm2_dat1.py",
+    "scripts/crc64_table.py",
+    "scripts/sm2_stage.py",
+    "scripts/sm2_install.py",
+    "scripts/i30_model.py",
+    "scripts/i30_build.py",
+    "scripts/i30_writer.py",
+    "scripts/i30_texture.py",
+    "scripts/i30_joints.py",
+    "scripts/i30_dynamics.py",
+    "scripts/i30_actor.py",
+    "scripts/i30_actor_edit.py",
+    "scripts/bcdec.py",
+    "scripts/sm2_index.py",
+    "scripts/sm2_find.py",
+    "scripts/sm2_extract.py",
+    "scripts/suit_models.py",
+    "scripts/survey_targets.py",
+    "scripts/sm2_karin_geo.py",
+    "scripts/sm2_fit.py",
+    "scripts/vrm.py",
+    "scripts/render.py",
+    "scripts/sm2_build_model.py",
+    "scripts/sm2_assets.py",
+    "scripts/sm2_batch.py",
+    "scripts/sm2_dyn.py",
+    "scripts/sm2_face.py",
+    "scripts/sm2_prop_test.py",
+    "scripts/sm2_head_carrier.py",
+    "scripts/sm2_verify_stage.py",
+    "scripts/sm2_verify_face.py",
+    "scripts/test_dyn_model.py",
+    "scripts/test_dyn_roundtrip.py",
+    "scripts/test_actor_roundtrip.py",
+    "scripts/sm2_pose_check.py",
+    "scripts/sm2_preview.py",
+    "scripts/survey_dyn2.py"
+  ],
+  "python": "3.10+ (standard library) for the installer, index / find / extract and the .actor codec; the fit, builders and checks need numpy 2.5 (3.12+), Pillow, scipy and etcpak; tested 3.14.0",
+  "dependency_install": "python -m pip install -r requirements.txt -r portable-kits/marvels-spider-man-2/requirements.txt (from bundle root); ALERT: git clone https://github.com/Tkachov/ALERT, check out bc90ed9b53fbcaa3b7acf94b36f00e77eab0dacb outside the repository and set SM2_ALERT to it"
+}

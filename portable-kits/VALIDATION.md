@@ -1,5 +1,54 @@
 # 迁移验证记录
 
+## 2026-10-14：新增漫威蜘蛛侠2便携包
+
+- **迁入内容：** 38 个 Python 文件，放在 `portable-kits/marvels-spider-man-2/scripts/`，来源是项目的 `Work/tools/`。
+  - 容器与格式 14 个：`sm2_common.py`、`sm2_dat1.py`、`crc64_table.py`、`sm2_stage.py`、`sm2_install.py`、`i30_model.py`、`i30_build.py`、`i30_writer.py`、`i30_texture.py`、`i30_joints.py`、`i30_dynamics.py`、`i30_actor.py`、`i30_actor_edit.py`、`bcdec.py`；
+  - 流水线 16 个：`sm2_index.py`、`sm2_find.py`、`sm2_extract.py`、`suit_models.py`、`survey_targets.py`、`sm2_karin_geo.py`、`sm2_fit.py`、`vrm.py`、`render.py`、`sm2_build_model.py`、`sm2_assets.py`、`sm2_batch.py`、`sm2_dyn.py`、`sm2_face.py`、`sm2_prop_test.py`、`sm2_head_carrier.py`；
+  - 验收 7 个：`sm2_verify_stage.py`、`sm2_verify_face.py`、`test_dyn_model.py`、`test_dyn_roundtrip.py`、`test_actor_roundtrip.py`、`sm2_pose_check.py`、`sm2_preview.py`；
+  - 依赖补入 1 个：`survey_dyn2.py`。`test_dyn_roundtrip.py` 在模块顶层导入它的 `get()`，`test_dyn_model.py` 又导入 `test_dyn_roundtrip.py`，缺了它这两个脚本连 `--help` 都跑不了；
+  - PROVENANCE 每个文件一行，记录原始和公开版的 SHA-256。`vrm.py`、`render.py` 与本库对马岛便携包的同名文件逐字节相同，`sm2_fit.py` 是对马岛 `fit.py` 加了 `set_mapping()`（项目当时就这样复制过来的）；
+  - 新增 `README.md`、`toolchain.json`、`requirements.txt`（numpy、Pillow、scipy、etcpak：scipy 给拟合和 `sm2_pose_check.py`，etcpak 给 `sm2_assets.py` 压贴图）。公共层 `modkit.py` 的游戏列表加上 `marvels-spider-man-2`，导出器和导出测试因此覆盖它。
+- **没有迁入：**
+  - `sm2_package.py`：旧打包器（T3–T4b，只换两套默认战衣），已被 `sm2_batch.py` 取代；
+  - `sm2_hsa_test.py`：T18 的多条 HeroSuitAddition 试验，路线已否决；
+  - 一次性调查：`survey_align.py`、`survey_dyn.py`、`survey_flags.py`、`survey_fmt1_graphs.py`、`survey_joint_order.py`、`survey_materials.py`、`survey_models.py`、`find_materials.py`、`tex_inspect.py`，源 VRM 审计 `vrm_audit.py`、`vrm_read.py`；
+  - ALERT、Overstrike、InsomniacTools 的源码（第三方，项目放在 `Work/ext/`）；
+  - 游戏数据、解出的资产、`asset_index.json`、`reports/` 下的 JSON（`suit_models.json`、`targets.json`、`masked_suits.json`）、拟合结果、`.stage`、发行包和其中的 `install.bat` / `uninstall.bat`、源 VRM。`masked_suits.json`（v2 的 91 个战衣）是项目从全战衣 loadout 表整理的，没有对应脚本，README 写明了格式和 `--suit` 的替代用法。
+- **便携改动**在 17 个文件：
+  - `sm2_common.py`：游戏目录原先默认写死的本机路径，改为只读 `SM2_GAME`，没设时由 `game_dir()` 报错；工作目录（`native/`、`reports/`、`build_*`）改为 `SM2_WORK`，默认仍是 `scripts/` 的上一级；ALERT 位置改为 `SM2_ALERT`，默认仍是 `<上一级>/ext/ALERT`；`dat1lib` 原先在模块顶层导入，改为 `alert()` 里按需导入（`load_toc()`、`asset_id()` 调用），找不到时报错并给出仓库地址；
+  - `sm2_karin_geo.py`：源 VRM 的默认路径原先指向项目外的私有模型目录，改为 `SM2_VRM`；`--vrm` 和 `SM2_VRM` 都没有时用 argparse 报错；新增 `vrm_path()` 给其他脚本用；`WORK` 与 `sm2_common.py` 同样读 `SM2_WORK`（`build_sig*`、`native/` 经它定位）；
+  - `sm2_batch.py`：`--author` 默认值原先是项目作者名，改为空；游戏目录改用 `game_dir()`，源 VRM 改用 `vrm_path()`；
+  - `sm2_face.py`、`sm2_pose_check.py`：源 VRM 改用 `vrm_path()`；`sm2_pose_check.py` 的 `scipy.spatial.cKDTree` 改为在用到的地方导入；
+  - `sm2_assets.py`：`etcpak` 改为在 `compress()` 里导入；
+  - `i30_actor.py`、`i30_joints.py`：`dat1lib.crc32` / `crc64` 原先在模块顶层导入，改为在 `crc32()`、`crc64()`、`joint_hash()` 里导入；加进 `sys.path` 的 ALERT 目录先看 `SM2_ALERT`，默认不变；
+  - `sm2_build_model.py`：`set_materials()` 原先把 `<WORK>/ext/ALERT` 加进 `sys.path`，改为 `sm2_common.ALERT`（`SM2_WORK` 改了也不影响 ALERT 的位置）；
+  - `sm2_index.py`、`suit_models.py`、`survey_targets.py`：没有参数，一导入就干活；补了只带说明的 argparse（在任何读取之前），`sm2_index.py` 的 `dagstr` 改用 `game_dir()`；
+  - `test_actor_roundtrip.py`（`'--all' in sys.argv`）、`test_dyn_roundtrip.py`、`survey_dyn2.py`（`sys.argv[1:]` 作模型名）、`test_dyn_model.py`（`sys.argv[1]` 作 stage）：改用 argparse，参数不变；
+  - `sm2_install.py`：只把用法里的示例游戏目录换成 `<game folder>`；
+  - 换行：上面 17 个里有 12 个原文件是 CRLF，一并改为 LF；另有 14 个文件只把 CRLF 改为 LF：`sm2_dat1.py`、`crc64_table.py`、`i30_model.py`、`i30_build.py`、`i30_writer.py`、`i30_texture.py`、`i30_dynamics.py`、`i30_actor_edit.py`、`sm2_fit.py`、`sm2_dyn.py`、`sm2_prop_test.py`、`sm2_head_carrier.py`、`sm2_verify_stage.py`、`sm2_preview.py`。
+
+  其余 7 个文件与原文件逐字节相同：`sm2_stage.py`、`bcdec.py`、`sm2_find.py`、`sm2_extract.py`、`vrm.py`、`render.py`、`sm2_verify_face.py`。处理逻辑没有改。
+- **`--help`：** 38 个脚本在没有 ALERT、没设任何 `SM2_*` 时都以 0 退出；再把 scipy、etcpak、`dat1lib` 屏蔽掉（只剩标准库、numpy、Pillow）也都以 0 退出。只导入标准库的 14 个：`sm2_common`、`sm2_dat1`、`crc64_table`、`sm2_stage`、`sm2_install`、`i30_build`、`i30_texture`、`i30_actor`、`i30_actor_edit`、`sm2_index`、`sm2_find`、`sm2_extract`、`suit_models`、`test_actor_roundtrip`。纯库模块没有加命令行，和其他便携包一样，运行时只做定义、以 0 退出。
+- **等价性验证（离线，本机）：**
+  - **条件：** Windows 10 19044；Python 3.14.0、numpy 2.5.2、Pillow 12.3.0、scipy 1.18.0、etcpak 0.9.15；本机游戏（启动器 v1.130.1.0，toc SHA-1 `318f4345f3a1`）；ALERT `bc90ed9b` 的 `dat1lib`；源 VRM（SHA-256 `8f930404…2d87`）；项目的 `asset_index.json`、`targets.json`、`suit_models.json`、`masked_suits.json` 的副本。原脚本复制到临时目录运行（它的工作目录和 ALERT 也在临时目录里），本包脚本经 `SM2_*` 指向另一个临时工作目录，项目目录只读；
+  - **安装器：** 两边各在原版 toc 的副本上装 v2 发行包（124 个资产）：装后 toc SHA-1 都是 `69ce1233d4fe`（与项目记录的远端实测一致），`--report` 逐字节相同，`status` 输出相同，卸载后都回到 `318f4345f3a1`；
+  - **读游戏：** `sm2_index.py` 重建的 `asset_index.json` 与原脚本的、项目里的逐字节相同（420,968 个名字，解出 420,966 个）；`suit_models.py`、`survey_targets.py` 写出的 `suit_models.json`、`targets.json` 也与两者逐字节相同（108 个目标，7 种骨架签名）。`test_actor_roundtrip.py`（5 个英雄 actor，bad 0）、`test_dyn_roundtrip.py`、`sm2_find.py`、`sm2_extract.py` 的输出与原脚本相同，解出的 `hero_spiderman_advanced.model` 与项目 `native/` 里的逐字节相同。`test_dyn_roundtrip.py` 两边都报 `total mismatching words 17`，全部来自 `npc_lidemon_antivenom_34x.model` 的 T6 表，其余 15 个模型为 0：这是原脚本在这个 build 上的现状，不是迁移造成的；
+  - **对 v2 发行包的离线验收：** `test_dyn_model.py`（110 个模型）、`sm2_verify_stage.py`（108 个）、`sm2_verify_face.py`（111 个）的输出与原脚本逐行相同，都是 0 bad；
+  - **构建（只重跑一个目标模型 `hero_spiderman_advanced`）：** `sm2_batch.py` 不带参数、带 `--dyn`、带 `--dyn --face` 三种，`.stage` 的 11 个资产两边逐字节相同，`.stage.json` 报告相同，`info.json` 只差作者（原脚本写项目作者名，本包默认空）；三种骨架签名的拟合 `karin_geo.npz` 逐数组相同。以 `--dyn --face` 的包为 base，`sm2_prop_test.py`（完整包 13 个资产、`--delta` 2 个）和 `sm2_head_carrier.py --suit <advanced> --never-cull --joint-bsphere 1.0 --map-body --blank-prop`（完整包 17 个、`--delta` 7 个）两边逐资产相同，载体包的 `test_dyn_model.py` 输出相同；
+  - **其他：** `sm2_karin_geo.py --target peter` 的 `karin_geo.npz` / `.json`、`sm2_build_model.py --target peter` 的 `.model`、`sm2_face.py --family peter --render` 的 `face.npz` 和 `poses.png`、`sm2_pose_check.py` 的输出和 PNG（蹲 1.8%、栖 2.1%、坐 0.7%、跨步 0%，与项目 T9 记录一致）、`sm2_preview.py` 的 PNG 都与原脚本逐字节相同；
+  - **没有重跑的部分：** 全量 v1 / v2 构建（108 个模型、91 套战衣去链）没有用本包重跑；`test_actor_roundtrip.py --all`、`sm2_head_carrier.py --masked`、`--cat-actor`、`sm2_batch.py --dyn-base` / `--dyn-ab` 没有跑。
+- **合成数据测试：** `MarvelsSpiderMan2Tools` 共 3 项，只用标准库，不需要游戏、ALERT 或模型：
+  - `.stage`：`crc64_path()` 与独立实现的位运算 CRC-64（反射 ECMA-182，初值为多项式，`>> 2 | 1 << 63`）一致，含大小写、反斜杠、重复分隔符和非 ASCII 路径；两套默认战衣的路径算出游戏 toc 里的 id `A6D53AE572ACCADC`、`841353C2023080D8`；写入读回保留顺序、span、id、资产头、贴图 meta 和数据，STG 包装的偏移和 16 字节对齐；按路径命名的条目、非 span 目录；
+  - 安装器：合成 toc（两个 span、两个归档、贴图 meta、变长资产头），未改动的 toc 重存逐字节相同；一个包同时覆盖等长资产头原地改写、新资产插入两个 span、更长资产头追加、贴图 meta 替换和有序插入；旧的 `mod7` 被删；`status`；两个包按顺序成为 mod0、mod1 且后者生效；再装一次从 `toc.BAK` 重来、结果与第一次相同；卸载还原 toc 并删掉 `mod*`；
+  - `.actor`：手写的序列化对象（bool、u32、f32、数组、空数组、id64、带存储哈希的字符串、嵌套对象、null）经 `Writer` → `Reader` 往返，值不对齐打包；坏的对象头报错；组件容器（字符串块、ActorPriusBuilt、16 字节对齐的组件数据、无数据组件）保存、解析、再保存逐字节相同；全程没有导入 `dat1lib`。
+
+  `--help` 测试覆盖 `scripts/` 下全部 38 个脚本；没装 numpy 或 Pillow 时，除上面 14 个以外的脚本跳过。
+- **未验证：**
+  - 便携版没有装进游戏测试；实机结论来自项目用原脚本构建的 v1、v2；
+  - 其他游戏版本、ALERT 的其他提交、非 Windows 系统；
+  - 新模型的案例常量。
+
 ## 2026-10-13：新增幻兽帕鲁便携包
 
 - **迁入内容：** 27 个文件，放在 `portable-kits/palworld/`。

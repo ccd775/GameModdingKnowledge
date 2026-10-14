@@ -244,6 +244,7 @@ class PortableTools(unittest.TestCase):
             if path.parents[1].name == 'rise-of-the-ronin' and path.stem in RONIN_NUMPY_SCRIPTS and ronin_missing(): continue
             if path.parents[1].name == 'dragons-dogma-2' and path.stem in DD2_NUMPY_SCRIPTS and dd2_missing(): continue
             if path.parents[1].name == 'sifu' and sifu_missing(path.stem): continue
+            if path.parents[1].name == 'marvels-spider-man-2' and sm2_missing(path.stem): continue
             cli(path.parents[1].name,path.stem,'--help')
 
 
@@ -2729,5 +2730,236 @@ class PalworldTools(unittest.TestCase):
             self.assertFalse(drive.search(text), f'{rel}: {drive.search(text)}')
             self.assertNotIn(b'\r', data, rel)
             self.assertNotIn('kawaiiphysics', Path(rel).name.lower())
+
+SM2 = 'marvels-spider-man-2'
+# Spider-Man 2 scripts whose import (and --help) needs only the standard library; the others also need numpy and Pillow.
+# scipy, etcpak and ALERT's dat1lib are imported on first use, so no script needs them for --help.
+SM2_STDLIB_SCRIPTS = {'sm2_common', 'sm2_dat1', 'crc64_table', 'sm2_stage', 'sm2_install', 'i30_build', 'i30_texture',
+                      'i30_actor', 'i30_actor_edit', 'sm2_index', 'sm2_find', 'sm2_extract', 'suit_models',
+                      'test_actor_roundtrip'}
+
+
+def sm2_missing(script):
+    """numpy / Pillow that a Spider-Man 2 script imports and that are not installed."""
+    if script in SM2_STDLIB_SCRIPTS:
+        return []
+    return [m for m in ('numpy', 'PIL') if importlib.util.find_spec(m) is None]
+
+
+def sm2_header(pairs, fill):
+    """i30 asset header: u32 type, u8 0, u8 pairs, u16 extra (0), then 8 bytes per pair."""
+    return struct.pack('<IBBH', 0x98906B9F, 0, pairs, 0) + bytes([fill]) * (8 * pairs)
+
+
+def sm2_archive(name):
+    return name.encode('ascii').ljust(40, b'\0') + struct.pack('<QQIHI', 1, 2, 3, 4, 5)
+
+
+def sm2_toc(dat1, inst, path, spans, ids, sizes, archives, tex_ids, tex_meta, headers):
+    """Minimal i30 toc in the layout sm2_install.TOC reads: u32 magic, u32 size, DAT1 with its eight sections."""
+    d = dat1.DAT1(struct.pack('<IIIHH', dat1.MAGIC, 0x51B8E006, 16, 0, 0))
+    for tag, data in ((inst.T_SPANS, b''.join(struct.pack('<II', *s) for s in spans)),
+                      (inst.T_IDS, struct.pack(f'<{len(ids)}Q', *ids)),
+                      (inst.T_SIZES, b''.join(struct.pack('<IIIi', *s) for s in sizes)),
+                      (inst.T_ARCH, b''.join(archives)),
+                      (inst.T_TEXIDS, struct.pack(f'<{len(tex_ids)}Q', *tex_ids)),
+                      (inst.T_TEXMETA, b''.join(tex_meta)),
+                      (inst.T_TEXHDR, struct.pack('<I', len(tex_ids))),
+                      (inst.T_HDRS, headers)):
+        d.set(tag, data)
+    body = d.save()
+    data = struct.pack('<II', inst.TOC_MAGIC, len(body)) + body
+    Path(path).write_bytes(data)
+    return data
+
+
+class MarvelsSpiderMan2Tools(unittest.TestCase):
+    """.stage format, the release installer and the .actor object codec on synthetic data. Index, extraction, fitting,
+    the batch / carrier builders and the offline readbacks need the game, ALERT's dat1lib and the source VRM."""
+
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(prefix='modding sm2 ')
+        self.root = Path(self.temp.name)
+
+    def tearDown(self): self.temp.cleanup()
+
+    def test_sm2_stage_roundtrip_and_asset_ids(self):
+        import zipfile
+        st = module(SM2, 'sm2_stage')
+        table = module(SM2, 'crc64_table').TABLE
+
+        def reference(path):     # bitwise reflected CRC-64/ECMA-182, init = polynomial, no final xor; id = crc >> 2 | 1 << 63
+            p = path.lower().replace('\\', '/')
+            while '//' in p:
+                p = p.replace('//', '/')
+            crc = poly = 0xC96C5795D7870F42
+            for b in p.encode('utf-8'):
+                crc ^= b
+                for _ in range(8):
+                    crc = (crc >> 1) ^ (poly if crc & 1 else 0)
+            return (crc >> 2) | 1 << 63
+        self.assertEqual(table[1], 0xB32E4CBE03A75F6F)
+        for path in ('a', 'configs/inventory/x.config', 'Characters\\Hero\\X.model', 'ü/ß.texture'):
+            self.assertEqual(st.crc64_path(path), reference(path), path)
+        # asset ids of the default Peter / Miles suits as listed by the game's toc
+        peter = 'characters/hero/hero_spiderman_advanced/hero_spiderman_advanced.model'
+        self.assertEqual(st.crc64_path(peter), 0xA6D53AE572ACCADC)
+        self.assertEqual(st.crc64_path('characters/hero/hero_spiderman_miles_updated/hero_spiderman_miles_updated.model'),
+                         0x841353C2023080D8)
+        self.assertEqual(st.crc64_path('Characters\\Hero\\hero_spiderman_advanced//HERO_SPIDERMAN_ADVANCED.model'),
+                         0xA6D53AE572ACCADC)
+        # write -> read keeps order, spans, ids, headers, texture meta and payloads
+        header, meta = sm2_header(2, 0x11)[:-3], bytes(range(72))      # 21 bytes: padding after it is exercised
+        tex = st.crc64_path('characters/hero/x/textures/x_c.texture')
+        assets = [(0, 0x8000000000000001, b'raw payload', None, None), (0, st.crc64_path(peter), b'model' * 9, header, None),
+                  (1, tex, b'hd mips', None, None), (0, tex, b'sd mips', header, meta), (0, 0x8000000000000002, b'm', None, meta)]
+        stage = self.root / 'synthetic mod.stage'
+        st.write_stage(stage, assets, 'Synthetic', '', 'two spans')
+        info, back = st.read_stage(stage)
+        self.assertEqual(info, {'game': 'MSM2', 'format_version': 2, 'name': 'Synthetic', 'author': '',
+                                'description': 'two spans'})
+        self.assertEqual(back, [(s, a, h, t, d) for s, a, d, h, t in assets])
+        with zipfile.ZipFile(stage) as z:
+            names = z.namelist()
+            self.assertEqual(names, ['info.json', '0/8000000000000001', '0/A6D53AE572ACCADC', f'1/{tex:016X}',
+                                     f'0/{tex:016X}', '0/8000000000000002'])
+            self.assertEqual(z.read(names[1]), b'raw payload')                 # no header / meta: stored as is
+            blob = z.read(names[4])                                             # STG wrapper, header + meta
+            self.assertEqual(struct.unpack_from('<4I', blob), (st.STG_MAGIC, 3, 21, 72))
+            self.assertEqual((blob[16:37], blob[48:120], blob[128:]), (header, meta, b'sd mips'))
+            blob = z.read(names[5])                                             # meta only
+            self.assertEqual(struct.unpack_from('<4I', blob), (st.STG_MAGIC, 2, 0, 72))
+            self.assertEqual((blob[16:88], blob[96:]), (meta, b'm'))
+        self.assertEqual(st.stg_unwrap(b'STG'), (None, None, b'STG'))
+        # entries may also be named by asset path; folders that are not span numbers are ignored
+        other = self.root / 'paths.stage'
+        with zipfile.ZipFile(other, 'w') as z:
+            z.writestr('info.json', '{"name": "p"}')
+            z.writestr('0/', b'')
+            z.writestr('0/' + peter, b'by path')
+            z.writestr('2\\' + peter.upper(), st.stg_wrap(b'x', header=header))
+            z.writestr('docs/readme.txt', b'ignored')
+        self.assertEqual(st.read_stage(other), ({'name': 'p'}, [(0, 0xA6D53AE572ACCADC, None, None, b'by path'),
+                                                               (2, 0xA6D53AE572ACCADC, header, None, b'x')]))
+
+    def test_sm2_install_status_uninstall(self):
+        import warnings
+        quiet = warnings.catch_warnings()
+        quiet.__enter__()
+        self.addCleanup(quiet.__exit__, None, None, None)
+        warnings.simplefilter('ignore', ResourceWarning)                      # the installer reads files with open().read()
+        st, dat1, inst = module(SM2, 'sm2_stage'), module(SM2, 'sm2_dat1'), module(SM2, 'sm2_install')
+        game = self.root / 'game dir'
+        (game / 'd' / 'mods').mkdir(parents=True)
+        (game / 'd' / 'mods' / 'mod7').write_bytes(b'stale')                   # left by an older install: removed
+        a05, a10, a15, a20, a30 = (1 << 63 | k for k in (5, 10, 15, 20, 30))
+        meta = lambda k: bytes([k]) * 72
+        orig = sm2_toc(dat1, inst, game / 'toc', spans=[(0, 3), (3, 1)], ids=[a10, a20, a30, a20],
+                       sizes=[(100, 0, 0, 0), (200, 0, 100, 16), (300, 1, 0, -1), (400, 1, 300, -1)],
+                       archives=[sm2_archive('g\\a0'), sm2_archive('g\\a1')], tex_ids=[a20], tex_meta=[meta(1)],
+                       headers=sm2_header(1, 0xA1) + sm2_header(1, 0xA2))
+        inst.TOC(game / 'toc').save(self.root / 'resaved')                      # an untouched toc saves back byte for byte
+        self.assertEqual((self.root / 'resaved').read_bytes(), orig)
+        # a20: same-length header (in place) and new texture meta; a15: new, 2-pair header and meta; a05: new in span 1;
+        # a10: longer header (appended, the old bytes stay)
+        A, B, C, D = b'A' * 5, b'B' * 7, b'C' * 3, b'D' * 11
+        one = self.root / 'one.stage'
+        st.write_stage(one, [(0, a20, A, sm2_header(1, 0xB1), meta(2)), (0, a15, B, sm2_header(2, 0xB2), meta(3)),
+                             (1, a05, C, None, None), (0, a10, D, sm2_header(2, 0xB4), None)], 'one', '')
+        log = []
+        report = inst.install(str(game), [str(one)], log.append)
+        self.assertEqual([(r['mod'], r['span'], r['id'], r['size'], r['added'], r['header'], r['texmeta']) for r in report],
+                         [(0, 0, f'{a20:016X}', 5, False, True, True), (0, 0, f'{a15:016X}', 7, True, True, True),
+                          (0, 1, f'{a05:016X}', 3, True, False, False), (0, 0, f'{a10:016X}', 11, False, True, False)])
+        self.assertTrue(any('created toc.BAK' in x for x in log))
+        self.assertEqual((game / 'toc.BAK').read_bytes(), orig)
+        self.assertEqual(sorted(p.name for p in (game / 'd' / 'mods').iterdir()), ['mod0'])
+        self.assertEqual((game / 'd' / 'mods' / 'mod0').read_bytes(), A + B + C + D)
+        t = inst.TOC(game / 'toc')
+        self.assertEqual((t.spans, t.ids), ([[0, 4], [4, 2]], [a10, a15, a20, a30, a05, a20]))
+        self.assertEqual([t.archive_name(i) for i in range(len(t.archives))], ['g\\a0', 'g\\a1', 'd\\mods\\mod0'])
+        self.assertEqual(t.sizes, [[11, 2, 15, 56], [7, 2, 5, 32], [5, 2, 0, 16], [300, 1, 0, -1], [3, 2, 12, -1],
+                                   [400, 1, 300, -1]])
+        self.assertEqual([t.get_header(i) for i in range(3)], [sm2_header(2, 0xB4), sm2_header(2, 0xB2), sm2_header(1, 0xB1)])
+        self.assertEqual(bytes(t.headers[:16]), sm2_header(1, 0xA1))
+        self.assertEqual((t.tex_ids, bytes(t.tex_meta)), ([a15, a20], meta(3) + meta(2)))
+        first = (game / 'toc').read_bytes()
+        out = cli(SM2, 'sm2_install', '--game', game, 'status').stdout
+        self.assertIn('archives 3', out)
+        self.assertIn('mod0', out)
+        self.assertIn('toc.BAK present', out)
+        # two stages: mod0, mod1 in command-line order, the later one wins for the same asset; toc.BAK is kept
+        two = self.root / 'two.stage'
+        st.write_stage(two, [(0, a20, b'EE', None, None)], 'two', '')
+        cli(SM2, 'sm2_install', '--game', game, 'install', one, two, '--report', self.root / 'report.json')
+        t = inst.TOC(game / 'toc')
+        self.assertEqual([t.archive_name(i) for i in (2, 3)], ['d\\mods\\mod0', 'd\\mods\\mod1'])
+        self.assertEqual(t.sizes[t.ids.index(a20)], [2, 3, 0, 16])
+        self.assertEqual([r['mod'] for r in json.loads((self.root / 'report.json').read_text())], [0, 0, 0, 0, 1])
+        self.assertEqual((game / 'toc.BAK').read_bytes(), orig)
+        # every install starts again from toc.BAK
+        cli(SM2, 'sm2_install', '--game', game, 'install', one)
+        self.assertEqual((game / 'toc').read_bytes(), first)
+        self.assertEqual(sorted(p.name for p in (game / 'd' / 'mods').iterdir()), ['mod0'])
+        cli(SM2, 'sm2_install', '--game', game, 'uninstall')
+        self.assertEqual((game / 'toc').read_bytes(), orig)
+        self.assertEqual(list((game / 'd' / 'mods').iterdir()), [])
+
+    def test_sm2_actor_object_roundtrip(self):
+        A = module(SM2, 'i30_actor')
+        names = ['Transform', 'Light', 'Enabled', 'Count', 'Scale', 'Offset', 'Id', 'Model', 'Tags', 'Empty', 'Child',
+                 'Nothing', 'Small', 'Signed']
+        str_base = 16 + 12 * 2                                                  # two sections, no unknowns
+        strings, offs = b'', {}
+        for n in names:
+            offs[n] = str_base + len(strings)
+            strings += n.encode() + b'\0'
+
+        def field(name, t, value):
+            flags = (len(value) << 4 | 1) if isinstance(value, list) else 1 << 4
+            return A.Field(name, offs[name], zlib.crc32(name.encode()), flags, 0, t, value)
+        child = A.Obj([field('Small', A.T_U8, 7), field('Signed', A.T_I16, -3)])
+        obj = A.Obj([field('Enabled', A.T_BOOL, True), field('Count', A.T_U32, 0xDEADBEEF), field('Scale', A.T_F32, 1.5),
+                     field('Offset', A.T_F32, [0.25, -2.0, 8.0]), field('Id', A.T_ID, 0x8000000000001234),
+                     field('Model', A.T_STR, A.Str('characters/x/x.model', 0x1234, 0x8000000000005678)),
+                     field('Tags', A.T_STR, [A.Str('ab', 1, 2), A.Str('', 0, 0)]), field('Empty', A.T_U16, []),
+                     field('Child', A.T_OBJ, child), field('Nothing', A.T_NULL, None)])
+        want = {'Enabled': True, 'Count': 0xDEADBEEF, 'Scale': 1.5, 'Offset': [0.25, -2.0, 8.0], 'Id': 0x8000000000001234,
+                'Model': 'characters/x/x.model', 'Tags': ['ab', ''], 'Empty': [], 'Child': {'Small': 7, 'Signed': -3},
+                'Nothing': None}
+        w = A.Writer()
+        w.obj(obj)
+        blob = bytes(w.b)
+        self.assertEqual(struct.unpack_from('<4I', blob), (0, A.MARK, 10, len(blob) - 16))
+        self.assertEqual(len(blob) % 4, 0)
+        self.assertEqual(blob.index(struct.pack('<I', 0xDEADBEEF)) % 2, 1)     # values are packed without alignment
+        by_off = {v: k for k, v in offs.items()}
+        back, end = A.Reader(blob, 0, by_off.__getitem__).obj(0)
+        self.assertEqual((end, back.to_py()), (len(blob), want))
+        self.assertEqual((back.field('Model').value.h32, back.field('Model').value.h64), (0x1234, 0x8000000000005678))
+        w2 = A.Writer()
+        w2.obj(back)
+        self.assertEqual(bytes(w2.b), blob)
+        with self.assertRaises(ValueError):
+            A.Reader(blob[:4] + b'\0' * 4 + blob[8:], 0, by_off.__getitem__).obj(0)
+        # actor container: header, DAT1, strings block, ActorPriusBuilt rows, 16-aligned component data
+        actor = A.Actor.__new__(A.Actor)
+        actor.hdr_a, actor.hdr_b, actor.trailer, actor.unknowns, actor.refs = 0x40000000, 0x1234, b'', b'', []
+        actor.tags, actor.order = [A.SEC_PRIUS, A.SEC_PRIUS_DATA], [A.SEC_PRIUS, A.SEC_PRIUS_DATA]
+        actor.str_base, actor.strings = str_base, strings
+        actor.sec = {A.SEC_PRIUS: b'', A.SEC_PRIUS_DATA: b''}
+        actor.components = [A.Component(0x1111, 'Transform', offs['Transform'], 0xAAAA, 0, 0, 0, 0xFFFFFFFF, obj=obj),
+                            A.Component(0x2222, 'Light', offs['Light'], 0xBBBB, 0, 0, 0, 0xFFFFFFFF)]
+        raw = actor.save()
+        parsed = A.Actor(raw)
+        self.assertEqual(struct.unpack_from('<IBBHI', raw), (A.ACTOR_TYPE, 0, 1, 0, 0x40000000 | (len(raw) - 16)))
+        self.assertEqual([(c.id, c.name, c.size) for c in parsed.components],
+                         [(0x1111, 'Transform', len(blob)), (0x2222, 'Light', 0)])
+        self.assertEqual((parsed.components[0].raw, parsed.components[0].obj.to_py(), parsed.components[1].obj),
+                         (blob, want, None))
+        self.assertEqual(parsed.find_string('Model'), offs['Model'])
+        self.assertEqual(parsed.save(), raw)
+        self.assertEqual(parsed.save(reencode=False), raw)
+        self.assertNotIn('dat1lib', sys.modules)                              # ALERT is imported only to hash new names
 
 if __name__ == '__main__': unittest.main(verbosity=2)

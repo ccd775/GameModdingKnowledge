@@ -87,6 +87,12 @@ class DetachedExports(unittest.TestCase):
                     if game == 'palworld' and all(importlib.util.find_spec(m) for m in ('numpy', 'PIL')):
                         self.assertIn('test_pal_gen_ue_config_paths_and_helpers', process.stderr)
                         self.assertFalse([l for l in process.stderr.splitlines() if 'test_pal_gen_ue_config' in l and 'skipped' in l])
+                    if game == 'marvels-spider-man-2':
+                        self.assertTrue((target/'portable-kits/marvels-spider-man-2/requirements.txt').is_file())
+                        for name in ('test_sm2_stage_roundtrip_and_asset_ids', 'test_sm2_install_status_uninstall',
+                                     'test_sm2_actor_object_roundtrip'):
+                            self.assertIn(name, process.stderr)
+                        self.assertFalse([l for l in process.stderr.splitlines() if 'test_sm2_' in l and 'skipped' in l])
                     print(f'{game}: detached tests passed (unselected games skipped)')
 
 

@@ -1906,5 +1906,347 @@
     "portable_sha256": "8cdf8af3642edb2e56e86c00ee2a2b40f11073055bd6e628156b2a176b86e7e2",
     "portable_bytes": 540,
     "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/marvels-spider-man-2/scripts/sm2_common.py",
+    "source": "Mods/SpiderMan2/Work/tools/sm2_common.py",
+    "original_sha256": "4828375bdf604b6da1086df122afa39d3cb7a8ebb79452b32ec1f99e98855adb",
+    "source_bytes": 2496,
+    "portable_sha256": "caaf037b00972f5abaace86f883a1a8baecf1225e8331c9e0e73721c7aaee70f",
+    "portable_bytes": 3306,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/marvels-spider-man-2/scripts/sm2_dat1.py",
+    "source": "Mods/SpiderMan2/Work/tools/sm2_dat1.py",
+    "original_sha256": "2daa65bddf23d3474149b1df4ee43b809ba4c978d34bc3ef81170c94d6e90d6e",
+    "source_bytes": 2995,
+    "portable_sha256": "7360719fc4fe990873d5b7ed1c791be45de2a1745745e6859568a30cecb7869d",
+    "portable_bytes": 2920,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/marvels-spider-man-2/scripts/crc64_table.py",
+    "source": "Mods/SpiderMan2/Work/tools/crc64_table.py",
+    "original_sha256": "93793e0a40f8379fa0bfd6f8c422c436e1439dcbc799d0a423aa557679bb3baa",
+    "source_bytes": 6494,
+    "portable_sha256": "dbbc9255c30e824e7114afcaf8546c762943489c010ecea09c8309476a29413e",
+    "portable_bytes": 6235,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/marvels-spider-man-2/scripts/sm2_stage.py",
+    "source": "Mods/SpiderMan2/Work/tools/sm2_stage.py",
+    "original_sha256": "61f852ad81dc228210383458d6803a24588da69585f1e03f674b4327c8b31f23",
+    "source_bytes": 3390,
+    "portable_sha256": "61f852ad81dc228210383458d6803a24588da69585f1e03f674b4327c8b31f23",
+    "portable_bytes": 3390,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/marvels-spider-man-2/scripts/sm2_install.py",
+    "source": "Mods/SpiderMan2/Work/tools/sm2_install.py",
+    "original_sha256": "cd17fd78b9f80ee7cd63f53c19254fb1bddf29221d6c0b3b128e097eced73a8a",
+    "source_bytes": 7896,
+    "portable_sha256": "119cd55921b25b9c32274bf17759003acc4a9da7a4642c21302434dee5aae7c2",
+    "portable_bytes": 7879,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/marvels-spider-man-2/scripts/i30_model.py",
+    "source": "Mods/SpiderMan2/Work/tools/i30_model.py",
+    "original_sha256": "357209e9ea862f3809eb4b5b84a429366ba2080c05db4d6022a2575f141c73e2",
+    "source_bytes": 10944,
+    "portable_sha256": "ff447340f034e766d8200be0199519344dedd83d29ac099386bf764d3db1db4f",
+    "portable_bytes": 10737,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/marvels-spider-man-2/scripts/i30_build.py",
+    "source": "Mods/SpiderMan2/Work/tools/i30_build.py",
+    "original_sha256": "9bab72bf65024b9814a826fdba2e8b99396e718e00acdd0eba4bc1f81bf388de",
+    "source_bytes": 2752,
+    "portable_sha256": "31b340e0bf9ca1f083617bef7ccd0b4d3947cdfb1f71c2ddd572324c9ec65e68",
+    "portable_bytes": 2681,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/marvels-spider-man-2/scripts/i30_writer.py",
+    "source": "Mods/SpiderMan2/Work/tools/i30_writer.py",
+    "original_sha256": "85b1b3f4177871c5043829838608cc8454f030d94e71216d8898e47be0e390b0",
+    "source_bytes": 7395,
+    "portable_sha256": "4e3d1d007eb6888c1ebd6c88fdd7a5e65b2bfb57511a67717b99ef328ad9f1f2",
+    "portable_bytes": 7230,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/marvels-spider-man-2/scripts/i30_texture.py",
+    "source": "Mods/SpiderMan2/Work/tools/i30_texture.py",
+    "original_sha256": "49cbfb4dcab991aa81f6c7afe9b6732b54b7fbc74d6db7e148eaf79e1cbec001",
+    "source_bytes": 1783,
+    "portable_sha256": "9821670f16c0c2a49cd44ea5dd231fb3e19bd497e28b1bdb9182f8e210aa1ebe",
+    "portable_bytes": 1742,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/marvels-spider-man-2/scripts/i30_joints.py",
+    "source": "Mods/SpiderMan2/Work/tools/i30_joints.py",
+    "original_sha256": "efd1b40ec2bbc6fa818906ae7bee7b806551044570ada27fc3712af4d639d843",
+    "source_bytes": 6311,
+    "portable_sha256": "8524fc523bafda82a47f99157115a8a9c27da32cee00c68eb5e79c3c5484aac8",
+    "portable_bytes": 6232,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/marvels-spider-man-2/scripts/i30_dynamics.py",
+    "source": "Mods/SpiderMan2/Work/tools/i30_dynamics.py",
+    "original_sha256": "2970abfc754ecf8aa6653ea10cd35db46ff1632d05e00f9d6b6337bb712f5d3e",
+    "source_bytes": 6574,
+    "portable_sha256": "0cf50631ced1bde3dfa8d20e1c57a44314af53d2234c138301560ce7efc38702",
+    "portable_bytes": 6444,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/marvels-spider-man-2/scripts/i30_actor.py",
+    "source": "Mods/SpiderMan2/Work/tools/i30_actor.py",
+    "original_sha256": "7abb3654fe40087224f06cb521ef3c7a9ae2617dd0bd39a61b29e496a978ab9b",
+    "source_bytes": 16876,
+    "portable_sha256": "437a773943582e5f61926026bc8a260010a5146fecadcfbc5bb1449c6343683e",
+    "portable_bytes": 16556,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/marvels-spider-man-2/scripts/i30_actor_edit.py",
+    "source": "Mods/SpiderMan2/Work/tools/i30_actor_edit.py",
+    "original_sha256": "fffb2fe51f2e878e3fb9855813439bf8c2d8705b6e2dcc0cf4254be30ff282e5",
+    "source_bytes": 9686,
+    "portable_sha256": "757f2a30a5ed16d27cac564890fdabe86581af4b5fa33f6921672f40d122a022",
+    "portable_bytes": 9486,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/marvels-spider-man-2/scripts/bcdec.py",
+    "source": "Mods/SpiderMan2/Work/tools/bcdec.py",
+    "original_sha256": "f6880e79aaaea551eb9fc29605cd15ef277774ac97f29143d75f9e42ea6b0178",
+    "source_bytes": 2345,
+    "portable_sha256": "f6880e79aaaea551eb9fc29605cd15ef277774ac97f29143d75f9e42ea6b0178",
+    "portable_bytes": 2345,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/marvels-spider-man-2/scripts/sm2_index.py",
+    "source": "Mods/SpiderMan2/Work/tools/sm2_index.py",
+    "original_sha256": "d18d8c332d2b5a00a258084b8c9edc058ded90e822009ebe351103212d9b4272",
+    "source_bytes": 1228,
+    "portable_sha256": "3dfea0220948c1ab8159b1475203cc4a19e59129b8c49f9573cb5609a6df0811",
+    "portable_bytes": 1302,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/marvels-spider-man-2/scripts/sm2_find.py",
+    "source": "Mods/SpiderMan2/Work/tools/sm2_find.py",
+    "original_sha256": "ce187eab86bc33161c2cff28708013fd2be98a48386b4af854c465cfff96d450",
+    "source_bytes": 1081,
+    "portable_sha256": "ce187eab86bc33161c2cff28708013fd2be98a48386b4af854c465cfff96d450",
+    "portable_bytes": 1081,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/marvels-spider-man-2/scripts/sm2_extract.py",
+    "source": "Mods/SpiderMan2/Work/tools/sm2_extract.py",
+    "original_sha256": "118d077e47c9c949fbd29e09606b2aa6356771a3e0741e7a4d3fc7c91c2ea5b8",
+    "source_bytes": 1354,
+    "portable_sha256": "118d077e47c9c949fbd29e09606b2aa6356771a3e0741e7a4d3fc7c91c2ea5b8",
+    "portable_bytes": 1354,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/marvels-spider-man-2/scripts/suit_models.py",
+    "source": "Mods/SpiderMan2/Work/tools/suit_models.py",
+    "original_sha256": "b354300882446bd9ffd451bb85c31828beb5237265bf5c24b637476cd0fb5db6",
+    "source_bytes": 1913,
+    "portable_sha256": "e031aa416f0dfafe3bb4c9a83e5c630471b63d00d96bc7f786b1a769070c1fc3",
+    "portable_bytes": 1981,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/marvels-spider-man-2/scripts/survey_targets.py",
+    "source": "Mods/SpiderMan2/Work/tools/survey_targets.py",
+    "original_sha256": "66ced0e2d9dccd51a4e20365712d17c49e02cb01d7360c97dd268cc8b636a4a7",
+    "source_bytes": 2400,
+    "portable_sha256": "c040da04e5dd88a75c94e41f7783b5f4ec407c908a7fefa66f98250f11ad1a24",
+    "portable_bytes": 2468,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/marvels-spider-man-2/scripts/sm2_karin_geo.py",
+    "source": "Mods/SpiderMan2/Work/tools/sm2_karin_geo.py",
+    "original_sha256": "26a91a7c47e0ae2bbc890aaa3d9ee43492ad055a807006f11b2e56b0bd521521",
+    "source_bytes": 27563,
+    "portable_sha256": "de0a755b9f7c0d03057ea3f0ff861ea223bdab86444b833216b3825771b2a044",
+    "portable_bytes": 27408,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/marvels-spider-man-2/scripts/sm2_fit.py",
+    "source": "Mods/SpiderMan2/Work/tools/sm2_fit.py",
+    "original_sha256": "e3e88508ebe99c532ccf4d5f9f28bf47a587d12dee6b087f87e8e18ea44e02a6",
+    "source_bytes": 16065,
+    "portable_sha256": "0b9090b3808c2d221ea2d2bdaca7096121325265719c29cd4bea77439bebd391",
+    "portable_bytes": 15719,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/marvels-spider-man-2/scripts/vrm.py",
+    "source": "Mods/SpiderMan2/Work/tools/vrm.py",
+    "original_sha256": "095ddf5e9faadab80a341314c67da16353c446c9c46d602ccc89a48b003039d9",
+    "source_bytes": 7772,
+    "portable_sha256": "095ddf5e9faadab80a341314c67da16353c446c9c46d602ccc89a48b003039d9",
+    "portable_bytes": 7772,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/marvels-spider-man-2/scripts/render.py",
+    "source": "Mods/SpiderMan2/Work/tools/render.py",
+    "original_sha256": "2e1557d1a4356c4b8277d8840266899e7c3b128688fc640cab3e0c824befdd85",
+    "source_bytes": 3387,
+    "portable_sha256": "2e1557d1a4356c4b8277d8840266899e7c3b128688fc640cab3e0c824befdd85",
+    "portable_bytes": 3387,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/marvels-spider-man-2/scripts/sm2_build_model.py",
+    "source": "Mods/SpiderMan2/Work/tools/sm2_build_model.py",
+    "original_sha256": "73b3efcaf7a5df976940eef3666f09cf44f435679d3a92261feed9d6d25363d8",
+    "source_bytes": 11817,
+    "portable_sha256": "f16db8ed5e7925f1b3950b686b6c1a19e04fd2a8833d244f961974528d97e8bf",
+    "portable_bytes": 11563,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/marvels-spider-man-2/scripts/sm2_assets.py",
+    "source": "Mods/SpiderMan2/Work/tools/sm2_assets.py",
+    "original_sha256": "f87d267d931ff9bc5eeb3e657c82bbe9715f07b9ef5ad3a77e65a8558e2286f5",
+    "source_bytes": 6217,
+    "portable_sha256": "5a07a7ca6e238cd5cc27d76bd8e590742659274e176fd82e3e9944aa91f825c6",
+    "portable_bytes": 6070,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/marvels-spider-man-2/scripts/sm2_batch.py",
+    "source": "Mods/SpiderMan2/Work/tools/sm2_batch.py",
+    "original_sha256": "7c1f8e2d11cda44ad294910ca035fd64f7fe3422ab1bf4627cf46c3584184ddb",
+    "source_bytes": 17810,
+    "portable_sha256": "4c313d3374032624c954a5634ffe495772fa706fed30293b0c9db397e05e8699",
+    "portable_bytes": 17488,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/marvels-spider-man-2/scripts/sm2_dyn.py",
+    "source": "Mods/SpiderMan2/Work/tools/sm2_dyn.py",
+    "original_sha256": "87df7bf16cbfdc8bea31b77db13a853b4860336b0a958bb95f91b127386b4b13",
+    "source_bytes": 4860,
+    "portable_sha256": "5ba0ffc8d86b8dea18896eb10ca1312bd536d7ef5341d04da7fb9518a5037196",
+    "portable_bytes": 4752,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/marvels-spider-man-2/scripts/sm2_face.py",
+    "source": "Mods/SpiderMan2/Work/tools/sm2_face.py",
+    "original_sha256": "2168955e1f6d92941c1f7ea3b9b41efc2121705df9d70ef1c5cfdb3cb7268e0a",
+    "source_bytes": 16869,
+    "portable_sha256": "9fea8f5ef24b8e53233899c039dfb66a422b8f44cb19cee68f46d8a52b7b4b26",
+    "portable_bytes": 16496,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/marvels-spider-man-2/scripts/sm2_prop_test.py",
+    "source": "Mods/SpiderMan2/Work/tools/sm2_prop_test.py",
+    "original_sha256": "a7e4bc6b423cb473ab0a48c841a8d92b137a328ea169bfe4808968d4ba712c23",
+    "source_bytes": 10743,
+    "portable_sha256": "bdbf4f81d5041c09f23c7412ffb2f993eacac12f17ae7012b9cca9206cc40bb9",
+    "portable_bytes": 10534,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/marvels-spider-man-2/scripts/sm2_head_carrier.py",
+    "source": "Mods/SpiderMan2/Work/tools/sm2_head_carrier.py",
+    "original_sha256": "f2ff51cbe0b4fca0c406e8e8cc00949adbc606b51772a24a74ec63fa96fa5d81",
+    "source_bytes": 14106,
+    "portable_sha256": "26f08b0d4cca9c1c7415f5d1d1813e803606d28dcb0779cbfed8d49535e7efbc",
+    "portable_bytes": 13854,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/marvels-spider-man-2/scripts/sm2_verify_stage.py",
+    "source": "Mods/SpiderMan2/Work/tools/sm2_verify_stage.py",
+    "original_sha256": "27ee82eae869f56305c39040e942dcaedb1bfa69c791dbe35d593185c0753e0e",
+    "source_bytes": 4000,
+    "portable_sha256": "c3565521b77bc67c69902c4f078ceb43daf1bcd713fb5d10a3d9d2a73f450980",
+    "portable_bytes": 3918,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/marvels-spider-man-2/scripts/sm2_verify_face.py",
+    "source": "Mods/SpiderMan2/Work/tools/sm2_verify_face.py",
+    "original_sha256": "bad034948df57c0684dbc3e1e08cf92a010276e652461237aec4b9c5c76c23b6",
+    "source_bytes": 4876,
+    "portable_sha256": "bad034948df57c0684dbc3e1e08cf92a010276e652461237aec4b9c5c76c23b6",
+    "portable_bytes": 4876,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/marvels-spider-man-2/scripts/test_dyn_model.py",
+    "source": "Mods/SpiderMan2/Work/tools/test_dyn_model.py",
+    "original_sha256": "5c9c31d735322f9f433ada01a307297c12a887a13c80e31ef44dcbf7c9896768",
+    "source_bytes": 6611,
+    "portable_sha256": "c25a92388028956d0b355acc3d1ed01ca3f9837beab26fe7ffb287229b834d43",
+    "portable_bytes": 6652,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/marvels-spider-man-2/scripts/test_dyn_roundtrip.py",
+    "source": "Mods/SpiderMan2/Work/tools/test_dyn_roundtrip.py",
+    "original_sha256": "b06b5fa5e1e6baedafa3dbf77d740e829aaed83603f5338867aeb99165317611",
+    "source_bytes": 3993,
+    "portable_sha256": "f1d1b48af74d2c9dc114b43ec790008739582a627048a7da93ac2fb0bcd860ea",
+    "portable_bytes": 4119,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/marvels-spider-man-2/scripts/test_actor_roundtrip.py",
+    "source": "Mods/SpiderMan2/Work/tools/test_actor_roundtrip.py",
+    "original_sha256": "6bbdc1b9e756fea8d9955a63d5680d684a3e84d98d6cc83106fd2a2391720571",
+    "source_bytes": 1393,
+    "portable_sha256": "7272b87f18d33c8dd4f0f2fb762aa8be1ec78fb9ee12cb1c1b0a242341c58a70",
+    "portable_bytes": 1568,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/marvels-spider-man-2/scripts/sm2_pose_check.py",
+    "source": "Mods/SpiderMan2/Work/tools/sm2_pose_check.py",
+    "original_sha256": "7da0693b356a50c29da115921a54eb492bb239311934a8dca91c53d8891f3d48",
+    "source_bytes": 8113,
+    "portable_sha256": "aa74865c7beb9a07cb41d70cdb37a83e53337b8d7e1dd7b7a3a48110ebd1b773",
+    "portable_bytes": 7919,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/marvels-spider-man-2/scripts/sm2_preview.py",
+    "source": "Mods/SpiderMan2/Work/tools/sm2_preview.py",
+    "original_sha256": "bc158b7b23536e5f10287ff06bdac870c5543db4022196e6b9c792fda30e1996",
+    "source_bytes": 2505,
+    "portable_sha256": "34371fe455447a5bcda9cc9e063547fcc4d9ce7bb537519ea87b6cb480d73024",
+    "portable_bytes": 2444,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/marvels-spider-man-2/scripts/survey_dyn2.py",
+    "source": "Mods/SpiderMan2/Work/tools/survey_dyn2.py",
+    "original_sha256": "d51d01d16bc365c767fb06e6691ccd124badb112a4154da319de801130ff5657",
+    "source_bytes": 2700,
+    "portable_sha256": "078bbfc76d14464d814f73b95243b6701f521c400b36bcce239ed73d2e49d9c5",
+    "portable_bytes": 2879,
+    "modified_for_portability": true
   }
 ]

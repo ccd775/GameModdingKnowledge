@@ -90,6 +90,19 @@ The game workflows use different formats, but the same engineering loop.
   KawaiiPhysics the angle limit runs after collisions, so a tight limit also drags cloth back into a lifted thigh.
 - Check for a built-in cosmetic override before building a workaround for gear that hides a replaced outfit.
   Palworld's dresser (since v0.5.0) can show the starting outfit over any armour.
+- When secondary physics only moves for about a second after a reset (outfit change, menu close, pause), stop
+  tuning parameters and find the engine's per-frame gate. In Marvel's Spider-Man 2 the AnimDynamics job skips an
+  instance whose model has no owner actor with an animation controller, or whose runtime bounding sphere (rebuilt every
+  frame from the per-joint spheres, not from the built header) is too small for the camera distance; outfit parts
+  built by the skin manager have no owner, so no data change could keep their chains alive
+  (`games/marvels-spider-man-2/PHYSICS.md`).
+- Host physics on an object the engine already spawns for every target outfit and drives on its own. Spider-Man 2's
+  masked suits all spawn the same placeholder head actor; moving the chains there (never-cull on, joint spheres
+  enlarged, hip joints added to the head-to-body joint map) gave continuous physics on 91 suits, where adding one
+  more attachment component per suit failed because the engine keeps only the first component of a type.
+- Before editing a container format, make the codec re-encode every shipped file byte-exactly (Spider-Man 2: all
+  11,477 actors) and regenerate vanilla physics sections word for word; compare denormal-looking words bit by bit,
+  because small integer pairs read as floats compare equal and hid a wrong field for two in-game rounds.
 - Shared source model: since 2026-10-02 Karin_Original's FBX and VRM have body_2's `kisekae_Knee` shape key baked
   into the base mesh (key zeroed, name kept; originals beside them as `*.orig`; VRM `971a150d…` → `8f930404…`,
   FBX `0b6e268d…` → `18f00e1a…`). Projects built before that date used the unbaked source. The first copy into
