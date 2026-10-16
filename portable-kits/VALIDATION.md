@@ -1,5 +1,59 @@
 # 迁移验证记录
 
+## 2026-10-16：新增往日不再便携包
+
+- **迁入内容：** 45 个文件，放在 `portable-kits/days-gone/`。
+  - `scripts/` 下 21 个 Python：项目工具目录 `ModTools/DaysGone/pytools/` 的 17 个（`abp_springs.py`、`anim_pertrack.py`、`blink_amp.py`、`fix_root_pose.py`、`pakextract.py`、`paklist.py`、`pakwrite.py`、`physchain.py`、`refskel.py`、`retarget_imports.py`、`retarget_inplace.py`、`shader_skips.py`、`skel_retarget.py`、`skelmesh_normals.py`、`skelmesh_positions.py`、`uhdr.py`、`upkg.py`），项目 `Scripts/` 的 `make_pak.py`、`patch_looks.py`，新写的 `lid_calib.py`、`dgpaths.py`；
+  - `scripts/blender/` 下 13 个 Blender 脚本，来自项目 `Scripts/`：`build_body.py`、`face_rig.py`、`blink_rig.py`、`blink_sim.py`、`mouth_rig.py`、`viseme_sim.py`、`shape_sheet.py`、`fbx_common.py`、`dump_loop_normals.py`、`export_dummy_skeleton.py`、`skirt_body_shrink.py`、`fit_colliders.py`、`render_preview.py`；
+  - `configs/` 下 3 个案例配置：`runs/t31/springs.json`、`runs/t30/mouth_map.json`、`runs/t28/lid_calib.json`，改名为 `springs_t31.json`、`mouth_map_t30.json`、`lid_calib_t28.json`，字节未改；
+  - `dgexport/` 下 DgExport 的 `Program.cs`、`DgExport.csproj`；
+  - `tools/` 下 6 个 PowerShell 7 脚本，由构建机 `DGModding/tools/` 的 `dgx_run.ps1`、`cook.bat`、`ue411.bat`、`swap.ps1`、`setres.ps1`、`watchgame.ps1` 改写为 `dgx_run.ps1`、`cook.ps1`、`ue_editor.ps1`、`install_pak.ps1`、`set_resolution.ps1`、`watch_launch.ps1`；
+  - PROVENANCE 每个文件一行，记录原始和公开版的 SHA-256；两个新文件的 `original_sha256` 为空；
+  - 新增 `README.md`、`toolchain.json`、`requirements.txt`（numpy）。公共层 `modkit.py` 的游戏列表加上 `days-gone`，导出器和导出测试因此覆盖它。
+- **依赖闭包：** 按各脚本的 import 补齐了 `retarget_imports.py`、`fix_root_pose.py`、`shader_skips.py`、`patch_looks.py`（`make_pak.py` 用）。`fit_colliders.py` 导入 `physchain.py` 的胶囊函数，所以 `physchain.py` 也收进来了，尽管它的路线已放弃。
+- **没有迁入：**
+  - `physchain_v1.py`、`physasset_edit.py`：给玩家物理资产加链刚体的路线，玩家网格上额外刚体的 PhysX 约束在游戏里没有效果（t12–t19：限位、锁定和驱动都看不出作用），已放弃；
+  - `abp_dynamics.py`：把游戏原有的 3 个 AnimDynamics 节点改到 Karin 的链上（t20），已被 `abp_springs.py` 取代；
+  - 构建机的 `rungame.bat`（`setres.ps1 1920 1080` 后从 Steam 启动，拆成 README 第 6 步的两行）和 `swap_karin.bat`（`swap.ps1` 的批处理版，由 `install_pak.ps1` 代替）；
+  - 源模型、参考 mod、游戏数据、DgExport 的输出、cook 结果、`runs/` 下的 blend / FBX / npz / pak。
+- **便携改动**在 30 个文件（28 个迁入文件和 2 个新文件）：
+  - 写死的本机 `pytools` 目录：`abp_springs.py`、`blink_amp.py`、`fix_root_pose.py`、`physchain.py`、`refskel.py`、`retarget_imports.py`、`skel_retarget.py`、`patch_looks.py` 改为脚本自己的目录，`make_pak.py` 的 `TOOLS` 同样；Blender 的 `blink_sim.py`、`mouth_rig.py`、`fit_colliders.py` 改为上一级的 `scripts/`；
+  - 写死的缓存和源模型路径改由新文件 `dgpaths.py` 从 `DG_CACHE` / `DG_MODELS_DIR` 拼出，没设时报错并说出变量名：`make_pak.py`（游戏材质实例和外观，在 `main()` 开头、删暂存目录之前取）、`build_body.py`（`--target` 的默认值和源 VRM）、`face_rig.py`、`blink_rig.py`、`mouth_rig.py`、`viseme_sim.py`；
+  - 没有 argparse 的命令补上了 argparse（15 个：`abp_springs.py`、`anim_pertrack.py`、`blink_amp.py`、`fix_root_pose.py`、`pakextract.py`、`paklist.py`、`pakwrite.py`、`physchain.py`、`refskel.py`、`retarget_imports.py`、`skel_retarget.py`、`uhdr.py`、`upkg.py`、`make_pak.py`、`patch_looks.py`），位置参数和选项不变。`pakwrite.py` 只用 argparse 检查参数，仍把原参数列表交给 `main()`（`make_pak.py` 直接调用它）；`uhdr.py` 多给任何参数仍是打印全部名字；`upkg.py` 的命令限定为 `dump` / `props`（原来别的命令什么也不做）；
+  - PowerShell：`dgx_run.ps1` 的 DgExport、pak 目录和输出目录改为 `-Exe`、`DG_GAME_DIR`、`DG_WORK_ROOT`；`cook.ps1` 的 UE 和工程改为 `DG_UE_ROOT`、`DG_PROJECT`（默认 `<DG_WORK_ROOT>\U411\BendGame`），先建日志目录，按 `findstr` 的区分大小写方式筛 `Success - ` / `Failure - `；`ue_editor.ps1` 同上；`install_pak.ps1` 的 `~mods`、暂存和备份目录改为 `DG_GAME_DIR` / `DG_WORK_ROOT`，pak 名改为 `-Name`（默认 `zz_Karin_P`），没有暂存的 pak 时先拒绝（原脚本会先把已装的 pak 移走再失败），缺的目录自动建；`set_resolution.ps1` 的模式列表原来写到用户目录下的固定文件，改为只在给了 `-ModesFile` 时写，结果行总是打印；`watch_launch.ps1` 的输出目录原来写死，改为 `-OutDir`（默认 `<DG_WORK_ROOT>\out`），其余照旧；
+  - 换行：每个迁入文件保留原来的换行，CRLF 的 9 个（`abp_springs.py`、`anim_pertrack.py`、`fix_root_pose.py`、`physchain.py`、`upkg.py`、`make_pak.py`、`build_body.py`、`face_rig.py`、`mouth_rig.py`）改动处也用 CRLF；新写的文件和 PowerShell 改写是 LF。
+
+  其余 15 个文件与原文件逐字节相同：`retarget_inplace.py`、`shader_skips.py`、`skelmesh_normals.py`、`skelmesh_positions.py`、`shape_sheet.py`、`fbx_common.py`、`dump_loop_normals.py`、`export_dummy_skeleton.py`、`skirt_body_shrink.py`、`render_preview.py`、3 个配置、`Program.cs`、`DgExport.csproj`。处理逻辑没有改。
+- **`--help`：** `scripts/` 下 21 个脚本在没设任何 `DG_*` 时都以 0 退出。不要 numpy 的 12 个：`paklist`、`pakextract`、`pakwrite`、`uhdr`、`upkg`、`retarget_imports`、`retarget_inplace`、`shader_skips`、`fix_root_pose`、`patch_looks`、`make_pak`、`dgpaths`。
+- **等价性验证（离线，本机）：**
+  - **条件：** Windows 10 19044；Python 3.14.0 + numpy 2.5.2（zlib-ng 1.3.1）；项目私有 Blender 4.2.23 LTS（UEFormat 0.10.0 在 `addons_core`）及其 Python 3.11.7 + numpy 1.24.3（zlib 1.2.13）；项目缓存经 `DG_CACHE`、源 VRM 经 `DG_MODELS_DIR`；项目的 `runs/` 只读，`build.blend` 先复制到临时目录，输出都写在临时目录；
+  - **`make_pak.py`：** t31 的参数（`runs/t31/cooked_all`、`--normals t11`、`--positions t27`、`--skeleton t10`、`--extra` t31 的动画蓝图）用 Blender 的 Python 运行：pak 与 `runs/t31/zz_Karin_P.pak` 逐字节相同（`87576aec…`），`.report.json` 和暂存目录（79 个文件）也相同。用 Python 3.14 运行：暂存目录仍逐字节相同，pak 因 zlib-ng 压缩不同而字节不同，`pakextract.py` 解开后与 t31 的暂存目录相同；报告里法线统计的浮点数末位不同（numpy 版本）；
+  - **`abp_springs.py`：** 游戏的 `Deacon_VimBlueprint`、t30 的 cook 网格和 `configs/springs_t31.json`，两种 Python 写出的动画蓝图都与 `runs/t31/Deacon_VimBlueprint.uasset` 逐字节相同（`352e10fd…`，加 101 个节点、核对 2479 个姿势链接）；`springs_report.json` 用 Blender 的 Python 时逐字节相同，用 numpy 2.5.2 时有些浮点数末位不同；
+  - **`blink_amp.py`：** t30 的 `cooked_raw.uasset`、t29 的 `blink_rig.json`、`configs/lid_calib_t28.json`：网格与 t30 `cooked_all` 里的逐字节相同（`e827a26c…`），报告与 `runs/t30/blink_amp.json` 相同，两种 Python 一样；
+  - **`skel_retarget.py`：** 游戏骨架加 `^face_=AnimationRelative`，280 根骨，与 `runs/t10/deacon_master_Skeleton.uasset` 逐字节相同；
+  - **`lid_calib.py`：** 默认参数下与 `runs/t28/lid_calib.json` 逐字节相同（`31d835c4…`），两种 Python 一样；
+  - **其他命令：** `pakextract.py` 解 t31 pak 得到的文件与 t31 暂存目录相同；`paklist.py`、`upkg.py dump`、`refskel.py`、`anim_pertrack.py` 正常输出。`uhdr.py` 读游戏格式的包（500 / licensee 34）会在名字表处出错，原脚本也一样（它只在 FileVersionUE4 ≥ 504 时跳过名字哈希），读原版 4.11 的包正常；
+  - **Blender 脚本：** `build_body.py --variant B`（`--factory-startup`）的 `report.json` 和 5 张贴图与 t7 逐字节相同；`face_rig.py --check`（在 t7 的 `build.blend` 副本上）的 `face_rig.json` 与 t11 相同，4 张渲染像素相同（PNG 元数据里的日期和 `.blend` 路径不同）；`blink_rig.py`（t11 的 `build.blend` 和 cook 网格）的 `blink_rig.json` 与 t29 相同；`mouth_rig.py --render`（t29 的 `build.blend`、t29 的 cook 网格、`configs/mouth_map_t30.json`）的 `mouth_rig.json` 和 `mouth_sheet.png` 与 t30 相同；FBX 的字节因创建时间和源路径不同，没有逐项比较。`viseme_sim.py` 正常运行，没设 `DG_CACHE` 时报错并说出变量名；
+  - **`fit_colliders.py`：** 和现在的 `physchain.py` 一起运行时在头部胶囊处报 `ValueError: min() arg is an empty sequence`（`physchain.DEFAULT` 里已没有和 `head` 碰撞的链）。用原脚本和原 `pytools` 运行结果相同，是项目的现状，没有改；它只服务于已放弃的 PhysX 路线；
+  - **没有重跑的部分：** UE 4.11 的编辑器导入和 cook、DgExport（C#）、在测试机上安装和实机；与原文件逐字节相同的 Blender 脚本（`render_preview.py`、`shape_sheet.py`、`dump_loop_normals.py`、`skirt_body_shrink.py`、`export_dummy_skeleton.py`）；`make_pak.py --phys`、`patch_looks.py` 单独的命令行（`make_pak.py` 调用它的 `patch()`）、`physchain.py`。
+- **合成数据测试：** `DaysGoneTools` 共 9 项，不需要游戏、Blender 或 UE：
+  - pak v3：`pakwrite.py` 写出（zlib 多块、空文件、`--store`、`--mount`），页脚和索引 SHA-1，`paklist.py` 的列表，`pakextract.py` 解出后逐字节相同；
+  - 合成的 Bend 格式包（版本 500、licensee 34、名字带哈希）：`upkg.py` 解析导入路径和类，`refskel.py` 的局部 / 组件空间矩阵，`retarget_imports.py` 改骨架导入后包头按新名字变长、导出数据不变，`fix_root_pose.py` 改写两份 `[Armature, Align]` 姿势而 `Align` 以下的组件空间姿势不变，找不到时报错；
+  - `blink_amp.py`：放大骨的旋转和缩放、眼睑骨的静止平移、眼睑骨组件空间位置不变、闭眼位移等于幅度，两份姿势数组都改写；
+  - `skelmesh_normals.py` / `skelmesh_positions.py`：合成的 32 字节顶点缓冲，按 UV 选角、双面角按旧法线选边、切线重新正交、W 字节保留，位移只动匹配的顶点、缓冲外的同值副本只计数不改，找不到缓冲时报错；
+  - `abp_springs.py`：`quat_from_matrix()` 的往返（含 180° 旋转的分支），`node_specs()` 的弹簧常数 `I · omega²`、阻尼 `1 − exp(−drag)`、盒子、角度限制和径向平面，FName 的实例编号（`face_1544` 存成 `face` #1545）；
+  - `anim_pertrack.py`：Float96NoW（全部分量 / 只存 X、Z）、带帧表的 IntervalFixed32NoW 旋转和 Fixed48NoW 旋转的轨道解码与下一条轨道的偏移；
+  - `lid_calib.py`：中位数和最低帧，命令行在 `--cache` 下按 DgExport 的布局找输入、输出缩进 1 的 JSON；`dgpaths.py` 缺变量时报错；`lid_calib.py`、`make_pak.py` 没有 `DG_CACHE` 时在写任何文件之前失败；
+  - PowerShell 工具（要 pwsh 7 和 Windows，否则跳过）：6 个都能解析；5 个在缺变量时报出变量名（`set_resolution.ps1` 只解析，运行会改本机分辨率）；`dgx_run.ps1` 的参数转发；`install_pak.ps1` 的哈希不符拒绝、安装并保留旧 pak、没有暂存时拒绝；
+  - PROVENANCE：每个文件一行，哈希和字节数对得上，修改标记与哈希一致，与 `toolchain.json` 的 `bundled_scripts` 相同；本包文件里没有盘符路径和用户目录，每个文件只有一种换行，`sys.path` 里没有写死的路径，没有收已放弃的工具。
+
+  `--help` 测试覆盖 `scripts/` 下全部 21 个脚本；没装 numpy 时，要 numpy 的测试和 `--help` 跳过。
+- **未验证：**
+  - 便携版没有装进游戏测试，也没有在构建机上跑 UE 4.11 一侧；实机结论来自项目用原脚本构建的 t5–t31；
+  - 测试套件对 Blender 脚本只做语法检查；
+  - 非 Windows 系统、其他 Blender / UE / 游戏版本；
+  - 新模型的案例常量。
+
 ## 2026-10-14：新增漫威蜘蛛侠2便携包
 
 - **迁入内容：** 38 个 Python 文件，放在 `portable-kits/marvels-spider-man-2/scripts/`，来源是项目的 `Work/tools/`。

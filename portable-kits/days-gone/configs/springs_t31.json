@@ -1,0 +1,357 @@
+{
+ "template_node": "81FD72D7",
+ "plane_template_node": "8EAE6C64",
+ "insert_before": "81FD72D7",
+ "groups": [
+  {
+   "name": "ears",
+   "chains": [
+    "KO_Ear_L",
+    "KO_Ear_R"
+   ],
+   "omega": 13,
+   "drag": 8,
+   "limit": [
+    12
+   ],
+   "width": 2.5
+  },
+  {
+   "name": "bangs",
+   "chains": [
+    "KO_Hair_front_L",
+    "KO_Hair_front",
+    "KO_Hair_front_R"
+   ],
+   "omega": 20,
+   "drag": 10,
+   "limit": [
+    5
+   ],
+   "planes": [
+    {
+     "kind": "radial",
+     "bone": "Head",
+     "center": [
+      0,
+      -2
+     ],
+     "margin": 0.3
+    }
+   ]
+  },
+  {
+   "name": "side_locks",
+   "chains": [
+    "KO_Hair_side_L",
+    "KO_Hair_side_R"
+   ],
+   "omega": 15,
+   "drag": 10,
+   "limit": [
+    5,
+    7
+   ],
+   "planes": [
+    {
+     "kind": "radial",
+     "bone": "Head",
+     "center": [
+      0,
+      -2
+     ],
+     "margin": 0.5
+    }
+   ]
+  },
+  {
+   "name": "twin_tails",
+   "chains": [
+    "KO_Hair_tail_L",
+    "KO_Hair_tail_R"
+   ],
+   "omega": [
+    15,
+    13,
+    12
+   ],
+   "drag": 12,
+   "limit": [
+    5,
+    7,
+    7
+   ],
+   "planes": []
+  },
+  {
+   "name": "head_ribbons",
+   "chains": [
+    "KO_Ribbon_L",
+    "KO_Ribbon_R"
+   ],
+   "omega": 11,
+   "drag": 6,
+   "limit": [
+    10,
+    14
+   ],
+   "planes": [
+    {
+     "kind": "radial",
+     "bone": "Head",
+     "center": [
+      0,
+      -2
+     ],
+     "margin": 0.5
+    }
+   ]
+  },
+  {
+   "name": "fox_tail",
+   "chains": [
+    "KO_Tail"
+   ],
+   "omega": [
+    9,
+    8,
+    7
+   ],
+   "drag": 12,
+   "limit": [
+    8,
+    10,
+    12
+   ],
+   "width": 5,
+   "thick": 5,
+   "planes": []
+  },
+  {
+   "omega": [
+    16,
+    14,
+    14
+   ],
+   "drag": 10,
+   "width": 5,
+   "thick": 1.5,
+   "com": 0.7,
+   "name": "skirt_front",
+   "chains": [
+    "KO_Skirt_3_R",
+    "KO_Skirt_2_R",
+    "KO_Skirt_1_R",
+    "KO_Skirt_0",
+    "KO_Skirt_1_L",
+    "KO_Skirt_2_L",
+    "KO_Skirt_3_L"
+   ],
+   "ring": [
+    "KO_Skirt_3_R",
+    "KO_Skirt_2_R",
+    "KO_Skirt_1_R",
+    "KO_Skirt_0",
+    "KO_Skirt_1_L",
+    "KO_Skirt_2_L",
+    "KO_Skirt_3_L"
+   ],
+   "ring_closed": false,
+   "limit": [
+    12,
+    30,
+    30
+   ],
+   "planes": [
+    {
+     "kind": "thigh",
+     "up": "#UpLeg",
+     "leg": "#Leg",
+     "radius": 9.0,
+     "margin": 1.0,
+     "from_segment": 1,
+     "neighbors": true
+    }
+   ]
+  },
+  {
+   "omega": [
+    16,
+    14,
+    14
+   ],
+   "drag": 10,
+   "width": 5,
+   "thick": 1.5,
+   "com": 0.7,
+   "name": "skirt_side",
+   "chains": [
+    "KO_Skirt_4_L",
+    "KO_Skirt_4_R",
+    "KO_Skirt_5_L",
+    "KO_Skirt_5_R"
+   ],
+   "limit": [
+    12,
+    25,
+    25
+   ],
+   "planes": [
+    {
+     "kind": "thigh",
+     "up": "#UpLeg",
+     "leg": "#Leg",
+     "radius": 9.0,
+     "margin": 1.0,
+     "from_segment": 1
+    }
+   ]
+  },
+  {
+   "omega": [
+    16,
+    14,
+    14
+   ],
+   "drag": 10,
+   "width": 5,
+   "thick": 1.5,
+   "com": 0.7,
+   "name": "skirt_back",
+   "chains": [
+    "KO_Skirt_6_L",
+    "KO_Skirt_6_R",
+    "KO_Skirt_7_L",
+    "KO_Skirt_7_R",
+    "KO_Skirt_8"
+   ],
+   "limit": [
+    12,
+    20,
+    20
+   ],
+   "planes": []
+  },
+  {
+   "name": "camisole_ribbon",
+   "chains": [
+    "KO_Ribbon_camisole"
+   ],
+   "omega": 8,
+   "drag": 6,
+   "limit": [
+    20
+   ],
+   "planes": [
+    {
+     "kind": "radial",
+     "bone": "spine4",
+     "center": [
+      0,
+      0.5
+     ],
+     "margin": 0.5
+    }
+   ]
+  },
+  {
+   "name": "tops_ribbons",
+   "chains": [
+    "KO_Ribbon_tops_L",
+    "KO_Ribbon_tops_R"
+   ],
+   "omega": 8,
+   "drag": 6,
+   "limit": [
+    20
+   ],
+   "planes": [
+    {
+     "kind": "radial",
+     "bone": "spine2",
+     "center": [
+      0,
+      0
+     ],
+     "margin": 0.5
+    }
+   ]
+  },
+  {
+   "name": "hand_ribbons",
+   "chains": [
+    "KO_Ribbon_hand_L_1",
+    "KO_Ribbon_hand_L_2",
+    "KO_Ribbon_hand_R_1",
+    "KO_Ribbon_hand_R_2"
+   ],
+   "omega": 8,
+   "drag": 6,
+   "limit": [
+    25
+   ]
+  }
+ ],
+ "copies": [
+  {
+   "source": "face_1544",
+   "target": "KB_Blink_L_Xn",
+   "space": "BCS_ParentBoneSpace",
+   "translation": true
+  },
+  {
+   "source": "face_1544",
+   "target": "KB_Blink_L_Xp",
+   "space": "BCS_ParentBoneSpace",
+   "translation": true
+  },
+  {
+   "source": "face_1544",
+   "target": "KB_Blink_L_Yn",
+   "space": "BCS_ParentBoneSpace",
+   "translation": true
+  },
+  {
+   "source": "face_1544",
+   "target": "KB_Blink_L_Yp",
+   "space": "BCS_ParentBoneSpace",
+   "translation": true
+  },
+  {
+   "source": "face_1544",
+   "target": "KB_Blink_L_Zn",
+   "space": "BCS_ParentBoneSpace",
+   "translation": true
+  },
+  {
+   "source": "face_1911",
+   "target": "KB_Blink_R_Xn",
+   "space": "BCS_ParentBoneSpace",
+   "translation": true
+  },
+  {
+   "source": "face_1911",
+   "target": "KB_Blink_R_Xp",
+   "space": "BCS_ParentBoneSpace",
+   "translation": true
+  },
+  {
+   "source": "face_1911",
+   "target": "KB_Blink_R_Yn",
+   "space": "BCS_ParentBoneSpace",
+   "translation": true
+  },
+  {
+   "source": "face_1911",
+   "target": "KB_Blink_R_Yp",
+   "space": "BCS_ParentBoneSpace",
+   "translation": true
+  },
+  {
+   "source": "face_1911",
+   "target": "KB_Blink_R_Zn",
+   "space": "BCS_ParentBoneSpace",
+   "translation": true
+  }
+ ]
+}

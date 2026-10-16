@@ -93,6 +93,20 @@ class DetachedExports(unittest.TestCase):
                                      'test_sm2_actor_object_roundtrip'):
                             self.assertIn(name, process.stderr)
                         self.assertFalse([l for l in process.stderr.splitlines() if 'test_sm2_' in l and 'skipped' in l])
+                    if game == 'days-gone':
+                        self.assertTrue((target/'portable-kits/days-gone/requirements.txt').is_file())
+                        for name in ('test_dg_pak_v3_write_list_extract', 'test_dg_provenance_and_portability'):
+                            self.assertIn(name, process.stderr)
+                        self.assertFalse([l for l in process.stderr.splitlines() if 'test_dg_' in l and 'skipped' in l
+                                          and ('pak_v3' in l or 'provenance' in l)])
+                    if game == 'days-gone' and importlib.util.find_spec('numpy'):
+                        for name in ('test_dg_package_refskel_retarget_and_root_pose', 'test_dg_blink_amp_lid_rest_pose',
+                                     'test_dg_skelmesh_normals_and_positions_in_place',
+                                     'test_dg_abp_springs_quaternions_springs_and_names', 'test_dg_anim_pertrack_track_decoding',
+                                     'test_dg_lid_calib_and_machine_paths'):
+                            self.assertIn(name, process.stderr)
+                        self.assertFalse([l for l in process.stderr.splitlines() if 'test_dg_' in l and 'skipped' in l
+                                          and 'tools_environment' not in l])
                     print(f'{game}: detached tests passed (unselected games skipped)')
 
 

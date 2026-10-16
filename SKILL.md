@@ -43,6 +43,7 @@ before authoring. Never use this root document as a live candidate state file.
 - Sifu -> `games/sifu/`
 - Palworld -> `games/palworld/`
 - Marvel's Spider-Man 2 (PC) -> `games/marvels-spider-man-2/`
+- Days Gone (PC, `days_gone_classic` branch) -> `games/days-gone/`
 
 - Hitman: World of Assassination -> `games/hitman-world-of-assassination/`
 - Watch Dogs -> `games/watch-dogs/`

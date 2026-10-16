@@ -218,6 +218,17 @@
       "topics": ["Insomniac i30（DAT1）", "变长资产头（ALERT 按 i29 切会错）", "dagstr 名字索引与 CRC64", "Overstrike .stage v2 与 toc.BAK 安装器", ".model 段、蒙皮批表与 >255 关节编码", "0x80 变形位与 ModelMirrorIds 自映射", "Look 组预设覆盖", "材质图与顶点格式匹配（*_sand 崩溃）", "按骨架签名拟合 + 108 模型批量替换", "面部骨骼权重迁移（FACIAL_* 叶关节）", "ModelAnimDynamicsDef 从零写入与原版逐字回归", "AnimDynamics 每帧门控（owner / AnimController / 关节包围球 / NeverCull）", ".actor 序列化对象编解码（11,477 个逐字节往返）", "同类型组件只认第一条（HeroSuitAddition）", "头部载体：HeadManager CustomJointMap 补胯部关节"],
       "limits": ["便装 14 套、young、2 个过场模型没有物理（静态链）", "antiock 的 nomask 剧情 loadout 没有头发 / 耳朵 / 尾巴", "hero_spiderman_invisible 也会生成载体头发（未遇到）", "AnimDynamics 无碰撞体，头发与尾巴会穿过身体", "眨眼（Morph2）、切线、半透明材质未做", "拍照模式、过场、boss 战、布料战衣未逐项复测", "ALERT（GPLv3）不随库发布"],
       "portable_kit": "portable-kits/marvels-spider-man-2"
+    },
+    {
+      "id": "days-gone",
+      "path": "games/days-gone",
+      "status": "runtime-confirmed-scoped",
+      "milestone": "Karin_Original 替换迪肯 t31（days_gone_classic 分支）：头部网格承载全部几何、烘焙动画蓝图插入 91 个 AnimDynamics 弹簧与 10 个 CopyBone、面部关节表情、眼睑放大骨眨眼、按口型求解的嘴部权重；物理、眨眼、口型、头发幅度各经用户实机确认",
+      "date": "2026-10-16",
+      "game_build": "10034136 (days_gone_classic)",
+      "topics": ["Bend 改版 UE 4.11", "pak v3 与 ~mods", "startuppackages.pak 改名", "头部网格作为所有 look 的主姿势组件", "BendSkeletalMeshLook 批量改写", "原版 4.11 cook 包可被游戏加载", "带内联着色器图的 MI 原地改引用", "GPU 蒙皮顶点缓冲原地改法线 / 位置", "face_* 关节 AnimationRelative 重定向", "per-track 压缩面部动画解码", "烘焙动画蓝图插节点（正序 / 倒序索引）", "逐骨 AnimDynamics 弹簧与平面限制", "PhysX 额外刚体约束无效", "BoneDrivenController 无效、克隆 CopyBone 可用", "网格专用骨与参考姿势缩放放大", "口型叠加姿势与 .lsd", "按口型逐顶点 NNLS 求解嘴部权重", "Bend VideoSettings 显示模式崩溃", "远程测试机 GUI 导入与实机连拍"],
+      "limits": ["照片模式里右侧双马尾会被拉伸（未修）", "过场动画、骑车、战斗全部动作、其它 65 个 look 未逐项测", "Remastered 分支未验证", "UE 4.11 的 FBX 导入只能走编辑器 GUI", "眼睑映射不截断：部分情绪里会眯眼"],
+      "portable_kit": "portable-kits/days-gone"
     }
   ]
 }

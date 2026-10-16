@@ -2248,5 +2248,410 @@
     "portable_sha256": "078bbfc76d14464d814f73b95243b6701f521c400b36bcce239ed73d2e49d9c5",
     "portable_bytes": 2879,
     "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/days-gone/scripts/abp_springs.py",
+    "source": "ModTools/DaysGone/pytools/abp_springs.py",
+    "original_sha256": "5e4eadb07f9ad8b228c6bc41210786652bc6646e255fb1777fd3d4f10a883ae6",
+    "source_bytes": 27920,
+    "portable_sha256": "3b9cb0e15ec61ea971e6488392548d6461fbc098fd58ec37faf3e36d14ec20be",
+    "portable_bytes": 28500,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/days-gone/scripts/anim_pertrack.py",
+    "source": "ModTools/DaysGone/pytools/anim_pertrack.py",
+    "original_sha256": "6f3efdfda5ee8a7c29238e459dd5a7c67d8069fb356ff271870cb6fcad624c44",
+    "source_bytes": 8162,
+    "portable_sha256": "f23a7040602e6befd19fabbfb5eeccda4ca7d9e983b2671870bf05c8324975f0",
+    "portable_bytes": 8374,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/days-gone/scripts/blink_amp.py",
+    "source": "ModTools/DaysGone/pytools/blink_amp.py",
+    "original_sha256": "cc8f025a8fa80b4346f8cfed687e0b74f11a61b0a23612bcc9427c01a96686be",
+    "source_bytes": 4787,
+    "portable_sha256": "72ccebe7cc8c0a166dcb7bffc5e2e0e48d29a0085f64c0e7f0008c5ea753e158",
+    "portable_bytes": 5397,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/days-gone/scripts/fix_root_pose.py",
+    "source": "ModTools/DaysGone/pytools/fix_root_pose.py",
+    "original_sha256": "239cfc51504c6009e8c34bbc721bee8e579ef77423b6e001e84bb05c70cc941e",
+    "source_bytes": 1819,
+    "portable_sha256": "6fd53f1828b13316714b39abe066e9a2fa7a5d627dd0f1ef371cc36bee710ecc",
+    "portable_bytes": 2087,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/days-gone/scripts/pakextract.py",
+    "source": "ModTools/DaysGone/pytools/pakextract.py",
+    "original_sha256": "cc1ec16ba3188795b46185bf1ce0a1882fda4d617d1cd20416a1a727ac270f5b",
+    "source_bytes": 1324,
+    "portable_sha256": "0c893f13441390848305b785adcba771c70ef9d92043aa81137b9b7fc065a56b",
+    "portable_bytes": 1526,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/days-gone/scripts/paklist.py",
+    "source": "ModTools/DaysGone/pytools/paklist.py",
+    "original_sha256": "c025168f7ee22246d62db6bda44cc2fdfd1d3b8310033f60e8a6f30f92eddeaa",
+    "source_bytes": 761,
+    "portable_sha256": "cf4795fd750b86b313fef43bffb81c2d5b63a944660a3c727e4fd6671c0e4b68",
+    "portable_bytes": 952,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/days-gone/scripts/pakwrite.py",
+    "source": "ModTools/DaysGone/pytools/pakwrite.py",
+    "original_sha256": "496a60ebf33a055bc54618c7eaceb6580b4ff96834052855a7cd94ac2e93c821",
+    "source_bytes": 2390,
+    "portable_sha256": "337e2742c0eeeefc160bce2e1dda84026250806e9baf95a983487340be407aea",
+    "portable_bytes": 2837,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/days-gone/scripts/physchain.py",
+    "source": "ModTools/DaysGone/pytools/physchain.py",
+    "original_sha256": "dc1b9a1857f5e71fa7c88fe6da155e3727844567e1e2f02f818f49d0995720d6",
+    "source_bytes": 21047,
+    "portable_sha256": "d18843b42d0a911a0e201edd7315adbe078edd33b7762c3d25d3adf3ff8b103e",
+    "portable_bytes": 21388,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/days-gone/scripts/refskel.py",
+    "source": "ModTools/DaysGone/pytools/refskel.py",
+    "original_sha256": "99abd3fac83cd06e3d365495e1a081aaf902924f39cbd189f3f8914469e1a9df",
+    "source_bytes": 2873,
+    "portable_sha256": "137eb461df1db4789b00f85803b5cc9333f5616f045bf942519b839d7b2133af",
+    "portable_bytes": 3204,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/days-gone/scripts/retarget_imports.py",
+    "source": "ModTools/DaysGone/pytools/retarget_imports.py",
+    "original_sha256": "e4cc3bb22bdece97ad3fc6c92daf7da8053df8e449efce908d69c34ca50480c0",
+    "source_bytes": 1277,
+    "portable_sha256": "0fe2ea7605a7b57a5eb204c74434fe48392912f9f32ba6e955ff5dd6924795c0",
+    "portable_bytes": 1580,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/days-gone/scripts/retarget_inplace.py",
+    "source": "ModTools/DaysGone/pytools/retarget_inplace.py",
+    "original_sha256": "09d2b440e55dfe6d51950ad1305c6428037ebdc4e5025858e770666c62238d04",
+    "source_bytes": 4173,
+    "portable_sha256": "09d2b440e55dfe6d51950ad1305c6428037ebdc4e5025858e770666c62238d04",
+    "portable_bytes": 4173,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/days-gone/scripts/shader_skips.py",
+    "source": "ModTools/DaysGone/pytools/shader_skips.py",
+    "original_sha256": "49301b7adb3a02263ee2ae38c8c51468e523aebdd050b7e0c47c37ee8a398dbe",
+    "source_bytes": 2863,
+    "portable_sha256": "49301b7adb3a02263ee2ae38c8c51468e523aebdd050b7e0c47c37ee8a398dbe",
+    "portable_bytes": 2863,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/days-gone/scripts/skel_retarget.py",
+    "source": "ModTools/DaysGone/pytools/skel_retarget.py",
+    "original_sha256": "03e80c44f76a4a98eb5c9d3a252b9e6150f19069d7d0986a58d4cb9892ab408f",
+    "source_bytes": 1854,
+    "portable_sha256": "6e1881aa9d39f21ab4c69a255adcbc5f6b4d18d1709dc0fa05f4d79377633561",
+    "portable_bytes": 2128,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/days-gone/scripts/skelmesh_normals.py",
+    "source": "ModTools/DaysGone/pytools/skelmesh_normals.py",
+    "original_sha256": "ab551fca6d16d8b7df7c0610dac14df44b3c55342941c2d65647517207f72e4a",
+    "source_bytes": 4890,
+    "portable_sha256": "ab551fca6d16d8b7df7c0610dac14df44b3c55342941c2d65647517207f72e4a",
+    "portable_bytes": 4890,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/days-gone/scripts/skelmesh_positions.py",
+    "source": "ModTools/DaysGone/pytools/skelmesh_positions.py",
+    "original_sha256": "137a2fe47125baa3cab000eed9c7925e27667530af62e8810189a4e030a5d477",
+    "source_bytes": 2609,
+    "portable_sha256": "137a2fe47125baa3cab000eed9c7925e27667530af62e8810189a4e030a5d477",
+    "portable_bytes": 2609,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/days-gone/scripts/uhdr.py",
+    "source": "ModTools/DaysGone/pytools/uhdr.py",
+    "original_sha256": "17d74a352aa3acffc0c407f554ca8c8112f7303af218510f04c19dbcebd6aad1",
+    "source_bytes": 1336,
+    "portable_sha256": "c42e8c5365fbe208195defaf6e156e8e8002b469285af759b1835068c38ef3db",
+    "portable_bytes": 1617,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/days-gone/scripts/upkg.py",
+    "source": "ModTools/DaysGone/pytools/upkg.py",
+    "original_sha256": "f9c18c3ae621c43a65f5f2df37dbadf5d17b1c32ab10abbc0b1a7d3bd67f3b0d",
+    "source_bytes": 19601,
+    "portable_sha256": "98a1697941ce7a148933aa57794b20a69211a20b5196d1eb892f8a03d8dc5a58",
+    "portable_bytes": 19893,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/days-gone/scripts/make_pak.py",
+    "source": "Mods/DaysGone/Karin_Original_Deacon/Scripts/make_pak.py",
+    "original_sha256": "449eb7cbc669aeef154aaf5b6b1d8cd49d4acb77de05f68668b7b1ac775e6d7b",
+    "source_bytes": 8214,
+    "portable_sha256": "f40ea96921ef2dda801f53950477a17047e823aebfe83c81b8ab4b95b6f64689",
+    "portable_bytes": 9124,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/days-gone/scripts/patch_looks.py",
+    "source": "Mods/DaysGone/Karin_Original_Deacon/Scripts/patch_looks.py",
+    "original_sha256": "fc0d7bd6dda8bd019b10a47bfa225fad74da49d5c950a3ebf6844b4960d7c626",
+    "source_bytes": 3108,
+    "portable_sha256": "629f48354a2742a01eefcd3a3619f281ed2cb0a371ab274487a110e9ecea3171",
+    "portable_bytes": 3367,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/days-gone/scripts/blender/build_body.py",
+    "source": "Mods/DaysGone/Karin_Original_Deacon/Scripts/build_body.py",
+    "original_sha256": "250c3e5f5998fdc166f89699ec1d351f5a8a73ce742023b9126eb44517af136f",
+    "source_bytes": 26377,
+    "portable_sha256": "9674c245ba9d49b1bb3e9bb1b087a857e2fb189b28460a87101684e526fe0ae9",
+    "portable_bytes": 26444,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/days-gone/scripts/blender/face_rig.py",
+    "source": "Mods/DaysGone/Karin_Original_Deacon/Scripts/face_rig.py",
+    "original_sha256": "85fe71b8cc9352474cee12b4c8f4ef969ac270384479c502eca76ad9ad4ab713",
+    "source_bytes": 16246,
+    "portable_sha256": "a0344902952112192ec8d5e70482695c2a21872fbe46a1765949dbfd29a5ff18",
+    "portable_bytes": 16359,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/days-gone/scripts/blender/blink_rig.py",
+    "source": "Mods/DaysGone/Karin_Original_Deacon/Scripts/blink_rig.py",
+    "original_sha256": "a8f303104f54109505b323bf51f7908f37487aeab2fb17937777d8d4fbef73bb",
+    "source_bytes": 9882,
+    "portable_sha256": "73840b27c0d6592d1f88eb4111a487c26a3d084c7ab888f300f498ca4f0b7adb",
+    "portable_bytes": 9965,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/days-gone/scripts/blender/blink_sim.py",
+    "source": "Mods/DaysGone/Karin_Original_Deacon/Scripts/blink_sim.py",
+    "original_sha256": "552377c3b297f30cbd4be19daf0c2bda15157c4d8d62b358ade6679a13baacb4",
+    "source_bytes": 3903,
+    "portable_sha256": "20101d3999a64ea6f50edc1df7bf3f7d2b4e5c86d37ae294d89b6fd004337619",
+    "portable_bytes": 3943,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/days-gone/scripts/blender/mouth_rig.py",
+    "source": "Mods/DaysGone/Karin_Original_Deacon/Scripts/mouth_rig.py",
+    "original_sha256": "951312a1a416882c0b82e18df13d569b4a9dd25d2beb03038fb7120c09b5009b",
+    "source_bytes": 22697,
+    "portable_sha256": "ed9d69127b31c66b41a8a3716de42fcfdce6ccd22758e7e3a23703539ac0cc07",
+    "portable_bytes": 22727,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/days-gone/scripts/blender/viseme_sim.py",
+    "source": "Mods/DaysGone/Karin_Original_Deacon/Scripts/viseme_sim.py",
+    "original_sha256": "b7862b3aa41b7c5f6e264e49902ff85cfdbaf4d7b69b350516c1dfdc96e7c15b",
+    "source_bytes": 4638,
+    "portable_sha256": "8aec19926c18a67a1be3a7aff200f0b55b66dcb53e53752ff72bea298aff9017",
+    "portable_bytes": 4682,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/days-gone/scripts/blender/shape_sheet.py",
+    "source": "Mods/DaysGone/Karin_Original_Deacon/Scripts/shape_sheet.py",
+    "original_sha256": "b2387483f22b709e8dc696b4d98a13b74e435d4ba4ddd4e062a66fdb5b3dd134",
+    "source_bytes": 2048,
+    "portable_sha256": "b2387483f22b709e8dc696b4d98a13b74e435d4ba4ddd4e062a66fdb5b3dd134",
+    "portable_bytes": 2048,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/days-gone/scripts/blender/fbx_common.py",
+    "source": "Mods/DaysGone/Karin_Original_Deacon/Scripts/fbx_common.py",
+    "original_sha256": "936d1a306e01112b4314c8e5b2f29b197399abebe62b2f313fb9358e7cea8d85",
+    "source_bytes": 1959,
+    "portable_sha256": "936d1a306e01112b4314c8e5b2f29b197399abebe62b2f313fb9358e7cea8d85",
+    "portable_bytes": 1959,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/days-gone/scripts/blender/dump_loop_normals.py",
+    "source": "Mods/DaysGone/Karin_Original_Deacon/Scripts/dump_loop_normals.py",
+    "original_sha256": "9c2588e0fbef1392ce0e6d31ef8182e830387981fb47a76464d08eae435906ed",
+    "source_bytes": 1343,
+    "portable_sha256": "9c2588e0fbef1392ce0e6d31ef8182e830387981fb47a76464d08eae435906ed",
+    "portable_bytes": 1343,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/days-gone/scripts/blender/export_dummy_skeleton.py",
+    "source": "Mods/DaysGone/Karin_Original_Deacon/Scripts/export_dummy_skeleton.py",
+    "original_sha256": "3d1fe6f8ace94079370cae08959eca2487bceed4fae85af42df5db4c95a2bd3a",
+    "source_bytes": 1003,
+    "portable_sha256": "3d1fe6f8ace94079370cae08959eca2487bceed4fae85af42df5db4c95a2bd3a",
+    "portable_bytes": 1003,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/days-gone/scripts/blender/skirt_body_shrink.py",
+    "source": "Mods/DaysGone/Karin_Original_Deacon/Scripts/skirt_body_shrink.py",
+    "original_sha256": "83944adbab9d72c0f9a62030e507f05d657eda215141b7c82d7ce2184e3a2a68",
+    "source_bytes": 3740,
+    "portable_sha256": "83944adbab9d72c0f9a62030e507f05d657eda215141b7c82d7ce2184e3a2a68",
+    "portable_bytes": 3740,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/days-gone/scripts/blender/fit_colliders.py",
+    "source": "Mods/DaysGone/Karin_Original_Deacon/Scripts/fit_colliders.py",
+    "original_sha256": "5b481e9557ad8912a3b1ccc87becc5e6c0c631caa5121c46be14c7d53475c4d6",
+    "source_bytes": 4302,
+    "portable_sha256": "d7e54ceafa89413fe592558ad42c9f1cdcb864cf45a2b1b80d2d86a3d2711fa1",
+    "portable_bytes": 4342,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/days-gone/scripts/blender/render_preview.py",
+    "source": "Mods/DaysGone/Karin_Original_Deacon/Scripts/render_preview.py",
+    "original_sha256": "3fcb04f99bd94df60c35ffa1a103fed24407a47ee5fe96ab6d0390f6576ec0a4",
+    "source_bytes": 2011,
+    "portable_sha256": "3fcb04f99bd94df60c35ffa1a103fed24407a47ee5fe96ab6d0390f6576ec0a4",
+    "portable_bytes": 2011,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/days-gone/configs/springs_t31.json",
+    "source": "ModTools/DaysGone/runs/t31/springs.json",
+    "original_sha256": "aa1db3269de81cbab879b1ab59667634b05caa83a48567a543af1b22e453652d",
+    "source_bytes": 5455,
+    "portable_sha256": "aa1db3269de81cbab879b1ab59667634b05caa83a48567a543af1b22e453652d",
+    "portable_bytes": 5455,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/days-gone/configs/mouth_map_t30.json",
+    "source": "ModTools/DaysGone/runs/t30/mouth_map.json",
+    "original_sha256": "da0e6580c3b2b689e64d1f62d5f4124bd69841c3b921dfecd687d38e0a44c27e",
+    "source_bytes": 1614,
+    "portable_sha256": "da0e6580c3b2b689e64d1f62d5f4124bd69841c3b921dfecd687d38e0a44c27e",
+    "portable_bytes": 1614,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/days-gone/configs/lid_calib_t28.json",
+    "source": "ModTools/DaysGone/runs/t28/lid_calib.json",
+    "original_sha256": "31d835c4e9a34ae27b33f28c3e5a13904cb3b79ba5a9ebc4775f45f8f0957234",
+    "source_bytes": 424,
+    "portable_sha256": "31d835c4e9a34ae27b33f28c3e5a13904cb3b79ba5a9ebc4775f45f8f0957234",
+    "portable_bytes": 424,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/days-gone/dgexport/DgExport.csproj",
+    "source": "ModTools/DaysGone/src/DgExport/DgExport.csproj",
+    "original_sha256": "8cdf8af3642edb2e56e86c00ee2a2b40f11073055bd6e628156b2a176b86e7e2",
+    "source_bytes": 540,
+    "portable_sha256": "8cdf8af3642edb2e56e86c00ee2a2b40f11073055bd6e628156b2a176b86e7e2",
+    "portable_bytes": 540,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/days-gone/dgexport/Program.cs",
+    "source": "ModTools/DaysGone/src/DgExport/Program.cs",
+    "original_sha256": "b625e71475dbae01caf18abc3445540d4c556e32b7fbc8bb51a1c371e4eb4ad8",
+    "source_bytes": 10384,
+    "portable_sha256": "b625e71475dbae01caf18abc3445540d4c556e32b7fbc8bb51a1c371e4eb4ad8",
+    "portable_bytes": 10384,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/days-gone/tools/dgx_run.ps1",
+    "source": "DGModding/tools/dgx_run.ps1",
+    "original_sha256": "11850120d6cba07e84c6b8aafe825b263476c4147a1b7433a69a576e7d6d9ed7",
+    "source_bytes": 207,
+    "portable_sha256": "23a72ca78c1e1197c4e2c96ff6ca40fed01f569ddb933a0d654058a5dba36bbc",
+    "portable_bytes": 1231,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/days-gone/tools/cook.ps1",
+    "source": "DGModding/tools/cook.bat",
+    "original_sha256": "a829a7237712c9304bdea98df3f1c26a63ae97f36768a63a03c967039d7b522a",
+    "source_bytes": 417,
+    "portable_sha256": "aa76d2dce5c24f70c83cfdcf1b515837a69ce47b32bfd5f4da8f575eb8128e94",
+    "portable_bytes": 1571,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/days-gone/tools/ue_editor.ps1",
+    "source": "DGModding/tools/ue411.bat",
+    "original_sha256": "57c5d81bab6634ce0cbc1932662ccd16b9b4297450312315954179c7260b2cb2",
+    "source_bytes": 133,
+    "portable_sha256": "ab09e3f901c4073f5fa666d7ca439ab6447a9cd39af70869aba4156058589b22",
+    "portable_bytes": 1015,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/days-gone/tools/install_pak.ps1",
+    "source": "DGModding/tools/swap.ps1",
+    "original_sha256": "69bafef58850685245c29e9edb8e93b956fa898a5b045cec7964ae0b4afeeb15",
+    "source_bytes": 818,
+    "portable_sha256": "2da8c937abd40eeaac94a9fdffd3df7624ac1ebe8dc0dee8a01744b191b575f9",
+    "portable_bytes": 1879,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/days-gone/tools/set_resolution.ps1",
+    "source": "DGModding/tools/setres.ps1",
+    "original_sha256": "3611b4bcf473625f2901700667bd05563f4b2b838a5a724de3e689bf175feb62",
+    "source_bytes": 1700,
+    "portable_sha256": "01ce02ca60a3008736003f427c6d16ec57b83c003414164b87675b9f6a7fba7c",
+    "portable_bytes": 2206,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/days-gone/tools/watch_launch.ps1",
+    "source": "DGModding/tools/watchgame.ps1",
+    "original_sha256": "efe58a19124bb55415ac3fb5af545e44a9381aed35024031078b5d4817456c4a",
+    "source_bytes": 1923,
+    "portable_sha256": "2bf0b93931fbe845d7549552d4f22e2634adeffdab37770ad5504caf5042db3d",
+    "portable_bytes": 2607,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/days-gone/scripts/lid_calib.py",
+    "source": "new file written for the portable kit (no project original); it reproduces the one-off session command that wrote ModTools/DaysGone/runs/t28/lid_calib.json",
+    "original_sha256": null,
+    "source_bytes": null,
+    "portable_sha256": "d4d0b2116248f8ffba718d3d6c0fa7ad2a60cb875f78dd95f2e94a5279593d58",
+    "portable_bytes": 3417,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/days-gone/scripts/dgpaths.py",
+    "source": "new file written for the portable kit (no project original)",
+    "original_sha256": null,
+    "source_bytes": null,
+    "portable_sha256": "486455e2229284af086f5e6de841cc6555516ceae5b7f530b369286ad7c92c62",
+    "portable_bytes": 2266,
+    "modified_for_portability": true
   }
 ]

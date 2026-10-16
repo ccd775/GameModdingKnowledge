@@ -245,6 +245,7 @@ class PortableTools(unittest.TestCase):
             if path.parents[1].name == 'dragons-dogma-2' and path.stem in DD2_NUMPY_SCRIPTS and dd2_missing(): continue
             if path.parents[1].name == 'sifu' and sifu_missing(path.stem): continue
             if path.parents[1].name == 'marvels-spider-man-2' and sm2_missing(path.stem): continue
+            if path.parents[1].name == 'days-gone' and dg_missing(path.stem): continue
             cli(path.parents[1].name,path.stem,'--help')
 
 
@@ -2961,5 +2962,502 @@ class MarvelsSpiderMan2Tools(unittest.TestCase):
         self.assertEqual(parsed.save(), raw)
         self.assertEqual(parsed.save(reencode=False), raw)
         self.assertNotIn('dat1lib', sys.modules)                              # ALERT is imported only to hash new names
+
+
+DG_KIT = KITS / 'days-gone'
+# Days Gone scripts that need only the standard library; the others import numpy.
+DG_STDLIB_SCRIPTS = {'paklist', 'pakextract', 'pakwrite', 'uhdr', 'upkg', 'retarget_imports', 'retarget_inplace',
+                     'shader_skips', 'fix_root_pose', 'patch_looks', 'make_pak', 'dgpaths'}
+
+
+def dg_missing(script=None):
+    """numpy, when a Days Gone script needs it and it is not installed"""
+    if script in DG_STDLIB_SCRIPTS:
+        return []
+    return [m for m in ('numpy',) if importlib.util.find_spec(m) is None]
+
+
+def dg_kit():
+    if not DG_KIT.is_dir():
+        raise unittest.SkipTest('days-gone is not included in this single-game export')
+    return DG_KIT
+
+
+def dg(name):
+    dg_kit()
+    if dg_missing(name):
+        raise unittest.SkipTest('pip install -r portable-kits/days-gone/requirements.txt (missing numpy)')
+    return module('days-gone', name)
+
+
+def dg_run(name, *args, env=None, ok=True):
+    """Run a Days Gone kit script with none of the caller's DG_* variables (plus env)"""
+    path = dg_kit() / 'scripts' / f'{name}.py'
+    full = {k: v for k, v in os.environ.items() if not k.startswith('DG_')}
+    full.update(env or {}, PYTHONIOENCODING='utf-8')
+    process = subprocess.run([sys.executable, '-B', str(path), *map(str, args)], capture_output=True, text=True,
+                             encoding='utf-8', env=full, timeout=120)
+    if (process.returncode == 0) != ok:
+        raise AssertionError(f'{name}: exit {process.returncode}\n{process.stdout}\n{process.stderr}')
+    return process
+
+
+def dg_fstr(s):
+    b = s.encode('ascii') + b'\0'
+    return struct.pack('<i', len(b)) + b
+
+
+def dg_package(names, imports, exports, ver=500, licensee=34):
+    """Minimal cooked UE4 package in the layout upkg.Package reads: summary, name table (with the 4-byte hash pairs of
+    Bend's version 500 / licensee 34 packages), imports, exports, empty depends map, asset registry count, export data.
+    imports: (class package, class name, outer, object name); exports: (class index, outer, name, data)."""
+    ix = {n: i for i, n in enumerate(names)}
+    hb = b'\0' * 4 if ver >= 504 or licensee >= 34 else b''
+    def summary(total, name_off, imp_off, exp_off, dep_off, reg_off):
+        return (struct.pack('<Iiiiii', 0x9E2A83C1, -6, 864, ver, licensee, 0) + struct.pack('<i', total)
+                + dg_fstr('None') + struct.pack('<I', 0x80000000)
+                + struct.pack('<8i', len(names), name_off, 0, 0, len(exports), exp_off, len(imports), imp_off)
+                + struct.pack('<4i', dep_off, 0, reg_off, 0) + b'\x11' * 16
+                + struct.pack('<3i', 1, len(exports), len(names)) + struct.pack('<HHHIi', 4, 11, 2, 0, 0) * 2
+                + struct.pack('<IiIii', 0, 0, 0, 0, 0) + struct.pack('<iqii', reg_off, 0, 0, 0))
+    name_blob = b''.join(dg_fstr(n) + hb for n in names)
+    imp_blob = b''.join(struct.pack('<7i', ix[cp], 0, ix[cn], 0, outer, ix[n], 0) for cp, cn, outer, n in imports)
+    name_off = len(summary(0, 0, 0, 0, 0, 0))
+    imp_off = name_off + len(name_blob)
+    exp_off = imp_off + len(imp_blob)
+    dep_off = exp_off + 72 * len(exports)
+    reg_off = dep_off + 4 * len(exports)
+    total = off = reg_off + 4
+    exp_blob = b''
+    for cls, outer, name, data in exports:
+        exp_blob += struct.pack('<iiiiiIii', cls, 0, outer, ix[name], 0, 0, len(data), off) + bytes(40)
+        off += len(data)
+    return (summary(total, name_off, imp_off, exp_off, dep_off, reg_off) + name_blob + imp_blob + exp_blob
+            + bytes(4 * len(exports)) + bytes(4) + b''.join(e[3] for e in exports))
+
+
+def dg_mesh(bones, extra_pose=None):
+    """Synthetic cooked skeletal mesh: one export whose data holds the reference skeleton (bone infos, then local
+    transforms quat xyzw / translation / scale) and, optionally, a second serialized copy of some transforms, then
+    64 bytes of other data. bones: (name, parent, quat, translation)"""
+    names = ['/Script/CoreUObject', '/Script/Engine', 'Package', 'Class', 'SkeletalMesh', 'Skeleton', 'None',
+             '/Game/Karin/deacon_head_standard_Skeleton', 'deacon_head_standard_Skeleton', 'deacon_head_standard']
+    names += [b[0] for b in bones]
+    ix = {n: i for i, n in enumerate(names)}
+    pose = b''.join(struct.pack('<10f', *q, *t, 1, 1, 1) for _, _, q, t in bones)
+    data = (b'\0' * 8 + struct.pack('<i', len(bones)) + b''.join(struct.pack('<iii', ix[n], 0, p) for n, p, _, _ in bones)
+            + struct.pack('<i', len(bones)) + pose + b'\0' * 8 + (extra_pose(pose) if extra_pose else b'') + b'\xcd' * 64)
+    imports = [('/Script/CoreUObject', 'Package', 0, '/Script/Engine'), ('/Script/CoreUObject', 'Class', -1, 'SkeletalMesh'),
+               ('/Script/CoreUObject', 'Package', 0, '/Game/Karin/deacon_head_standard_Skeleton'),
+               ('/Script/Engine', 'Skeleton', -3, 'deacon_head_standard_Skeleton')]
+    return dg_package(names, imports, [(-2, 0, 'deacon_head_standard', data)])
+
+
+class DaysGoneTools(unittest.TestCase):
+    """pak v3, package / reference skeleton, root pose, lid amplifier, vertex buffer, AnimDynamics spring and
+    per-track anim tools, lid calibration and the PowerShell tools on synthetic data. The Blender scripts, the UE 4.11
+    editor import / cook and DgExport (C#) need Blender, UE 4.11 or the game."""
+
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(prefix='modding days gone ')
+        self.root = Path(self.temp.name)
+
+    def tearDown(self): self.temp.cleanup()
+
+    def test_dg_pak_v3_write_list_extract(self):
+        import hashlib
+        src = self.root / 'src'
+        files = {'Characters/Deacon/parts/head/deacon_head_standard.uasset': bytes(range(256)) * 700,   # 3 zlib blocks
+                 'Karin/Materials/Karin_Face.uasset': b'synthetic texture',
+                 'Animation/Deacon/empty.uasset': b''}
+        for rel, data in files.items():
+            (src / rel).parent.mkdir(parents=True, exist_ok=True)
+            (src / rel).write_bytes(data)
+        for flag in ('', '--store'):
+            pak = self.root / f'out{flag} 1.pak'
+            out = dg_run('pakwrite', src, pak, *([flag] if flag else [])).stdout
+            self.assertIn('3 files, mount ../../../BendGame/Content/', out)
+            blob = pak.read_bytes()
+            magic, ver, io, size = struct.unpack_from('<IIqq', blob, len(blob) - 44)
+            self.assertEqual((magic, ver, io + size + 44), (0x5A6F12E1, 3, len(blob)))
+            self.assertEqual(blob[-20:], hashlib.sha1(blob[io:io + size]).digest())
+            listing = dg_run('paklist', pak).stdout.splitlines()
+            self.assertEqual(listing[1], 'mount ../../../BendGame/Content/ count 3')
+            rows = [l.split() for l in listing[2:]]
+            self.assertEqual([r[3] for r in rows], sorted(files))                  # stored in sorted path order
+            for usz, sz, comp, name in rows:
+                self.assertEqual(int(usz), len(files[name]))
+                self.assertEqual(comp, 'c1' if not flag and files[name] else 'c0')
+                if comp == 'c1' and int(usz) > 1000:
+                    self.assertLess(int(sz), int(usz))
+            dest = self.root / f'x{flag}'
+            self.assertIn('ok 3', dg_run('pakextract', pak, dest).stdout)
+            for rel, data in files.items():
+                self.assertEqual((dest / rel).read_bytes(), data)
+        mounted = self.root / 'mount.pak'
+        dg_run('pakwrite', src, mounted, '--mount', '../../../Other/Content/')
+        self.assertIn('mount ../../../Other/Content/ count 3', dg_run('paklist', mounted).stdout)
+        dg_run('pakwrite', src, ok=False)
+
+    def test_dg_package_refskel_retarget_and_root_pose(self):
+        import contextlib, io
+        upkg, refskel, R, fix = dg('upkg'), dg('refskel'), dg('retarget_imports'), dg('fix_root_pose')
+        import numpy as np
+        h = 0.70710677
+        bones = [('Armature', -1, (0, 0, 0, 1), (0, 0, 0)), ('Align', 0, (h, 0, 0, -h), (0, 0, 0)),
+                 ('Hips', 1, (0, 0, 0, 1), (0, -97.1, 1.5)), ('spine', 2, (0, 0.6, 0, 0.8), (0, 10, 0)),
+                 ('face_1544', 3, (0, 0, 0, 1), (1, 2, 3))]
+        src = self.root / 'mesh.uasset'
+        src.write_bytes(dg_mesh(bones, extra_pose=lambda pose: pose[:80]))   # a second copy of [Armature, Align]
+        pkg = upkg.Package(src.read_bytes())
+        self.assertTrue(pkg.hashes)
+        self.assertEqual(pkg.obj_path(-4), '/Game/Karin/deacon_head_standard_Skeleton.deacon_head_standard_Skeleton')
+        self.assertEqual(pkg.ref(pkg.exports[0]['Class']), 'import:Class /Script/Engine.SkeletalMesh')
+        rs = refskel.read(src)
+        self.assertEqual((rs['names'], rs['parents']), ([b[0] for b in bones], [b[1] for b in bones]))
+        rot_x = np.array([[1, 0, 0], [0, 0, 1], [0, -1, 0]])                  # Align: quat (h, 0, 0, -h)
+        self.assertTrue(np.allclose(rs['component'][2][:3, :3], rot_x, atol=1e-6))
+        self.assertTrue(np.allclose(rs['component'][2][:3, 3], rot_x @ (0, -97.1, 1.5), atol=1e-5))
+        spine = rs['component'][3][:3, :3]
+        self.assertTrue(np.allclose(spine, rot_x @ refskel.quat_mat(0, 0.6, 0, 0.8), atol=1e-6))
+        # retarget the skeleton import: the package grows by the new names, export data and offsets follow
+        R.retarget(pkg, '/Game/Karin/deacon_head_standard_Skeleton', '/Game/Characters/Deacon/deacon_master_Skeleton')
+        moved = self.root / 'retargeted.uasset'
+        moved.write_bytes(pkg.write())
+        q = upkg.Package(moved.read_bytes())
+        self.assertEqual(q.obj_path(-4), '/Game/Characters/Deacon/deacon_master_Skeleton.deacon_master_Skeleton')
+        self.assertEqual(q.export_data(0), pkg.export_data(0))
+        self.assertEqual(q.s['TotalHeaderSize'] - pkg.s['TotalHeaderSize'],
+                         sum(len(dg_fstr(n)) + 4 for n in ('/Game/Characters/Deacon/deacon_master_Skeleton', 'deacon_master_Skeleton')))
+        self.assertTrue(np.allclose(refskel.read(moved)['component'], rs['component']))
+        with self.assertRaises(SystemExit):                                   # unknown import: refused
+            R.retarget(upkg.Package(src.read_bytes()), '/Game/Nope', '/Game/Other')
+        # root pose: Armature -90 deg about X, Align identity, in every serialized copy; component poses from Align
+        # down unchanged (identity * R == R * identity), so the bind matrices stay valid
+        fixed = self.root / 'fixed.uasset'
+        with contextlib.redirect_stdout(io.StringIO()) as printed:
+            fix.main(str(moved), str(fixed))
+        self.assertIn('patched 2 copies', printed.getvalue())
+        rf = refskel.read(fixed)
+        self.assertTrue(np.allclose(rf['local'][0][:3, :3], rot_x, atol=1e-6))
+        self.assertTrue(np.allclose(rf['local'][1][:3, :3], np.eye(3), atol=1e-6))
+        self.assertTrue(np.allclose(rf['component'][1:], rs['component'][1:], atol=1e-5))   # Align and below
+        fp = upkg.Package(fixed.read_bytes())
+        po = rf['pose_offset'] - fp.exports[0]['SerialOffset']
+        self.assertEqual(fp.export_data(0)[-144:-64], fp.export_data(0)[po:po + 80])   # the second copy is patched too
+        with self.assertRaises(SystemExit):                                   # no [Armature, Align] pair to patch
+            fix.main(str(self._plain_mesh()), str(self.root / 'x.uasset'))
+
+    def _plain_mesh(self):
+        path = self.root / 'plain.uasset'
+        path.write_bytes(dg_mesh([('Root', -1, (0, 0, 0, 1), (0, 0, 5)), ('Head', 0, (0, 0, 0, 1), (0, 0, 150))]))
+        return path
+
+    def test_dg_blink_amp_lid_rest_pose(self):
+        amp, refskel = dg('blink_amp'), dg('refskel')
+        import numpy as np
+        bones = [('Root', -1, (0, 0, 0, 1), (0, 0, 0)), ('Head', 0, (0, 0, 0.6, 0.8), (0, 2, 150)),
+                 ('face_1544', 1, (0, 0, 0, 1), (3, 4, 5)), ('KB_Amp_L_Xn', 1, (0, 0, 0, 1), (2, 3, 4)),
+                 ('KB_Blink_L_Xn', 3, (0, 0, 0, 1), (0.5, 0, 0))]
+        src = self.root / 'mesh.uasset'
+        src.write_bytes(dg_mesh(bones, extra_pose=lambda pose: pose))              # the whole pose array twice
+        rig, cal = self.root / 'blink_rig.json', self.root / 'lid_calib.json'
+        rig.write_text(json.dumps({'bones': {'KB_Blink_L_Xn': {'side': 'L', 'axis_head_local': [-1, 0, 0], 'magnitude': 1.2}}}))
+        d_open, d_closed = np.array([0.17, -0.01, -0.14]), np.array([-0.61, -0.19, -0.01])
+        cal.write_text(json.dumps({'face_1544': {'open': d_open.tolist(), 'closed': d_closed.tolist()}}))
+        before = refskel.read(src)
+        out = self.root / 'out.uasset'
+        report = amp.main(str(src), str(out), str(rig), str(cal), str(self.root / 'report.json'))
+        self.assertEqual(len(report['pose_copies']), 2)
+        after = refskel.read(out)
+        travel = d_open[0] - d_closed[0]
+        L = after['local']
+        S = np.linalg.norm(L[3][:3, :3], axis=0)                               # amplifier: R * diag(S)
+        self.assertTrue(np.allclose(S, (1.2 / travel, amp.EPS, amp.EPS), atol=1e-5))
+        self.assertTrue(np.allclose(L[3][:3, 0] / S[0], (1, 0, 0), atol=1e-6))    # Head X onto minus the lid axis (-X)
+        self.assertTrue(np.allclose(L[4][:3, 3], np.array([3, 4, 5]) + d_open, atol=1e-5))
+        self.assertTrue(np.allclose(after['component'][4][:3, 3], before['component'][4][:3, 3], atol=1e-4))   # lid rest
+        for i in (0, 1, 2):
+            self.assertTrue(np.allclose(after['local'][i], before['local'][i]))
+        # closing the lid joint moves the lid bone by the magnitude along its axis (plus damped Y/Z motion)
+        disp = np.array(report['bones']['KB_Blink_L_Xn']['closed_disp_head'])
+        self.assertTrue(np.allclose(disp, (-1.2, 0, 0), atol=0.01))
+        blob = out.read_bytes()
+        first = after['pose_offset']
+        self.assertEqual(blob[first:first + 200], blob[-264:-64])               # both copies carry the new pose
+        self.assertEqual(json.loads((self.root / 'report.json').read_text())['verified_rest_positions'], True)
+
+    def test_dg_skelmesh_normals_and_positions_in_place(self):
+        N, P = dg('skelmesh_normals'), dg('skelmesh_positions')
+        import numpy as np
+        n = 1200
+        k = np.arange(n)
+        pos = np.c_[k % 12, (k // 12) % 10, k // 120].astype(np.float64) * 1.5 + 0.75   # no all-zero position
+        uv = np.c_[(k % 37) / 37.0, (k % 41) / 41.0]
+        v = np.zeros((n, 32), np.uint8)
+        v[:, 0:4] = (255, 128, 128, 255)                                       # TangentX +X, W kept
+        v[:, 4:8] = (128, 128, 255, 0)                                         # TangentZ +Z, W = binormal sign
+        v[:, 8], v[:, 12] = 3, 255
+        v[:, 16:28] = pos.astype('<f4').view(np.uint8).reshape(n, 12)
+        v[:, 28:32] = uv.astype('<f2').view(np.uint8).reshape(n, 4)
+        head = b'HEAD' * 8 + struct.pack('<6f', 1, 1, 1, 0, 0, 0) + struct.pack('<ii', 32, n)
+        data = head + v.tobytes() + b'TAIL' * 4
+        rng = np.random.default_rng(7)
+        normal = rng.normal(size=(n, 3)) + (0, 0, 2.5)
+        normal[7] = (0.3, 0.2, 0.9)
+        normal /= np.linalg.norm(normal, axis=1)[:, None]
+        cpos, cuv, cn = [pos], [uv], [normal]
+        # vertex 5: a second corner at the same position with another UV; vertex 7: a back face (same position and
+        # UV, opposite normal) that must not win over the side the old normal (+Z) is on
+        cpos += [pos[[5]], pos[[7]]]; cuv += [uv[[5]] + 0.25, uv[[7]]]; cn += [[(1.0, 0, 0)], -normal[[7]]]
+        corners = {'pos': np.vstack(cpos), 'uv': np.vstack(cuv), 'normal': np.vstack(cn)}
+        out, rep = N.patch(data, corners)
+        self.assertEqual((rep['buffer_offset'], rep['vertices'], rep['unmatched']), (len(head), n, 0))
+        self.assertGreaterEqual(rep['two_sided_resolved'], 1)
+        self.assertEqual(len(out), len(data))
+        w = np.frombuffer(out, np.uint8, n * 32, len(head)).reshape(n, 32)
+        z = w[:, 4:7] / 127.5 - 1
+        x = w[:, 0:3] / 127.5 - 1
+        self.assertTrue(np.allclose(z, normal, atol=0.01))
+        self.assertLess(np.abs((x * normal).sum(1)).max(), 0.02)
+        self.assertTrue((w[:, 3] == 255).all() and (w[:, 7] == 0).all())
+        self.assertEqual(w[:, 8:].tobytes(), v[:, 8:].tobytes())
+        self.assertEqual((out[:len(head)], out[-16:]), (head, b'TAIL' * 4))
+        # vertex moves: matched by position, other float copies outside the buffer are counted, not touched
+        sel = np.arange(10)
+        tail = b''.join(struct.pack('<3f', *p) for p in pos[sel])
+        moves = {'old': pos[sel], 'new': pos[sel] + (0, 0, -0.5)}
+        out2, rep2 = P.patch(out + tail, corners['pos'], moves)
+        self.assertEqual((rep2['moved_buffer_vertices'], rep2['moves_matched'], rep2['other_copies_of_50_sampled']), (10, 10, 10))
+        w2 = np.frombuffer(out2, np.uint8, n * 32, len(head)).reshape(n, 32)
+        p2 = w2[:, 16:28].copy().view('<f4').astype(np.float64)
+        self.assertTrue(np.allclose(p2[sel], pos[sel] + (0, 0, -0.5)))
+        self.assertTrue(np.array_equal(p2[10:], pos[10:]))
+        self.assertEqual(w2[:, :16].tobytes(), w[:, :16].tobytes())
+        self.assertEqual(out2[-len(tail):], tail)
+        with self.assertRaises(ValueError):
+            N.find_buffer(data, pos + 100.0)
+
+    def test_dg_abp_springs_quaternions_springs_and_names(self):
+        S, refskel, upkg = dg('abp_springs'), dg('refskel'), dg('upkg')
+        import numpy as np
+        rng = np.random.default_rng(3)
+        mats = [np.eye(3), np.diag([1.0, -1, -1]), np.diag([-1.0, 1, -1]), np.diag([-1.0, -1, 1])]   # 180 deg turns
+        for _ in range(20):
+            qm, r = np.linalg.qr(rng.normal(size=(3, 3)))
+            qm = qm @ np.diag(np.sign(np.diag(r)))
+            mats.append(qm * np.linalg.det(qm))
+        for m in mats:
+            q = S.quat_from_matrix(m)
+            self.assertAlmostEqual(float(np.linalg.norm(q)), 1.0, places=9)
+            self.assertTrue(np.allclose(refskel.quat_mat(*q), m, atol=1e-9))
+        # one spring node per chain bone: k = I_pivot * omega^2 (box mass 1), damping = 1 - exp(-drag)
+        names = ['Root', 'Head', 'KO_Hair_tail_L', 'KO_Hair_tail_L_001', 'KO_Hair_tail_L_002']
+        at = [(0, 0, 0), (0, 0, 150), (8, 3, 160), (9, 5, 150), (10, 6, 138)]
+        comp = np.tile(np.eye(4), (5, 1, 1))
+        comp[:, :3, 3] = at
+        rs = {'names': names, 'parents': [-1, 0, 1, 2, 3], 'component': comp}
+        self.assertEqual(S.chain_bones(rs, 'KO_Hair_tail_L'), [(2, 3), (3, 4)])
+        cfg = {'groups': [{'name': 'twin', 'chains': ['KO_Hair_tail_L'], 'omega': [15, 13], 'drag': 12, 'limit': [5, 7],
+                           'planes': [{'kind': 'radial', 'bone': 'Head', 'center': [0, -2], 'margin': 0.5}]}]}
+        specs = S.node_specs(rs, cfg)
+        self.assertEqual([s['bone'] for s in specs], ['KO_Hair_tail_L', 'KO_Hair_tail_L_001'])
+        for k, s in enumerate(specs):
+            a, b = np.array(at[k + 2], float), np.array(at[k + 3], float)
+            L = np.linalg.norm(b - a); d = L / 2
+            I = (L * L + 4) / 12 + d * d
+            self.assertAlmostEqual(s['k'], I * (15, 13)[k] ** 2)
+            self.assertAlmostEqual(s['damping'], 1 - np.exp(-12))
+            self.assertEqual((s['limit'], s['box'], s['offset'], s['gravity']), ((5, 7)[k], [2.0, L, 2.0], [0.0, d, 0.0], 0.0))
+            com = a + (b - a) / L * d
+            (pl,) = s['planes']
+            n = com - (0, -2, com[2]); n[2] = 0; n /= np.linalg.norm(n)
+            self.assertEqual((pl['bone'], pl['clear']), ('Head', 0.5))
+            self.assertTrue(np.allclose(refskel.quat_mat(*pl['quat'])[:, 2], n, atol=1e-9))   # plane normal = frame Z
+            dist = np.linalg.norm((com - (0, -2, com[2]))[:2])
+            self.assertTrue(np.allclose(pl['pos'], np.array((0, -2, com[2])) + n * (dist - 0.5) - at[1], atol=1e-9))
+        # bone FNames: a trailing _<number> without leading zeros is the instance number
+        stub = type('Names', (), {'names': ['None'], 'name_index': upkg.Package.name_index})()
+        def fname(s):
+            i, num = struct.unpack('<ii', S.fname(stub, s))
+            return stub.names[i], num
+        self.assertEqual([fname(s) for s in ('KO_Skirt_0', 'KO_Ribbon_hand_L_1', 'KO_Skirt_0_001', 'Head', 'face_1544')],
+                         [('KO_Skirt', 1), ('KO_Ribbon_hand_L', 2), ('KO_Skirt_0_001', 0), ('Head', 0), ('face', 1545)])
+
+    def test_dg_anim_pertrack_track_decoding(self):
+        A = dg('anim_pertrack')
+        import numpy as np
+        def hdr(nkeys, flags, fmt): return struct.pack('<i', nkeys | flags << 24 | fmt << 28)
+        # translation, Float96NoW, all components, 3 keys spread over 5 frames (no frame table)
+        blob = hdr(3, 0, A.ACF_Float96NoW) + b''.join(struct.pack('<3f', *t) for t in ((0, 0, 0), (2, 4, -6), (4, 4, 0)))
+        # translation, Float96NoW, only X and Z stored (component flags 1 | 4), one key = constant
+        blob += hdr(1, 5, A.ACF_Float96NoW) + struct.pack('<2f', 1.5, -2.5)
+        # rotation, IntervalFixed32NoW: min / range per component, packed 11-11-10 bit keys, frame table (flag 8)
+        rot_at = len(blob)
+        blob += hdr(2, 7 | 8, A.ACF_IntervalFixed32NoW) + struct.pack('<6f', 0, 1, 0, 1, 0, 0.6)
+        blob += struct.pack('<2I', 1023 << 21 | 1023 << 10 | 511, 1023 << 21 | 1023 << 10 | 1022) + bytes([0, 3]) + bytes(2)
+        # rotation, Fixed48NoW, one key
+        f48_at = len(blob)
+        blob += hdr(1, 0, A.ACF_Fixed48NoW) + struct.pack('<3H', 32767, 32767, 32767 + 16384) + bytes(2)
+        t, o = A._track(blob, 0, 5, False)
+        self.assertEqual(o, 40)
+        self.assertTrue(np.allclose(t, [(0, 0, 0), (1, 2, -3), (2, 4, -6), (3, 4, -3), (4, 4, 0)]))
+        t, o = A._track(blob, o, 5, False)
+        self.assertEqual(o, rot_at)
+        self.assertTrue(np.allclose(t, [(1.5, 0, -2.5)] * 5))
+        self.assertEqual(A._sizes(A.ACF_IntervalFixed32NoW, 7, True), (4, 24))
+        q, o = A._track(blob, o, 4, True)
+        self.assertEqual(o, f48_at)
+        z = float(np.float32(0.6))
+        mid = np.array([0, 0, z / 3, 1 + (np.sqrt(1 - z * z) - 1) / 3])
+        self.assertTrue(np.allclose(q[0], (0, 0, 0, 1)) and np.allclose(q[3], (0, 0, z, np.sqrt(1 - z * z))))
+        self.assertTrue(np.allclose(q[1], mid / np.linalg.norm(mid)))
+        q, o = A._track(blob, o, 3, True)
+        self.assertEqual(o, len(blob))
+        z = 16384 / 32767
+        self.assertTrue(np.allclose(q, [(0, 0, z, np.sqrt(1 - z * z))] * 3, atol=1e-6))
+
+    def test_dg_lid_calib_and_machine_paths(self):
+        from unittest import mock
+        L, paths = dg('lid_calib'), dg('dgpaths')
+        import numpy as np
+        names = ['Root', 'Head', 'face_1544', 'face_1911']
+        x = np.array([0.2, 0.18, -0.3, -0.6, -0.4, 0.17, 0.19])
+        neutral = {'tracks': [{'bone_index': 2, 't': np.c_[x + 1, np.linspace(0, 0.6, 7) + 2, np.full(7, 3.0)]},
+                              {'bone_index': 3, 't': np.c_[x[::-1] + 5, np.full(7, 1.0), np.linspace(-1, 1, 7)]}]}
+        ref = {'tracks': [{'bone_index': 2, 't': np.array([[1.0, 2, 3], [9, 9, 9]])},
+                          {'bone_index': 3, 't': np.array([[5.0, 1, 0], [9, 9, 9]])}]}
+        out = L.calib(names, neutral, ref)
+        self.assertTrue(np.allclose(out['face_1544']['open'], (0.17, 0.3, 0)))    # per-axis median over the frames
+        self.assertTrue(np.allclose(out['face_1544']['closed'], (-0.6, 0.3, 0)))  # the frame lowest along X
+        self.assertTrue(np.allclose(out['face_1911']['open'], (0.17, 0, 0)))
+        self.assertTrue(np.allclose(out['face_1911']['closed'], (-0.6, 0, 0)))
+        # command line: inputs under --cache in the DgExport / raw layout, output JSON with indent 1
+        cache = self.root / 'cache dir'
+        cache.mkdir()
+        (cache / paths.SKEL_JSON).write_text(json.dumps({'bones': [{'name': n} for n in names]}), encoding='utf-8')
+        seen = []
+        def decode(path):
+            seen.append(Path(path))
+            return neutral if 'dcn_face_neutral' in str(path) else ref
+        target = self.root / 'lid_calib.json'
+        with mock.patch.object(L.A, 'decode', decode), mock.patch('sys.stdout', new=__import__('io').StringIO()):
+            L.main(['--cache', str(cache), '--out', str(target)])
+            L.main(['--cache', str(cache), '--out', str(self.root / 'right.json'), '--joints', 'face_1911'])
+        base = cache.joinpath(*paths.ANIM_DIR)
+        self.assertEqual(seen[:2], [base / 'facial/FaceMoods/dcn_face_neutral.uasset', base / 'misc/dcn_ref_pose.uasset'])
+        self.assertEqual(json.loads(target.read_text()), out)
+        self.assertTrue(target.read_text().startswith('{\n "face_1544": {\n  "open": [\n   0.1'))   # indent 1
+        self.assertEqual(list(json.loads((self.root / 'right.json').read_text())), ['face_1911'])
+        # machine paths come only from DG_CACHE / DG_MODELS_DIR; without them the scripts stop and name the variable
+        clean = {k: v for k, v in os.environ.items() if not k.startswith('DG_')}
+        with mock.patch.dict(os.environ, clean, clear=True):
+            for call, var in ((paths.skel_json, 'DG_CACHE'), (paths.looks_dir, 'DG_CACHE'), (paths.karin_vrm, 'DG_MODELS_DIR')):
+                with self.assertRaises(SystemExit) as stop:
+                    call()
+                self.assertIn(var, str(stop.exception))
+        with mock.patch.dict(os.environ, dict(clean, DG_CACHE=str(cache), DG_MODELS_DIR=str(self.root))):
+            self.assertEqual(paths.head_uemodel(), str(cache.joinpath(*paths.HEAD_UEMODEL)))
+            self.assertEqual(paths.raw_content(), str(cache / 'raw' / 'BendGame' / 'Content'))
+            self.assertEqual(paths.karin_vrm(), str(self.root / 'Karin_Original' / 'Karin(Clone).vrm'))
+        self.assertIn('DG_CACHE', dg_run('lid_calib', '--out', self.root / 'x.json', ok=False).stderr)
+        stage = self.root / 'stage'
+        err = dg_run('make_pak', self.root / 'cooked', self.root / 'zz.pak', '--stage', stage, ok=False).stderr
+        self.assertIn('DG_CACHE', err)
+        self.assertFalse(stage.exists() or (self.root / 'zz.pak').exists())     # refused before anything is written
+
+    def test_dg_tools_environment_and_install(self):
+        import hashlib
+        import shutil
+        tools = dg_kit() / 'tools'
+        pwsh = shutil.which('pwsh')
+        if not pwsh or sys.platform != 'win32':
+            self.skipTest('needs PowerShell 7 (pwsh) on Windows')
+        env = {k: v for k, v in os.environ.items() if not k.startswith('DG_')}
+
+        def ps(script, *args, extra=None, ok=True):
+            process = subprocess.run([pwsh, '-NoProfile', '-NonInteractive', '-File', str(script), *map(str, args)],
+                                     capture_output=True, text=True, encoding='utf-8', errors='replace',
+                                     env=dict(env, **(extra or {})), timeout=120)
+            if (process.returncode == 0) != ok:
+                raise AssertionError(f'{script}: exit {process.returncode}\n{process.stdout}\n{process.stderr}')
+            return process.stdout
+        # every tool parses; the ones that touch the machine stop first when their paths are not given
+        # (set_resolution.ps1 is only parsed: running it would change this machine's display mode)
+        driver = self.root / 'driver.ps1'
+        driver.write_text("param([string]$Dir)\n$r = [ordered]@{}\n"
+                          "foreach ($f in Get-ChildItem -LiteralPath $Dir -Filter *.ps1) { $e = $null; $t = $null\n"
+                          "  [void][System.Management.Automation.Language.Parser]::ParseFile($f.FullName, [ref]$t, [ref]$e)\n"
+                          "  $r[$f.Name] = @{ parse = $e.Count; error = 'not run' } }\n"
+                          "function Run($name, [object[]]$a) { try { & (Join-Path $Dir $name) @a *> $null; $r[$name].error = 'ran' }"
+                          " catch { $r[$name].error = \"$_\" } }\n"
+                          "Run 'dgx_run.ps1' @('out', 'list'); Run 'cook.ps1' @('log'); Run 'ue_editor.ps1' @()\n"
+                          "Run 'install_pak.ps1' @('00'); Run 'watch_launch.ps1' @()\n$r | ConvertTo-Json -Compress\n",
+                          encoding='utf-8')
+        report = json.loads(ps(driver, tools))
+        self.assertEqual(sorted(report), sorted(p.name for p in tools.glob('*.ps1')))
+        want = {'dgx_run.ps1': 'DG_GAME_DIR', 'cook.ps1': 'DG_WORK_ROOT', 'ue_editor.ps1': 'DG_UE_ROOT',
+                'install_pak.ps1': 'DG_WORK_ROOT', 'watch_launch.ps1': 'DG_WORK_ROOT', 'set_resolution.ps1': 'not run'}
+        for name, value in report.items():
+            self.assertEqual(value['parse'], 0, name)
+            self.assertIn(want[name], value['error'], name)
+        # dgx_run.ps1: DgExport gets the game's pak folder, <work>\out\<sub>, the command and its arguments
+        work, game = self.root / 'work root', self.root / 'game dir'
+        echo = self.root / 'echo.cmd'
+        echo.write_text('@echo off\r\necho ARGS %*\r\necho GC %DOTNET_gcServer%\r\n', encoding='ascii')
+        out = ps(tools / 'dgx_run.ps1', 'raw', 'list', 'deacon_head', '-Exe', echo,
+                 extra={'DG_WORK_ROOT': str(work), 'DG_GAME_DIR': str(game)})
+        self.assertIn(f'ARGS "{game}\\BendGame\\Content\\Paks" "{work}\\out\\raw" list deacon_head', out)
+        self.assertIn('GC 0', out)
+        # install_pak.ps1: hash-checked move from staging into ~mods, the previous pak kept in disabled_mods
+        staged, mods = work / 'staging' / 'zz_Karin_P.pak', game / 'BendGame' / 'Content' / 'Paks' / '~mods'
+        staged.parent.mkdir(parents=True)
+        mods.mkdir(parents=True)
+        staged.write_bytes(b'new synthetic pak')
+        (mods / 'zz_Karin_P.pak').write_bytes(b'old synthetic pak')
+        sha = hashlib.sha256(b'new synthetic pak').hexdigest()
+        paths = {'DG_WORK_ROOT': str(work), 'DG_GAME_DIR': str(game)}
+        self.assertIn('staged pak hash mismatch', ps(tools / 'install_pak.ps1', '0' * 64, extra=paths, ok=False))
+        self.assertEqual((mods / 'zz_Karin_P.pak').read_bytes(), b'old synthetic pak')
+        self.assertTrue(staged.is_file())
+        self.assertIn('installed ' + sha[:12].upper(), ps(tools / 'install_pak.ps1', sha.upper(), extra=paths))
+        self.assertEqual((mods / 'zz_Karin_P.pak').read_bytes(), b'new synthetic pak')
+        self.assertEqual((work / 'disabled_mods' / 'zz_Karin_P_prev.pak').read_bytes(), b'old synthetic pak')
+        self.assertFalse(staged.exists())
+        self.assertIn('no staged pak', ps(tools / 'install_pak.ps1', sha, extra=paths, ok=False))
+
+    def test_dg_provenance_and_portability(self):
+        import hashlib
+        import re
+        kit = dg_kit()
+        rows = [r for r in json.loads((KITS / 'PROVENANCE.json').read_text(encoding='utf-8-sig'))
+                if r['path'].startswith('portable-kits/days-gone/')]
+        files = sorted(p.relative_to(ROOT).as_posix() for p in kit.rglob('*') if p.is_file() and '__pycache__' not in p.parts)
+        own = {'portable-kits/days-gone/' + n for n in ('README.md', 'toolchain.json', 'requirements.txt')}
+        self.assertEqual(sorted(r['path'] for r in rows), sorted(set(files) - own))
+        sources = ('ModTools/DaysGone/pytools/', 'ModTools/DaysGone/src/DgExport/', 'ModTools/DaysGone/runs/t',
+                   'Mods/DaysGone/Karin_Original_Deacon/Scripts/', 'DGModding/tools/')
+        for r in rows:
+            data = (ROOT / r['path']).read_bytes()
+            self.assertEqual((hashlib.sha256(data).hexdigest(), len(data)), (r['portable_sha256'], r['portable_bytes']), r['path'])
+            if r['original_sha256'] is None:
+                self.assertTrue(r['source'].startswith('new file written for the portable kit'), r['path'])
+                self.assertTrue(r['modified_for_portability'])
+            else:
+                self.assertTrue(r['source'].startswith(sources), r['source'])
+                self.assertEqual(r['modified_for_portability'], r['portable_sha256'] != r['original_sha256'], r['path'])
+        bundled = json.loads((kit / 'toolchain.json').read_text(encoding='utf-8'))['bundled_scripts']
+        self.assertEqual(sorted('portable-kits/days-gone/' + s for s in bundled), sorted(r['path'] for r in rows))
+        # no machine paths; one line-ending style per file (migrated files keep the original's); no sys.path entry is a
+        # written-in path; the rejected PhysX / AnimDynamics-retarget tools are not bundled
+        drive = re.compile(r'(?i)(?<![\w<])[a-z]:[\\/](?![\\/])|[\\/]users[\\/]')
+        for rel in files:
+            data = (ROOT / rel).read_bytes()
+            text = data.decode('utf-8')
+            self.assertFalse(drive.search(text), f'{rel}: {drive.search(text)}')
+            self.assertIn(data.count(b'\r\n'), (0, data.count(b'\n')), rel)
+            self.assertNotRegex(text, r'sys\.path\.insert\(0, *r?[\'"]', rel)
+        for name in ('physchain_v1.py', 'physasset_edit.py', 'abp_dynamics.py'):
+            self.assertFalse(list(kit.rglob(name)), name)
 
 if __name__ == '__main__': unittest.main(verbosity=2)

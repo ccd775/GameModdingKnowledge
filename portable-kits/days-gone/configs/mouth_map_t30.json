@@ -1,0 +1,114 @@
+{
+ "note": "targets: Karin VRM mouth shapes per Deacon viseme; lip gap / width ~ 0.7 x Deacon's (upper face_7794/7789 vs lower face_7732/7738, corners face_7761/7822)",
+ "gain": 1.6,
+ "z_lim": 140.0,
+ "fade": 1.0,
+ "cand_radius": 4.5,
+ "ridge": 0.005,
+ "smooth": 0.15,
+ "smooth_iters": 3,
+ "topk": 16,
+ "keep_radius": 4.5,
+ "axis_weights": [
+  1.0,
+  0.4,
+  1.0
+ ],
+ "visemes": [
+  "AA",
+  "AH",
+  "AO",
+  "AW",
+  "CH",
+  "EH",
+  "EY",
+  "F",
+  "IH",
+  "L",
+  "M",
+  "N",
+  "OY",
+  "R",
+  "W",
+  "X",
+  "Y"
+ ],
+ "map": {
+  "AA": {
+   "あ": 1.1
+  },
+  "AH": {
+   "VRC.v_aa": 0.92
+  },
+  "AO": {
+   "VRC.v_oh": 0.78
+  },
+  "AW": {
+   "VRC.v_oh": 0.75,
+   "VRC.v_ou": 0.25
+  },
+  "CH": {
+   "VRC.v_ou": 0.7,
+   "VRC.v_CH": 0.6
+  },
+  "EH": {
+   "kuchi_A": 0.75
+  },
+  "EY": {
+   "kuchi_E": 0.8
+  },
+  "F": {
+   "VRC.v_FF": 0.6
+  },
+  "IH": {
+   "VRC.v_ih": 1.0,
+   "VRC.v_E": 0.6
+  },
+  "L": {
+   "VRC.v_nn": 0.95
+  },
+  "M": {
+   "VRC.v_PP": 1.0
+  },
+  "N": {
+   "VRC.v_nn": 1.05
+  },
+  "OY": {
+   "VRC.v_oh": 0.4,
+   "VRC.v_ou": 0.4
+  },
+  "R": {
+   "VRC.v_ou": 0.5
+  },
+  "W": {
+   "VRC.v_ou": 0.55
+  },
+  "X": {
+   "VRC.v_sil": 1.0
+  },
+  "Y": {
+   "kuchi_E": 0.6,
+   "VRC.v_ih": 0.2
+  }
+ },
+ "render_res": 260,
+ "render_visemes": [
+  "AA",
+  "EH",
+  "AO",
+  "W",
+  "EY",
+  "IH",
+  "M"
+ ],
+ "render_moods": [
+  "facial/FaceMoods/dcn_face_happy",
+  "facial/FaceMoods/dcn_face_effort_loop",
+  "facial/FaceMoods/dcn_face_photomode-anger"
+ ],
+ "viseme_weights": {
+  "M": 2.0,
+  "X": 1.5,
+  "F": 1.5
+ }
+}

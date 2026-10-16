@@ -1,0 +1,89 @@
+{
+  "game": "Days Gone (PC, Steam App 1259420, beta branch days_gone_classic)",
+  "status": "runtime-confirmed-scoped",
+  "tools": [
+    {
+      "name": "Blender",
+      "version": "4.2.23 LTS with the UEFormat add-on (io_scene_ueformat, manifest 0.10.0) in addons_core; build_body.py run with --background --factory-startup",
+      "role": "Karin VRM fitted onto Deacon's head mesh skeleton (variant B keeps the secondary chains as KO_* bones), face weights from Deacon's warped head with face_* joints moved, eyelid bones, per-viseme mouth weights, loop normals and skirt body shrink dumps, dummy deacon_master FBX, previews (scripts/blender/)",
+      "required": true
+    },
+    {
+      "name": "Unreal Engine",
+      "version": "4.11.2 (Epic launcher build), blank content project named BendGame",
+      "role": "manual FBX import of /Game/Characters/Deacon/parts/head/deacon_head_standard, the dummy deacon_master and the Karin textures (/Game/Karin/Materials/Karin_*); cook to stock 4.11 packages (tools/cook.ps1, tools/ue_editor.ps1)",
+      "required": true
+    },
+    {
+      "name": "DgExport (dgexport/, C# on CUE4Parse)",
+      "version": "CUE4Parse / CUE4Parse-Conversion 1.2.2.202610 NuGet, net10.0 win-x64, built with the .NET 10 SDK",
+      "role": "list / json / raw / export (uemodel, gltf, psk) / skel / anim / file over the game paks (tools/dgx_run.ps1; DGX_GAME, default GAME_DaysGone, GAME_UE4_11 for stock 4.11 mod packages)",
+      "required": true
+    },
+    {
+      "name": "package and pak tools (scripts/)",
+      "version": "kit; Python 3.10+, numpy for the reference-skeleton, anim, AnimBP, vertex-buffer and calibration tools",
+      "role": "pak v3 list / extract / write, UE 4.11 package reader-writer, skeleton import retarget, root pose, Skeleton retarget modes, in-place MI retarget, look patching, cooked vertex buffer normals / positions, lid amplifier rest pose, AnimDynamics spring and CopyBone nodes in Deacon_VimBlueprint, per-track face anim decoding, lid calibration, pak assembly (make_pak.py)",
+      "required": true
+    },
+    {
+      "name": "PowerShell 7 tools (tools/)",
+      "version": "kit (pwsh 7)",
+      "role": "build machine: DgExport runs, editor launch and cook, hash-checked pak install into ~mods, desktop resolution, Steam launch watcher",
+      "required": true
+    }
+  ],
+  "entry_documents": [
+    "README.md"
+  ],
+  "runtime_boundary": "Game build 10034136 (days_gone_classic), zz_Karin_P.pak in BendGame/Content/Paks/~mods with sfpaks/startuppackages.pak renamed to disabled_startuppackages.pak. Project builds made with the original scripts ran in game on the test machine: Karin visible with textures (t5), expressions in photo mode confirmed by the user (t10), physics judged good by the user (t27), blink checked from in-game frames (t29), lip sync judged good by the user (t30), and t31 (pak sha256 87576aec..., reduced hair swing) judged fine by the user. Known issue: in photo mode the right twin-tail AnimDynamics chain stretches into a sheet; gameplay is normal. The portable copies were checked offline only (2026-10-16): make_pak.py run with Blender's Python reproduces the t31 pak byte for byte (with Python 3.14 the staged files match and only the zlib-ng compressed bytes differ); abp_springs.py, blink_amp.py, skel_retarget.py and lid_calib.py reproduce the t31 / t30 / t10 / t28 outputs; build_body.py, face_rig.py, blink_rig.py and mouth_rig.py reproduce the t7 / t11 / t29 / t30 reports (see VALIDATION.md). The UE 4.11 import and cook, DgExport and the install were not re-run with the kit; the PowerShell tools ran only with a fake DgExport and temporary folders.",
+  "bundled_scripts": [
+    "scripts/make_pak.py",
+    "scripts/patch_looks.py",
+    "scripts/abp_springs.py",
+    "scripts/blink_amp.py",
+    "scripts/lid_calib.py",
+    "scripts/anim_pertrack.py",
+    "scripts/skel_retarget.py",
+    "scripts/skelmesh_normals.py",
+    "scripts/skelmesh_positions.py",
+    "scripts/retarget_inplace.py",
+    "scripts/retarget_imports.py",
+    "scripts/fix_root_pose.py",
+    "scripts/shader_skips.py",
+    "scripts/refskel.py",
+    "scripts/upkg.py",
+    "scripts/uhdr.py",
+    "scripts/paklist.py",
+    "scripts/pakextract.py",
+    "scripts/pakwrite.py",
+    "scripts/physchain.py",
+    "scripts/dgpaths.py",
+    "scripts/blender/build_body.py",
+    "scripts/blender/face_rig.py",
+    "scripts/blender/blink_rig.py",
+    "scripts/blender/blink_sim.py",
+    "scripts/blender/mouth_rig.py",
+    "scripts/blender/viseme_sim.py",
+    "scripts/blender/shape_sheet.py",
+    "scripts/blender/fbx_common.py",
+    "scripts/blender/dump_loop_normals.py",
+    "scripts/blender/skirt_body_shrink.py",
+    "scripts/blender/export_dummy_skeleton.py",
+    "scripts/blender/fit_colliders.py",
+    "scripts/blender/render_preview.py",
+    "configs/springs_t31.json",
+    "configs/mouth_map_t30.json",
+    "configs/lid_calib_t28.json",
+    "tools/dgx_run.ps1",
+    "tools/cook.ps1",
+    "tools/ue_editor.ps1",
+    "tools/install_pak.ps1",
+    "tools/set_resolution.ps1",
+    "tools/watch_launch.ps1",
+    "dgexport/Program.cs",
+    "dgexport/DgExport.csproj"
+  ],
+  "python": "3.10+ for the pak and package tools (standard library); numpy 2.5 (3.12+) for the others; Blender scripts run in Blender's Python 3.11; tested 3.14.0 and Blender 4.2's 3.11.7 (numpy 1.24.3)",
+  "dependency_install": "python -m pip install -r requirements.txt -r portable-kits/days-gone/requirements.txt (from bundle root)"
+}

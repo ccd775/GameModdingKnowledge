@@ -1,0 +1,5 @@
+# Days Gone: the numpy tools in scripts/ (refskel, anim_pertrack, abp_springs, blink_amp, skel_retarget,
+# skelmesh_normals / skelmesh_positions, physchain, lid_calib, and make_pak.py with --normals). The pak and package tools
+# use the standard library; the Blender scripts use Blender's bundled Python and numpy. Tested on Python 3.14.0 with
+# numpy 2.5.2 and on Blender 4.2's Python 3.11.7 with numpy 1.24.3.
+numpy==2.5.2

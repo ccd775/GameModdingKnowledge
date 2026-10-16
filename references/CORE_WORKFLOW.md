@@ -111,3 +111,17 @@ The game workflows use different formats, but the same engineering loop.
   "dressing" keys that pull skin in under clothing; bake the needed key at the source
   (`portable-kits/god-of-war-ragnarok`, `bake_knee.py`) rather than adding per-game culls, and use the
   `.orig` files for outfits that expose the knee.
+- When a rig or physics mechanism shows no visible effect, run a binary probe (a constant 15 cm bone offset, a locked
+  joint) before tuning parameters. Days Gone spent eight builds tuning PhysX constraints on extra player-mesh bodies
+  that the engine ignored; one constant-offset probe ruled out BoneDrivenController in a single round
+  (`games/days-gone/PHYSICS.md`, `games/days-gone/FACE_AND_LIPSYNC.md`).
+- Nearest-surface weight transfer from a realistic face misses narrow features: Karin's eyelids and both lips landed on
+  the same side of Deacon's 0.1-0.7 cm lip seam, so blinks moved only the brows and dialogue barely opened the mouth.
+  Simulate the game's own face animation (decoded, with its additive rules) on the build before shipping, and solve
+  per-vertex weights (non-negative, sum 1, influence cap) so the game's poses reproduce the source model's own shape keys.
+- Small realistic joint deltas can drive anime-scale deformation through mesh-only bones: give a parent bone a cooked
+  ref-pose rotation and non-uniform scale (UE rebuilds inverse bind matrices at load) and copy the source joint's local
+  translation onto the child with a CopyBone node (Days Gone: 0.8 cm lid travel -> 3.9 cm VRM blink).
+- Adding nodes to a cooked UE4 AnimBlueprint: pose LinkIDs index AnimNodeProperties forward while the root, state
+  machines and ubergraph calls index it from the end. Insert new node properties at the head of the class field chain
+  and add M to every pose link, including those inside BlendPose arrays (`games/days-gone/TECHNICAL_CONTRACTS.md` §8).
