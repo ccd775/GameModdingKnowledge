@@ -1,0 +1,153 @@
+{
+ "fit_dir": "<HL_WORK>/fit_f",
+ "tex_dir": "<HL_WORK>/tex_m",
+ "material_instances": {
+  "Costume": "/Game/RiggedObjects/Characters/Human/Clothing/Upper_F/Jacket_DarkArtsDeluxe01/Materials/MI_HUM_F_Upp_DarkArtsDeluxe01",
+  "Skin": "/Game/RiggedObjects/Characters/Human/Clothing/Lower_F/Pants_DarkArtsDeluxe01/Materials/MI_HUM_F_Low_DarkArtsDeluxe01",
+  "Face": "/Game/RiggedObjects/Characters/Human/Clothing/Accessory/Mask_F/DarkArtsDeluxe01/Materials/MI_HUM_F_Mask_DarkArtsDeluxe01",
+  "Hair": "/Game/RiggedObjects/Characters/Human/Clothing/Accessory/Scarf_F/DarkArtsDeluxe01U/Materials/MI_HUM_F_Acc_DarkArtsDeluxe01U",
+  "FaceAlpha": "/Game/RiggedObjects/Characters/Human/Clothing/Hat_F/DarkArtsDeluxe01/Materials/MI_HUM_F_Hat_DarkArtsDeluxe01",
+  "Empty": "/Game/RiggedObjects/Characters/Human/Clothing/Lower_F/Pants_DarkArtsDeluxe01/Materials/MI_HUM_F_Low_DarkArtsDeluxe01"
+ },
+ "textures": [
+  {
+   "path": "/Game/RiggedObjects/Characters/Human/Clothing/Upper_F/Jacket_DarkArtsDeluxe01/Textures/T_HUM_F_Upp_DarkArtsDeluxe01_D",
+   "src": "Costume_D.png",
+   "kind": "D",
+   "alpha": false
+  },
+  {
+   "path": "/Game/RiggedObjects/Characters/Human/Clothing/Upper_F/Jacket_DarkArtsDeluxe01/Textures/T_HUM_F_Upp_DarkArtsDeluxe01_N",
+   "src": "Flat_N.png",
+   "kind": "N"
+  },
+  {
+   "path": "/Game/RiggedObjects/Characters/Human/Clothing/Upper_F/Jacket_DarkArtsDeluxe01/Textures/T_HUM_F_Upp_DarkArtsDeluxe01_MRO",
+   "src": "Costume_MRO.png",
+   "kind": "MRO"
+  },
+  {
+   "path": "/Game/RiggedObjects/Characters/Human/Clothing/Lower_F/Pants_DarkArtsDeluxe01/Textures/T_HUM_F_Low_DarkArtsDeluxe01_D",
+   "src": "Skin_D.png",
+   "kind": "D",
+   "alpha": false
+  },
+  {
+   "path": "/Game/RiggedObjects/Characters/Human/Clothing/Lower_F/Pants_DarkArtsDeluxe01/Textures/T_HUM_F_Low_DarkArtsDeluxe01_N",
+   "src": "Flat_N.png",
+   "kind": "N"
+  },
+  {
+   "path": "/Game/RiggedObjects/Characters/Human/Clothing/Lower_F/Pants_DarkArtsDeluxe01/Textures/T_HUM_F_Low_DarkArtsDeluxe01_MRO",
+   "src": "Skin_MRO.png",
+   "kind": "MRO"
+  },
+  {
+   "path": "/Game/RiggedObjects/Characters/Human/Clothing/Accessory/Mask_F/DarkArtsDeluxe01/Textures/T_HUM_F_Mask_DarkArtsDeluxe01_D",
+   "src": "Face_D.png",
+   "kind": "D",
+   "alpha": false
+  },
+  {
+   "path": "/Game/RiggedObjects/Characters/Human/Clothing/Accessory/Mask_F/DarkArtsDeluxe01/Textures/T_HUM_F_Mask_DarkArtsDeluxe01_N",
+   "src": "Flat_N.png",
+   "kind": "N"
+  },
+  {
+   "path": "/Game/RiggedObjects/Characters/Human/Clothing/Accessory/Mask_F/DarkArtsDeluxe01/Textures/T_HUM_F_Mask_DarkArtsDeluxe01_MRO",
+   "src": "Face_MRO.png",
+   "kind": "MRO"
+  },
+  {
+   "path": "/Game/RiggedObjects/Characters/Human/Clothing/Accessory/Scarf_F/DarkArtsDeluxe01U/Textures/T_HUM_F_Acc_DarkArtsDeluxe01U_D",
+   "src": "Hair_D.png",
+   "kind": "D",
+   "alpha": false
+  },
+  {
+   "path": "/Game/RiggedObjects/Characters/Human/Clothing/Accessory/Scarf_F/DarkArtsDeluxe01U/Textures/T_HUM_F_Acc_DarkArtsDeluxe01U_N",
+   "src": "Flat_N.png",
+   "kind": "N"
+  },
+  {
+   "path": "/Game/RiggedObjects/Characters/Human/Clothing/Accessory/Scarf_F/DarkArtsDeluxe01U/Textures/T_HUM_F_Acc_DarkArtsDeluxe01U_MRO",
+   "src": "Hair_MRO.png",
+   "kind": "MRO"
+  },
+  {
+   "path": "/Game/RiggedObjects/Characters/Human/Clothing/Hat_F/DarkArtsDeluxe01/Textures/T_HUM_F_Hat_DarkArtsDeluxe01_D",
+   "src": "Atlas_D.png",
+   "kind": "D",
+   "alpha": true
+  },
+  {
+   "path": "/Game/RiggedObjects/Characters/Human/Clothing/Hat_F/DarkArtsDeluxe01/Textures/T_HUM_F_Hat_DarkArtsDeluxe01_N",
+   "src": "Flat_N.png",
+   "kind": "N"
+  },
+  {
+   "path": "/Game/RiggedObjects/Characters/Human/Clothing/Hat_F/DarkArtsDeluxe01/Textures/T_HUM_F_Hat_DarkArtsDeluxe01_MRO",
+   "src": "Atlas_MRO.png",
+   "kind": "MRO"
+  }
+ ],
+ "meshes": [
+  {
+   "fbx": "KarinBody.fbx",
+   "paths": [
+    "/Game/RiggedObjects/Characters/Human/Clothing/Upper_F/Jacket_DarkArtsDeluxe01/SK_HUM_F_Upp_DarkArtsDeluxe01_Master",
+    "/Game/RiggedObjects/Characters/Human/Clothing/Upper_F/Jacket_DarkArtsDeluxe01/SK_HUM_F_Upp_DarkArtsDeluxe01_Master_A",
+    "/Game/RiggedObjects/Characters/Human/Clothing/Upper_F/Jacket_DarkArtsDeluxe01/SK_HUM_F_Upp_DarkArtsDeluxe01_Master_B"
+   ],
+   "skeleton": "karin"
+  },
+  {
+   "fbx": "KarinHead.fbx",
+   "physics": true,
+   "paths": [
+    "/Game/RiggedObjects/Characters/Human/Heads/AVA_YF_Head_Amita/SK_YF_Head_Amita_Master",
+    "/Game/RiggedObjects/Characters/Human/Heads/AVA_YF_Head_Emily/SK_Young_F_Head_Emily_Master"
+   ],
+   "morphs": true
+  },
+  {
+   "fbx": "KarinHair.fbx",
+   "paths": [
+    "/Game/RiggedObjects/Characters/Human/Hair/Hair_F/STUHair18/SK_HUM_F_Hair_STUHair18_PrincessLong_Bangs1_Master",
+    "/Game/RiggedObjects/Characters/Human/Hair/Hair_F/STUHair18/SK_HUM_F_Hair_STUHair18_PrincessLong_HatA_Master",
+    "/Game/RiggedObjects/Characters/Human/Hair/Hair_F/STUHair18/SK_HUM_F_Hair_STUHair18_PrincessLong_HatB_Master",
+    "/Game/RiggedObjects/Characters/Human/Hair/Hair_F/STUHair13/SK_HUM_F_Hair_StuHair13_Loose_LowBun_Master"
+   ],
+   "skeleton": "karin"
+  },
+  {
+   "fbx": "Empty.fbx",
+   "paths": [
+    "/Game/RiggedObjects/Characters/Human/Clothing/Lower_F/Pants_DarkArtsDeluxe01/SK_HUM_F_Low_DarkArtsDeluxe01_Master",
+    "/Game/RiggedObjects/Characters/Human/Clothing/Accessory/Gloves_F/DarkArtsDeluxe01/SK_HUM_F_Acc_DarkArtsDeluxe01_Master",
+    "/Game/RiggedObjects/Characters/Human/Clothing/Accessory/Gloves_F/DarkArtsDeluxe01/SK_HUM_F_Acc_DarkArtsDeluxe01_LongSleeve_Master",
+    "/Game/RiggedObjects/Characters/Human/Clothing/Accessory/Mask_F/DarkArtsDeluxe01/SK_HUM_F_Mask_DarkArtsDeluxe01_Master",
+    "/Game/RiggedObjects/Characters/Human/Clothing/Accessory/Scarf_F/DarkArtsDeluxe01U/SK_HUM_F_Acc_DarkArtsDeluxe01U_Master",
+    "/Game/RiggedObjects/Characters/Human/Clothing/Accessory/Scarf_F/DarkArtsDeluxe01H/SK_HUM_F_Acc_DarkArtsDeluxe01H_Master",
+    "/Game/RiggedObjects/Characters/Human/Clothing/Accessory/Scarf_F/DarkArtsDeluxe01R/SK_HUM_F_Acc_DarkArtsDeluxe01R_Master",
+    "/Game/RiggedObjects/Characters/Human/Clothing/Accessory/Scarf_F/DarkArtsDeluxe01C/SK_HUM_F_Acc_DarkArtsDeluxe01C_Master",
+    "/Game/RiggedObjects/Characters/Human/Clothing/Hat_F/DarkArtsDeluxe01/SK_HUM_F_Hat_DarkArtsDeluxe01_Master",
+    "/Game/RiggedObjects/Characters/Human/Clothing/Robe_F/DarkArtsDeluxe01/SK_hum_f_robe_darkartsdeluxe01_master_clothjoint",
+    "/Game/RiggedObjects/Characters/Human/Clothing/Robe_F/DarkArtsDeluxeHoodDown01/SK_hum_f_robe_darkartsdeluxehooddown01_master_clothjoint",
+    "/Game/RiggedObjects/Characters/Human/Clothing/Robe_F/DarkArtsDeluxe01HoodUpScarf/SK_hum_f_robe_darkartsdeluxehoodupscarf01_master_clothjoint"
+   ]
+  }
+ ],
+ "karin_skeleton": "/Game/RiggedObjects/Characters/Human/Karin_F/SK_Karin_F_Skeleton",
+ "dyn_nodes": "<HL_WORK>/fit_f/dyn_nodes.json",
+ "abps": [
+  {
+   "part": "KarinBody",
+   "path": "/Game/RiggedObjects/Characters/Human/Karin_F/ABP_Karin_F_Body"
+  },
+  {
+   "part": "KarinHair",
+   "path": "/Game/RiggedObjects/Characters/Human/Karin_F/ABP_Karin_F_Hair"
+  }
+ ]
+}

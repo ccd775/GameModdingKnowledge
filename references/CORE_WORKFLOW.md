@@ -160,3 +160,11 @@ The game workflows use different formats, but the same engineering loop.
   disappears: WolvenKit 7 drops `SSkeletonBone.name` on read and writes it as `StringAnsi`, which made every mesh skinned
   to the dangle skeleton invisible. Round-trip one vanilla file and diff it before trusting a converter
   (`games/the-witcher-3/TECHNICAL_CONTRACTS.md` §3).
+- A crash dialog that blames mods is not evidence of mod detection. Hogwarts Legacy's crash reporter suggests
+  uninstalling mods whenever `~mods` has a package; the dumps in `Saved/Crashes` (exception record, registers, array
+  lengths in the captured memory, disassembly located through `.pdata`) pinned the crash to one mesh and one bone
+  (`games/hogwarts-legacy/TROUBLESHOOTING.md` §1).
+- Every mesh may only carry bones its referenced skeleton has. An editor stub skeleton silently absorbs the extra bones on
+  import, so the stub project looks fine; a shared export armature had given the head and placeholder meshes 95 dynamic
+  bones the game skeleton lacks, and the game crashed minutes into play. Check each cooked mesh's bone names against
+  the game skeleton before release (`games/hogwarts-legacy/TECHNICAL_CONTRACTS.md` §4).

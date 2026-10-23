@@ -262,6 +262,17 @@
       "topics": ["forge v27 与奥德赛 v28 布局相同", "内嵌副本：同一对象 ID 嵌在多个数据文件里，harness scan-objs 找全", "每个 world forge 和 patch 各带一个版本：payload 按 forge 分版本", "原版表 XML 重新编译逐字节相同（不需要空引用修补）", "引用编译后只剩对象 ID，一个编译好的对象可嵌进多个文件", "不论装备：装备表去掉全部可视列、身体也去掉，只剩头部容器里的 Karin", "CN_Weapon_NoAlphaTest：法线 A 通道 = 光泽度、高光颜色图", "顶点格式 v2、≤ 255 骨、两个顶点色", "坐标系同奥德赛，没有 Neck1", "附加骨架规则：ChildBoneCount = 后代数、自己的骨架键、BallJoint 的 LiteRagdoll 留空（v3 在 Logo 处闪退）", "加壳 exe 的崩溃转储：读出循环用的字段，再和全部原版数据对照", "BallJoint 没有弹簧：锥中心逆着下垂方向偏一个锥角", "偏移约定：LocalPitchOft 绕局部 Z、LocalYawOft 绕局部 Y（原版 93 : 7）", "碰撞只走 CommonData → BallJointCommonData → LiteRagdoll", "大腿胶囊按皮肤半径和裙摆位置取尺寸", "harness batch：一个数据文件一个进程", "同步盘让解包慢约 15 倍", "可重新部署包：solid xz、vanilla_sizes 核对、Steam 库定位"],
       "limits": ["表情（下颌 / 眨眼 / 眼球）未经用户单独评价", "自定义界面 / 菜单里的模型未检查", "旧时代服装未在游戏里检查，康纳那身没有物理", "DLC 亡者之王的 SDN_Arno_* 表与派对服装 CN_P_Arno_Party 未处理", "过场 / 对话未测", "只验证了 Steam build 21970519"],
       "portable_kit": "portable-kits/assassins-creed-unity"
+    },
+    {
+      "id": "hogwarts-legacy",
+      "path": "games/hogwarts-legacy",
+      "status": "runtime-confirmed-scoped",
+      "milestone": "Karin_Original 替换黑魔法套装：更新后网格格式补丁（section uint32 + 参考姿势写回）、TPS 拟合、借用游戏材质实例（女版按字节克隆到 _F 路径）、部件数据资产注入 AnimClass 跑 CopyPose → AnimDynamics 次级物理、56 个 HL 同名形变表情，用户实机确认；女巫版 v1.0 玩几分钟后崩溃（网格带了骨架外的骨），v1.1 修复后用户实机未再崩溃",
+      "date": "2026-10-23",
+      "game_build": "1613387 (Steam buildid 20773316)",
+      "topics": ["UE 4.27 Phoenix", "IoStore + retoc to-legacy / to-zen", "~mods zzz_*_P", "2025-01 更新：FSkelMeshRenderSection 多一个 uint32", "参考姿势按 JSON 写回", "UMaterialInterface 尾部 20 字节哈希：不新建材质实例", "材质实例按字节克隆到空闲路径", "原版 UE 4.27 占位工程 cook", "装备外观 / 角色部件数据资产", "袜子部件承载腿部皮肤", "发型 MeshOverrides 指回默认网格", "无 AnimClass 的部件不跑后处理蓝图", "数据资产注入 AnimClass", "编辑器插件生成 CopyPoseFromMesh → AnimDynamics 蓝图", "AnimDynamics 单骨节点与集中杆模型", "离线手感模型（峰值 / 过中心 / 收敛时间）", "面部姿势资产按名字驱动形变", "自定义法线随 TPS 迁移", "网格骨必须都在引用的骨架里", "崩溃转储分析（minidump + .pdata + 反汇编）", "捏脸预设表与发廊限制"],
+      "limits": ["男版物理和表情无实机反馈，未按 v1.1 规则重建", "过场特写、战斗大动作、坐下、骑乘未专门测试", "裙片之间无碰撞，大动作下大腿可能穿出", "拉起兜帽时双马尾可能穿模", "崩溃的代码级原因（-1 索引）是推测", "脸型只能在创建角色时选"],
+      "portable_kit": "portable-kits/hogwarts-legacy"
     }
   ]
 }

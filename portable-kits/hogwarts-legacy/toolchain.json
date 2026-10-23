@@ -1,0 +1,94 @@
+{
+  "game": "Hogwarts Legacy (PC, Steam App 990080, game version 1613387 / buildid 20773316, UE 4.27 \"Phoenix\", IoStore)",
+  "status": "runtime-confirmed-scoped",
+  "tools": [
+    {
+      "name": "Blender",
+      "version": "4.0.2 in the project (fit.py also handles the 4.1+ custom-normal API); fit runs with -b --factory-startup",
+      "role": "fit.py: pose Karin onto the HL biped (A-pose), TPS fit, Karin's 95 dynamic bones kept as real bones, HL weights split from vanilla meshes, custom normals carried, 56 HL-named facial morphs from face_map.json; writes fit.blend, skel_ext.json, dyn_chains.json; export_fbx.py writes the FBX parts (KarinHead / Empty / PhysProxy with game-skeleton bones only); previews and shape-key probes (scripts/blender/)",
+      "required": true
+    },
+    {
+      "name": "Unreal Engine",
+      "version": "4.27.2 (Epic launcher build) with PythonScriptPlugin and EditorScriptingUtilities",
+      "role": "stub content project Phoenix (ue/Phoenix): stub Biped_Skeleton / physics assets / MM_Prop / host MIs at the game paths, mesh import on Biped_Skeleton or the shipped SK_Karin_<M|F>_Skeleton, material slots, anim blueprints through HLKTools (scripts/ue/ue_import.py); CookAll to legacy packages",
+      "required": true
+    },
+    {
+      "name": "HLKTools editor plugin (ue/HLKTools, C++)",
+      "version": "kit source; built for UE 4.27 with VS2022 (project used MSVC 14.44)",
+      "role": "CreateDynamicsAnimBlueprint: CopyPoseFromMesh (or input pose) -> LocalToComponent -> AnimDynamics x N from JSON -> ComponentToLocal -> output, compiled",
+      "required": true
+    },
+    {
+      "name": "HLMeshProbe (hlmeshprobe/, C# on a patched CUE4Parse)",
+      "version": "CUE4Parse at 2b8901c3ee9818558ad33e2496a58d50b82e99db + cue4parse_probe.patch.txt + CUE4Parse/HLProbe.cs, .NET 10 SDK, CUE4PARSE_SKIP_NATIVE=1",
+      "role": "patch: stock-4.27 cooked skeletal meshes -> post-2025-01 HL layout (+uint32 after bCastShadow per render section, SerialSize / SerialOffset / BulkDataStartOffset), reference pose written from skel_ext.json, re-read with HL rules; probe / json / mat / dump for extraction",
+      "required": true
+    },
+    {
+      "name": "retoc",
+      "version": "0.1.5",
+      "role": "to-legacy for vanilla assets; to-zen --version UE4_27 and verify for the mod container",
+      "required": true
+    },
+    {
+      "name": "build_mod.py / dyn_params.py / feel_sim.py / swing_check.py / uasset.py / da_animclass.py / ga_slot_patch.py / ga_edit.py / hair_override_patch.py / mi_clone.py / make_tex.py",
+      "version": "kit",
+      "role": "stage driver (fit, params, export, import, cook, assemble, pack); AnimDynamics node settings from per-category feel targets; offline swing and skirt-clearance checks; legacy package reader / writer and the data-asset and material-instance patches; host textures",
+      "required": true
+    }
+  ],
+  "entry_documents": [
+    "../../games/hogwarts-legacy/README.md",
+    "../../games/hogwarts-legacy/BUILD_PIPELINE.md"
+  ],
+  "runtime_boundary": "Game version 1613387 (after the 2025-01-30 serialization / ray-tracing update), mod container zzz_KarinDarkArts_<MF|F>_P.pak/.ucas/.utoc in Phoenix/Content/Paks/~mods. The user accepted v12 physics and expressions in game (2026-10-19). The female-only release v1.0 crashed a few minutes into play (dumps: access violation in a layered per-bone blend at bone Ear_L); v1.1 (export_fbx.py strips the Karin-only bones from meshes bound to Biped_Skeleton) was rebuilt on 2026-10-23 (cook 0 errors, retoc verify ok, Biped-bound meshes without Ear_L, heads keep 56 morphs) and the user played a while without a crash. The portable copies were checked offline only: synthetic tests for dyn_params / feel_sim / swing_check, the package patchers and build_mod.py with stand-in tools, syntax checks for everything else; Blender, UE, the plugin, HLMeshProbe and retoc were reviewed, not re-run (see VALIDATION.md).",
+  "bundled_scripts": [
+    "scripts/build_mod.py",
+    "scripts/dyn_params.py",
+    "scripts/feel_sim.py",
+    "scripts/swing_check.py",
+    "scripts/uasset.py",
+    "scripts/da_animclass.py",
+    "scripts/ga_edit.py",
+    "scripts/ga_slot_patch.py",
+    "scripts/hair_override_patch.py",
+    "scripts/mi_clone.py",
+    "scripts/make_tex.py",
+    "scripts/texdump.py",
+    "scripts/texwalk.py",
+    "scripts/hlskel.py",
+    "scripts/blender/fit.py",
+    "scripts/blender/export_fbx.py",
+    "scripts/blender/preview.py",
+    "scripts/blender/cmp_upper.py",
+    "scripts/blender/clav_test.py",
+    "scripts/blender/extract_tex.py",
+    "scripts/blender/sk_dir.py",
+    "scripts/blender/sk_stats.py",
+    "scripts/ue/ue_import.py",
+    "scripts/ue/ue_fixmat.py",
+    "configs/dyn.json",
+    "configs/face_map.json",
+    "configs/fit_f.json",
+    "configs/fit_m.json",
+    "configs/ue_build_f.json",
+    "configs/ue_build_m.json",
+    "ue/Phoenix/Phoenix.uproject",
+    "ue/Phoenix/Config/DefaultEngine.ini",
+    "ue/Phoenix/Config/DefaultGame.ini",
+    "ue/HLKTools/HLKTools.uplugin",
+    "ue/HLKTools/Source/HLKTools/HLKTools.Build.cs",
+    "ue/HLKTools/Source/HLKTools/Public/HLKToolsLibrary.h",
+    "ue/HLKTools/Source/HLKTools/Private/HLKToolsLibrary.cpp",
+    "ue/HLKTools/Source/HLKTools/Private/HLKToolsModule.cpp",
+    "hlmeshprobe/HLMeshProbe/Program.cs",
+    "hlmeshprobe/HLMeshProbe/HLMeshProbe.csproj",
+    "hlmeshprobe/CUE4Parse/HLProbe.cs",
+    "hlmeshprobe/cue4parse_probe.patch.txt",
+    "hlmeshprobe/CUE4PARSE_BASE_COMMIT.txt"
+  ],
+  "python": "3.10+ (standard library) for build_mod.py and the package patchers; dyn_params.py, feel_sim.py, swing_check.py and hlskel.py need numpy 2.5 (3.12+), make_tex.py also Pillow; Blender scripts run in Blender's Python; tested 3.12.10 with numpy 2.5.2",
+  "dependency_install": "python -m pip install -r requirements.txt -r portable-kits/hogwarts-legacy/requirements.txt (from bundle root)"
+}

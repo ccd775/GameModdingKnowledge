@@ -1,0 +1,13 @@
+{
+ "_doc": "dyn_params.py input. defl: total chain bend (deg) per 1 g of sideways acceleration; freq (Hz) / zeta: swing frequency and damping ratio of each node; sim_every: simulate every n-th bone; com_frac: body COM along the remaining strand (collision point); gravity: scale; vel/acc: share of the character's world velocity/acceleration fed to the sim (clamp cm/s^2); limit (deg per node) or limit_out/limit_in/limit_side with outward_from; colliders: [bone, end|null, t0, t1, max r] nearest point, or [bone, end, [t...], max r] fixed points.",
+ "categories": {"skirt": ["Skirt_"], "tail": ["Tail"], "twintail": ["Hair_tail_"], "hair": ["Hair_side_", "Hair_front"], "ear": ["Ear_"], "ribbon": ["Ribbon_"]},
+ "defaults": {"defl": 40, "freq": 1.5, "zeta": 0.35, "gravity": 0.2, "sim_every": 1, "vel": 0.5, "acc": 0.5, "acc_clamp": 1200, "iters": [8, 2], "limit": 15, "body_radius": 1.5, "collider_reach": 12},
+ "settings": {
+  "skirt": {"defl": 40, "freq": 1.7, "zeta": 0.48, "gravity": 0.0, "vel": 0.25, "acc": 0.4, "com_frac": 0.85, "outward_from": "Hips", "limit_out": 40, "limit_in": 3, "limit_side": 20, "body_radius": 1.0, "collider_reach": 14, "colliders": [["LeftUpLeg", "LeftLeg", [0.1, 0.25, 0.4, 0.55], 9.0], ["RightUpLeg", "RightLeg", [0.1, 0.25, 0.4, 0.55], 9.0], ["Hips", null, 0, 0, 13]]},
+  "tail": {"defl": 50, "freq": 1.2, "zeta": 0.48, "gravity": 0.05, "vel": 0.3, "acc": 0.45, "limit": 15, "body_radius": 2.5, "sim_every": 2},
+  "twintail": {"defl": 55, "freq": 1.2, "zeta": 0.45, "gravity": 0.3, "vel": 0.3, "acc": 0.45, "limit": 18, "body_radius": 2.5, "collider_reach": 25, "colliders": [["Spine3", "Neck", 0.0, 1.0, 13], ["Spine2", "Spine3", 0.0, 1.0, 12], ["Spine1", "Spine2", 0.0, 1.0, 11], ["Hips", "Spine", 0.0, 1.0, 12], ["LeftShoulder", "LeftArm", 0.4, 1.0, 6.5], ["RightShoulder", "RightArm", 0.4, 1.0, 6.5], ["LeftArm", "LeftForeArm", 0.0, 1.0, 5.5], ["RightArm", "RightForeArm", 0.0, 1.0, 5.5], ["Neck", "Head", 0.0, 1.0, 6]], "sim_every": 2},
+  "hair": {"defl": 22, "freq": 2.2, "zeta": 0.45, "gravity": 0.1, "limit": 10},
+  "ear": {"defl": 8, "freq": 2.6, "zeta": 0.4, "gravity": 0.0, "limit": 10},
+  "ribbon": {"defl": 70, "freq": 1.5, "zeta": 0.4, "gravity": 0.3, "limit": 35}
+ }
+}

@@ -3310,5 +3310,392 @@
     "portable_sha256": "a4f5464ad02833efaaaf757016f0b47966d839932c8beaa29ae2725052ebd87f",
     "portable_bytes": 4063,
     "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/hogwarts-legacy/scripts/build_mod.py",
+    "source": "Mods/霍格沃茨之遗/Karin_Original/tools/build.sh",
+    "original_sha256": "fcac949ae32909d6b334d7772e7e77e1d34a54a07d24398171f1510e36e691a2",
+    "source_bytes": 5948,
+    "portable_sha256": "5efcffc1e303e42c1accb94640ed1f4e5afc5a31b825f8799549dc309da911e7",
+    "portable_bytes": 17127,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/hogwarts-legacy/scripts/dyn_params.py",
+    "source": "Mods/霍格沃茨之遗/Karin_Original/tools/py/dyn_params.py",
+    "original_sha256": "b4d2afcc87a763d0403b5deeb592f8ac8fd297eea7a037efc511fdc5de43fbdd",
+    "source_bytes": 8722,
+    "portable_sha256": "accc7036a879b4d5e91da200b8682a55fbf084c319939c8124872ead66c91909",
+    "portable_bytes": 8929,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/hogwarts-legacy/scripts/feel_sim.py",
+    "source": "Mods/霍格沃茨之遗/Karin_Original/tools/py/feel_sim.py",
+    "original_sha256": "d53640c79be66d3c2187611aef1bdc85ac02f69fe7e23feaa7c5fc44ccd14163",
+    "source_bytes": 2764,
+    "portable_sha256": "46c059ae274db3c78552f60fbdb31df8509818ed6eb53ff48f22e5518ace57cb",
+    "portable_bytes": 3087,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/hogwarts-legacy/scripts/swing_check.py",
+    "source": "Mods/霍格沃茨之遗/Karin_Original/tools/py/swing_check.py",
+    "original_sha256": "bcb1c818f2d298c9661cb1e68a1239cdbbf57d68d967cf175f81cb30cd697e2c",
+    "source_bytes": 3892,
+    "portable_sha256": "967de1e4dcfada3e0ab137a7764b56e5a1ffed3997ad001f82b99c5e8484629a",
+    "portable_bytes": 4119,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/hogwarts-legacy/scripts/uasset.py",
+    "source": "Mods/霍格沃茨之遗/Karin_Original/tools/py/uasset.py",
+    "original_sha256": "1dfe65635514da60d923ede815f2d20c8ecad5b8277760363ca91eca5ae5010a",
+    "source_bytes": 12454,
+    "portable_sha256": "f3e877d28bf86baf4a97cd2a6eb6808d96151d30557c6922c963737f8cbddd17",
+    "portable_bytes": 12527,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/hogwarts-legacy/scripts/da_animclass.py",
+    "source": "Mods/霍格沃茨之遗/Karin_Original/tools/py/da_animclass.py",
+    "original_sha256": "3f78b71bf3d2778bdd4a141732319e4b7c3120a65fc1bfea0f9ff6bd8f333ad2",
+    "source_bytes": 2412,
+    "portable_sha256": "2b34aefed8f662eb0fb6a4dcd7351a4559010964073fbc0a285c7f14c1c32690",
+    "portable_bytes": 2767,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/hogwarts-legacy/scripts/ga_edit.py",
+    "source": "Mods/霍格沃茨之遗/Karin_Original/tools/py/ga_edit.py",
+    "original_sha256": "bc7b694286a96eac36125c78a4883f094c9d6ccb18d4b00f2cd93f1dd3e454d8",
+    "source_bytes": 4143,
+    "portable_sha256": "e5879d682e8f93a8809eb22389a9a7851609112f14fb1bdbea2ca3fe4d2db45b",
+    "portable_bytes": 4409,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/hogwarts-legacy/scripts/ga_slot_patch.py",
+    "source": "Mods/霍格沃茨之遗/Karin_Original/tools/py/ga_slot_patch.py",
+    "original_sha256": "3731cee095d84c33d650586ac768ad3b4e9ed4914fee371dba3dc386a0a67184",
+    "source_bytes": 1692,
+    "portable_sha256": "49d96cb045a98b8f5f57343813763cf551a300d7789d38fa779eeb2372cd19fa",
+    "portable_bytes": 1998,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/hogwarts-legacy/scripts/hair_override_patch.py",
+    "source": "Mods/霍格沃茨之遗/Karin_Original/tools/py/hair_override_patch.py",
+    "original_sha256": "fee06c2e3b0867d7814dbd54dd10b739005f44543e5d12321f776557297dfd61",
+    "source_bytes": 1745,
+    "portable_sha256": "a7dd4995a0c7b664dfe6231226437382f640c4f85281cfb093d8516f1b370060",
+    "portable_bytes": 1943,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/hogwarts-legacy/scripts/mi_clone.py",
+    "source": "Mods/霍格沃茨之遗/Karin_Original/tools/py/mi_clone.py",
+    "original_sha256": "3840c70b7b74967db596d081b12711f5db5956566bf883bc28ea1e20308ada76",
+    "source_bytes": 1169,
+    "portable_sha256": "db770bc78b715712c0e8d2331267499bc8209293b739cb43b751e68f078ec31d",
+    "portable_bytes": 1423,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/hogwarts-legacy/scripts/make_tex.py",
+    "source": "Mods/霍格沃茨之遗/Karin_Original/tools/py/make_tex.py",
+    "original_sha256": "88cadd54a7e93879e6297767580676b7ac52666ea3e0f140caab16b3a5f9c9c1",
+    "source_bytes": 1395,
+    "portable_sha256": "88c0a05e3069940223ed2a9e06b08480370aa465147e0130849ef282b84bd738",
+    "portable_bytes": 1619,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/hogwarts-legacy/scripts/texdump.py",
+    "source": "Mods/霍格沃茨之遗/Karin_Original/tools/py/texdump.py",
+    "original_sha256": "44b092fcc0d72159c294f8d09e304ba7ca2fe0dba2e4f9de2d0ab121a3639901",
+    "source_bytes": 1476,
+    "portable_sha256": "b44c967675b719ac911d7a924555a0c66f7f300122943ebc65658e70773c1fc6",
+    "portable_bytes": 1719,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/hogwarts-legacy/scripts/texwalk.py",
+    "source": "Mods/霍格沃茨之遗/Karin_Original/tools/py/texwalk.py",
+    "original_sha256": "f70158be9e2f4fb599ca1a701bdfd468d939bd5888355f874af21a94ba2ef9f9",
+    "source_bytes": 1126,
+    "portable_sha256": "6afaf8d991f4cc003bd6ee06c41dd7cdf93c1208ce7eb590d16befc8610582b4",
+    "portable_bytes": 1388,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/hogwarts-legacy/scripts/hlskel.py",
+    "source": "Mods/霍格沃茨之遗/Karin_Original/tools/py/hlskel.py",
+    "original_sha256": "b18602b69704299c1a579111bd04ea95439a2e8e1fc328d364fc70fcabc19b35",
+    "source_bytes": 518,
+    "portable_sha256": "b18602b69704299c1a579111bd04ea95439a2e8e1fc328d364fc70fcabc19b35",
+    "portable_bytes": 518,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/hogwarts-legacy/scripts/blender/fit.py",
+    "source": "Mods/霍格沃茨之遗/Karin_Original/tools/blender/fit.py",
+    "original_sha256": "c2f31b46a42a5f6590acc0a8485641229e83743c1255deae447f02cf8fd068bd",
+    "source_bytes": 28850,
+    "portable_sha256": "c2f31b46a42a5f6590acc0a8485641229e83743c1255deae447f02cf8fd068bd",
+    "portable_bytes": 28850,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/hogwarts-legacy/scripts/blender/export_fbx.py",
+    "source": "Mods/霍格沃茨之遗/Karin_Original/tools/blender/export_fbx.py",
+    "original_sha256": "ec5f4a2d68dac2518d85bc7c111461f75a05e5b67f3ed267b396c5b438a3ccb1",
+    "source_bytes": 4240,
+    "portable_sha256": "4729f8d2d0a752f4d68286ca1db87ddce40426980d6d7b7b4ad2e9e2fdc4681b",
+    "portable_bytes": 4181,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/hogwarts-legacy/scripts/blender/preview.py",
+    "source": "Mods/霍格沃茨之遗/Karin_Original/tools/blender/preview.py",
+    "original_sha256": "9c022e9aace84eeea00ed4d9433e1fedbf97ad3471894748ecbf9f317d74267d",
+    "source_bytes": 3378,
+    "portable_sha256": "56b85c8b8383b09ee272b985cb8989391469dffbcc21a33436bf57cedc95f753",
+    "portable_bytes": 3329,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/hogwarts-legacy/scripts/blender/cmp_upper.py",
+    "source": "Mods/霍格沃茨之遗/Karin_Original/tools/blender/cmp_upper.py",
+    "original_sha256": "baf78ba5f05932ffda5a3f76c03b32a19a90346ae8ba1114bb76bedb846c1c92",
+    "source_bytes": 1393,
+    "portable_sha256": "151c85a17f7cf5d98c819f45692a0f154ccbf44648d560a586fd2e487f2693bb",
+    "portable_bytes": 1371,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/hogwarts-legacy/scripts/blender/clav_test.py",
+    "source": "Mods/霍格沃茨之遗/Karin_Original/tools/blender/clav_test.py",
+    "original_sha256": "10a9ed20e4eeb2b409df6b8e629ac2246aa369c89e3ac0753417bc13d793ccd2",
+    "source_bytes": 1403,
+    "portable_sha256": "10a9ed20e4eeb2b409df6b8e629ac2246aa369c89e3ac0753417bc13d793ccd2",
+    "portable_bytes": 1403,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/hogwarts-legacy/scripts/blender/extract_tex.py",
+    "source": "Mods/霍格沃茨之遗/Karin_Original/tools/blender/extract_tex.py",
+    "original_sha256": "7e56a3757ffb6645e52f97e645ca8a9919e39ff191b1dfc009214378ac1ff44d",
+    "source_bytes": 881,
+    "portable_sha256": "7e56a3757ffb6645e52f97e645ca8a9919e39ff191b1dfc009214378ac1ff44d",
+    "portable_bytes": 881,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/hogwarts-legacy/scripts/blender/sk_dir.py",
+    "source": "Mods/霍格沃茨之遗/Karin_Original/tools/blender/sk_dir.py",
+    "original_sha256": "cbfd801d0f3e150b93443d1b59de8ba21e5cc5d8eff1de53916621d8b588f436",
+    "source_bytes": 761,
+    "portable_sha256": "cbfd801d0f3e150b93443d1b59de8ba21e5cc5d8eff1de53916621d8b588f436",
+    "portable_bytes": 761,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/hogwarts-legacy/scripts/blender/sk_stats.py",
+    "source": "Mods/霍格沃茨之遗/Karin_Original/tools/blender/sk_stats.py",
+    "original_sha256": "a4fa03848e2de9c29c2cf0566140e1908e88d6d92183509dd4b6e1848b9c295f",
+    "source_bytes": 917,
+    "portable_sha256": "a4fa03848e2de9c29c2cf0566140e1908e88d6d92183509dd4b6e1848b9c295f",
+    "portable_bytes": 917,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/hogwarts-legacy/scripts/ue/ue_import.py",
+    "source": "Mods/霍格沃茨之遗/Karin_Original/tools/ue/ue_import.py",
+    "original_sha256": "0b6f455245c6f21be66452d91413014b5cda7779c5eb5c9163b7a2d1bb8b452c",
+    "source_bytes": 9559,
+    "portable_sha256": "5bdf2258381c0f0db76ba76c900417bac5d9d681c5e1cd6310eabbc2c88e5e95",
+    "portable_bytes": 9755,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/hogwarts-legacy/scripts/ue/ue_fixmat.py",
+    "source": "Mods/霍格沃茨之遗/Karin_Original/tools/ue/ue_fixmat.py",
+    "original_sha256": "16772235baa4d98e91e69246b32016201a36bd2e85251b7be21b97380658558c",
+    "source_bytes": 1238,
+    "portable_sha256": "03d5a73c4b2328ab15789a8741b4fbcb01f01bc0b945f07c287caf41b8bbc14c",
+    "portable_bytes": 1631,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/hogwarts-legacy/configs/dyn.json",
+    "source": "Mods/霍格沃茨之遗/Karin_Original/tools/ue/dyn.json",
+    "original_sha256": "012e00434ce57ecf0ed51888d3bd92034caa5bda53923cc4a5ebfa5402c771f5",
+    "source_bytes": 2222,
+    "portable_sha256": "012e00434ce57ecf0ed51888d3bd92034caa5bda53923cc4a5ebfa5402c771f5",
+    "portable_bytes": 2222,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/hogwarts-legacy/configs/face_map.json",
+    "source": "Mods/霍格沃茨之遗/Karin_Original/tools/ue/face_map.json",
+    "original_sha256": "7b81ad79b28780ea128300325fdfe6ea357e9b20e08e224235e37d23018b693b",
+    "source_bytes": 2588,
+    "portable_sha256": "7b81ad79b28780ea128300325fdfe6ea357e9b20e08e224235e37d23018b693b",
+    "portable_bytes": 2588,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/hogwarts-legacy/configs/fit_f.json",
+    "source": "Mods/霍格沃茨之遗/Karin_Original/tools/ue/fit_f.json",
+    "original_sha256": "04dcbdca4012f693943beed48a1bdcaa67abb62b8a0f6ffa68176c256c36decf",
+    "source_bytes": 1434,
+    "portable_sha256": "bc6d1384e61b3224877acaa6f03d0a04ec51b6c54f4575c75fd9184f1a50eefa",
+    "portable_bytes": 1269,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/hogwarts-legacy/configs/fit_m.json",
+    "source": "Mods/霍格沃茨之遗/Karin_Original/tools/ue/fit_m.json",
+    "original_sha256": "2fe7285d7cbb7c7d28b13ccb7e1864fd98ff4251c78ba86d789f69f4719159fe",
+    "source_bytes": 2462,
+    "portable_sha256": "753aa78bb674eac221432b55a45d09b94c7ef89316c7853e020ff90533cd223b",
+    "portable_bytes": 1329,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/hogwarts-legacy/configs/ue_build_f.json",
+    "source": "Mods/霍格沃茨之遗/Karin_Original/tools/ue/ue_build_f.json",
+    "original_sha256": "7fdd2f81abdbd453397ae163cca7f7ef5ca87b8f67a589c902a0ecce59ee1857",
+    "source_bytes": 7116,
+    "portable_sha256": "def6cfe94a47576bad11a129cec936fc5a73d8fde16ec461f616110e9982ce18",
+    "portable_bytes": 6970,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/hogwarts-legacy/configs/ue_build_m.json",
+    "source": "Mods/霍格沃茨之遗/Karin_Original/tools/ue/ue_build_m.json",
+    "original_sha256": "28ef00c892d3d254cb803fdf6741d731d48c29bcd6c3603240ee5e36485444ad",
+    "source_bytes": 6756,
+    "portable_sha256": "d7125ba12bb6a605f559cd7659bef569ee8d5c731e6801e4e4e8b0f4033438a4",
+    "portable_bytes": 6613,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/hogwarts-legacy/ue/Phoenix/Phoenix.uproject",
+    "source": "Mods/霍格沃茨之遗/Karin_Original/tools/ue/Phoenix.uproject",
+    "original_sha256": "9a7776f45fc6aaf9ff6c14d61682df9c55d20b2ed8c8a8c03badd3eceff4f1a6",
+    "source_bytes": 329,
+    "portable_sha256": "36e930f5ad7cccd46f220f894066287a6be008d76244232b629c2159de438cc1",
+    "portable_bytes": 310,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/hogwarts-legacy/ue/Phoenix/Config/DefaultEngine.ini",
+    "source": "Mods/霍格沃茨之遗/Karin_Original/tools/ue/Config/DefaultEngine.ini",
+    "original_sha256": "ed2d964dfcf95e3a0996e991a7bb3a876eb2ab8eed87b76c326ca94d4db3bb09",
+    "source_bytes": 302,
+    "portable_sha256": "ed2d964dfcf95e3a0996e991a7bb3a876eb2ab8eed87b76c326ca94d4db3bb09",
+    "portable_bytes": 302,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/hogwarts-legacy/ue/Phoenix/Config/DefaultGame.ini",
+    "source": "Mods/霍格沃茨之遗/Karin_Original/tools/ue/Config/DefaultGame.ini",
+    "original_sha256": "72253753b2aec66c49802089eb1b7639c641643043a8d3ecd5a6df7fca3235ad",
+    "source_bytes": 199,
+    "portable_sha256": "72253753b2aec66c49802089eb1b7639c641643043a8d3ecd5a6df7fca3235ad",
+    "portable_bytes": 199,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/hogwarts-legacy/ue/HLKTools/HLKTools.uplugin",
+    "source": "Mods/霍格沃茨之遗/Karin_Original/tools/ue/Plugins/HLKTools/HLKTools.uplugin",
+    "original_sha256": "4ef42f3cc3f74b052a121d10a62380223f3b9f3b444640be43244b94a06baad0",
+    "source_bytes": 324,
+    "portable_sha256": "4ef42f3cc3f74b052a121d10a62380223f3b9f3b444640be43244b94a06baad0",
+    "portable_bytes": 324,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/hogwarts-legacy/ue/HLKTools/Source/HLKTools/HLKTools.Build.cs",
+    "source": "Mods/霍格沃茨之遗/Karin_Original/tools/ue/Plugins/HLKTools/Source/HLKTools/HLKTools.Build.cs",
+    "original_sha256": "e2d3ca59fff3d6e4b1d80249f6d599dcfa6c1410b6e3ee96928ac33fd7fab198",
+    "source_bytes": 444,
+    "portable_sha256": "e2d3ca59fff3d6e4b1d80249f6d599dcfa6c1410b6e3ee96928ac33fd7fab198",
+    "portable_bytes": 444,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/hogwarts-legacy/ue/HLKTools/Source/HLKTools/Public/HLKToolsLibrary.h",
+    "source": "Mods/霍格沃茨之遗/Karin_Original/tools/ue/Plugins/HLKTools/Source/HLKTools/Public/HLKToolsLibrary.h",
+    "original_sha256": "29137119a4db7631208b70e78d2df999d247f3b238d18628b556c3502bc628f0",
+    "source_bytes": 998,
+    "portable_sha256": "29137119a4db7631208b70e78d2df999d247f3b238d18628b556c3502bc628f0",
+    "portable_bytes": 998,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/hogwarts-legacy/ue/HLKTools/Source/HLKTools/Private/HLKToolsLibrary.cpp",
+    "source": "Mods/霍格沃茨之遗/Karin_Original/tools/ue/Plugins/HLKTools/Source/HLKTools/Private/HLKToolsLibrary.cpp",
+    "original_sha256": "c87dd7387e77357c48b665199028ce5137946eea534578137fa0dcb9bf4dc59c",
+    "source_bytes": 7716,
+    "portable_sha256": "6d03b8e255954431ed8b9fca6f85b2c3fc4f47ddfecc7cae009a7f0a712daf21",
+    "portable_bytes": 7494,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/hogwarts-legacy/ue/HLKTools/Source/HLKTools/Private/HLKToolsModule.cpp",
+    "source": "Mods/霍格沃茨之遗/Karin_Original/tools/ue/Plugins/HLKTools/Source/HLKTools/Private/HLKToolsModule.cpp",
+    "original_sha256": "b4a9be30cab2e9abde59b48d28decdc6169a30eb5f1b0a135c8694173275bb26",
+    "source_bytes": 83,
+    "portable_sha256": "b4a9be30cab2e9abde59b48d28decdc6169a30eb5f1b0a135c8694173275bb26",
+    "portable_bytes": 83,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/hogwarts-legacy/hlmeshprobe/HLMeshProbe/Program.cs",
+    "source": "Mods/霍格沃茨之遗/Karin_Original/tools/HLMeshProbe/Program.cs",
+    "original_sha256": "3e2d9ac5466179d80a90b6139c7ab2b52bcfe23484453af772ad8b5f71c2df53",
+    "source_bytes": 16139,
+    "portable_sha256": "bde2299ee5bfefa1266fef4d9350ced32b0fc520e7923019681fa6a975fc2e0e",
+    "portable_bytes": 15859,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/hogwarts-legacy/hlmeshprobe/HLMeshProbe/HLMeshProbe.csproj",
+    "source": "Mods/霍格沃茨之遗/Karin_Original/tools/HLMeshProbe/HLMeshProbe.csproj",
+    "original_sha256": "1e7439340cad5fb6d4bdccb74c7ced9f00e1761bbf247dd7c3ca6c9c9eefd0b9",
+    "source_bytes": 364,
+    "portable_sha256": "1e7439340cad5fb6d4bdccb74c7ced9f00e1761bbf247dd7c3ca6c9c9eefd0b9",
+    "portable_bytes": 364,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/hogwarts-legacy/hlmeshprobe/CUE4Parse/HLProbe.cs",
+    "source": "Mods/霍格沃茨之遗/Karin_Original/tools/HLMeshProbe/HLProbe.cs",
+    "original_sha256": "9f9108b7606175c840e40ee763e0334ad3e838b6b80ba0b0be0ada6994e7d219",
+    "source_bytes": 428,
+    "portable_sha256": "548004d4e6d6b7e59b9afed48b47c9dbb0d47950a4b2d12bc1ce4acfb866661a",
+    "portable_bytes": 419,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/hogwarts-legacy/hlmeshprobe/cue4parse_probe.patch.txt",
+    "source": "Mods/霍格沃茨之遗/Karin_Original/tools/HLMeshProbe/cue4parse_probe.patch",
+    "original_sha256": "09fdcac63b323f13ae286404ddbdb72e1f201d283c14cd80acaccf2993abf09f",
+    "source_bytes": 3387,
+    "portable_sha256": "09fdcac63b323f13ae286404ddbdb72e1f201d283c14cd80acaccf2993abf09f",
+    "portable_bytes": 3387,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/hogwarts-legacy/hlmeshprobe/CUE4PARSE_BASE_COMMIT.txt",
+    "source": "Mods/霍格沃茨之遗/Karin_Original/tools/HLMeshProbe/CUE4PARSE_BASE_COMMIT.txt",
+    "original_sha256": "a13c5fe3591a51ae4a0420d014a8684cc19d2186ec2e602b5dcb4fc883a5e887",
+    "source_bytes": 41,
+    "portable_sha256": "a13c5fe3591a51ae4a0420d014a8684cc19d2186ec2e602b5dcb4fc883a5e887",
+    "portable_bytes": 41,
+    "modified_for_portability": false
   }
 ]

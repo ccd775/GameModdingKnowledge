@@ -1,0 +1,4 @@
+# Hogwarts Legacy: dyn_params.py, feel_sim.py, swing_check.py and hlskel.py (make_tex.py also needs the bundle-root
+# Pillow). build_mod.py and the package patchers use the standard library; the Blender scripts use Blender's bundled
+# Python and numpy. Tested on Python 3.12.10 with numpy 2.5.2.
+numpy==2.5.2

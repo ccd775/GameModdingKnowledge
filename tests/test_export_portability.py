@@ -121,6 +121,17 @@ class DetachedExports(unittest.TestCase):
                             self.assertIn(name, process.stderr)
                         self.assertFalse([l for l in process.stderr.splitlines() if 'test_w3_' in l and 'skipped' in l
                                           and 'machine_paths' not in l])
+                    if game == 'hogwarts-legacy':
+                        self.assertTrue((target/'portable-kits/hogwarts-legacy/requirements.txt').is_file())
+                        for name in ('test_hl_uasset_roundtrip_and_anim_class', 'test_hl_outfit_hair_and_mi_patches',
+                                     'test_hl_build_mod_dry_run_and_refusals', 'test_hl_build_mod_stages_with_fake_tools',
+                                     'test_hl_provenance_and_portability'):
+                            self.assertIn(name, process.stderr)
+                        self.assertFalse([l for l in process.stderr.splitlines() if 'test_hl_' in l and 'skipped' in l
+                                          and 'dyn_params' not in l])
+                    if game == 'hogwarts-legacy' and importlib.util.find_spec('numpy'):
+                        self.assertIn('test_hl_dyn_params_feel_and_swing', process.stderr)
+                        self.assertFalse([l for l in process.stderr.splitlines() if 'test_hl_' in l and 'skipped' in l])
                     print(f'{game}: detached tests passed (unselected games skipped)')
 
 

@@ -220,6 +220,88 @@
   - 非 Windows 系统（安装器用 `tasklist` 判断游戏是否在运行）、其它游戏版本 / 平台；
   - 新模型的案例常量。
 
+## 2026-10-23：新增霍格沃茨之遗便携包
+
+- **迁入内容：** 43 个文件，放在 `portable-kits/hogwarts-legacy/`，来源是项目的 `tools/`（`Mods/霍格沃茨之遗/Karin_Original/tools/`）。
+  - `scripts/` 下 14 个 Python：`py/` 的 13 个（`dyn_params.py`、`feel_sim.py`、`swing_check.py`、`uasset.py`、`da_animclass.py`、`ga_edit.py`、
+    `ga_slot_patch.py`、`hair_override_patch.py`、`mi_clone.py`、`make_tex.py`、`texdump.py`、`texwalk.py`、`hlskel.py`），由 `build.sh` 改写的 `build_mod.py`；
+  - `scripts/blender/` 下 8 个 Blender 脚本，来自 `blender/`：`fit.py`、`export_fbx.py`、`preview.py`、`cmp_upper.py`、`clav_test.py`、`extract_tex.py`、
+    `sk_dir.py`、`sk_stats.py`；
+  - `scripts/ue/` 下 2 个 UE 编辑器 Python：`ue_import.py`、`ue_fixmat.py`；`configs/` 下 6 个案例配置：`dyn.json`、`face_map.json`、`fit_f.json`、`fit_m.json`、
+    `ue_build_f.json`、`ue_build_m.json`；
+  - `ue/Phoenix/` 下占位工程（`Phoenix.uproject` 和 2 个 `Config/*.ini`），`ue/HLKTools/` 下编辑器插件的 5 个文件（`.uplugin`、`Build.cs`、`.h`、2 个 `.cpp`），
+    原来都在工程目录 `ue/` 里（插件在 `ue/Plugins/HLKTools/`）；
+  - `hlmeshprobe/` 下 HLMeshProbe 的 `Program.cs`、`HLMeshProbe.csproj`（在 `HLMeshProbe/`）、`HLProbe.cs`（在 `CUE4Parse/`）、CUE4Parse 补丁和基准提交；
+  - PROVENANCE 每个文件一行，`original_sha256` / `source_bytes` 按交接给本次迁移的项目 `tools/` 副本计算；`build_mod.py` 一行的来源记为 `build.sh`；
+  - 新增 `README.md`、`toolchain.json`、`requirements.txt`（numpy）。公共层 `modkit.py` 的游戏列表加上 `hogwarts-legacy`，导出器和导出测试因此覆盖它。
+- **没有迁入：** 测试机远程辅助脚本（`tools/remote/*`）和虚拟手柄工具（只服务于项目那台测试机，方法写在游戏目录的构建流程 §11）；会话里的一次性探针和实验
+  （`session_py/` 的 `ue_abp_test.py`、`ue_phys_test.py`、`ue_probe_api.py` 等，`session_bl/` 的 `inspect.py`、`karin_joints.py`、`shapekeys.py` 等），
+  生成女性骨架 JSON 的一次性脚本；工作目录的配置副本和构建日志（`work/`）、旧的工程副本（`ue_proj/`）；源模型、游戏数据、dump、cook 结果、FBX、blend、
+  编好的插件和 HLMeshProbe、发行包。
+- **便携改动**在 26 个文件：
+  - `build.sh` → `scripts/build_mod.py`（`.sh` 不是本库允许的类型）：阶段、顺序和每个阶段的命令与输出筛选相同（`grep -E` 的行、`cut -c1-200`、`tail -1`、
+    `sort | uniq -c | head -5`、`tr '\n' ' '`）。`assemble` 的步骤顺序按原脚本：复制按性别筛选的 cook 文件 → 复制 `ga_out2` 的装备外观 → HLMeshProbe
+    `patch`（带 `skel_ext.json`）→ 上衣数据资产 `da_animclass` → 女：两个发型数据资产 `da_animclass`、5 个材质实例 `mi_clone`；男：`StuHair03` 发型
+    `da_animclass` → 统计 `.uasset`。`pack` 是合并 → `retoc to-zen --version UE4_27` → `retoc verify` → `tar.xz`。
+    - 写死的工作盘符、`$TEMP` 下的 HLMeshProbe、Blender / UE / retoc 路径和工程目录改为 `--work` / `--blender` / `--ue-cmd` / `--project` / `--probe` /
+      `--retoc`，默认取 `HL_WORK`、`HL_BLENDER`、`HL_UE_CMD`、`HL_PROJECT`、`HL_PROBE`、`HL_RETOC`；`GENDERS` / `TEXTURES` 改为 `--genders` / `--textures`
+      （`HL_GENDERS` / `HL_TEXTURES`）；
+    - 开始前一次检查所给阶段要用的设置、工具、手工准备的输入（`dami/`、`hairda_out/`、`ga_out2/`、配置）和配置里没换掉的占位符，缺了列出来退出，什么都不写；
+      未知阶段由 argparse 拒绝（退出码 2，原脚本也是 2，但要等前面的阶段跑完）；新增 `--dry-run`；
+    - 工具退出码非 0 就停下。原脚本在 `set -e` 下但没有 `pipefail`，HLMeshProbe `patch` 校验失败的退出码 1 会被后面的管道吞掉；
+    - UE 和 Blender 脚本在本包里原地运行（原来复制到工作盘的 `py\`、`bl\`），`ue_import.py` 的配置经 `HL_UE_BUILD` 传入；Windows 上 `-script=` 的路径放进引号，
+      带空格也能用；
+    - `tar -cf - … | xz -9 -T0` 换成 Python 的 `tarfile` + `lzma`（预设 9、GNU 格式，成员和顺序相同，字节不同）；Python 子脚本加 `-B`；
+  - `ue/ue_import.py`：配置原来写死在工作盘，改为 `HL_UE_BUILD`，没设时 `<HL_WORK>/ue_build.json`，都没有时报错并说出变量名；
+    `ue/ue_fixmat.py`：两个配置原来写死，改为 `HL_UE_BUILD_CONFIGS`（`os.pathsep` 分隔），没设时 `<HL_WORK>` 下的 `ue_build_m.json`、`ue_build_f.json`；
+  - 没有 argparse 的命令补上了 argparse（12 个：`dyn_params.py`、`feel_sim.py`、`swing_check.py`、`make_tex.py`、`ga_edit.py`、`ga_slot_patch.py`、
+    `hair_override_patch.py`、`mi_clone.py`、`texdump.py`、`texwalk.py`，以及 `uasset.py`、`da_animclass.py` 的 `__main__`），位置参数不变；4 个要 numpy 的命令
+    在解析参数之后才导入 numpy，`--help` 不需要 numpy；
+  - `configs/fit_f.json`、`fit_m.json`、`ue_build_f.json`、`ue_build_m.json`：绝对路径（工作盘、一个带用户名的会话临时目录、源 FBX）换成 `<HL_WORK>/…` 和
+    `<KARIN_FBX>`，反斜杠换成 `/`，其余不变；
+  - 换行：原文件里 16 个是 CRLF，全部改成 LF；其中 7 个只改了换行：`export_fbx.py`、`preview.py`、`cmp_upper.py`、`Phoenix.uproject`、`HLKToolsLibrary.cpp`、
+    `Program.cs`、`HLProbe.cs`；
+  - 布局：`cue4parse_probe.patch` 改名为 `cue4parse_probe.patch.txt`（`.patch` 不是允许的类型，字节未改）；`HLProbe.cs` 单独放到 `hlmeshprobe/CUE4Parse/`：
+    打过补丁的 CUE4Parse 文件引用 `CUE4Parse.HLProbe`，它要编进 CUE4Parse，和 `Program.cs` 放在同一个工程里会多出一份同名类型。
+
+  其余 17 个文件与原文件逐字节相同：`hlskel.py`、`fit.py`、`clav_test.py`、`extract_tex.py`、`sk_dir.py`、`sk_stats.py`、`dyn.json`、`face_map.json`、
+  2 个 `.ini`、`.uplugin`、`Build.cs`、`.h`、`HLKToolsModule.cpp`、`HLMeshProbe.csproj`、补丁、基准提交。处理逻辑没有改。
+- **离线核对（本机，2026-10-23）：**
+  - **条件：** Windows 10 19044；Python 3.12.10、numpy 2.5.2、Pillow 12.3.0、markdown-it-py 4.0.0、lz4 4.4.5（会话临时目录里的 venv）；本机没有 Blender、
+    UE、retoc 和 dotnet；
+  - 全部 Python（含 Blender 和 UE 脚本）过 AST 解析（`tools/check_repository.py`）；`scripts/` 下 14 个命令的 `--help` 以 0 退出；配置 JSON 可解析，
+    只含 `<HL_WORK>`、`<KARIN_FBX>` 两种占位符；
+  - 迁入文件与原文件逐个比较（去掉 CR 后）：只有上面列出的改动；Blender 脚本、插件、工程模板和 HLMeshProbe 去掉 CR 后与原文件相同；
+  - **没有重跑的部分：** Blender（`fit.py`、`export_fbx.py`、预览）、UE 导入和 cook、插件编译、HLMeshProbe 编译和 `patch`、retoc，以及 `build_mod.py` 对这些
+    真实工具的调用。实机结论来自项目用原脚本构建的 v12（男女两版）和女巫版 v1.0 / v1.1：v12 的物理和表情由用户认可（2026-10-19）；v1.0 玩几分钟后崩溃
+    （转储：按骨骼分层混合在 `Ear_L` 处访问冲突）；v1.1 在 2026-10-23 重建（cook 0 错误、retoc verify 通过、绑 `Biped_Skeleton` 的网格里没有 `Ear_L`、
+    头部仍有 56 个形变），用户玩了一阵没有闪退。
+- **合成数据测试：** `HogwartsLegacyTools` 共 6 项，不需要游戏、Blender、UE 或 retoc：
+  - `dyn_params.py`：合成的 HL 双足骨架加 4 条动态链（前 / 后裙摆各 3 节、双马尾 4 节、耳 2 节），用本包的 `configs/dyn.json`：每个部件的节点数（双马尾
+    `sim_every 2`）、阻尼在 0 和 1 之间且线性 / 角阻尼相同、弹簧为正；重力为 0 的类别弹簧等于 `980·D / (总弯曲 / 节点数)`，阻尼未封顶时换算回的阻尼比等于设定；
+    质心在 `com_frac`·R；裙摆外摆不对称限位（Swing.Y −40 / +3、Swing.Z ±20），其余对称；碰撞球都是 Outer、挂在碰撞骨上、不从体内开始，裙摆和头发都有球；
+    `feel_sim.py` 的输出格式和数值范围、`swing_check.py` 两侧三个角度的 6 行；`build_mod.py params` 对两个性别写出同样的节点；
+  - 合成的 legacy 包（无自定义版本、一代、名字 / import / export / 预加载依赖、depends 和资产注册块、`.uexp` 末尾的包标记）：`uasset.py` 读后写回逐字节相同；
+    `da_animclass.py` 加的三个 import、`AnimClass` 标签位置和值、CDO 在 SerializationBeforeCreate 组里的位置和后一个导出的 `first_dep`、新的头大小、两个
+    `SerialOffset` 和 `BulkDataStartOffset`；None 之后不是 4 字节尾巴时拒绝且不写文件，非 legacy 摘要被拒；
+  - `ga_slot_patch.py`（Socks / Shoes 指向 Lower、`.uasset` 不变）、`ga_edit.py`（删两项后 Map 标签大小、`SerialSize`、`BulkDataStartOffset`、保留项和后续属性）、
+    `hair_override_patch.py`（覆盖网格都指回 `DefaultMesh`，没有覆盖时拒绝）、`mi_clone.py`（名字表等长替换、偏移和 20 字节哈希不变、计数输出，不等长时拒绝）；
+  - `build_mod.py`：缺设置时一次说出全部变量名，缺工具、缺手工输入、占位符没换时开始前拒绝且不写文件，未知阶段和错误的 `--genders` 退出码 2；`--dry-run`
+    按顺序打印 7 个阶段的命令、什么都不写，包名随性别；用替身 Blender / UE / HLMeshProbe / retoc（`.cmd` 或 sh 包装的 Python）在带空格的路径里跑
+    `fit export import cook assemble pack`：Blender 和 UE 的参数、只显示筛选后的行、`ue_build.json` 去掉贴图、UE 在工程目录里运行且收到完整的脚本路径、
+    `cook rc=0 errors=1`、按性别筛选的 cook 文件（不含 `Materials/`）、HLMeshProbe 调用时装备外观已在树里、`uniq -c` 格式的计数、上衣和发型数据资产的
+    `AnimClass`、女版 5 个材质实例克隆到 `_F` 路径、文件数、两个 retoc 调用、`tar.xz` 的三个成员；工具失败时带退出码停下；
+  - PROVENANCE：每个文件一行，哈希、字节数、修改标记、`bundled_scripts` 一致；没有盘符路径和用户目录，只有 LF，`sys.path` 里没有写死的路径，没有 `.sh`、
+    远程辅助和手柄工具。
+
+  `--help` 测试覆盖 `scripts/` 下全部 14 个脚本；没装 numpy 时，物理那一项和 numpy 脚本的 `--help` 跳过。整套 `tests/test_portable_tools.py` 89 项通过
+  （19 项因本机没装别的包的 scipy / etcpak 等跳过），`tests/test_export_portability.py`、`tools/check_repository.py`、`tools/validate_public_tree.ps1` 通过。
+- **未验证：**
+  - 便携版没有在 Blender、UE、HLMeshProbe、retoc 上重跑，也没有装进游戏测试；
+  - `fit.py` 的 Blender 4.1+ 自定义法线分支（项目用 4.0.2）；插件的编译（README 给的是原项目用过的 UBT `Build.bat` 命令，本次没有重跑）；
+  - 非 Windows 系统、其他 Blender / UE / 游戏版本；
+  - 新模型的案例常量。
+
 ## 2026-10-23：新增巫师3 次世代版便携包
 
 - **迁入内容：** 27 个文件，放在 `portable-kits/the-witcher-3/`。

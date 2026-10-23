@@ -1,0 +1,10 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "HLKTools",
+	"Description": "Editor helpers for the Karin HL mod build (anim blueprint generation from JSON).",
+	"Category": "Editor",
+	"EnabledByDefault": true,
+	"Modules": [ { "Name": "HLKTools", "Type": "Editor", "LoadingPhase": "Default" } ]
+}

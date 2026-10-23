@@ -1,0 +1,56 @@
+diff --git a/CUE4Parse/UE4/Assets/Exports/Animation/FReferenceSkeleton.cs b/CUE4Parse/UE4/Assets/Exports/Animation/FReferenceSkeleton.cs
+index 8ed944f..ae8a09f 100644
+--- a/CUE4Parse/UE4/Assets/Exports/Animation/FReferenceSkeleton.cs
++++ b/CUE4Parse/UE4/Assets/Exports/Animation/FReferenceSkeleton.cs
+@@ -25,6 +25,7 @@ public FReferenceSkeleton(FAssetArchive Ar)
+         }
+         else
+         {
++            CUE4Parse.HLProbe.RefPosePos = Ar.Position;
+             FinalRefBonePose = Ar.ReadArray(() => new FTransform(Ar));
+         }
+ 
+diff --git a/CUE4Parse/UE4/Assets/Exports/Material/UMaterialInterface.cs b/CUE4Parse/UE4/Assets/Exports/Material/UMaterialInterface.cs
+index 1f58dff..4fa511a 100644
+--- a/CUE4Parse/UE4/Assets/Exports/Material/UMaterialInterface.cs
++++ b/CUE4Parse/UE4/Assets/Exports/Material/UMaterialInterface.cs
+@@ -44,6 +44,7 @@ public override void Deserialize(FAssetArchive Ar, long validPos)
+             CachedExpressionData = new FStructFallback(Ar, "MaterialCachedExpressionData");
+         }
+ 
++        CUE4Parse.HLProbe.MatHashPos = Ar.Position;
+         if (Ar.Game == GAME_HogwartsLegacy) CustomGameData = new FSHAHash(Ar);
+     }
+ 
+diff --git a/CUE4Parse/UE4/Assets/Exports/SkeletalMesh/FSkelMeshSection.cs b/CUE4Parse/UE4/Assets/Exports/SkeletalMesh/FSkelMeshSection.cs
+index 7f6abe7..e24e568 100644
+--- a/CUE4Parse/UE4/Assets/Exports/SkeletalMesh/FSkelMeshSection.cs
++++ b/CUE4Parse/UE4/Assets/Exports/SkeletalMesh/FSkelMeshSection.cs
+@@ -259,6 +259,7 @@ public void SerializeRenderItem(FAssetArchive Ar)
+         if (Ar.Game == GAME_DeltaForce) Ar.Position += 3;
+         if (Ar.Game == GAME_BigRumbleBoxingCreedChampions) Ar.Position += 4;
+         bCastShadow = FEditorObjectVersion.Get(Ar) < FEditorObjectVersion.Type.RefactorMeshEditorMaterials || Ar.ReadBoolean();
++        CUE4Parse.HLProbe.Sections.Add((Ar.Position, Ar.AbsolutePosition, Ar.Peek<uint>(), MaterialIndex, NumTriangles));
+         if (Ar.Game is GAME_FinalFantasy7Rebirth or GAME_HogwartsLegacy or GAME_Snowbreak or GAME_ChasingKaleidoRIDER or GAME_NeedForSpeedMobile) Ar.Position += 4;
+         bVisibleInRayTracing = FUE5MainStreamObjectVersion.Get(Ar) < FUE5MainStreamObjectVersion.Type.SkelMeshSectionVisibleInRayTracingFlagAdded || Ar.ReadBoolean();
+         BaseVertexIndex = Ar.Read<uint>();
+@@ -280,6 +281,7 @@ public void SerializeRenderItem(FAssetArchive Ar)
+             MaxBoneInfluences = Ar.Read<int>();
+         }
+ 
++        CUE4Parse.HLProbe.Infl.Add((MaxBoneInfluences, NumVertices, BoneMap.Length));
+         CorrespondClothAssetIndex = Ar.Read<short>();
+         ClothingData = Ar.Read<FClothingSectionData>();
+ 
+diff --git a/CUE4Parse/UE4/Assets/Exports/SkeletalMesh/USkeletalMesh.cs b/CUE4Parse/UE4/Assets/Exports/SkeletalMesh/USkeletalMesh.cs
+index 718f4b4..6c078c7 100644
+--- a/CUE4Parse/UE4/Assets/Exports/SkeletalMesh/USkeletalMesh.cs
++++ b/CUE4Parse/UE4/Assets/Exports/SkeletalMesh/USkeletalMesh.cs
+@@ -323,6 +323,7 @@ public override void Deserialize(FAssetArchive Ar, long validPos)
+         if (Ar.Game == GAME_OutlastTrials) Ar.Position += 1;
+         if (Ar.Game == GAME_WeHappyFew) Ar.Position += 20;
+ 
++        CUE4Parse.HLProbe.End = (Ar.Position, validPos);
+         if (TryGetValue(out FStructFallback[] lodInfos, "LODInfo") || TryGetValue(out lodInfos, "SourceModels"))
+         {
+             for (var i = 0; i < LODModels?.Length; i++)

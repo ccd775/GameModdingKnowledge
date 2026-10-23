@@ -249,6 +249,7 @@ class PortableTools(unittest.TestCase):
             if path.parents[1].name == 'the-witcher-3' and w3_missing(path.stem): continue
             if path.parents[1].name == 'assassins-creed-odyssey' and aco_missing(path.stem): continue
             if path.parents[1].name == 'assassins-creed-unity' and acu_missing(path.stem): continue
+            if path.parents[1].name == 'hogwarts-legacy' and hl_missing(path.stem): continue
             cli(path.parents[1].name,path.stem,'--help')
 
 
@@ -4663,6 +4664,631 @@ class AssassinsCreedUnityTools(unittest.TestCase):
             self.assertNotEqual(r.returncode, 0)
             self.assertIn(names, r.stdout + r.stderr)
             self.assertFalse((self.root / 'out').exists() or (self.root / 'o.log').exists())
+
+
+
+HL_KIT = KITS / 'hogwarts-legacy'
+# Hogwarts Legacy scripts that import numpy (make_tex also Pillow); the package patchers and build_mod use the standard library.
+HL_NUMPY_SCRIPTS = ('dyn_params', 'feel_sim', 'swing_check', 'hlskel', 'make_tex')
+HL_TAG = 0x9E2A83C1
+HL_STAGES = ('fit', 'params', 'export', 'import', 'cook', 'assemble', 'pack')
+HL_BIPED = (('Reference', None, (0, 0, 0)), ('Hips', 'Reference', (0, 0, 95)), ('Spine', 'Hips', (0, 0, 8)),
+            ('Spine1', 'Spine', (0, 0, 10)), ('Spine2', 'Spine1', (0, 0, 10)), ('Spine3', 'Spine2', (0, 0, 10)),
+            ('Neck', 'Spine3', (0, 0, 12)), ('Head', 'Neck', (0, 0, 10)), ('LeftShoulder', 'Spine3', (4, 0, 8)),
+            ('LeftArm', 'LeftShoulder', (12, 0, 0)), ('LeftForeArm', 'LeftArm', (25, 0, 0)), ('RightShoulder', 'Spine3', (-4, 0, 8)),
+            ('RightArm', 'RightShoulder', (-12, 0, 0)), ('RightForeArm', 'RightArm', (-25, 0, 0)), ('LeftUpLeg', 'Hips', (9, 0, -5)),
+            ('LeftLeg', 'LeftUpLeg', (0, 0, -42)), ('RightUpLeg', 'Hips', (-9, 0, -5)), ('RightLeg', 'RightUpLeg', (0, 0, -42)))
+# dynamic chains: root name, HL parent, first joint (UE cm), direction, bones, segment length, part
+HL_CHAINS = (('Skirt_F', 'Hips', (6, 11, 93), (0.24, 0.44, -1), 3, 8.0, 'KarinBody'),
+             ('Skirt_B', 'Hips', (-6, -11, 93), (-0.24, -0.44, -1), 3, 8.0, 'KarinBody'),
+             ('Hair_tail_L', 'Head', (8, -4, 165), (0.3, -0.2, -1), 4, 12.0, 'KarinHair'),
+             ('Ear_L', 'Head', (5, 0, 175), (0.3, 0, 1), 2, 5.0, 'KarinHair'))
+HL_MI = ('Upper_M/Jacket_DarkArtsDeluxe01:HUM_M_Upp_DarkArtsDeluxe01', 'Lower_M/Pants_DarkArtsDeluxe01:HUM_M_Low_DarkArtsDeluxe01',
+         'Accessory/Mask_M/DarkArtsDeluxe01:HUM_M_Mask_DarkArtsDeluxe01', 'Accessory/Scarf_M/DarkArtsDeluxe01U:HUM_M_Acc_DarkArtsDeluxe01U',
+         'Hat_M/DarkArtsDeluxe01:HUM_M_Hat_DarkArtsDeluxe01')
+
+
+def hl_missing(script):
+    if script not in HL_NUMPY_SCRIPTS:
+        return []
+    return [m for m in (('numpy', 'PIL') if script == 'make_tex' else ('numpy',)) if importlib.util.find_spec(m) is None]
+
+
+def hl_kit():
+    if not HL_KIT.is_dir():
+        raise unittest.SkipTest('hogwarts-legacy is not included in this single-game export')
+    return HL_KIT
+
+
+def hl(name):
+    hl_kit()
+    if hl_missing(name):
+        raise unittest.SkipTest('pip install -r portable-kits/hogwarts-legacy/requirements.txt (missing numpy)')
+    return module('hogwarts-legacy', name)
+
+
+def hl_run(name, *args, env=None, ok=True):
+    """Run a Hogwarts Legacy kit script with none of the caller's HL_* variables (plus env)"""
+    path = hl_kit() / 'scripts' / f'{name}.py'
+    full = {k: v for k, v in os.environ.items() if not k.startswith('HL_')}
+    full.update(env or {}, PYTHONIOENCODING='utf-8')
+    process = subprocess.run([sys.executable, '-B', str(path), *map(str, args)], capture_output=True, text=True,
+                             encoding='utf-8', env=full, timeout=120)
+    if (process.returncode == 0) != ok:
+        raise AssertionError(f'{name}: exit {process.returncode}\n{process.stdout}\n{process.stderr}')
+    return process
+
+
+def hl_fstr(s):
+    b = s.encode('latin1') + b'\0'
+    return struct.pack('<i', len(b)) + b
+
+
+def hl_package(names, imports, exports, preload=()):
+    """Minimal UE 4.27 cooked legacy package in the layout uasset.Package reads and writes: summary (no custom
+    versions, one generation), name map with zero hashes, imports (class package, class name, outer, object name),
+    exports (class, outer, name, data, first_dep, deps[4]), an opaque depends map + asset registry block, preload
+    dependencies. The .uexp is the export data plus the package tag; BulkDataStartOffset points at that tag.
+    Returns (uasset bytes, uexp bytes)."""
+    ix = {n: i for i, n in enumerate(names)}
+    eng = struct.pack('<HHHI', 4, 27, 2, 0) + hl_fstr('++UE4+Release-4.27')
+
+    def summary(total, name_off, exp_off, imp_off, dep_off, ar_off, bulk, preload_off):
+        return (struct.pack('<Iiiiii', HL_TAG, -7, 864, 522, 0, 0) + struct.pack('<i', total) + hl_fstr('None')
+                + struct.pack('<I', 0x80000000) + struct.pack('<8i', len(names), name_off, 0, 0, len(exports), exp_off, len(imports), imp_off)
+                + struct.pack('<5i', dep_off, 0, 0, 0, 0) + b'\x11' * 16 + struct.pack('<3i', 1, len(exports), len(names))
+                + eng + eng + struct.pack('<IiIi', 0, 0, 0, 0) + struct.pack('<iqi', ar_off, bulk, 0)
+                + struct.pack('<3i', 0, len(preload), preload_off))
+    name_blob = b''.join(hl_fstr(n) + bytes(4) for n in names)
+    imp_blob = b''.join(struct.pack('<7i', ix[cp], 0, ix[cn], 0, outer, ix[n], 0) for cp, cn, outer, n in imports)
+    name_off = len(summary(0, 0, 0, 0, 0, 0, 0, 0))
+    imp_off = name_off + len(name_blob)
+    exp_off = imp_off + len(imp_blob)
+    dep_off = exp_off + 104 * len(exports)
+    ar_off = dep_off + 4 * len(exports)
+    preload_off = ar_off + 4
+    total = off = preload_off + 4 * len(preload)
+    exp_blob = b''
+    for cls, outer, name, data, first_dep, deps in exports:
+        exp_blob += (struct.pack('<7i', cls, 0, 0, outer, ix[name], 0, 0) + struct.pack('<qq', len(data), off)
+                     + bytes(12 + 16 + 4) + struct.pack('<3i', 0, 1 if outer == 0 else 0, first_dep) + struct.pack('<4i', *deps))
+        off += len(data)
+    head = summary(total, name_off, exp_off, imp_off, dep_off, ar_off, off, preload_off)
+    ua = head + name_blob + imp_blob + exp_blob + bytes(4 * len(exports)) + bytes(4) + b''.join(struct.pack('<i', p) for p in preload)
+    assert len(ua) == total
+    return ua, b''.join(e[3] for e in exports) + struct.pack('<I', HL_TAG)
+
+
+def hl_write(path, package):
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(package[0])
+    path.with_suffix('.uexp').write_bytes(package[1])
+    return path
+
+
+def hl_tag(ix, name, typ, size, extra=b''):
+    """FPropertyTag (UE 4.27): Name, Type, Size, ArrayIndex, [type data], HasPropertyGuid = 0"""
+    return struct.pack('<6i', ix[name], 0, ix[typ], 0, size, 0) + extra + b'\0'
+
+
+def hl_obj(ix, name, ref):
+    return hl_tag(ix, name, 'ObjectProperty', 4) + struct.pack('<i', ref)
+
+
+HL_PROPS = ['None', 'ObjectProperty', 'IntProperty', 'BoolProperty', 'ArrayProperty', 'StructProperty', 'MapProperty',
+            'NameProperty', '/Script/CoreUObject', '/Script/Engine', '/Script/Phoenix', 'Package', 'Class', 'SkeletalMesh']
+
+
+def hl_piece_da(name, meshes=('SK_Master', 'HoodHair', 'Kit_Up_HatA'), tail=bytes(4)):
+    """CharacterPiece data asset: SortPriority, bHideHair (BoolProperty), DefaultMesh, MeshOverrides (array of structs
+    holding a Mesh ObjectProperty each), None, then the 4-byte tail; a second export follows. The first export's
+    preload groups are [1, 0, 2, 1], the second's [0, 1, 0, 0]."""
+    names = HL_PROPS + ['CharacterPieceDataAsset', 'Default__CharacterPieceDataAsset', 'DefaultMesh', 'SortPriority', 'bHideHair',
+                        'MeshOverrides', 'Mesh', 'CharacterMeshOverride', 'SubObject', name]
+    imports = [('/Script/CoreUObject', 'Package', 0, '/Script/Phoenix'), ('/Script/CoreUObject', 'Class', -1, 'CharacterPieceDataAsset'),
+               ('/Script/Phoenix', 'CharacterPieceDataAsset', -1, 'Default__CharacterPieceDataAsset')]
+    for m in meshes:
+        names += [f'/Game/RiggedObjects/{m}', m]
+        imports += [('/Script/CoreUObject', 'Package', 0, f'/Game/RiggedObjects/{m}'), ('/Script/Engine', 'SkeletalMesh', -len(imports) - 1, m)]
+    ix = {n: i for i, n in enumerate(names)}
+    refs = [-(5 + 2 * i) for i in range(len(meshes))]
+    elements = b''.join(hl_obj(ix, 'Mesh', r) + struct.pack('<ii', ix['None'], 0) for r in refs[1:])
+    inner = hl_tag(ix, 'MeshOverrides', 'StructProperty', len(elements), struct.pack('<ii', ix['CharacterMeshOverride'], 0) + bytes(16))
+    array = struct.pack('<i', len(refs) - 1) + inner + elements
+    data = (hl_tag(ix, 'SortPriority', 'IntProperty', 4) + struct.pack('<i', 7) + hl_tag(ix, 'bHideHair', 'BoolProperty', 0, b'\x01')
+            + hl_obj(ix, 'DefaultMesh', refs[0]) + hl_tag(ix, 'MeshOverrides', 'ArrayProperty', len(array), struct.pack('<ii', ix['StructProperty'], 0))
+            + array + struct.pack('<ii', ix['None'], 0) + tail)
+    sub = struct.pack('<ii', ix['None'], 0) + bytes(4)
+    return hl_package(names, imports, [(-2, 0, name, data, 0, (1, 0, 2, 1)), (-2, 1, 'SubObject', sub, 4, (0, 1, 0, 0))],
+                      preload=(-5, -2, -3, -1, -5))
+
+
+def hl_outfit_ga(name, slots=('Upper', 'Lower', 'Socks', 'Shoes')):
+    """GearAppearance DA: OutfitItems map (NameProperty -> struct with a CharacterPiece ObjectProperty, plus an
+    IntProperty on two entries), then a Version IntProperty and None."""
+    names = HL_PROPS + ['GearAppearanceItemDefinition', 'OutfitItems', 'CharacterPiece', 'Variant', 'Version', name] + list(slots)
+    imports = [('/Script/CoreUObject', 'Package', 0, '/Script/Phoenix'), ('/Script/CoreUObject', 'Class', -1, 'GearAppearanceItemDefinition')]
+    for s in slots:
+        names += [f'/Game/Data/DA_HUM_F_{s}', f'DA_HUM_F_{s}']
+        imports += [('/Script/CoreUObject', 'Package', 0, f'/Game/Data/DA_HUM_F_{s}'), ('/Script/Phoenix', 'CharacterPieceDataAsset', -len(imports) - 1, f'DA_HUM_F_{s}')]
+    names.append('CharacterPieceDataAsset')
+    ix = {n: i for i, n in enumerate(names)}
+    entries = b''
+    for i, s in enumerate(slots):
+        entries += struct.pack('<ii', ix[s], 0) + hl_obj(ix, 'CharacterPiece', -(4 + 2 * i))
+        entries += (hl_tag(ix, 'Variant', 'IntProperty', 4) + struct.pack('<i', i) if i % 2 else b'') + struct.pack('<ii', ix['None'], 0)
+    value = struct.pack('<ii', 0, len(slots)) + entries
+    data = (hl_tag(ix, 'OutfitItems', 'MapProperty', len(value), struct.pack('<4i', ix['NameProperty'], 0, ix['StructProperty'], 0)) + value
+            + hl_tag(ix, 'Version', 'IntProperty', 4) + struct.pack('<i', 3) + struct.pack('<ii', ix['None'], 0) + bytes(4))
+    return hl_package(names, imports, [(-2, 0, name, data, 0, (0, 0, 2, 0))], preload=(-2, -1))
+
+
+def hl_mi(folder, token):
+    """Cooked material instance whose name map holds its package path, texture paths in the same folder and the
+    export ends with a 20-byte hash."""
+    base = f'/Game/RiggedObjects/Characters/Human/Clothing/{folder}'
+    names = HL_PROPS + ['MaterialInstanceConstant', f'{base}/Materials/MI_{token}', f'MI_{token}', f'{base}/Textures/T_{token}_D', f'T_{token}_D']
+    imports = [('/Script/CoreUObject', 'Package', 0, '/Script/Engine'), ('/Script/CoreUObject', 'Class', -1, 'MaterialInstanceConstant'),
+               ('/Script/CoreUObject', 'Package', 0, f'{base}/Textures/T_{token}_D'), ('/Script/Engine', 'Texture2D', -3, f'T_{token}_D')]
+    names.append('Texture2D')
+    ix = {n: i for i, n in enumerate(names)}
+    data = struct.pack('<ii', ix['None'], 0) + bytes(4) + bytes(range(20))
+    return hl_package(names, imports, [(-2, 0, f'MI_{token}', data, 0, (0, 0, 1, 0))], preload=(-4,))
+
+
+def hl_quat(R):
+    import math
+    w = math.sqrt(max(0.0, 1 + R[0][0] + R[1][1] + R[2][2])) / 2
+    x = math.copysign(math.sqrt(max(0.0, 1 + R[0][0] - R[1][1] - R[2][2])) / 2, R[2][1] - R[1][2])
+    y = math.copysign(math.sqrt(max(0.0, 1 - R[0][0] + R[1][1] - R[2][2])) / 2, R[0][2] - R[2][0])
+    z = math.copysign(math.sqrt(max(0.0, 1 - R[0][0] - R[1][1] + R[2][2])) / 2, R[1][0] - R[0][1])
+    return [x, y, z, w]
+
+
+def hl_fit_dir(np, folder):
+    """skel_ext.json (HL_BIPED with identity rotations + HL_CHAINS, X along each chain as fit.py builds them) and
+    dyn_chains.json in folder. Returns {bone: global position}."""
+    folder.mkdir(parents=True, exist_ok=True)
+    bones, glob, idx = [], {}, {}
+    for name, parent, t in HL_BIPED:
+        idx[name] = len(bones)
+        glob[name] = np.array(t, float) + (glob[parent] if parent else 0)
+        bones.append({'name': name, 'parent': idx[parent] if parent else -1, 't': list(map(float, t)), 'r': [0, 0, 0, 1], 's': [1, 1, 1]})
+    chains = []
+    for root, parent, start, direction, n, seg, part in HL_CHAINS:
+        x = np.array(direction, float); x /= np.linalg.norm(x)
+        up = np.array([0, 0, 1.0]) if abs(x[2]) < 0.999 else np.array([1.0, 0, 0])
+        y = np.cross(up, x); y /= np.linalg.norm(y); z = np.cross(x, y)
+        R = np.stack([x, y, z], 1)
+        q = hl_quat(R.tolist())
+        qx, qy, qz, qw = q
+        assert np.allclose(R, [[1 - 2 * (qy * qy + qz * qz), 2 * (qx * qy - qz * qw), 2 * (qx * qz + qy * qw)],
+                               [2 * (qx * qy + qz * qw), 1 - 2 * (qx * qx + qz * qz), 2 * (qy * qz - qx * qw)],
+                               [2 * (qx * qz - qy * qw), 2 * (qy * qz + qx * qw), 1 - 2 * (qx * qx + qy * qy)]])
+        names = [f'{root}_{k:02d}' for k in range(n)]
+        for k, b in enumerate(names):
+            idx[b] = len(bones)
+            glob[b] = np.array(start, float) + x * seg * k
+            if k == 0:
+                bones.append({'name': b, 'parent': idx[parent], 't': (glob[b] - glob[parent]).tolist(), 'r': q, 's': [1, 1, 1]})
+            else:
+                bones.append({'name': b, 'parent': idx[names[k - 1]], 't': [seg, 0.0, 0.0], 'r': [0, 0, 0, 1], 's': [1, 1, 1]})
+        chains.append({'root': names[0], 'end': names[-1], 'bones': names, 'parent': parent, 'seg_len': seg, 'parts': [part]})
+    (folder / 'skel_ext.json').write_text(json.dumps({'bones': bones}), encoding='utf-8')
+    (folder / 'dyn_chains.json').write_text(json.dumps(chains, indent=1), encoding='utf-8')
+    return glob
+
+
+HL_FAKE_TOOL = r'''import json, os, shutil, sys
+from pathlib import Path
+tool, args = sys.argv[1], sys.argv[2:]
+rec = {'tool': tool, 'args': args, 'cwd': os.getcwd(), 'skip_native': os.environ.get('CUE4PARSE_SKIP_NATIVE')}
+if tool == 'blender':
+    print('Blender 4.0.2 (synthetic)')
+    if '--factory-startup' in args:
+        print('dynamic bones 95 chains [...]'); print('part KarinBody verts 1 ' + 'x' * 300); print('noise'); print('head morphs 56 of 56')
+    else:
+        print('EXPORTED KarinBody all bones'); print('EXPORTED Empty game bones only, 95 removed'); print('Blender quit')
+elif tool == 'ue':
+    if '-run=pythonscript' in args:
+        rec['script'] = [a[len('-script='):] for a in args if a.startswith('-script=')]
+        rec['ue_build'] = json.load(open(os.environ['HL_UE_BUILD']))
+        print('LogInit: Display: [HLK] ALL noise'); print('LogPython: Warning: [HLK] karin skeleton rename True')
+        print('LogPython: Warning: [HLK] materials skipped'); print('LogPython: Warning: [HLK] ALL DONE')
+    else:
+        content = Path('Saved/Cooked/WindowsNoEditor/Phoenix/Content/RiggedObjects/Characters/Human')
+        for rel in json.loads(os.environ['FAKE_COOKED']):
+            for ext in ('.uasset', '.uexp'):
+                (content / rel).parent.mkdir(parents=True, exist_ok=True); (content / rel).with_suffix(ext).write_bytes(rel.encode())
+        print('LogCook: Display: cooked'); print('LogCook: Error: synthetic error line')
+elif tool == 'probe':
+    src, dst = Path(args[1]), Path(args[2])
+    rec['inputs'] = sorted(p.relative_to(src).as_posix() for p in src.rglob('*') if p.is_file())
+    shutil.copytree(src, dst)
+    print('patched one'); print('WARN not a clean UE4.27 mesh'); print('verify ok (3 meshes)'); print('WARN not a clean UE4.27 mesh')
+elif tool == 'retoc':
+    if args[0] == 'to-zen':
+        files = sorted(p.relative_to(args[3]).as_posix() for p in Path(args[3]).rglob('*') if p.is_file())
+        rec['files'] = files
+        for ext in ('.utoc', '.ucas', '.pak'):
+            Path(args[4]).with_suffix(ext).write_text(ext + '\n' + '\n'.join(files), encoding='utf-8')
+        print('converting'); print('wrote container')
+    else:
+        print('checking'); print('verified')
+with open(os.environ['FAKE_LOG'], 'a', encoding='utf-8') as f:
+    f.write(json.dumps(rec) + '\n')
+'''
+
+
+class HogwartsLegacyTools(unittest.TestCase):
+    """AnimDynamics node settings, the offline feel / skirt checks, the legacy-package patchers (uasset round trip,
+    AnimClass injection, GA slot and OutfitItems edits, hair MeshOverrides, MI clones) and the stage driver on
+    synthetic data. The Blender scripts, the UE 4.27 editor side, the HLKTools plugin (C++), HLMeshProbe (C#) and
+    retoc need the real tools and the game."""
+
+    def setUp(self):
+        import warnings
+        self.temp = tempfile.TemporaryDirectory(prefix='modding hogwarts legacy ')
+        self.root = Path(self.temp.name)
+        self.quiet = warnings.catch_warnings()   # uasset.Package leaves its reads to the garbage collector
+        self.quiet.__enter__()
+        warnings.simplefilter('ignore', ResourceWarning)
+
+    def tearDown(self):
+        self.quiet.__exit__(None, None, None)
+        self.temp.cleanup()
+
+    def test_hl_dyn_params_feel_and_swing(self):
+        import math
+        hl_kit()
+        if hl_missing('dyn_params'):
+            self.skipTest('pip install -r portable-kits/hogwarts-legacy/requirements.txt (missing numpy)')
+        import numpy as np
+        fit = self.root / 'fit f'
+        glob = hl_fit_dir(np, fit)
+        cfg = json.loads((hl_kit() / 'configs' / 'dyn.json').read_text(encoding='utf-8'))
+        out = hl_run('dyn_params', fit, hl_kit() / 'configs' / 'dyn.json', fit / 'dyn_nodes.json').stdout
+        self.assertEqual(out.strip().splitlines()[-1], "nodes per part {'KarinBody': 6, 'KarinHair': 4}")
+        nodes = json.loads((fit / 'dyn_nodes.json').read_text())
+        bound = {p: [n['BoundBone']['BoneName'] for n in v] for p, v in nodes.items()}
+        self.assertEqual(bound['KarinBody'], [f'Skirt_{s}_{k:02d}' for s in 'FB' for k in range(3)])
+        self.assertEqual(bound['KarinHair'], ['Hair_tail_L_00', 'Hair_tail_L_02', 'Ear_L_00', 'Ear_L_01'])  # twintail sim_every 2
+        category = {'Skirt': 'skirt', 'Hair': 'twintail', 'Ear': 'ear'}
+        chain = {c[0]: c for c in HL_CHAINS}
+        spheres = {'KarinBody': 0, 'KarinHair': 0}
+        for part, group in nodes.items():
+            for n in group:
+                bone = n['BoundBone']['BoneName']
+                root = chain[bone.rsplit('_', 1)[0]]
+                S = dict(cfg['defaults'], **cfg['settings'][category[bone.split('_')[0]]])
+                d = n['AngularDampingOverride']
+                self.assertTrue(0 < d < 1, bone)
+                self.assertEqual(d, n['LinearDampingOverride'])
+                self.assertTrue(n['bAngularSpring'] and n['AngularSpringConstant'] > 0, bone)
+                R, b, D = n['BoxExtents']['X'], n['BoxExtents']['Y'], -n['LocalJointOffset']['X']
+                self.assertAlmostEqual(D, R * S.get('com_frac', 0.5), places=6)
+                # gravity 0: the spring alone gives the chain's static bend per g; below the 0.99999 cap the damping
+                # gives the category's damping ratio at the node's own frequency
+                if S['gravity'] == 0:
+                    sim = len(range(0, root[4], S.get('sim_every', 1)))
+                    self.assertAlmostEqual(n['AngularSpringConstant'], 980 * D / math.radians(S['defl'] / sim), delta=0.051)
+                    w = math.sqrt(n['AngularSpringConstant'] / ((R * R + b * b) / 12 + D * D))
+                    if d < 0.99999:
+                        self.assertAlmostEqual(-math.log(1 - d) / (2 * w), S['zeta'], delta=0.01)
+                lo, hi = n['ConstraintSetup']['AngularLimitsMin'], n['ConstraintSetup']['AngularLimitsMax']
+                if bone.startswith('Skirt'):   # tilting outward (toward the frame's +Z) is Swing.Y < 0
+                    self.assertEqual((lo['Y'], hi['Y'], lo['Z'], hi['Z']), (-S['limit_out'], S['limit_in'], -S['limit_side'], S['limit_side']))
+                else:
+                    self.assertEqual((lo['Y'], hi['Y'], lo['Z'], hi['Z']), (-S['limit'], S['limit'], -S['limit'], S['limit']))
+                # collision spheres sit on collider bones and never start inside the body
+                self.assertEqual(n['bUseSphericalLimits'], bool(n['SphericalLimits']))
+                for s in n['SphericalLimits']:
+                    spheres[part] += 1
+                    self.assertEqual(s['LimitType'], 'Outer')
+                    off = s['SphereLocalOffset']
+                    centre = glob[s['DrivingBone']['BoneName']] + np.array([off['X'], off['Y'], off['Z']])   # collider bones are unrotated
+                    direction = np.array(root[3], float)
+                    com = glob[bone] + direction / np.linalg.norm(direction) * D
+                    self.assertGreaterEqual(np.linalg.norm(com - centre) - s['LimitRadius'], S['body_radius'] + 0.3 - 0.006, bone)
+                    self.assertLessEqual(s['LimitRadius'], max(c[-1] for c in S['colliders']))
+        self.assertGreater(spheres['KarinBody'], 0)
+        self.assertGreater(spheres['KarinHair'], 0)
+        # offline checks read the same files
+        line = hl_run('feel_sim', fit / 'dyn_nodes.json', 'KarinHair', 'Hair_tail_L').stdout.strip()
+        import re
+        m = re.fullmatch(r'Hair_tail_L\s+nodes 2 f ([\d.]+) Hz \| start peak +([\d.]+) deg \| running trail +(-?[\d.]+) \| '
+                         r'after stop peak +([\d.]+), swings past centre (\d+), settles <3deg in ([\d.]+|nan) s', line)
+        self.assertTrue(m, line)
+        self.assertTrue(0 < float(m.group(1)) < 1.2 and float(m.group(2)) > 0, line)
+        lines = hl_run('swing_check', fit).stdout.strip().splitlines()
+        self.assertEqual(len(lines), 6)
+        for side, phi, text in zip(('Left',) * 3 + ('Right',) * 3, ('+55', '+70', '-30') * 2, lines):
+            self.assertRegex(text, rf'^{side} +thigh {re.escape(phi)} deg: samples inside thigh before \d+ \(max [\d.]+ cm\) after \d+ \(max [\d.]+ cm\); nodes at limit \d+$')
+        # the driver's params stage runs the same script for every gender
+        work = self.root / 'work dir'
+        for g in 'mf':
+            hl_fit_dir(np, work / f'fit_{g}')
+        (work / 'dyn.json').write_bytes((hl_kit() / 'configs' / 'dyn.json').read_bytes())
+        lines = hl_run('build_mod', '--work', work, 'params').stdout.splitlines()
+        self.assertEqual([lines[0]] + lines[2::2], ['=== params'] + ["nodes per part {'KarinBody': 6, 'KarinHair': 4}"] * 2)
+        self.assertTrue(all(l.startswith('+ ') and 'dyn_params.py' in l and f'fit_{g}' in l for l, g in zip(lines[1::2], 'mf')), lines)
+        self.assertEqual((work / 'fit_f' / 'dyn_nodes.json').read_bytes(), (fit / 'dyn_nodes.json').read_bytes())
+
+    def test_hl_uasset_roundtrip_and_anim_class(self):
+        U = hl('uasset')
+        src = hl_write(self.root / 'in dir' / 'DA_Upp.uasset', hl_piece_da('DA_Upp'))
+        out = hl_run('uasset', src, self.root / 'rt.uasset').stdout
+        self.assertIn('roundtrip uasset identical: True', out)
+        self.assertIn('roundtrip uexp identical: True', out)
+        before = U.Package(str(src))
+        self.assertEqual([before.import_path(i) for i in (3, 4)], ['/Game/RiggedObjects/SK_Master', '/Game/RiggedObjects/SK_Master.SK_Master'])
+        abp = '/Game/RiggedObjects/Characters/Human/Karin_F/ABP_Karin_F_Body'
+        dst = self.root / 'out dir' / 'DA_Upp.uasset'
+        dst.parent.mkdir()
+        out = hl_run('da_animclass', src, dst, abp).stdout
+        self.assertIn('export 1: DA_Upp cls=-2 outer=0', out)
+        p = U.Package(str(dst))
+        n = len(before.imports)
+        self.assertEqual([p.import_path(n + i) for i in range(3)],
+                         [abp, abp + '.ABP_Karin_F_Body_C', abp + '.Default__ABP_Karin_F_Body_C'])
+        self.assertEqual([p.nstr(p.imports[n + i]['class_name']) for i in range(3)], ['Package', 'AnimBlueprintGeneratedClass', 'ABP_Karin_F_Body_C'])
+        self.assertEqual(p.nstr(p.imports[n + 2]['class_package']), abp)
+        # AnimClass ObjectProperty before the export's terminating None; the rest of the data is unchanged
+        old = before.exports[0]['data']
+        at = old.rindex(struct.pack('<ii', before.names.index('None'), 0) + bytes(4))
+        tag = struct.pack('<6i', p.names.index('AnimClass'), 0, p.names.index('ObjectProperty'), 0, 4, 0) + b'\0' + struct.pack('<i', -(n + 2))
+        self.assertEqual(p.exports[0]['data'], old[:at] + tag + old[at:])
+        self.assertEqual(p.exports[1]['data'], before.exports[1]['data'])
+        # the CDO joins export 1's SerializationBeforeCreate group; export 2's dependencies move along
+        self.assertEqual(p.preload, [-5, -(n + 3), -2, -3, -1, -5])
+        self.assertEqual((p.exports[0]['deps'], p.exports[1]['first_dep']), ([1, 0, 3, 1], 5))
+        # header offsets: exports follow the new header, BulkDataStartOffset points at the package tag again
+        ua, ue = dst.read_bytes(), dst.with_suffix('.uexp').read_bytes()
+        self.assertEqual((p.exports[0]['offset'], p.exports[1]['offset']), (p.total_header, p.total_header + len(p.exports[0]['data'])))
+        self.assertEqual(p.total_header, len(ua))
+        self.assertEqual(p.bulk_start, len(ua) + len(ue) - 4)
+        self.assertEqual(ue[-4:], struct.pack('<I', HL_TAG))
+        # refused: data after None that is not the 4-byte tail, before anything is written; a non-legacy summary
+        bad = hl_write(self.root / 'bad.uasset', hl_piece_da('DA_Bad', tail=bytes(8)))
+        self.assertIn('unexpected export tail', hl_run('da_animclass', bad, self.root / 'bad_out.uasset', abp, ok=False).stderr)
+        self.assertFalse((self.root / 'bad_out.uasset').exists())
+        raw = bytearray(src.read_bytes()); struct.pack_into('<i', raw, 4, -4)
+        (self.root / 'v4.uasset').write_bytes(raw); (self.root / 'v4.uexp').write_bytes(src.with_suffix('.uexp').read_bytes())
+        with self.assertRaises(AssertionError):
+            U.Package(str(self.root / 'v4.uasset'))
+
+    def test_hl_outfit_hair_and_mi_patches(self):
+        U = hl('uasset')
+        ga = hl_write(self.root / 'ga in' / 'DA_GA_Outfit_072_F.uasset', hl_outfit_ga('DA_GA_Outfit_072_F'))
+        before = U.Package(str(ga))
+        # ga_slot_patch: Socks and Shoes point at the Lower piece; same size, .uasset untouched
+        dst = self.root / 'DA_GA_slots.uasset'
+        out = hl_run('ga_slot_patch', ga, dst, 1, 2, 3).stdout
+        self.assertIn('CharacterPiece refs [-4, -6, -8, -10]', out)
+        self.assertEqual(dst.read_bytes(), ga.read_bytes())
+        after = U.Package(str(dst))
+        old, new = before.exports[0]['data'], after.exports[0]['data']
+        self.assertEqual(len(old), len(new))
+        pat = struct.pack('<6ib', before.names.index('CharacterPiece'), 0, before.names.index('ObjectProperty'), 0, 4, 0, 0)
+        refs = [struct.unpack_from('<i', new, i + len(pat))[0] for i in range(len(new)) if new.startswith(pat, i)]
+        self.assertEqual(refs, [-4, -6, -6, -6])
+        # ga_edit: drop entries; the map tag size, SerialSize and BulkDataStartOffset follow, Version stays
+        dst = self.root / 'DA_GA_edit.uasset'
+        out = hl_run('ga_edit', ga, dst, 'Socks', 'Shoes').stdout
+        self.assertIn("entries ['Upper', 'Lower', 'Socks', 'Shoes']", out)
+        edited = U.Package(str(dst))
+        data = edited.exports[0]['data']
+        removed = len(old) - len(data)
+        self.assertEqual(removed, 45 + 74)                                # Socks (key, CharacterPiece, None) + Shoes (+ Variant)
+        self.assertEqual(struct.unpack_from('<i', data, 16)[0], struct.unpack_from('<i', old, 16)[0] - removed)
+        self.assertEqual(struct.unpack_from('<ii', data, 41), (0, 2))   # map value: nothing to remove, 2 entries
+        self.assertEqual((data[:16], data[20:41]), (old[:16], old[20:41]))
+        self.assertEqual(data[41:41 + 8 + 45 + 74], struct.pack('<ii', 0, 2) + old[49:49 + 45 + 74])   # Upper, Lower kept
+        self.assertTrue(data.endswith(old[-41:]))                         # Version, None, tail
+        self.assertEqual(edited.bulk_start, before.bulk_start - removed)
+        self.assertEqual(len(dst.with_suffix('.uexp').read_bytes()), len(data) + 4)
+        # hair_override_patch: every MeshOverrides[].Mesh -> DefaultMesh
+        hair = hl_write(self.root / 'DA_Hair.uasset', hl_piece_da('DA_Hair'))
+        out = hl_run('hair_override_patch', hair, self.root / 'DA_Hair_out.uasset').stdout
+        self.assertEqual(out.count(' -> -5'), 2)
+        p = U.Package(str(self.root / 'DA_Hair_out.uasset'))
+        pat = struct.pack('<6ib', p.names.index('Mesh'), 0, p.names.index('ObjectProperty'), 0, 4, 0, 0)
+        data = p.exports[0]['data']
+        self.assertEqual([struct.unpack_from('<i', data, i + len(pat))[0] for i in range(len(data)) if data.startswith(pat, i)], [-5, -5])
+        self.assertEqual(len(data), len(U.Package(str(hair)).exports[0]['data']))
+        none = hl_write(self.root / 'DA_NoOverrides.uasset', hl_piece_da('DA_NoOverrides', meshes=('SK_Master',)))
+        self.assertIn('no MeshOverrides', hl_run('hair_override_patch', none, self.root / 'none_out.uasset', ok=False).stderr)
+        self.assertFalse((self.root / 'none_out.uasset').exists())
+        # mi_clone: same-length replacements in the whole package, offsets and the trailing hash unchanged
+        mi = hl_write(self.root / 'MI_HUM_M_Upp_DarkArtsDeluxe01.uasset', hl_mi('Upper_M/Jacket_DarkArtsDeluxe01', 'HUM_M_Upp_DarkArtsDeluxe01'))
+        dst = self.root / 'MI_HUM_F_Upp_DarkArtsDeluxe01.uasset'
+        out = hl_run('mi_clone', mi, dst, 'Upper_M/Jacket_DarkArtsDeluxe01=Upper_F/Jacket_DarkArtsDeluxe01',
+                     'HUM_M_Upp_DarkArtsDeluxe01=HUM_F_Upp_DarkArtsDeluxe01').stdout
+        self.assertEqual(out.splitlines(), ['.uasset Upper_M/Jacket_DarkArtsDeluxe01 x2 HUM_M_Upp_DarkArtsDeluxe01 x4',
+                                            '.uexp Upper_M/Jacket_DarkArtsDeluxe01 x0 HUM_M_Upp_DarkArtsDeluxe01 x0'])
+        p, q = U.Package(str(mi)), U.Package(str(dst))
+        self.assertEqual(q.names, [n.replace('Upper_M/', 'Upper_F/').replace('HUM_M_', 'HUM_F_') for n in p.names])
+        self.assertEqual((q.total_header, q.exports[0]['data']), (p.total_header, p.exports[0]['data']))
+        self.assertEqual(dst.with_suffix('.uexp').read_bytes()[-24:-4], bytes(range(20)))
+        err = hl_run('mi_clone', mi, self.root / 'MI_x.uasset', 'HUM_M_=HUM_FF_', ok=False).stderr
+        self.assertIn('AssertionError', err)
+        self.assertFalse((self.root / 'MI_x.uasset').exists())
+
+    def test_hl_build_mod_dry_run_and_refusals(self):
+        work = self.root / 'work dir'
+        work.mkdir()
+        tools = {'HL_BLENDER': self.root / 'no blender.exe', 'HL_UE_CMD': self.root / 'no ue.exe', 'HL_PROBE': self.root / 'no probe.exe',
+                 'HL_RETOC': self.root / 'no retoc.exe', 'HL_PROJECT': self.root / 'no project'}
+        # every missing setting is named before anything runs
+        err = hl_run('build_mod', 'fit', 'pack', ok=False).stderr
+        self.assertIn('set HL_WORK (--work), HL_BLENDER (--blender), HL_RETOC (--retoc)', err)
+        self.assertIn('HL_PROJECT (--project), HL_PROBE (--probe)', hl_run('build_mod', '--work', work, 'assemble', ok=False).stderr)
+        self.assertEqual(hl_run('build_mod', '--work', work, 'bake', ok=False).returncode, 2)
+        self.assertEqual(hl_run('build_mod', '--work', work, '--genders', 'f x', 'params', ok=False).returncode, 2)
+        # missing tools, hand-made inputs and unreplaced placeholders: refused before any stage starts
+        (work / 'fit_f.json').write_bytes((hl_kit() / 'configs' / 'fit_f.json').read_bytes())
+        env = dict({k: str(v) for k, v in tools.items()}, HL_WORK=str(work))
+        err = hl_run('build_mod', '--genders', 'f', *HL_STAGES, env=env, ok=False).stderr
+        for text in ('HL_BLENDER not found', 'HL_UE_CMD not found', 'HL_PROBE not found', 'HL_RETOC not found', 'no Phoenix.uproject',
+                     'fit_f.json still has placeholders <HL_WORK> <KARIN_FBX>', 'ue_build_f.json',
+                     'dyn.json', 'DA_HUM_F_Upp_DarkArtsDeluxe01_Master.uasset', 'DA_HUM_F_Hair_StuHair18_PrincessLong_Bangs1.uexp',
+                     'MI_HUM_M_Hat_DarkArtsDeluxe01.uasset', 'DA_GA_Outfit_072_F.uasset'):
+            self.assertIn(text, err)
+        self.assertEqual(sorted(p.name for p in work.iterdir()), ['fit_f.json'])
+        # dry run: the commands of every stage in order, nothing written; the pak name follows the genders
+        (work / 'fit_f.json').write_text('{}', encoding='utf-8')
+        out = hl_run('build_mod', '--genders', 'f', '--dry-run', *HL_STAGES, env=env).stdout
+        self.assertEqual([l for l in out.splitlines() if l.startswith('===')], ['=== ' + s for s in HL_STAGES])
+        scripts = hl_kit() / 'scripts'
+        for text in (str(scripts / 'blender' / 'fit.py'), str(scripts / 'dyn_params.py'), str(scripts / 'blender' / 'export_fbx.py'),
+                     '-script=' + ('"%s"' if os.name == 'nt' else '%s') % (scripts / 'ue' / 'ue_import.py'), '-run=cook -targetplatform=WindowsNoEditor -CookAll',
+                     'patch', 'ABP_Karin_F_Body', 'ABP_Karin_F_Hair', 'HUM_M_Hat_DarkArtsDeluxe01=HUM_F_Hat_DarkArtsDeluxe01',
+                     'to-zen --version UE4_27 mod_mf/legacy_hl mod_mf/out/zzz_KarinDarkArts_F_P.utoc', 'verify mod_mf/out/zzz_KarinDarkArts_F_P.utoc'):
+            self.assertIn(text, out)
+        self.assertNotIn('ABP_Karin_M_Hair', out)
+        self.assertEqual(sorted(p.name for p in work.iterdir()), ['fit_f.json'])
+        out = hl_run('build_mod', '--dry-run', 'assemble', 'pack', env=env).stdout
+        self.assertIn('zzz_KarinDarkArts_MF_P.utoc', out)
+        self.assertIn('ABP_Karin_M_Hair', out)
+        self.assertLess(out.index('mod_m'), out.index('mod_f'))
+
+    def test_hl_build_mod_stages_with_fake_tools(self):
+        U = hl('uasset')
+        work, project = self.root / 'work dir', self.root / 'ue project'
+        project.mkdir()
+        (project / 'Phoenix.uproject').write_text('{}', encoding='utf-8')
+        fake = self.root / 'fake tool.py'
+        fake.write_text(HL_FAKE_TOOL, encoding='utf-8')
+        env = {'HL_WORK': str(work), 'HL_PROJECT': str(project), 'FAKE_LOG': str(self.root / 'calls.jsonl')}
+        for tool, var in (('blender', 'HL_BLENDER'), ('ue', 'HL_UE_CMD'), ('probe', 'HL_PROBE'), ('retoc', 'HL_RETOC')):
+            if os.name == 'nt':
+                shim = self.root / f'fake {tool}.cmd'
+                shim.write_text(f'@"{sys.executable}" -B "{fake}" {tool} %*\r\n', encoding='utf-8')
+            else:
+                shim = self.root / f'fake {tool}'
+                shim.write_text(f'#!/bin/sh\nexec "{sys.executable}" -B "{fake}" {tool} "$@"\n', encoding='utf-8')
+                shim.chmod(0o755)
+            env[var] = str(shim)
+        human = 'Phoenix/Content/RiggedObjects/Characters/Human'
+        cooked = {'f': ['Clothing/Upper_F/Jacket_DarkArtsDeluxe01/SK_HUM_F_Upp_DarkArtsDeluxe01_Master',
+                        'Hair/Hair_F/STUHair13/SK_HUM_F_Hair_StuHair13_Loose_LowBun_Master',
+                        'Hair/Hair_F/STUHair18/SK_HUM_F_Hair_STUHair18_PrincessLong_Bangs1_Master',
+                        'Heads/AVA_YF_Head_Emily/SK_Young_F_Head_Emily_Master', 'Karin_F/ABP_Karin_F_Body'],
+                  'm': ['Clothing/Upper_M/Jacket_DarkArtsDeluxe01/SK_HUM_M_Upp_DarkArtsDeluxe01_Master',
+                        'Hair/Hair_M/StuHair03/SK_HUM_M_Hair_StuHair03_ShavedBob_Master', 'Karin_M/ABP_Karin_M_Body']}
+        stubs = ['Clothing/Upper_F/Jacket_DarkArtsDeluxe01/Materials/MI_HUM_F_Upp_DarkArtsDeluxe01',
+                 'Clothing/Upper_M/Jacket_DarkArtsDeluxe01/Materials/MI_HUM_M_Upp_DarkArtsDeluxe01']
+        env['FAKE_COOKED'] = json.dumps(cooked['f'] + cooked['m'] + stubs)
+        for g in 'mf':
+            gu = g.upper()
+            (work / f'fit_{g}').mkdir(parents=True)
+            (work / f'fit_{g}' / 'skel_ext.json').write_text('{"bones": []}', encoding='utf-8')
+            (work / f'fit_{g}.json').write_text('{"out_dir": "fit"}', encoding='utf-8')
+            (work / f'ue_build_{g}.json').write_text(json.dumps({'fit_dir': f'fit_{g}', 'textures': [{'src': 'Skin_D.png'}], 'meshes': []}), encoding='utf-8')
+            hl_write(work / 'dami' / f'DA_HUM_{gu}_Upp_DarkArtsDeluxe01_Master.uasset', hl_piece_da(f'DA_HUM_{gu}_Upp_DarkArtsDeluxe01_Master'))
+            hl_write(work / 'ga_out2' / f'DA_GA_Outfit_072_{gu}.uasset', hl_outfit_ga(f'DA_GA_Outfit_072_{gu}'))
+        for h in ('DA_HUM_F_Hair_StuHair13_Loose_LowBun_Master', 'DA_HUM_F_Hair_StuHair18_PrincessLong_Bangs1', 'DA_HUM_M_Hair_StuHair03_ShavedBob'):
+            hl_write(work / 'hairda_out' / f'{h}.uasset', hl_piece_da(h))
+        for mi in HL_MI:
+            folder, token = mi.split(':')
+            hl_write(work / 'dami' / f'MI_{token}.uasset', hl_mi(folder, token))
+        out = hl_run('build_mod', 'fit', 'export', 'import', 'cook', 'assemble', 'pack', env=env).stdout
+        lines = out.splitlines()
+        shown = [l for l in lines if not l.startswith('+ ')]
+        calls = [json.loads(l) for l in (self.root / 'calls.jsonl').read_text(encoding='utf-8').splitlines()]
+        self.assertEqual([c['tool'] for c in calls], ['blender'] * 4 + ['ue'] * 3 + ['probe'] * 2 + ['retoc'] * 2)
+        self.assertTrue(all(c['skip_native'] == '1' for c in calls))
+        # fit / export / import: only the build.sh grep lines, cut at 200 characters; HLK lines start at [HLK]
+        self.assertEqual(shown[:5], ['=== fit', 'dynamic bones 95 chains [...]', 'part KarinBody verts 1 ' + 'x' * 177, 'head morphs 56 of 56',
+                                     'dynamic bones 95 chains [...]'])
+        self.assertEqual(calls[0]['args'][:4], ['-b', '--factory-startup', '--python', str(hl_kit() / 'scripts' / 'blender' / 'fit.py')])
+        self.assertEqual(calls[0]['args'][4:], ['--', str(work.resolve() / 'fit_m.json')])
+        self.assertEqual(calls[3]['args'], ['-b', str(work.resolve() / 'fit_f' / 'fit.blend'), '--python', str(hl_kit() / 'scripts' / 'blender' / 'export_fbx.py'),
+                                            '--', str(work.resolve() / 'fit_f'), str(work.resolve() / 'fit_f.json')])
+        self.assertIn('=== export\nEXPORTED KarinBody all bones\nEXPORTED Empty game bones only, 95 removed\nEXPORTED KarinBody', '\n'.join(shown))
+        self.assertIn('=== import\n[HLK] karin skeleton rename True\n[HLK] ALL DONE\n[HLK] karin skeleton rename True', '\n'.join(shown))
+        for c, g in zip(calls[4:6], 'mf'):
+            self.assertEqual((c['script'], c['cwd']), ([str(hl_kit() / 'scripts' / 'ue' / 'ue_import.py')], str(project.resolve())))
+            self.assertEqual(c['ue_build'], {'fit_dir': f'fit_{g}', 'textures': [], 'meshes': []})   # textures only with --textures
+            self.assertEqual(c['args'][0], str(project.resolve() / 'Phoenix.uproject'))
+        self.assertIn('cook rc=0 errors=1', shown)
+        self.assertIn('LogCook: Error: synthetic', (work / 'cook.log').read_text(encoding='utf-8'))
+        # assemble: per-gender cooked files (no stub Materials), the GA DA is in the tree when the probe patches it
+        for c, g in zip(calls[7:9], 'mf'):
+            self.assertEqual(c['args'], ['patch', str(work.resolve() / f'mod_{g}' / 'legacy'), str(work.resolve() / f'mod_{g}' / 'legacy_hl'),
+                                         str(work.resolve() / f'fit_{g}' / 'skel_ext.json')])
+            want = sorted([f'{human}/{rel}{ext}' for rel in cooked[g] for ext in ('.uasset', '.uexp')]
+                          + [f'Phoenix/Content/Data/GearAppearances/Outfit/DA_GA_Outfit_072_{g.upper()}{ext}' for ext in ('.uasset', '.uexp')])
+            self.assertEqual(c['inputs'], want)
+        self.assertEqual(shown.count('      2 WARN not a clean UE4.27 mesh'), 2)
+        self.assertEqual(shown.count('      1 verify ok (3 meshes)'), 2)
+        f_hl = work / 'mod_f' / 'legacy_hl' / human
+        for path, abp in ((work / 'mod_m' / 'legacy_hl' / human / 'Clothing/Upper_M/Jacket_DarkArtsDeluxe01/DA_HUM_M_Upp_DarkArtsDeluxe01_Master.uasset', 'Karin_M/ABP_Karin_M_Body'),
+                          (work / 'mod_m' / 'legacy_hl' / human / 'Hair/Hair_M/StuHair03/DA_HUM_M_Hair_StuHair03_ShavedBob.uasset', 'Karin_M/ABP_Karin_M_Hair'),
+                          (f_hl / 'Clothing/Upper_F/Jacket_DarkArtsDeluxe01/DA_HUM_F_Upp_DarkArtsDeluxe01_Master.uasset', 'Karin_F/ABP_Karin_F_Body'),
+                          (f_hl / 'Hair/Hair_F/STUHair13/DA_HUM_F_Hair_StuHair13_Loose_LowBun_Master.uasset', 'Karin_F/ABP_Karin_F_Hair'),
+                          (f_hl / 'Hair/Hair_F/STUHair18/DA_HUM_F_Hair_StuHair18_PrincessLong_Bangs1.uasset', 'Karin_F/ABP_Karin_F_Hair')):
+            p = U.Package(str(path))
+            self.assertIn(f'/Game/RiggedObjects/Characters/Human/{abp}', [p.import_path(i) for i in range(len(p.imports))], path)
+            self.assertIn('AnimClass', p.names)
+        for mi in HL_MI:
+            folder, token = mi.split(':')
+            ffolder, ftoken = folder.replace('_M/', '_F/'), token.replace('HUM_M_', 'HUM_F_')
+            names = U.Package(str(f_hl / 'Clothing' / ffolder / 'Materials' / f'MI_{ftoken}.uasset')).names
+            self.assertIn(f'/Game/RiggedObjects/Characters/Human/Clothing/{ffolder}/Materials/MI_{ftoken}', names)
+            self.assertFalse([n for n in names if 'HUM_M_' in n or '_M/' in n])
+            self.assertIn(f'.uasset {folder} x2 {token} x4 .uexp {folder} x0 {token} x0 ', shown)
+        self.assertFalse(list((work / 'mod_m').rglob('MI_*')))
+        self.assertIn('m files: 6', shown)    # cooked 3, GA, Upper DA, hair DA
+        self.assertIn('f files: 14', shown)   # cooked 5, GA, Upper DA, 2 hair DAs, 5 MI clones
+        # pack: both trees merged, retoc to-zen + verify from the work folder, the three container files in the tar.xz
+        self.assertEqual([c['args'] for c in calls[9:]], [['to-zen', '--version', 'UE4_27', 'mod_mf/legacy_hl', 'mod_mf/out/zzz_KarinDarkArts_MF_P.utoc'],
+                                                          ['verify', 'mod_mf/out/zzz_KarinDarkArts_MF_P.utoc']])
+        self.assertEqual(calls[9]['cwd'], str(work.resolve()))
+        self.assertEqual(len(calls[9]['files']), 2 * (6 + 14))     # .uasset + .uexp of both trees
+        import hashlib
+        import tarfile
+        xz = work / 'mod_mf' / 'KarinDarkArts.tar.xz'
+        with tarfile.open(xz) as t:
+            self.assertEqual(t.getnames(), [f'zzz_KarinDarkArts_MF_P.{e}' for e in ('pak', 'ucas', 'utoc')])
+            self.assertEqual(t.extractfile('zzz_KarinDarkArts_MF_P.ucas').read(), (work / 'mod_mf' / 'out' / 'zzz_KarinDarkArts_MF_P.ucas').read_bytes())
+        self.assertEqual(shown[-3:], ['wrote container', 'verified', 'xz %d sha256 %s' % (xz.stat().st_size, hashlib.sha256(xz.read_bytes()).hexdigest()[:16])])
+        # a failing tool stops the build with its exit status
+        bad = self.root / ('bad retoc.cmd' if os.name == 'nt' else 'bad retoc')
+        bad.write_text('@exit /b 3\r\n' if os.name == 'nt' else '#!/bin/sh\nexit 3\n', encoding='utf-8')
+        if os.name != 'nt':
+            bad.chmod(0o755)
+        self.assertIn('exited with 3', hl_run('build_mod', 'pack', env=dict(env, HL_RETOC=str(bad)), ok=False).stderr)
+
+    def test_hl_provenance_and_portability(self):
+        import hashlib
+        import re
+        kit = hl_kit()
+        rows = [r for r in json.loads((KITS / 'PROVENANCE.json').read_text(encoding='utf-8-sig'))
+                if r['path'].startswith('portable-kits/hogwarts-legacy/')]
+        files = sorted(p.relative_to(ROOT).as_posix() for p in kit.rglob('*') if p.is_file() and '__pycache__' not in p.parts)
+        own = {'portable-kits/hogwarts-legacy/' + n for n in ('README.md', 'toolchain.json', 'requirements.txt')}
+        self.assertEqual(sorted(r['path'] for r in rows), sorted(set(files) - own))
+        for r in rows:
+            data = (ROOT / r['path']).read_bytes()
+            self.assertEqual((hashlib.sha256(data).hexdigest(), len(data)), (r['portable_sha256'], r['portable_bytes']), r['path'])
+            self.assertTrue(r['source'].startswith('Mods/霍格沃茨之遗/Karin_Original/tools/'), r['source'])
+            self.assertEqual(r['modified_for_portability'], r['portable_sha256'] != r['original_sha256'], r['path'])
+        bundled = json.loads((kit / 'toolchain.json').read_text(encoding='utf-8'))['bundled_scripts']
+        self.assertEqual(sorted('portable-kits/hogwarts-legacy/' + s for s in bundled), sorted(r['path'] for r in rows))
+        # no machine paths, LF only, no written-in sys.path entry; configs use only the documented placeholders
+        drive = re.compile(r'(?i)(?<![\w<])[a-z]:[\\/](?![\\/])|[\\/]users[\\/]')
+        for rel in files:
+            data = (ROOT / rel).read_bytes()
+            text = data.decode('utf-8')
+            self.assertFalse(drive.search(text), f'{rel}: {drive.search(text)}')
+            self.assertNotIn(b'\r', data, rel)
+            self.assertNotRegex(text, r'sys\.path\.insert\(0, *r?[\'"]', rel)
+        for cfg in (kit / 'configs').glob('*.json'):
+            self.assertLessEqual(set(re.findall(r'<[A-Z][A-Z0-9_]*>', cfg.read_text(encoding='utf-8'))), {'<HL_WORK>', '<KARIN_FBX>'}, cfg.name)
+        # not bundled: the shell driver, the remote-machine helpers and the virtual pad tool
+        self.assertFalse([p for p in kit.rglob('*') if p.suffix in ('.sh', '.exe', '.dll', '.patch') or 'remote' in p.parts or 'vpad' in p.name.lower()])
 
 
 if __name__ == '__main__': unittest.main(verbosity=2)

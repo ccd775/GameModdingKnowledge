@@ -1,0 +1,67 @@
+{
+ "karin_fbx": "<KARIN_FBX>",
+ "skel_json": "<HL_WORK>/dumpm/Biped_Skeleton.json",
+ "ref_meshes": [
+  "<HL_WORK>/dumpm/SK_HUM_M_Upp_DarkArtsDeluxe01_Master.json",
+  "<HL_WORK>/dumpm/SK_HUM_M_Acc_DarkArtsDeluxe01_Master.json",
+  "<HL_WORK>/dumpm/SK_HUM_M_Low_DarkArtsDeluxe01_Master.json",
+  "<HL_WORK>/dumpm/SK_HUM_M_Shoes_DWThiefBoots04_Master.json",
+  "<HL_WORK>/dumpm/SK_HUM_M_Socks_Socks01_Master.json"
+ ],
+ "out_dir": "<HL_WORK>/fit_m",
+ "params": {
+  "g_perp": 1.4,
+  "g_head": 1.5,
+  "g_hand": 1.3,
+  "g_foot": 1.4,
+  "skirt_leg": 0.65,
+  "head_offset": [
+   0,
+   0,
+   -0.03
+  ],
+  "neck_offset": -0.02,
+  "shoulder_offset": 0.03,
+  "shoulder_in": 0.6
+ },
+ "parts": {
+  "KarinHead": {
+   "objects": [
+    "Body"
+   ],
+   "materials": {
+    "Karin_Face": "Face",
+    "Karin_Alpha": "FaceAlpha"
+   },
+   "shape_keys": false,
+   "morph_map_file": "<HL_WORK>/face_map.json"
+  },
+  "KarinHair": {
+   "objects": [
+    "hair",
+    "kemomimi"
+   ],
+   "materials": {
+    "Karin_Hair": "Hair",
+    "Karin_Hair_Transparent": "Hair",
+    "Karin_Costume": "Costume"
+   }
+  },
+  "KarinBody": {
+   "objects": [
+    "body_2",
+    "pullover",
+    "skirt",
+    "underwear",
+    "knee_socks",
+    "shoes",
+    "tail"
+   ],
+   "materials": {
+    "Karin_Body": "Skin",
+    "Karin_Costume": "Costume",
+    "Karin_Hair": "Hair"
+   }
+  }
+ }
+}
