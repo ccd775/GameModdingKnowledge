@@ -246,6 +246,7 @@ class PortableTools(unittest.TestCase):
             if path.parents[1].name == 'sifu' and sifu_missing(path.stem): continue
             if path.parents[1].name == 'marvels-spider-man-2' and sm2_missing(path.stem): continue
             if path.parents[1].name == 'days-gone' and dg_missing(path.stem): continue
+            if path.parents[1].name == 'the-witcher-3' and w3_missing(path.stem): continue
             cli(path.parents[1].name,path.stem,'--help')
 
 
@@ -3459,5 +3460,636 @@ class DaysGoneTools(unittest.TestCase):
             self.assertNotRegex(text, r'sys\.path\.insert\(0, *r?[\'"]', rel)
         for name in ('physchain_v1.py', 'physasset_edit.py', 'abp_dynamics.py'):
             self.assertFalse(list(kit.rglob(name)), name)
+
+
+W3_KIT = KITS / 'the-witcher-3'
+W3_NUMPY_SCRIPTS = ('karin_face',)
+
+
+def w3_missing(script):
+    if script not in W3_NUMPY_SCRIPTS:
+        return []
+    return [m for m in ('numpy',) if importlib.util.find_spec(m) is None]
+
+
+def w3_kit():
+    if not W3_KIT.is_dir():
+        raise unittest.SkipTest('the-witcher-3 is not included in this single-game export')
+    return W3_KIT
+
+
+def w3(name):
+    w3_kit()
+    if w3_missing(name):
+        raise unittest.SkipTest('pip install -r portable-kits/the-witcher-3/requirements.txt (missing numpy)')
+    return module('the-witcher-3', name)
+
+
+def w3_run(name, *args, env=None, ok=True, sub='scripts'):
+    """Run a Witcher 3 kit script with none of the caller's W3_* variables (plus env)"""
+    path = w3_kit() / sub / f'{name}.py'
+    full = {k: v for k, v in os.environ.items() if not k.startswith('W3_')}
+    full.update(env or {}, PYTHONIOENCODING='utf-8')
+    process = subprocess.run([sys.executable, '-B', str(path), *map(str, args)], capture_output=True, text=True,
+                             encoding='utf-8', env=full, timeout=120)
+    if (process.returncode == 0) != ok:
+        raise AssertionError(f'{name}: exit {process.returncode}\n{process.stdout}\n{process.stderr}')
+    return process
+
+
+def w3_ref(key):
+    return {'_type': 'handle:IReferencable', '_vars': {'_reference': {'_value': key}}}
+
+
+def w3_depot(path):
+    return {'_type': 'handle:CResource', '_vars': {'_depotPath': {'_value': path}}}
+
+
+def w3_bbox():
+    return {'_vars': {k: {'_vars': {a: {'_type': 'Float', '_value': 0.0} for a in 'XYZW'}} for k in ('Min', 'Max')}}
+
+
+def w3_vlq_str(raw):
+    """Decode a CR2W String value (VLQ length, 0x80 = one-byte chars) -> (text, bytes used)."""
+    b = raw[0]
+    n, shift, p = b & 0x3F, 6, 1
+    more = b & 0x40
+    while more:
+        n |= (raw[p] & 0x7F) << shift
+        more, shift, p = raw[p] & 0x80, shift + 7, p + 1
+    return raw[p:p + n].decode('latin-1'), p + n
+
+
+def w3_props(buf, p):
+    """CR2W property list -> ([(name index, type index, value)], end after the u16 0 terminator)."""
+    out = []
+    while True:
+        ni = struct.unpack_from('<H', buf, p)[0]
+        if ni == 0:
+            return out, p + 2
+        ti, size = struct.unpack_from('<HI', buf, p + 2)
+        out.append((ni, ti, bytes(buf[p + 8:p + 4 + size])))
+        p += 4 + size
+
+
+def w3_cr2w(bone_names, tail=b'BUFFERDATA'):
+    """Minimal CR2W in WolvenKit 7's form: a CSkeleton export whose 'bones' elements carry 'name' as StringAnsi
+    (<len+1> chars 00) and nameAsCName, then a second export and trailing buffer bytes."""
+    names = ['', 'CSkeleton', 'bones', 'array:SSkeletonBone', 'name', 'StringAnsi', 'nameAsCName', 'CName',
+             'parentIndices', 'array:Int16', 'CDyngResource'] + list(bone_names)
+    ix = {n: i for i, n in enumerate(names)}
+    strtab, offs = bytearray(), []
+    for n in names:
+        offs.append(len(strtab))
+        strtab += n.encode('latin-1') + b'\0'
+
+    def prop(name, typ, value):
+        return struct.pack('<HHI', ix[name], ix[typ], len(value) + 4) + value
+    elems = b''
+    for n in bone_names:
+        b = n.encode('latin-1')
+        elems += b'\0' + prop('name', 'StringAnsi', bytes([len(b) + 1]) + b + b'\0') + prop('nameAsCName', 'CName', struct.pack('<H', ix[n])) + b'\0\0'
+    chunk0 = b'\0' + prop('bones', 'array:SSkeletonBone', struct.pack('<I', len(bone_names)) + elems) \
+        + prop('parentIndices', 'array:Int16', struct.pack('<I', 2) + struct.pack('<hh', -1, 0)) + b'\0\0' + b'\x07\x07'
+    chunk1 = b'\0' + b'\0\0' + b'OTHER-EXPORT'
+    so = 160
+    no = so + len(strtab)
+    eo = no + 8 * len(names)
+    d0 = eo + 24 * 2
+    d1 = d0 + len(chunk0)
+    nametab = b''.join(struct.pack('<II', o, zlib.crc32(n.encode('latin-1') + b'\0')) for o, n in zip(offs, names))
+    exports = struct.pack('<HHIIIII', ix['CSkeleton'], 0, 0, len(chunk0), d0, 0, zlib.crc32(chunk0)) \
+        + struct.pack('<HHIIIII', ix['CDyngResource'], 0, 0, len(chunk1), d1, 0, zlib.crc32(chunk1))
+    tables = [(so, len(strtab), zlib.crc32(bytes(strtab))), (no, len(names), zlib.crc32(nametab)), (0, 0, 0), (0, 0, 0),
+              (eo, 2, zlib.crc32(exports))] + [(0, 0, 0)] * 5
+    header = bytearray(b'CR2W' + struct.pack('<I', 163) + bytes(152))
+    total = d1 + len(chunk1) + len(tail)
+    struct.pack_into('<II', header, 24, total, total)
+    for t, row in enumerate(tables):
+        struct.pack_into('<III', header, 40 + t * 12, *row)
+    return bytes(header) + bytes(strtab) + nametab + exports + chunk0 + chunk1 + tail, ix
+
+
+class TheWitcher3Tools(unittest.TestCase):
+    """v5 bundle, v7 metadata.store, WolvenKit skeleton-name repair, item template / dyng / w3fac generators, staging,
+    the face solver, the look-at roll check and the PowerShell tools on synthetic data. The Blender scripts need
+    Blender 5.0 with Witcher3-Blender-Tools and the game's extracts."""
+
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(prefix='modding witcher 3 ')
+        self.root = Path(self.temp.name)
+
+    def tearDown(self): self.temp.cleanup()
+
+    def _bundle_files(self):
+        import hashlib
+        noise = b''.join(hashlib.sha256(struct.pack('<I', i)).digest() for i in range(200))   # does not compress
+        return [('Characters\\Models\\Karin\\Karin_Body.w2mesh', bytes(range(256)) * 64),
+                ('characters\\models\\karin\\karin_body.w2mesh.1.buffer', noise),
+                ('items\\bodyparts\\geralt_items\\coif\\c_01_mg__witcher.w2ent', b'tiny')]
+
+    def test_w3_bundle_v5_write_read_extract(self):
+        import hashlib
+        B = w3('w3bundle')
+        files = self._bundle_files()
+        out = self.root / 'blob 0.bundle'
+        total = B.write_bundle(str(out), files, compression=1)
+        blob = out.read_bytes()
+        self.assertEqual((blob[:8], total, len(blob)), (b'POTATO70', len(blob), len(blob)))
+        self.assertEqual(struct.unpack_from('<QIHI', blob, 8), (len(blob), 304 * 3, 5, 304 * 3 + 0x20))
+        version, _hdr, items = B.read_toc(str(out))
+        self.assertEqual(version, 5)
+        raw = {n.lower(): d for n, d in files}
+        self.assertEqual([i.name for i in items], sorted(raw))                  # lower-case, sorted
+        for it in items:
+            data = raw[it.name]
+            self.assertEqual(it.offset % 4096, 0)
+            self.assertEqual((it.size, it.crc, it.hash), (len(data), zlib.crc32(data), hashlib.md5(data).digest()))
+            self.assertEqual(it.comp, 1 if it.name.endswith('.w2mesh') else 0)   # zlib only when it is smaller
+            self.assertEqual(B.read_item(str(out), it), data)
+        compressed = [i for i in items if i.comp][0]
+        self.assertLess(compressed.zsize, compressed.size)
+        # legacy v3 TOC (320-byte entries) reads back the same
+        v3 = self.root / 'v3.bundle'
+        B.write_bundle(str(v3), files, compression=1, version=3)
+        version3, _h, items3 = B.read_toc(str(v3))
+        self.assertEqual(version3, 3)
+        self.assertEqual([(i.name, B.read_item(str(v3), i)) for i in items3], [(i.name, raw[i.name]) for i in items])
+        # command line: pack a tree, list -v (9 tab-separated columns, name last), extract by pattern
+        tree = self.root / 'tree'
+        for name, data in files:
+            p = tree.joinpath(*name.split('\\'))
+            p.parent.mkdir(parents=True, exist_ok=True)
+            p.write_bytes(data)
+        packed = self.root / 'packed.bundle'
+        self.assertIn('packed 3 files', w3_run('w3bundle', 'pack', tree, packed, '--compression', '1').stdout)
+        rows = [l.split('\t') for l in w3_run('w3bundle', 'list', '-v', packed).stdout.splitlines()]
+        self.assertEqual([len(r) for r in rows], [9] * 3)
+        self.assertEqual([r[8] for r in rows], sorted(raw))
+        dest = self.root / 'x'
+        w3_run('w3bundle', 'extract', packed, '-p', 'characters\\models\\*', '-o', dest)
+        got = sorted(p.relative_to(dest).as_posix() for p in dest.rglob('*') if p.is_file())
+        self.assertEqual(got, ['characters/models/karin/karin_body.w2mesh', 'characters/models/karin/karin_body.w2mesh.1.buffer'])
+        self.assertEqual((dest / 'characters/models/karin/karin_body.w2mesh.1.buffer').read_bytes(), files[1][1])
+
+    def test_w3_metadata_store_v7_tables(self):
+        B, W, M = w3('w3bundle'), w3('w3metadata_write'), w3('w3metadata')
+        self.assertEqual((W.fnv1a64(b''), W.fnv1a64(b'a')), (0xcbf29ce484222325, 0xaf63dc4c8601ec8c))
+        for v in (0, 1, 63, 64, 8191, 8192, 10 ** 7, -5, -100000):
+            self.assertEqual(M.R(W.vlq(v)).vlq(), v)
+        content = self.root / 'content'
+        content.mkdir()
+        a, b = content / 'a.bundle', content / 'b.bundle'
+        B.write_bundle(str(a), [('a\\x.w2mesh', b'mesh' * 50), ('a\\x.w2mesh.1.buffer', b'b1' * 40),
+                                ('a\\x.w2mesh.2.buffer', b'b2' * 40), ('b\\c\\y.xbm', b'old texture')], compression=1)
+        B.write_bundle(str(b), [('b\\c\\y.xbm', b'new texture!' * 30), ('z.txt', b'z')], compression=1)
+        out = w3_run('w3metadata_write', content).stdout
+        self.assertIn("bundles=['a.bundle', 'b.bundle']", out)
+        st = M.read_store(str(content / 'metadata.store'), verbose=False)
+        self.assertEqual(st['version'], 7)
+        name = lambda off: M.strtab_at(st, off)
+        n_fi, fi = st['file_infos']
+        infos = [struct.unpack_from('<8I', fi, i * 32) for i in range(n_fi)]
+        self.assertEqual(infos[0], (0,) * 8)                                    # null record
+        by_name = {name(r[0]): (k, r) for k, r in enumerate(infos) if k}
+        self.assertEqual(sorted(by_name), ['a\\x.w2mesh', 'a\\x.w2mesh.1.buffer', 'a\\x.w2mesh.2.buffer', 'b\\c\\y.xbm', 'z.txt'])
+        n_fe, fe = st['file_entries']
+        entries = [struct.unpack_from('<QIIII', fe, i * 24) for i in range(n_fe)]
+        n_bi, bi = st['bundle_infos']
+        self.assertEqual((n_fe, n_bi), (1 + 6, 1 + 2))
+        # y.xbm is in both bundles: its first entry is the later bundle's, chained to the earlier one
+        fid, info = by_name['b\\c\\y.xbm']
+        first = entries[info[4]]
+        self.assertEqual((first[3], first[4]), (fid, 2))
+        self.assertEqual((entries[first[2]][3], entries[first[2]][4]), (fid, 1))
+        self.assertEqual(info[3], len(b'new texture!' * 30))
+        # buffers: x.w2mesh owns .1 and .2 in order; buffers have no FileInit / hash rows
+        fid_x, info_x = by_name['a\\x.w2mesh']
+        self.assertEqual(info_x[6], 2)
+        self.assertEqual(st['buffers'][info_x[5]:info_x[5] + 2], [by_name['a\\x.w2mesh.1.buffer'][0], by_name['a\\x.w2mesh.2.buffer'][0]])
+        n_fin, fin = st['file_inits']
+        inits = [struct.unpack_from('<iii', fin, i * 12) for i in range(n_fin)]
+        n_dir, dirs = st['dir_inits']
+        dir_rows = [struct.unpack_from('<iI', dirs, i * 8) for i in range(n_dir)]
+        def full_path(fid_, dir_id, off):
+            parts = [name(off)]
+            while dir_id:
+                n_off, dir_id = dir_rows[dir_id]
+                parts.insert(0, name(n_off))
+            return '\\'.join(parts)
+        self.assertEqual(sorted(full_path(*r) for r in inits), ['a\\x.w2mesh', 'b\\c\\y.xbm', 'z.txt'])
+        n_h, hashes = st['hashes']
+        rows = [struct.unpack_from('<QQ', hashes, i * 16) for i in range(n_h)]
+        self.assertEqual(rows, sorted(rows))
+        self.assertEqual({h: f for h, f in rows}, {W.fnv1a64(n.encode()): by_name[n][0] for n in ('a\\x.w2mesh', 'b\\c\\y.xbm', 'z.txt')})
+        self.assertEqual(st['tail'], b'')
+        self.assertIn('version 7', w3_run('w3metadata', content / 'metadata.store').stdout)
+
+    def test_w3_cr2w_skeleton_name_fix(self):
+        F = w3('fix_cr2w_skeleton_names')
+        long_name = 'Hair_tail_L_' + 'x' * 60                                  # > 63 chars: two-byte VLQ length
+        bones = ['pelvis', 'Skirt_root', long_name]
+        data, ix = w3_cr2w(bones)
+        src, dst = self.root / 'karin body.w3dyng', self.root / 'fixed.w3dyng'
+        src.write_bytes(data)
+        out = w3_run('fix_cr2w_skeleton_names', src, dst).stdout
+        self.assertIn('fixed 3 bone names', out)
+        d = dst.read_bytes()
+        tables = [struct.unpack_from('<III', d, 40 + t * 12) for t in range(10)]
+        (so, sn, sc), (no, nc, nn) = tables[0], tables[1]
+        self.assertEqual((sc, nn), (zlib.crc32(d[so:so + sn]), zlib.crc32(d[no:no + nc * 8])))
+        off, h = struct.unpack_from('<II', d, no + ix['StringAnsi'] * 8)
+        self.assertEqual(d[so + off:d.index(b'\0', so + off)], b'String')       # type renamed in place
+        self.assertEqual(h, F.fnv1a32(b'String\0'))
+        eo, ec, ecrc = tables[4]
+        self.assertEqual(ecrc, zlib.crc32(d[eo:eo + ec * 24]))
+        ex = [struct.unpack_from('<HHIIIII', d, eo + i * 24) for i in range(ec)]
+        chunk = d[ex[0][4]:ex[0][4] + ex[0][3]]
+        self.assertEqual(ex[0][6], zlib.crc32(chunk))
+        props, end = w3_props(chunk, 1)
+        self.assertEqual(chunk[end:], b'\x07\x07')
+        bones_val = props[0][2]
+        p, got = 4, []
+        for _ in range(struct.unpack_from('<I', bones_val, 0)[0]):
+            sprops, p = w3_props(bones_val, p + 1)
+            (ni, ti, val), (ni2, _t2, cn) = sprops
+            self.assertEqual((ni, ti, ni2), (ix['name'], ix['StringAnsi'], ix['nameAsCName']))   # the String slot
+            text, used = w3_vlq_str(val)
+            self.assertEqual(used, len(val))
+            got.append((text, struct.unpack('<H', cn)[0]))
+        self.assertEqual(got, [(n, ix[n]) for n in bones])
+        self.assertEqual(props[1][2], struct.pack('<I', 2) + struct.pack('<hh', -1, 0))     # other properties untouched
+        # the following export moved by the saved bytes; its data and the trailing buffer are unchanged
+        shrink = len(data) - len(d)
+        self.assertEqual(shrink, 2)          # <len+1> chars 00 -> <VLQ len> chars: 1 byte per short name, 0 for the 72-char one
+        old_ex1 = struct.unpack_from('<HHIIIII', data, 160 + len(b''.join(n.encode() + b'\0' for n in ix)) + 8 * len(ix) + 24)
+        self.assertEqual(ex[1][4], old_ex1[4] - shrink)
+        self.assertEqual(d[ex[1][4]:ex[1][4] + ex[1][3]], data[old_ex1[4]:old_ex1[4] + old_ex1[3]])
+        self.assertTrue(d.endswith(b'BUFFERDATA'))
+        self.assertEqual(struct.unpack_from('<II', d, 24), (len(d), len(d)))
+        h = bytearray(d[:160])
+        struct.pack_into('<I', h, 32, 0xDEADBEEF)
+        self.assertEqual(struct.unpack_from('<I', d, 32)[0], zlib.crc32(bytes(h)))
+        # a file without a CSkeleton export is refused
+        plain = bytearray(data)
+        struct.pack_into('<H', plain, 160 + len(b''.join(n.encode() + b'\0' for n in ix)) + 8 * len(ix), ix['CDyngResource'])
+        (self.root / 'plain').write_bytes(bytes(plain))
+        self.assertIn('no CSkeleton chunk', w3_run('fix_cr2w_skeleton_names', self.root / 'plain', ok=False).stderr)
+
+    def _coif_json(self):
+        chunks = {
+            'CItemEntity #1': {'_type': 'CItemEntity', '_vars': {'Components': {'_elements': [
+                w3_ref('CAnimDangleComponent #2'), w3_ref('CMeshComponent #5'), w3_ref('CFurComponent #6'), w3_ref('CFurComponent #8')]}}},
+            'CAnimDangleComponent #2': {'_type': 'CAnimDangleComponent', '_vars': {'AttachmentsReference': {'_elements': [
+                w3_ref('CMeshSkinningAttachment #4'), w3_ref('CMeshSkinningAttachment #7'), w3_ref('CMeshSkinningAttachment #9')]}}},
+            'CAnimDangleConstraint_Dyng #3': {'_type': 'CAnimDangleConstraint_Dyng', '_vars': {
+                'wind': {'_type': 'Float', '_value': 3.0}, 'dyng': w3_depot('characters\\models\\geralt\\coif\\model\\c_02_mg__half_tail.w3dyng'),
+                'useOffsets': {'_type': 'Bool', '_value': True}}},
+            'CMeshSkinningAttachment #4': {'_type': 'CMeshSkinningAttachment', '_vars': {'child': w3_ref('CMeshComponent #5')}},
+            'CMeshComponent #5': {'_type': 'CMeshComponent', '_vars': {'name': {'_type': 'String', '_value': 'c_02_mg__hair_tie'},
+                                                                       'mesh': w3_depot('characters\\models\\geralt\\coif\\model\\c_02_mg__hair_tie.w2mesh'),
+                                                                       'boundingBox': w3_bbox()}},
+            'CFurComponent #6': {'_type': 'CFurComponent', '_vars': {'mesh': w3_depot('fur_hair.w2mesh')}},
+            'CMeshSkinningAttachment #7': {'_type': 'CMeshSkinningAttachment', '_vars': {'child': w3_ref('CFurComponent #6')}},
+            'CFurComponent #8': {'_type': 'CFurComponent', '_vars': {'fur': w3_depot('halftail_gap.fur')}},   # no mesh
+            'CMeshSkinningAttachment #9': {'_type': 'CMeshSkinningAttachment', '_vars': {'child': w3_ref('CFurComponent #8')}},
+        }
+        imports = [{'_className': 'CDyngResource', '_depotPath': 'c_02_mg__half_tail.w3dyng', '_flags': 0},
+                   {'_className': 'CMesh', '_depotPath': 'c_02_mg__hair_tie.w2mesh', '_flags': 0},
+                   {'_className': 'CFurMeshResource', '_depotPath': 'halftail_gap.fur', '_flags': 0}]
+        nested = json.loads(json.dumps({'_chunks': chunks, '_imports': imports}))
+        outer = json.loads(json.dumps(chunks))
+        outer['CEntityTemplate #0'] = {'_type': 'CEntityTemplate', '_vars': {'flatCompiledData': nested}}
+        return {'_chunks': outer, '_imports': json.loads(json.dumps(imports))}
+
+    def test_w3_item_templates(self):
+        src = self.root / 'c_01_mg__witcher.w2ent.json'
+        src.write_text(json.dumps(self._coif_json()), encoding='utf-8')
+        dyng, mesh, stub = 'characters\\models\\karin\\karin_body.w3dyng', 'characters\\models\\karin\\karin_body.w2mesh', 'characters\\models\\karin\\karin_stub.w2mesh'
+        dst = self.root / 'coif.json'
+        w3_run('make_dangle_item_template', src, dst, dyng, mesh, stub, '--fur', 'drop', '--wind', '0', '--gravity', '0',
+               '--bbox', '-0.8', '-0.8', '-0.05', '0.8', '0.5', '2.2')
+        d = json.loads(dst.read_text(encoding='utf-8'))
+        for level in (d, d['_chunks']['CEntityTemplate #0']['_vars']['flatCompiledData']):
+            ch = level['_chunks']
+            self.assertFalse([k for k in ch if 'CFurComponent' in k or k in ('CMeshSkinningAttachment #7', 'CMeshSkinningAttachment #9')])
+            self.assertIn('CMeshSkinningAttachment #4', ch)
+            con = ch['CAnimDangleConstraint_Dyng #3']['_vars']
+            self.assertEqual(list(con), ['dyng', 'gravity', 'useOffsets', 'wind'])       # class property order
+            self.assertEqual((con['dyng']['_vars']['_depotPath']['_value'], con['wind']['_value'], con['gravity']),
+                             (dyng, 0.0, {'_type': 'Float', '_value': 0.0}))
+            mc = ch['CMeshComponent #5']['_vars']
+            self.assertEqual(mc['mesh']['_vars']['_depotPath']['_value'], mesh)
+            self.assertEqual([mc['boundingBox']['_vars']['Max']['_vars'][a]['_value'] for a in 'XYZ'], [0.8, 0.5, 2.2])
+            refs = lambda arr: [e['_vars']['_reference']['_value'] for e in arr['_elements']]
+            self.assertEqual(refs(ch['CItemEntity #1']['_vars']['Components']), ['CAnimDangleComponent #2', 'CMeshComponent #5'])
+            self.assertEqual(refs(ch['CAnimDangleComponent #2']['_vars']['AttachmentsReference']), ['CMeshSkinningAttachment #4'])
+            self.assertEqual([(i['_className'], i['_depotPath']) for i in level['_imports']], [('CDyngResource', dyng), ('CMesh', mesh)])
+        # --fur stub keeps the fur components and makes the ones with a mesh render the stub; dampening only when given
+        stubbed = self.root / 'stub.json'
+        w3_run('make_dangle_item_template', src, stubbed, dyng, mesh, stub, '--fur', 'stub', '--dampening', '0.95')
+        s = json.loads(stubbed.read_text(encoding='utf-8'))
+        self.assertEqual(s['_chunks']['CFurComponent #6']['_vars']['mesh']['_vars']['_depotPath']['_value'], stub)
+        self.assertNotIn('mesh', s['_chunks']['CFurComponent #8']['_vars'])
+        self.assertEqual(list(s['_chunks']['CAnimDangleConstraint_Dyng #3']['_vars']), ['dyng', 'dampening', 'useOffsets', 'wind'])
+        self.assertEqual(s['_chunks']['CAnimDangleConstraint_Dyng #3']['_vars']['wind']['_value'], 3.0)
+        self.assertEqual([i['_className'] for i in s['_imports']], ['CDyngResource', 'CFurMeshResource', 'CMesh', 'CMesh'])
+        # empty item: only the template and the item entity stay, without components or imports
+        empty = self.root / 'empty.json'
+        self.assertIn('dropped chunks', w3_run('make_empty_item_template', src, empty).stdout)
+        e = json.loads(empty.read_text(encoding='utf-8'))
+        self.assertEqual(sorted(e['_chunks']), ['CEntityTemplate #0', 'CItemEntity #1'])
+        self.assertEqual((e['_chunks']['CItemEntity #1']['_vars']['Components']['_elements'], e['_imports']), ([], []))
+        nested = e['_chunks']['CEntityTemplate #0']['_vars']['flatCompiledData']
+        self.assertEqual(list(nested['_chunks']), ['CItemEntity #1'])
+        # single-mesh item (no-physics layout): negative bounding box values are positional arguments
+        one = self.root / 'mesh_item.json'
+        w3_run('make_mesh_item_template', src, one, mesh, 'karin_body', '-0.75', '-0.8', '-0.02', '0.75', '0.4', '2.2')
+        o = json.loads(one.read_text(encoding='utf-8'))['_chunks']['CMeshComponent #5']['_vars']
+        self.assertEqual(o['mesh']['_vars']['_depotPath']['_value'], mesh)
+        self.assertEqual([o['boundingBox']['_vars']['Min']['_vars'][a]['_value'] for a in 'XYZ'], [-0.75, -0.8, -0.02])
+
+    def test_w3_head_item_template(self):
+        chunks = {
+            'CItemEntity #1': {'_type': 'CItemEntity', '_vars': {'Components': {'_elements': [
+                w3_ref('CMimicComponent #2'), w3_ref('CMeshComponent #4'), w3_ref('CMeshComponent #6'),
+                w3_ref('CNormalBlendComponent #8'), w3_ref('CWetnessComponent #10')]}}},
+            'CMimicComponent #2': {'_type': 'CMimicComponent', '_vars': {'mimicFace': w3_depot('characters\\models\\geralt\\head\\model\\h_01_mg__geralt.w3fac'),
+                                                                         'AttachmentsReference': {'_elements': [w3_ref('CMeshSkinningAttachment #3'), w3_ref('CHardAttachment #9')]}}},
+            'CMeshSkinningAttachment #3': {'_type': 'CMeshSkinningAttachment', '_vars': {'child': w3_ref('CMeshComponent #4')}},
+            'CMeshComponent #4': {'_type': 'CMeshComponent', '_vars': {'mesh': w3_depot('characters\\models\\geralt\\head\\model\\h_01_mg__geralt.w2mesh'), 'boundingBox': w3_bbox()}},
+            'CMeshComponent #6': {'_type': 'CMeshComponent', '_vars': {'mesh': w3_depot('characters\\models\\geralt\\head\\model\\eyes.w2mesh')}},
+            'CNormalBlendComponent #8': {'_type': 'CNormalBlendComponent', '_vars': {}},
+            'CHardAttachment #9': {'_type': 'CHardAttachment', '_vars': {'child': w3_ref('CNormalBlendComponent #8')}},
+            'CWetnessComponent #10': {'_type': 'CWetnessComponent', '_vars': {}},
+            'CNormalBlendAttachment #11': {'_type': 'CNormalBlendAttachment', '_vars': {}},
+            'CMaterialInstance #12': {'_type': 'CMaterialInstance', '_vars': {}},
+        }
+        src = self.root / 'h_01_mg__geralt.w2ent.json'
+        src.write_text(json.dumps({'_chunks': chunks, '_imports': [{'_className': 'CMimicFace', '_depotPath': 'x', '_flags': 0}]}), encoding='utf-8')
+        fac, mesh, stub = 'characters\\models\\karin\\karin_face.w3fac', 'characters\\models\\karin\\karin_face.w2mesh', 'characters\\models\\karin\\karin_stub.w2mesh'
+        dst = self.root / 'head.json'
+        w3_run('make_head_item_template', src, dst, fac, mesh, stub)
+        d = json.loads(dst.read_text(encoding='utf-8'))
+        ch = d['_chunks']
+        self.assertEqual(sorted(ch), ['CItemEntity #1', 'CMeshComponent #4', 'CMeshComponent #6', 'CMeshSkinningAttachment #3',
+                                      'CMimicComponent #2', 'CWetnessComponent #10'])
+        self.assertEqual(ch['CMimicComponent #2']['_vars']['mimicFace']['_vars']['_depotPath']['_value'], fac)
+        self.assertEqual(ch['CMeshComponent #4']['_vars']['mesh']['_vars']['_depotPath']['_value'], mesh)
+        self.assertEqual(ch['CMeshComponent #4']['_vars']['boundingBox']['_vars']['Max']['_vars']['Z']['_value'], 2.25)
+        self.assertEqual(ch['CMeshComponent #6']['_vars']['mesh']['_vars']['_depotPath']['_value'], stub)   # eyes -> stub
+        refs = lambda arr: [e['_vars']['_reference']['_value'] for e in arr['_elements']]
+        self.assertEqual(refs(ch['CItemEntity #1']['_vars']['Components']),
+                         ['CMimicComponent #2', 'CMeshComponent #4', 'CMeshComponent #6', 'CWetnessComponent #10'])
+        self.assertEqual(refs(ch['CMimicComponent #2']['_vars']['AttachmentsReference']), ['CMeshSkinningAttachment #3'])
+        self.assertEqual([(i['_className'], i['_depotPath']) for i in d['_imports']], [('CMimicFace', fac), ('CMesh', mesh), ('CMesh', stub)])
+
+    def test_w3_dyng_and_w3fac_json(self):
+        f = lambda v=0.0: {'_type': 'Float', '_value': v}
+        vec4 = lambda: {'_vars': {k: f() for k in 'XYZW'}}
+        mat = lambda: {'_type': 'Matrix', '_vars': {ax: {'_vars': {k: f() for k in 'XYZW'}} for ax in 'XYZW'}}
+        arr = lambda proto: {'_elements': [proto]}
+        res = {k: arr({'_type': 'CName', '_value': ''}) for k in ('nodeNames', 'nodeParents', 'collisionParents')}
+        res.update({k: arr(f()) for k in ('nodeMasses', 'nodeStifnesses', 'nodeDistances', 'linkLengths', 'collisionRadiuses', 'collisionHeights')})
+        res.update({k: arr({'_type': 'Int32', '_value': 0}) for k in ('linkTypes', 'linkAs', 'linkBs', 'triangleAs', 'triangleBs', 'triangleCs')})
+        res.update({k: arr(mat()) for k in ('nodeTransforms', 'collisionTransforms')})
+        sk = {'bones': arr({'_type': 'SSkeletonBone', '_vars': {'nameAsCName': {'_type': 'CName', '_value': 'old'}}}),
+              'parentIndices': arr({'_type': 'Int16', '_value': -1}),
+              'rigdata': arr({'_type': 'EngineQsTransform', '_vars': {'Position': vec4(), 'Rotation': vec4(), 'Scale': vec4()}})}
+        template = self.root / 'c_02_mg__half_tail.w3dyng.json'
+        template.write_text(json.dumps({'_chunks': {'CDyngResource #0': {'_type': 'CDyngResource', '_vars': res},
+                                                    'CSkeleton #1': {'_type': 'CSkeleton', '_vars': sk}}}), encoding='utf-8')
+        nodes = [{'name': 'pelvis', 'parent': 'Root', 'parent_index': -1, 'mass': 1.0, 'stiffness': 0.0, 'distance': 0.0,
+                  'local': [[1, 0, 0], [0, 1, 0], [0, 0, 1], [0, 0, 1.0]], 'pos': [0, 0, 1.0], 'rot': [0, 0, 0, 1]},
+                 {'name': 'Tail', 'parent': 'pelvis', 'parent_index': 0, 'mass': 1.0, 'stiffness': 2.0, 'distance': 0.035,
+                  'local': [[0, 1, 0], [-1, 0, 0], [0, 0, 1], [0, -0.1, 0]], 'pos': [0, -0.1, 0], 'rot': [0, 0, 0.7071, 0.7071]},
+                 {'name': 'Tail_001', 'parent': 'pelvis', 'parent_index': 0, 'mass': 0.6, 'stiffness': 2.0, 'distance': 0.075,
+                  'local': [[0, 1, 0], [-1, 0, 0], [0, 0, 1], [0, -0.2, 0]], 'pos': [0, -0.2, 0], 'rot': [0, 0, 0.7071, 0.7071]}]
+        spec = {'nodes': nodes, 'links': [{'type': 0, 'length': 0.1, 'a': 1, 'b': 2}, {'type': 1, 'length': 0.05, 'a': 0, 'b': 2}],
+                'triangles': [[1, 2, -1]]}
+        (self.root / 'spec.json').write_text(json.dumps(spec), encoding='utf-8')
+        out = self.root / 'karin_body.w3dyng.json'
+        self.assertIn('nodes=3 links=2 triangles=1', w3_run('make_dyng', self.root / 'spec.json', template, out).stdout)
+        d = json.loads(out.read_text(encoding='utf-8'))
+        r, s = d['_chunks']['CDyngResource #0']['_vars'], d['_chunks']['CSkeleton #1']['_vars']
+        vals = lambda k: [e['_value'] for e in r[k]['_elements']]
+        self.assertEqual((vals('nodeNames'), vals('nodeParents'), vals('nodeDistances')), (['pelvis', 'Tail', 'Tail_001'], ['Root', 'pelvis', 'pelvis'], [0.0, 0.035, 0.075]))
+        self.assertEqual((vals('linkTypes'), vals('linkAs'), vals('linkBs'), vals('triangleCs')), ([0, 1], [1, 0], [2, 2], [-1]))
+        self.assertEqual((vals('collisionRadiuses'), vals('collisionHeights'), vals('collisionParents')), ([0.0] * 3, [0.006] * 3, vals('nodeNames')))
+        m = r['nodeTransforms']['_elements'][1]['_vars']
+        self.assertEqual([[m[ax]['_vars'][k]['_value'] for k in 'XYZW'] for ax in 'XYZW'], [[0, 1, 0, 0], [-1, 0, 0, 0], [0, 0, 1, 0], [0, -0.1, 0, 1]])
+        for bone, n in zip(s['bones']['_elements'], nodes):
+            self.assertEqual(list(bone['_vars']), ['name', 'nameAsCName'])            # the String name WolvenKit drops
+            self.assertEqual((bone['_vars']['name'], bone['_vars']['nameAsCName']['_value']), ({'_type': 'String', '_value': n['name']}, n['name']))
+        self.assertEqual([e['_value'] for e in s['parentIndices']['_elements']], [-1, 0, 0])
+        rig = s['rigdata']['_elements'][2]['_vars']
+        self.assertEqual([rig['Position']['_vars'][k]['_value'] for k in 'XYZW'], [0, -0.2, 0, 1.0])
+        self.assertEqual([rig['Scale']['_vars'][k]['_value'] for k in 'XYZW'], [1.0] * 4)
+        # w3fac: 6 anchors kept, a placer (child of head) + bone pair per face bone, mapping = the bones, translation-only
+        # poses scaled by POSE_GAIN (jaw_open_a x1.3), all-zero transforms written empty, every track gets its String name
+        anchors = ['torso3', 'l_shoulder', 'r_shoulder', 'neck', 'head', 'hroll']
+        bone = lambda n: {'_type': 'SSkeletonBone', '_vars': {'nameAsCName': {'_type': 'CName', '_value': n}}}
+        rigq = lambda: {'_type': 'EngineQsTransform', '_vars': {'Position': vec4(), 'Rotation': vec4(), 'Scale': vec4()}}
+        fac = {'_chunks': {
+            'CMimicFace #0': {'_type': 'CMimicFace', '_vars': {'mapping': arr({'_type': 'Int32', '_value': 0}),
+                                                              'mimicPoses': {'_elements': [{'_elements': []}, {'_elements': []}]}}},
+            'CSkeleton #1': {'_type': 'CSkeleton', '_vars': {'bones': {'_elements': [bone(n) for n in anchors + ['old_face_bone']]},
+                                                            'parentIndices': {'_elements': [{'_type': 'Int16', '_value': i - 1} for i in range(7)]},
+                                                            'rigdata': {'_elements': [rigq() for _ in range(7)]}}},
+            'CSkeleton #2': {'_type': 'CSkeleton', '_vars': {'bones': {'_elements': [bone('root')]},
+                                                            'tracks': {'_elements': [bone('jaw_open_a'), bone('brow_left_up')]}}}}}
+        ftemplate = self.root / 'h_01_mg__geralt.w3fac.json'
+        ftemplate.write_text(json.dumps(fac), encoding='utf-8')
+        fspec = {'anchors': anchors, 'bones': [{'name': 'kf_00', 'local': [0.01, 0.02, 0.03]}, {'name': 'kf_01', 'local': [0.04, 0.05, 0.06]}],
+                 'poses': [[[0.001, 0, 0], [0, 0, 0]], [[0, 0.002, 0], [0, 0, 0.003]]], 'pose_names': ['jaw_open_a', 'brow_left_up']}
+        (self.root / 'face.json').write_text(json.dumps(fspec), encoding='utf-8')
+        fout = self.root / 'karin_face.w3fac.json'
+        self.assertIn('bones=10 mapped=2 poses=2 nonzero=3', w3_run('make_w3fac', self.root / 'face.json', ftemplate, fout).stdout)
+        g = json.loads(fout.read_text(encoding='utf-8'))['_chunks']
+        sk1 = g['CSkeleton #1']['_vars']
+        self.assertEqual([b['_vars']['nameAsCName']['_value'] for b in sk1['bones']['_elements']],
+                         anchors + ['placer_kf_00', 'kf_00', 'placer_kf_01', 'kf_01'])
+        self.assertEqual([p['_value'] for p in sk1['parentIndices']['_elements']][6:], [4, 6, 4, 8])
+        self.assertEqual([sk1['rigdata']['_elements'][8]['_vars']['Position']['_vars'][k]['_value'] for k in 'XYZW'], [0.04, 0.05, 0.06, 1.0])
+        self.assertEqual([m['_value'] for m in g['CMimicFace #0']['_vars']['mapping']['_elements']], [7, 9])
+        poses = g['CMimicFace #0']['_vars']['mimicPoses']['_elements']
+        self.assertAlmostEqual(poses[0]['_elements'][0]['_vars']['X']['_value'], 0.0013)
+        self.assertEqual(poses[0]['_elements'][1], {'_type': 'EngineQsTransform', '_vars': {}})
+        self.assertEqual([poses[1]['_elements'][1]['_vars'][k]['_value'] for k in 'XYZ'], [0.0, 0.0, 0.003])
+        for t in g['CSkeleton #2']['_vars']['tracks']['_elements']:
+            self.assertEqual(t['_vars']['name']['_type'], 'String')
+        bad = dict(fspec, anchors=['head'] + anchors[1:])
+        (self.root / 'bad.json').write_text(json.dumps(bad), encoding='utf-8')
+        self.assertIn('template anchor order', w3_run('make_w3fac', self.root / 'bad.json', ftemplate, fout, ok=False).stderr)
+
+    def test_w3_build_mod_stage_and_pack(self):
+        B = w3('w3bundle')
+        rows = ['items\\bodyparts\\geralt_items\\trunk\\bare\\t_01_mg__body.w2ent',
+                'Items\\BodyParts\\Geralt_Items\\Heads\\h_01_mg__geralt.w2ent',
+                'items\\bodyparts\\geralt_items\\coif\\c_01_mg__witcher.w2ent',
+                'items\\bodyparts\\geralt_items\\scabbards\\s_01_mg__sword.w2ent',
+                'dlc\\ep1\\data\\items\\bodyparts\\geralt_items\\gloves\\g_02_mg__ofir.w2ent',
+                'items\\bodyparts\\geralt_items\\trunk\\bare\\t_01_mg__body.w2ent',    # in a later bundle too
+                'items\\bodyparts\\ciri_items\\heads\\h_01_wa__ciri.w2ent',
+                'characters\\models\\geralt\\body\\model\\t_01_mg__body.w2mesh']
+        listing = self.root / 'all bundles.tsv'
+        listing.write_text(''.join(f'blob{i}.bundle\tv5\t1\t10\t8\t4096\t00000000\t{"0" * 32}\t{n}\n' for i, n in enumerate(rows)), encoding='utf-8')
+        tpl = {}
+        for k in ('empty', 'head', 'coif'):
+            tpl[k] = self.root / f'{k}.w2ent'
+            tpl[k].write_bytes(f'CR2W {k}'.encode())
+        extra = self.root / 'depot'
+        (extra / 'characters' / 'models' / 'karin').mkdir(parents=True)
+        (extra / 'characters' / 'models' / 'karin' / 'karin_body.w2mesh').write_bytes(b'karin mesh')
+        stage = self.root / 'stage'
+        out = w3_run('build_mod', 'stage', stage, '--empty', tpl['empty'], '--head', tpl['head'], '--coif', tpl['coif'],
+                     '--extra', extra, '--listing', listing).stdout
+        self.assertIn("{'gloves': 1, 'coif': 1, 'heads': 1, 'trunk': 1, 'extra': 1}", out)   # sorted paths (dlc\ first)
+        files = {p.relative_to(stage).as_posix(): p.read_bytes() for p in stage.rglob('*') if p.is_file()}
+        self.assertEqual(files, {'items/bodyparts/geralt_items/trunk/bare/t_01_mg__body.w2ent': b'CR2W empty',
+                                 'items/bodyparts/geralt_items/heads/h_01_mg__geralt.w2ent': b'CR2W head',
+                                 'items/bodyparts/geralt_items/coif/c_01_mg__witcher.w2ent': b'CR2W coif',
+                                 'dlc/ep1/data/items/bodyparts/geralt_items/gloves/g_02_mg__ofir.w2ent': b'CR2W empty',
+                                 'characters/models/karin/karin_body.w2mesh': b'karin mesh'})
+        mod = self.root / 'mods' / 'modKarin'
+        self.assertIn('packed 5 files', w3_run('build_mod', 'pack', stage, mod).stdout)
+        _v, _h, items = B.read_toc(str(mod / 'content' / 'blob0.bundle'))
+        self.assertEqual([i.name for i in items], sorted(n.replace('/', '\\') for n in files))
+        w3_run('w3metadata_write', mod / 'content')
+        self.assertTrue((mod / 'content' / 'metadata.store').is_file())
+        # without --listing the default comes from W3_WORK; unset, the command names the variable
+        self.assertIn('W3_WORK', w3_run('build_mod', 'stage', self.root / 's2', '--empty', tpl['empty'], ok=False).stderr)
+
+    def test_w3_face_solver(self):
+        K = w3('karin_face')
+        import numpy as np
+        P = np.array([(x * 0.005, y * 0.005, 0.0) for y in range(-10, 10) for x in range(-10, 10)])
+        self.assertTrue(np.allclose(K.side_mask(np.array([[-0.012, 0, 0], [0, 0, 0], [0.012, 0, 0]]), 'R', 0.012), (0, 0.5, 1)))
+        self.assertTrue(np.allclose(K.side_mask(np.array([[-0.012, 0, 0], [0.012, 0, 0]]), 'L', 0.012), (1, 0)))
+        self.assertTrue(np.allclose(K.side_mask(P, None, 0.012), 1))
+        A = np.abs(np.random.default_rng(5).normal(size=(12, 3))) + 0.1
+        self.assertTrue(np.allclose(K.nnls(A, A @ np.array([0.5, 0.0, 1.2])), (0.5, 0.0, 1.2), atol=1e-8))
+        jaw = np.where((P[:, 1] < -0.02)[:, None], (0.0, 0.0, -0.004), 0.0)
+        brow = np.where((P[:, 1] > 0.025)[:, None], (0.0, 0.003, 0.0), 0.0)
+        left = brow * K.side_mask(P, 'L', 0.012)[:, None]
+        targets = [('jaw_open_a', jaw), ('brow_up', brow), ('brow_left_up', left), ('unmapped', np.zeros_like(P))]
+        res = K.solve(P, targets, n_bones=12, k_near=4, rounds=3)
+        W, a = res['weights'], res['activity']
+        self.assertEqual((res['bones'].shape, W.shape, res['trans'].shape), ((12, 3), (len(P), 12), (4, 12, 3)))
+        self.assertTrue(np.allclose(W.sum(1), a, atol=1e-6))                     # each row sums to the activity share
+        self.assertLessEqual(int((W > 0).sum(1).max()), 4)
+        self.assertTrue(((a >= 0) & (a <= 1)).all() and (a[np.abs(jaw).sum(1) > 0] == 1).all())
+        errs = {n: e for n, e, _norm in res['errors']}
+        self.assertEqual(errs['unmapped'], 0.0)
+        self.assertLess(errs['jaw_open_a'], 0.2)                                # step fields: blurred only at the edges
+        self.assertLess(max(errs.values()), 0.5)
+        self.assertLess(res['history'][-1], res['history'][0])
+        C1, lab1 = K.kmeans(P, np.ones(len(P)), 5)
+        C2, lab2 = K.kmeans(P, np.ones(len(P)), 5)
+        self.assertTrue(np.array_equal(C1, C2) and np.array_equal(lab1, lab2))   # seeded
+
+    def test_w3_lookat_roll_check(self):
+        if importlib.util.find_spec('numpy') is None:
+            self.skipTest('needs numpy')
+        import math
+        x = (1 / math.sqrt(2), 0.0, -1 / math.sqrt(2))
+        z = (1 / math.sqrt(2), 0.0, 1 / math.sqrt(2))                          # parent Z orthogonalised against X
+        y = (z[1] * x[2] - z[2] * x[1], z[2] * x[0] - z[0] * x[2], z[0] * x[1] - z[1] * x[0])
+        def spec(cols):
+            child = [sum(cols[i][k] * (0.5, 0.0, -0.5)[k] for k in range(3)) for i in range(3)]   # R^T @ offset
+            return {'nodes': [{'name': 'head', 'parent': 'Root', 'parent_index': -1, 'local': [[1, 0, 0], [0, 1, 0], [0, 0, 1], [0, 0, 1.6]]},
+                              {'name': 'Hair_side_L', 'parent': 'head', 'parent_index': 0, 'local': [list(c) for c in cols] + [[0, 0, 0]]},
+                              {'name': 'Hair_side_L_001', 'parent': 'Hair_side_L', 'parent_index': 1, 'local': [[1, 0, 0], [0, 1, 0], [0, 0, 1], child]}],
+                    'triangles': [[1, 2, -1]]}
+        def err(cols):
+            path = self.root / 'spec.json'
+            path.write_text(json.dumps(spec(cols)), encoding='utf-8')
+            out = w3_run('rule_check', path, sub='scripts/checks').stdout
+            line = [l for l in out.splitlines() if 'Hair_side_L ' in l][0]
+            return float(line.split('errZrule=')[1].split()[0])
+        self.assertAlmostEqual(err((x, y, z)), 0.0, places=3)                   # built by the rule
+        rolled = (x, z, tuple(-c for c in y))                                    # rolled 90 deg about X
+        self.assertAlmostEqual(abs(err(rolled)), 90.0, places=3)
+
+    def test_w3_machine_paths_and_tools_environment(self):
+        from unittest import mock
+        import shutil
+        paths = w3('w3paths')
+        clean = {k: v for k, v in os.environ.items() if not k.startswith('W3_')}
+        with mock.patch.dict(os.environ, clean, clear=True):
+            for call, var in ((paths.game, 'W3_GAME_DIR'), (paths.work, 'W3_WORK'), (paths.source_fbx, 'W3_SOURCE_FBX'),
+                              (paths.wolvenkit_cli, 'W3_WORK')):
+                with self.assertRaises(SystemExit) as stop:
+                    call()
+                self.assertIn(var, str(stop.exception))
+            self.assertEqual(paths.addon_module(), 'bl_ext.user_default.witcher3_tools')
+        work = self.root / 'work root'
+        with mock.patch.dict(os.environ, dict(clean, W3_WORK=str(work), W3_GAME_DIR=str(self.root), W3_ADDON_MODULE='w3tools')):
+            self.assertEqual(paths.work('uncook', 'x.w2rig'), os.path.join(str(work), 'uncook', 'x.w2rig'))
+            self.assertTrue(paths.work_dir('uncook').endswith(os.sep))
+            self.assertEqual(paths.wolvenkit_cli(), os.path.join(str(work), 'tools', 'wk7', 'WolvenKit.CLI.exe'))
+            self.assertEqual((paths.game('bin'), paths.addon_module()), (os.path.join(str(self.root), 'bin'), 'w3tools'))
+        pwsh = shutil.which('pwsh')
+        if not pwsh or sys.platform != 'win32':
+            self.skipTest('needs PowerShell 7 (pwsh) on Windows')
+        tools = w3_kit() / 'tools'
+
+        def ps(script, *args, extra=None, ok=True):
+            process = subprocess.run([pwsh, '-NoProfile', '-NonInteractive', '-File', str(tools / script), *map(str, args)],
+                                     capture_output=True, text=True, encoding='utf-8', errors='replace',
+                                     env=dict(clean, **(extra or {})), timeout=120)
+            if (process.returncode == 0) != ok:
+                raise AssertionError(f'{script}: exit {process.returncode}\n{process.stdout}\n{process.stderr}')
+            return process.stdout + process.stderr
+        driver = self.root / 'parse.ps1'
+        driver.write_text("param([string]$Dir)\n$r = [ordered]@{}\nforeach ($f in Get-ChildItem -LiteralPath $Dir -Filter *.ps1) {\n"
+                          "  $e = $null; $t = $null\n  [void][System.Management.Automation.Language.Parser]::ParseFile($f.FullName, [ref]$t, [ref]$e)\n"
+                          "  $r[$f.Name] = $e.Count }\n$r | ConvertTo-Json -Compress\n", encoding='utf-8')
+        parsed = subprocess.run([pwsh, '-NoProfile', '-NonInteractive', '-File', str(driver), str(tools)], capture_output=True, text=True, timeout=120)
+        self.assertEqual(json.loads(parsed.stdout), {'pipeline.ps1': 0, 'prepare.ps1': 0, 'wk.ps1': 0})
+        # each tool stops and names the missing variable before it touches the machine
+        self.assertIn('W3_GAME_DIR', ps('prepare.ps1', ok=False))
+        self.assertIn('W3_WORK', ps('prepare.ps1', '-GameDir', self.root / 'game', ok=False))
+        self.assertIn('W3_WOLVENKIT_DIR', ps('prepare.ps1', '-GameDir', self.root / 'game', '-WorkRoot', work, ok=False))
+        self.assertIn('W3_WORK', ps('pipeline.ps1', ok=False))
+        self.assertIn('W3_BLENDER', ps('pipeline.ps1', '-WorkRoot', work, ok=False))
+        self.assertIn('W3_GAME_DIR', ps('pipeline.ps1', '-WorkRoot', work, '-SkipBlender', '-Deploy', ok=False))
+        self.assertIn('W3_WORK', ps('wk.ps1', '-Mode', 'cr2w2json', '-InputPath', 'x.w2ent', ok=False))
+        # wk.ps1 runs the given CLI per input and fails when it reports ERROR
+        good, bad = self.root / 'fake wk.cmd', self.root / 'bad wk.cmd'
+        good.write_text('@echo off\r\necho converted %*\r\n', encoding='ascii')
+        bad.write_text('@echo off\r\necho ERROR cannot read\r\n', encoding='ascii')
+        self.assertIn('OK ' + str(self.root / 'a b.w2ent'), ps('wk.ps1', '-Mode', 'cr2w2json', '-InputPath', self.root / 'a b.w2ent', '-Exe', good))
+        self.assertIn('WolvenKit conversion failed for 1 file', ps('wk.ps1', '-Mode', 'json2cr2w', '-InputPath', 'x.json', '-Exe', bad, ok=False))
+
+    def test_w3_provenance_and_portability(self):
+        import hashlib
+        import re
+        kit = w3_kit()
+        rows = [r for r in json.loads((KITS / 'PROVENANCE.json').read_text(encoding='utf-8-sig'))
+                if r['path'].startswith('portable-kits/the-witcher-3/')]
+        files = sorted(p.relative_to(ROOT).as_posix() for p in kit.rglob('*') if p.is_file() and '__pycache__' not in p.parts)
+        own = {'portable-kits/the-witcher-3/' + n for n in ('README.md', 'toolchain.json', 'requirements.txt')}
+        self.assertEqual(sorted(r['path'] for r in rows), sorted(set(files) - own))
+        sources = ('Mods/巫师3重置版/Tools/scripts/', 'agent-session-scratchpad/', 'W3Work/scratch/')
+        for r in rows:
+            data = (ROOT / r['path']).read_bytes()
+            self.assertEqual((hashlib.sha256(data).hexdigest(), len(data)), (r['portable_sha256'], r['portable_bytes']), r['path'])
+            if r['original_sha256'] is None:
+                self.assertTrue(r['source'].startswith('new file written for the portable kit'), r['path'])
+                self.assertTrue(r['modified_for_portability'])
+            else:
+                self.assertTrue(r['source'].startswith(sources), r['source'])
+                self.assertEqual(r['modified_for_portability'], r['portable_sha256'] != r['original_sha256'], r['path'])
+        bundled = json.loads((kit / 'toolchain.json').read_text(encoding='utf-8'))['bundled_scripts']
+        self.assertEqual(sorted('portable-kits/the-witcher-3/' + s for s in bundled), sorted(r['path'] for r in rows))
+        # no machine paths; one line-ending style per file; no sys.path entry is a written-in path
+        drive = re.compile(r'(?i)(?<![\w<])[a-z]:[\\/](?![\\/])|[\\/]users[\\/]')
+        for rel in files:
+            data = (ROOT / rel).read_bytes()
+            text = data.decode('utf-8')
+            self.assertFalse(drive.search(text), f'{rel}: {drive.search(text)}')
+            self.assertIn(data.count(b'\r\n'), (0, data.count(b'\n')), rel)
+            self.assertNotRegex(text, r'sys\.path\.insert\(0, *r?[\'"]', rel)
 
 if __name__ == '__main__': unittest.main(verbosity=2)

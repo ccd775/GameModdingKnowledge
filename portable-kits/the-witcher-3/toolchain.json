@@ -1,0 +1,69 @@
+{
+  "game": "The Witcher 3: Wild Hunt - Remastered (PC, DX12, witcher3.exe 5.0.1048522 / P4CL 13413172, menu v5.01)",
+  "status": "runtime-confirmed-scoped",
+  "tools": [
+    {
+      "name": "Blender",
+      "version": "5.0, run with --background --factory-startup",
+      "role": "karin_build.py: per-bone fit of the source FBX onto man_base, idle-pose shoulder fit, weight retargeting, textures (xbm via the add-on), dyng spec, face shape keys -> mimic bones, w2mesh export; make_stub_mesh.py, karin_preview.py and the checks/blender scripts",
+      "required": true
+    },
+    {
+      "name": "Witcher3-Blender-Tools (dingdio)",
+      "version": "v1.1.0 (witcher3_tools.zip sha256 cc422fb00a9e6ae78ea8f9a3e10e0a61a95d5739b3effa833ea943fba76700ac), installed as a Blender extension (module bl_ext.user_default.witcher3_tools, or W3_ADDON_MODULE)",
+      "role": "w2rig / w2mesh / w2anims import (vanilla animations via CR2W.dc_anims.load_bin_anims_single), native w2mesh writer, xbm writer (texconv / WIC)",
+      "required": true
+    },
+    {
+      "name": "WolvenKit 7 nightly CLI",
+      "version": "7.2.0-nightly.2026-10-14 (zip sha256 97f99d9cb27491e3419fdf42e53409a56ea9804d4561262b20cacecab5018734); .exe.config sku lowered from .NET 4.8.1 to 4.8 by prepare.ps1",
+      "role": "--cr2w2json / --json2cr2w for the item templates, the dyng and the w3fac (tools/wk.ps1); its skeleton name encoding is repaired by fix_cr2w_skeleton_names.py",
+      "required": true
+    },
+    {
+      "name": "bundle, store and resource tools (scripts/)",
+      "version": "kit; Python 3.10+ standard library (karin_face.py and checks/rule_check.py need numpy)",
+      "role": "v5 bundle list / extract / pack, v7 metadata.store writer and reader, CR2W skeleton name repair, empty / mesh / dangle / head item templates, dyng and w3fac JSON writers, staging of every geralt_items template",
+      "required": true
+    },
+    {
+      "name": "PowerShell 7 tools (tools/)",
+      "version": "kit (pwsh 7)",
+      "role": "prepare.ps1 (WolvenKit copy, bundle listing, vanilla extracts, template JSONs), pipeline.ps1 (Blender build -> resources -> pack -> store -> optional deploy), wk.ps1 (WolvenKit CLI wrapper)",
+      "required": true
+    }
+  ],
+  "entry_documents": [
+    "README.md"
+  ],
+  "runtime_boundary": "Game 5.0.1048522, mods/modKarinReplacer/content with blob0.bundle and the generated metadata.store. Project builds made with the original scripts ran in game on the project machine: load and Geralt hidden (T1), model and actions (r2), physics and the intro-cutscene face (agent shots), and v0.4.3 (twin tails / side hair keep their shape at rest, no face clipping when running) accepted by the user. v0.4.4 (hip-level skirt ring kept at its rest clearance) is deployed and offline-checked only. The portable copies were run offline only (2026-10-23): prepare.ps1 + pipeline.ps1 from a fresh work root reproduced 822 of the 829 packed files of v0.4.4 byte for byte; the body w2mesh differs only in vertex order (as between two runs of the same scripts) and is equal as vertex / face / UV multisets with named weights (checks/blender/cmp_w2mesh.py); the six xbm textures embed the absolute PNG source path and differ only by it and the dependent header size / offset / CRC fields. The kit's templates with the project's v0.4.4 depot, packed by the kit's build_mod.py and w3metadata_write.py, give the v0.4.4 blob0.bundle and metadata.store byte for byte. rule_check.py, skirt_walk_sink.py and face_geom.py gave the project's results. -Deploy and the in-game test were not re-run with the kit.",
+  "bundled_scripts": [
+    "scripts/w3paths.py",
+    "scripts/w3bundle.py",
+    "scripts/w3metadata.py",
+    "scripts/w3metadata_write.py",
+    "scripts/build_mod.py",
+    "scripts/fix_cr2w_skeleton_names.py",
+    "scripts/make_empty_item_template.py",
+    "scripts/make_mesh_item_template.py",
+    "scripts/make_dangle_item_template.py",
+    "scripts/make_head_item_template.py",
+    "scripts/make_dyng.py",
+    "scripts/make_w3fac.py",
+    "scripts/face_pose_map.py",
+    "scripts/karin_face.py",
+    "scripts/blender/karin_build.py",
+    "scripts/blender/make_stub_mesh.py",
+    "scripts/blender/karin_preview.py",
+    "scripts/checks/rule_check.py",
+    "scripts/checks/regen_metadata_compare.py",
+    "scripts/checks/blender/idle_view.py",
+    "scripts/checks/blender/idle_head.py",
+    "scripts/checks/blender/skirt_walk_sink.py",
+    "scripts/checks/blender/face_geom.py",
+    "scripts/checks/blender/cmp_w2mesh.py",
+    "tools/prepare.ps1",
+    "tools/pipeline.ps1",
+    "tools/wk.ps1"
+  ]
+}

@@ -107,6 +107,20 @@ class DetachedExports(unittest.TestCase):
                             self.assertIn(name, process.stderr)
                         self.assertFalse([l for l in process.stderr.splitlines() if 'test_dg_' in l and 'skipped' in l
                                           and 'tools_environment' not in l])
+                    if game == 'the-witcher-3':
+                        self.assertTrue((target/'portable-kits/the-witcher-3/requirements.txt').is_file())
+                        for name in ('test_w3_bundle_v5_write_read_extract', 'test_w3_metadata_store_v7_tables',
+                                     'test_w3_cr2w_skeleton_name_fix', 'test_w3_item_templates', 'test_w3_head_item_template',
+                                     'test_w3_dyng_and_w3fac_json', 'test_w3_build_mod_stage_and_pack',
+                                     'test_w3_provenance_and_portability'):
+                            self.assertIn(name, process.stderr)
+                        self.assertFalse([l for l in process.stderr.splitlines() if 'test_w3_' in l and 'skipped' in l
+                                          and not any(k in l for k in ('face_solver', 'lookat_roll', 'machine_paths'))])
+                    if game == 'the-witcher-3' and importlib.util.find_spec('numpy'):
+                        for name in ('test_w3_face_solver', 'test_w3_lookat_roll_check'):
+                            self.assertIn(name, process.stderr)
+                        self.assertFalse([l for l in process.stderr.splitlines() if 'test_w3_' in l and 'skipped' in l
+                                          and 'machine_paths' not in l])
                     print(f'{game}: detached tests passed (unselected games skipped)')
 
 

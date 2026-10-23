@@ -1,5 +1,70 @@
 # 迁移验证记录
 
+## 2026-10-23：新增巫师3 次世代版便携包
+
+- **迁入内容：** 27 个文件，放在 `portable-kits/the-witcher-3/`。
+  - `scripts/` 下 14 个 Python：项目 `Tools/scripts/` 的 13 个（`w3bundle.py`、`w3metadata.py`、`w3metadata_write.py`、`build_mod.py`、`fix_cr2w_skeleton_names.py`、
+    `make_empty_item_template.py`、`make_mesh_item_template.py`、`make_dangle_item_template.py`、`make_head_item_template.py`、`make_dyng.py`、`make_w3fac.py`、
+    `face_pose_map.py`、`karin_face.py`），新写的 `w3paths.py`；
+  - `scripts/blender/` 下 3 个 Blender 脚本，来自项目 `Tools/scripts/`：`karin_build.py`、`make_stub_mesh.py`、`karin_preview.py`；
+  - `scripts/checks/` 下 7 个离线检查：会话里写的 `rule_check.py`、`idle_view.py`、`idle_head.py`、`skirt_walk_sink.py`、`face_geom.py`，工作目录 `scratch/` 的
+    `regen_compare.py`（改名为 `regen_metadata_compare.py`），新写的 `cmp_w2mesh.py`；
+  - `tools/` 下 3 个 PowerShell 7 脚本，来自项目 `Tools/scripts/`：`prepare.ps1`、`pipeline.ps1`、`wk.ps1`；
+  - PROVENANCE 每个文件一行；两个新文件的 `original_sha256` 为空；
+  - 新增 `README.md`、`toolchain.json`、`requirements.txt`（numpy）。公共层 `modkit.py` 的游戏列表加上 `the-witcher-3`，导出器和导出测试因此覆盖它。
+- **没有迁入：** 实机测试的按键 / 截图 / 读档脚本（AutoHotkey、窗口桥、威伦测试流程：坐标、存档位置和本机路径都是这台机器的，方法写在
+  `games/the-witcher-3/DEV_TOOLING.md` §4）；会话里的一次性分析脚本（姿势网格、碰撞链接、原版扭转统计、滚转模拟渲染等）；源模型、游戏提取物、
+  WolvenKit、插件、构建产物和发行 zip。
+- **便携改动**在 21 个文件（19 个迁入文件和 2 个新文件）：
+  - 写死的本机路径（工作目录、游戏目录、源 FBX、WolvenKit、Blender、插件偏好）改由新文件 `w3paths.py` 从 `W3_GAME_DIR` / `W3_WORK` / `W3_SOURCE_FBX` 拼出，
+    没设时报错并说出变量名；`karin_build.py` 的 `CFG` 里这些键默认 `None`，JSON 参数没给时才从环境变量取（新增 `png_dir` 键，原来写死）；
+    插件模块名可用 `W3_ADDON_MODULE` 改；
+  - `build_mod.py`：bundle 清单原来写死，改为 `--listing`（默认 `<W3_WORK>/scratch/all_bundles.tsv`），按 `utf-8-sig` 读；
+  - 没有 argparse 的命令补上了 argparse（6 个：`w3metadata.py`、`fix_cr2w_skeleton_names.py`、`make_empty_item_template.py`、`make_mesh_item_template.py`、
+    `make_dyng.py`、`make_w3fac.py`），位置参数不变；
+  - `w3metadata.py`（调试读取器）原来按 v6 布局读：FileEntry 20 字节、BundleInfo 6 个 u32，读 v7 的 store 会错位；改为 v7 时 FileEntry 24 字节、BundleInfo 以 u64
+    数据块长开头（与写出器、`regen_metadata_compare.py` 一致），打印时表不足 5 行不再越界。改后读原版 store 和 v0.4.4 的 store 都正好读到文件末尾；
+  - Blender 脚本移到 `scripts/blender/`，按上一级的 `scripts/` 找 `w3paths`、`karin_face`、`face_pose_map`；`karin_build.py` 两处注释里的 scratchpad 脚本名改指便携包路径；
+  - 检查脚本：路径改由 `w3paths` 拼出，补了用法说明；`regen_metadata_compare.py` 的游戏目录改为参数（默认 `W3_GAME_DIR`），重建的 store 只在给了 `--out` 时写出；
+  - PowerShell：`prepare.ps1` / `pipeline.ps1` / `wk.ps1` 的工作目录、游戏目录、Blender、WolvenKit 改为 `-WorkRoot` / `-GameDir` / `-Blender` / `-WolvenKitDir` / `-Exe`
+    参数，默认取 `W3_*` 变量，缺了先报错再做事；脚本目录改为 `tools/` 旁边的 `scripts/`；`make_stub_mesh.py` 的 JSON 参数改用 `ConvertTo-Json` 生成；
+  - 换行：`w3metadata_write.py` 原文件是 CRLF，逐字节未改；其余都是 LF。
+
+  其余 6 个文件与原文件逐字节相同：`w3bundle.py`、`w3metadata_write.py`、`make_dangle_item_template.py`、`make_head_item_template.py`、`face_pose_map.py`、
+  `karin_face.py`。处理逻辑除 `w3metadata.py` 的 v7 读法外没有改。
+- **等价性验证（离线，本机）：**
+  - **条件：** Windows 10 19044；Python 3.14；Blender 5.0 + Witcher3-Blender-Tools v1.1.0；WolvenKit 7 nightly 2026-10-14；游戏 5.0.1048522；
+    一个全新的工作目录（项目工作目录只读）；
+  - **`prepare.ps1` + `pipeline.ps1`（含 Blender，不部署）：** 约 16 秒 + 40 秒。829 个打包文件中 822 个与 v0.4.4 逐字节相同（817 个物品模板、dyng、w3fac、
+    脸部网格、两个存根）。身体 `karin_body.w2mesh` 只有顶点顺序不同：`cmp_w2mesh.py` 比较顶点（位置 + 按骨名的权重）、面、UV 的多重集合和骨组全部相同；
+    同一个便携包连跑两次顶点顺序也不同（插件导出器的行为）。6 张 xbm 写着源 PNG 的绝对路径，路径归一化后每张只差 22 个字节（CR2W 头部的文件长、偏移、CRC）。
+    所以 bundle / store 的哈希与 v0.4.4 不同、长度相同；
+  - **打包：** 便携包生成的三个物品模板加上项目构建 v0.4.4 时的 depot，经便携包的 `build_mod.py` + `w3metadata_write.py` 打出的 `blob0.bundle` 和 `metadata.store`
+    与 v0.4.4 逐字节相同（`597794E9…`、`177B780A…`）；补 argparse 之后用 `-SkipBlender` 重跑，模板、dyng / w3fac JSON 和打包结果不变；
+  - **检查脚本：** `rule_check.py`（91 个 look-at 节点，0°）、`skirt_walk_sink.py`（40 帧：全刚性 1 个顶点 0.7 cm，current / snug 0）、`face_geom.py`
+    （最佳中心 (0.02, −0.02) 13.5°）与项目会话里原脚本的输出一致；`idle_view.py`、`idle_head.py`、`karin_preview.py` 正常出图；`regen_metadata_compare.py`
+    重建原版 store：FileInfo / FileEntry / Buffer / Hash 表一致，BundleInfo 只有 `buffers.bundle`（7.6 GB，原版记 0）不同，目录表顺序不同；
+  - **没有重跑的部分：** `-Deploy` 和游戏内测试（实机结论来自项目用原脚本构建的版本）。
+- **合成数据测试：** `TheWitcher3Tools` 共 11 项，不需要游戏、Blender 或 WolvenKit：
+  - v5 bundle：头部字段、按小写路径排序、4096 对齐、CRC32 / MD5、只在变小时 zlib；v3 TOC 往返；命令行 `pack` / `list -v` / `extract`；
+  - v7 store：FNV-1a 64 已知值、VLQ 往返（含负数）；两个 bundle 里的同名文件按 bundle 顺序链接、buffer 归属、目录树和 FileInit、按哈希排序的哈希表；读取器读到末尾；
+  - CR2W 骨名修复：合成的 WolvenKit 形式 CSkeleton（含 72 字符的名字，两字节 VLQ 长度），名字表原地改名与 FNV-1a32、各表与导出 CRC、头 CRC、后续导出的偏移、尾部 buffer 不变；
+    没有 CSkeleton 时拒绝；
+  - 物品模板：发型物品（毛发组件与附着删除、约束属性顺序、wind / gravity / dampening、包围盒、导入表、嵌套的 `flatCompiledData` 同样改）、`--fur stub`、
+    空物品、单网格物品（负数包围盒作位置参数）、头部物品（法线混合组件 / 附着 / 材质删除、眼睛换存根）；
+  - dyng 与 w3fac JSON：节点 / 链接 / 三角形数组、碰撞记录、骨的 `name` String、rig 数据；placer / kf 骨对、映射、`POSE_GAIN`、空变换、锚点顺序不符时拒绝；
+  - `build_mod.py stage` / `pack`：按清单分类（含 DLC 路径、去重、跳过剑鞘和别的角色）、`--extra`、缺 `W3_WORK` 时报错；
+  - 表情求解（numpy）：`side_mask`、`nnls`、权重行和 = 活动份额、每顶点最多 4 根骨、阶跃位移场的重建误差、带种子的 k-means 可复现；
+  - look-at 滚转检查（numpy）：按规则建的骨 0°，绕 X 转 90° 的骨 90°；
+  - 路径与 PowerShell（要 pwsh 7 和 Windows，否则后半跳过）：`w3paths` 缺变量时报出变量名；3 个工具都能解析，缺变量时报出 `W3_GAME_DIR` / `W3_WORK` /
+    `W3_WOLVENKIT_DIR` / `W3_BLENDER`；`wk.ps1` 用假 CLI 转换成功、输出含 ERROR 时失败；
+  - PROVENANCE：每个文件一行，哈希、字节数、修改标记、`bundled_scripts` 一致；没有盘符路径和用户目录，每个文件一种换行，`sys.path` 里没有写死的路径。
+- **未验证：**
+  - 便携版没有装进游戏测试；
+  - 测试套件对 Blender 脚本只做语法检查（上面的等价性验证是本机手工跑的）；
+  - 非 Windows 系统（xbm 写出调用 texconv / WIC）、其它 Blender / 插件 / WolvenKit / 游戏版本；
+  - 新模型的案例常量。
+
 ## 2026-10-16：新增往日不再便携包
 
 - **迁入内容：** 45 个文件，放在 `portable-kits/days-gone/`。

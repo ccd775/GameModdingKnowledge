@@ -2653,5 +2653,248 @@
     "portable_sha256": "486455e2229284af086f5e6de841cc6555516ceae5b7f530b369286ad7c92c62",
     "portable_bytes": 2266,
     "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/the-witcher-3/scripts/w3paths.py",
+    "source": "new file written for the portable kit (no project original)",
+    "original_sha256": null,
+    "source_bytes": null,
+    "portable_sha256": "46fc28ca50b266d678f96754a1b24593d7637eaef4c8b1b42b420cfdb4b91b6c",
+    "portable_bytes": 2378,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/the-witcher-3/scripts/w3bundle.py",
+    "source": "Mods/巫师3重置版/Tools/scripts/w3bundle.py",
+    "original_sha256": "1943a9475bad30a04f4c8d9647239acbc0bd4ffc43007bb2b8fa70f50013ecbb",
+    "source_bytes": 8025,
+    "portable_sha256": "1943a9475bad30a04f4c8d9647239acbc0bd4ffc43007bb2b8fa70f50013ecbb",
+    "portable_bytes": 8025,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/the-witcher-3/scripts/w3metadata.py",
+    "source": "Mods/巫师3重置版/Tools/scripts/w3metadata.py",
+    "original_sha256": "8633c549beecfbff2d1b07305564b1a1430e9496a3e0b39c4b148e90b89deda6",
+    "source_bytes": 3079,
+    "portable_sha256": "123fd77f0d47a0674c52c3b8107bc0b343404d99ab0c5dce2fd8886a18dfaf1d",
+    "portable_bytes": 3849,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/the-witcher-3/scripts/w3metadata_write.py",
+    "source": "Mods/巫师3重置版/Tools/scripts/w3metadata_write.py",
+    "original_sha256": "f417fd920852e0e0cf595582a7b5eee34751609e70d4d7e5b7f06c49703c5fc9",
+    "source_bytes": 6738,
+    "portable_sha256": "f417fd920852e0e0cf595582a7b5eee34751609e70d4d7e5b7f06c49703c5fc9",
+    "portable_bytes": 6738,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/the-witcher-3/scripts/build_mod.py",
+    "source": "Mods/巫师3重置版/Tools/scripts/build_mod.py",
+    "original_sha256": "a018455ff281a97d9cf697877c2ff127585899e1969c6d058db319236d5bc1f2",
+    "source_bytes": 3444,
+    "portable_sha256": "bb4366cf7b54ca0a8d17ab6ea099283fa23e024e00b41065743b298533056c40",
+    "portable_bytes": 3810,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/the-witcher-3/scripts/fix_cr2w_skeleton_names.py",
+    "source": "Mods/巫师3重置版/Tools/scripts/fix_cr2w_skeleton_names.py",
+    "original_sha256": "256a30792b61ba1e3d57b3a0470364c0a04333011512e0c85037d2c6ae16f09b",
+    "source_bytes": 6311,
+    "portable_sha256": "c0167887c68fc0f3cfbbf93d35d13252207d9845ed34d4cb7348755e766da712",
+    "portable_bytes": 6559,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/the-witcher-3/scripts/make_empty_item_template.py",
+    "source": "Mods/巫师3重置版/Tools/scripts/make_empty_item_template.py",
+    "original_sha256": "1aeab9693ddec009dfa630f9d11fefd1784e978a469b81dde7f7afa0d15c37ec",
+    "source_bytes": 989,
+    "portable_sha256": "18d06090aecbdf34186fa9e27ad803836c92375177ea1f5b17b88530fb6bf126",
+    "portable_bytes": 1229,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/the-witcher-3/scripts/make_mesh_item_template.py",
+    "source": "Mods/巫师3重置版/Tools/scripts/make_mesh_item_template.py",
+    "original_sha256": "6244b0e69d2e77dbeddf9b22072ae965fa83d07788e6aae42ee6daaf49f73465",
+    "source_bytes": 1259,
+    "portable_sha256": "7b0d6d289f179661c47a7cfeac435e391faea1924a3285db55df8c2a4cda45df",
+    "portable_bytes": 1639,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/the-witcher-3/scripts/make_dangle_item_template.py",
+    "source": "Mods/巫师3重置版/Tools/scripts/make_dangle_item_template.py",
+    "original_sha256": "cb1b29abe3d1e03d2a98e195fc785db589934c35bca1f65d22adfeb50aef7646",
+    "source_bytes": 4827,
+    "portable_sha256": "cb1b29abe3d1e03d2a98e195fc785db589934c35bca1f65d22adfeb50aef7646",
+    "portable_bytes": 4827,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/the-witcher-3/scripts/make_head_item_template.py",
+    "source": "Mods/巫师3重置版/Tools/scripts/make_head_item_template.py",
+    "original_sha256": "854f4d40d3376a509d9d375e6a9186be171901c15ab0c497375a25b6d6095619",
+    "source_bytes": 2962,
+    "portable_sha256": "854f4d40d3376a509d9d375e6a9186be171901c15ab0c497375a25b6d6095619",
+    "portable_bytes": 2962,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/the-witcher-3/scripts/make_dyng.py",
+    "source": "Mods/巫师3重置版/Tools/scripts/make_dyng.py",
+    "original_sha256": "e32f82b84aae5eeafd7d20893b0037cc0b1c38592a60c512a01c06da48f42782",
+    "source_bytes": 3872,
+    "portable_sha256": "5d16a4f5a2dee25549e90190bd6ea35dde4d99bd2a2fd6c81aa968bf70d4cb83",
+    "portable_bytes": 4145,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/the-witcher-3/scripts/make_w3fac.py",
+    "source": "Mods/巫师3重置版/Tools/scripts/make_w3fac.py",
+    "original_sha256": "46dda6848a4cbe816e1a443bc6aa097793b04f92a1e85f7dd1cf06070bf6d2e9",
+    "source_bytes": 4416,
+    "portable_sha256": "ff174274be84d2c1c786e99d0235218b749be4b18f630b6214d6770832400f64",
+    "portable_bytes": 4693,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/the-witcher-3/scripts/face_pose_map.py",
+    "source": "Mods/巫师3重置版/Tools/scripts/face_pose_map.py",
+    "original_sha256": "27466d261e03b1bd7b9a16521e09179bedf9dd969207e1d6d58091a9b2220088",
+    "source_bytes": 4563,
+    "portable_sha256": "27466d261e03b1bd7b9a16521e09179bedf9dd969207e1d6d58091a9b2220088",
+    "portable_bytes": 4563,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/the-witcher-3/scripts/karin_face.py",
+    "source": "Mods/巫师3重置版/Tools/scripts/karin_face.py",
+    "original_sha256": "08df7b32a87dde1a727f23d39cfe341fa488a186f77a23b58bdeab346a8cdaf8",
+    "source_bytes": 6737,
+    "portable_sha256": "08df7b32a87dde1a727f23d39cfe341fa488a186f77a23b58bdeab346a8cdaf8",
+    "portable_bytes": 6737,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/the-witcher-3/scripts/blender/karin_build.py",
+    "source": "Mods/巫师3重置版/Tools/scripts/karin_build.py",
+    "original_sha256": "b879a6e16374544bbe977ffc90742d6ea1047d4c32a278fdc658418e11eec495",
+    "source_bytes": 59444,
+    "portable_sha256": "1266a9331160a04dfa765f94461d7f08740a0d5fa9a7b96177c16c1e603835d0",
+    "portable_bytes": 60504,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/the-witcher-3/scripts/blender/make_stub_mesh.py",
+    "source": "Mods/巫师3重置版/Tools/scripts/make_stub_mesh.py",
+    "original_sha256": "f4cb998fc7b1515938611b2f16fa9807dae45c9d7e87a2061aa90c1640c56406",
+    "source_bytes": 1891,
+    "portable_sha256": "93b9dd4359f7050efb18c2e33e5ac603c370583835327569a76e77444ad72e11",
+    "portable_bytes": 2146,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/the-witcher-3/scripts/blender/karin_preview.py",
+    "source": "Mods/巫师3重置版/Tools/scripts/karin_preview.py",
+    "original_sha256": "f5e24d53d8ca59b6818e0343d4aded6cd0232c8d5caadfc34b664815fc4a0194",
+    "source_bytes": 5428,
+    "portable_sha256": "52333c9839a5d1b5b594f5f0f05358d68b8d15835e16b0c4f4bcb6ae2b2cf6c6",
+    "portable_bytes": 5711,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/the-witcher-3/scripts/checks/rule_check.py",
+    "source": "agent-session-scratchpad/rule_check.py",
+    "original_sha256": "d2f284e20bf1a82287fa4461b53286931a5d74530c12d8e7971bf65365e8c7ee",
+    "source_bytes": 1208,
+    "portable_sha256": "6ff5d08a109fe87aba6086f7e82feea83976669d1ae81793a58299125d3c2106",
+    "portable_bytes": 1382,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/the-witcher-3/scripts/checks/regen_metadata_compare.py",
+    "source": "W3Work/scratch/regen_compare.py",
+    "original_sha256": "db2788dc390984f927112e06f53501f794a386600f917c1b5c983c18a9e0eb00",
+    "source_bytes": 2028,
+    "portable_sha256": "1437a941c2ade7747f48a8ae46cf2732def2986141d09d7137886889d2a4c1f6",
+    "portable_bytes": 2634,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/the-witcher-3/scripts/checks/blender/idle_view.py",
+    "source": "agent-session-scratchpad/idle_view.py",
+    "original_sha256": "ecd55cea5572fa1b1ccad133986fe3fd9bcc1883c373f7834329ad604974c4e6",
+    "source_bytes": 2741,
+    "portable_sha256": "d18046b44e3bff60310c681ef32b98e5e96384df2303fc60c1ab483cc266f80f",
+    "portable_bytes": 3141,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/the-witcher-3/scripts/checks/blender/idle_head.py",
+    "source": "agent-session-scratchpad/idle_head.py",
+    "original_sha256": "8d107739b4e3c5632473771f41959fc0e5245e850dc729c1cfab85710bf39fe0",
+    "source_bytes": 2786,
+    "portable_sha256": "2921568d4a2fd6fd2b4d34b8f7f1a42b8024753e95cbdcf79ad1784582488f06",
+    "portable_bytes": 3216,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/the-witcher-3/scripts/checks/blender/skirt_walk_sink.py",
+    "source": "agent-session-scratchpad/skirt_walk_sink.py",
+    "original_sha256": "cd874bc7079201ae3dd05b2f1998cf01d5b0e5414ffd9fbe59925864798cd09e",
+    "source_bytes": 8847,
+    "portable_sha256": "3c9a8b09e0e4b08a503853274640505bac1bc1f7de102fe05fb34f6d523e8f25",
+    "portable_bytes": 9412,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/the-witcher-3/scripts/checks/blender/face_geom.py",
+    "source": "agent-session-scratchpad/face_geom.py",
+    "original_sha256": "6c64af44c0a9854c5b8de3dad4025ecd02bc8b781fcd7ed5dc1b37f73f43982f",
+    "source_bytes": 3479,
+    "portable_sha256": "9db972d8524cc7f569d8ede9bcdf0fe7cf233398fb99d03453298a7c203aadf9",
+    "portable_bytes": 3876,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/the-witcher-3/scripts/checks/blender/cmp_w2mesh.py",
+    "source": "new file written for the portable kit (no project original)",
+    "original_sha256": null,
+    "source_bytes": null,
+    "portable_sha256": "621bd2510097a36fcd90e2eb12618481b8fa11c3890a2c4fdfc200ed4125f758",
+    "portable_bytes": 2631,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/the-witcher-3/tools/prepare.ps1",
+    "source": "Mods/巫师3重置版/Tools/scripts/prepare.ps1",
+    "original_sha256": "2966fd01a67b4324d582fed6c95c675191027cd7ac063d3c3814e1cb0dcd0604",
+    "source_bytes": 2744,
+    "portable_sha256": "2daac814bb2b38eb93598f78772412b3ed2f24d1f8f4d0883f42d8112afc5ef1",
+    "portable_bytes": 3505,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/the-witcher-3/tools/pipeline.ps1",
+    "source": "Mods/巫师3重置版/Tools/scripts/pipeline.ps1",
+    "original_sha256": "c978f20edc7dc1999bab4ed670d1e42858dedb8a8fbd6b5c2166aca78e4e1c89",
+    "source_bytes": 5821,
+    "portable_sha256": "52e1a5a23826aea4d0b294dc30323463b4430493fe336b8ec0d9eb88ae81fa61",
+    "portable_bytes": 6679,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/the-witcher-3/tools/wk.ps1",
+    "source": "Mods/巫师3重置版/Tools/scripts/wk.ps1",
+    "original_sha256": "74125a895f5dd491ff3d692a3372bd9de09f03c1f0d2ae995391e663f13c724f",
+    "source_bytes": 1266,
+    "portable_sha256": "1c550fb0b210ea02b6f68d0e58fd978150f744760d4cfc6b3b30577af772f784",
+    "portable_bytes": 1492,
+    "modified_for_portability": true
   }
 ]

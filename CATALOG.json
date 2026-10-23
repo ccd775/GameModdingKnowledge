@@ -229,6 +229,17 @@
       "topics": ["Bend 改版 UE 4.11", "pak v3 与 ~mods", "startuppackages.pak 改名", "头部网格作为所有 look 的主姿势组件", "BendSkeletalMeshLook 批量改写", "原版 4.11 cook 包可被游戏加载", "带内联着色器图的 MI 原地改引用", "GPU 蒙皮顶点缓冲原地改法线 / 位置", "face_* 关节 AnimationRelative 重定向", "per-track 压缩面部动画解码", "烘焙动画蓝图插节点（正序 / 倒序索引）", "逐骨 AnimDynamics 弹簧与平面限制", "PhysX 额外刚体约束无效", "BoneDrivenController 无效、克隆 CopyBone 可用", "网格专用骨与参考姿势缩放放大", "口型叠加姿势与 .lsd", "按口型逐顶点 NNLS 求解嘴部权重", "Bend VideoSettings 显示模式崩溃", "远程测试机 GUI 导入与实机连拍"],
       "limits": ["照片模式里右侧双马尾会被拉伸（未修）", "过场动画、骑车、战斗全部动作、其它 65 个 look 未逐项测", "Remastered 分支未验证", "UE 4.11 的 FBX 导入只能走编辑器 GUI", "眼睑映射不截断：部分情绪里会眯眼"],
       "portable_kit": "portable-kits/days-gone"
+    },
+    {
+      "id": "the-witcher-3",
+      "path": "games/the-witcher-3",
+      "status": "runtime-confirmed-scoped",
+      "milestone": "Karin_Original 替换杰洛特 v0.4.3 / v0.4.4（次世代版 5.01）：全部 817 个杰洛特物品模板覆盖（空模板 / 发型承载 Karin 与 dyng / 头部带 Karin 自己的 CMimicFace）；按 man_base 逐骨拟合、待机姿势里拟合窄肩；dyng 保形（挂锚点、滚转规则、刚性形状链接、头部与裙子碰撞代理）；v0.4.3 双马尾 / 侧发保形与跑动不穿脸经用户实机确认，v0.4.4（走动时髋侧不穿裙）离线通过、待用户实测",
+      "date": "2026-10-19",
+      "game_build": "5.0.1048522 (P4CL 13413172, DX12)",
+      "topics": ["bundle v5 读写", "metadata.store v7 写出（缺它 mod 被忽略）", "WolvenKit 7 的 SSkeletonBone.name StringAnsi 陷阱与修复", "CR2W 头 / 表 CRC 重算", "物品模板整体覆盖（无脚本、无 XML）", "发型物品承载 dangle 组件", "模板的 flatCompiledData 嵌套副本", "man_base 原生骨架 + 逐骨仿射拟合", "在原版待机动画里拟合肩部再解回绑定姿势", "dyng 语义：distance 上限、链接 0 / 1 / 2、look-at 三角形", "look-at 滚转规则（Z 保持父节点 Z）", "重力 0 时上限内几乎无恢复力", "模拟节点直接挂动画锚点", "刚性形状链接保形", "头部碰撞代理与 98 % 静止距离", "裙子髋圈 snug_depth 与 look-at 传递", "形状键 → 129 个平移表情姿势（k-means + NNLS 分解）", "xbm 内嵌源 PNG 路径与导出顶点顺序的不确定性", "AutoHotkey + 截图的实机测试循环"],
+      "limits": ["v0.4.4 未经用户实测", "剑鞘穿过双马尾", "头发和尾巴只能整条摆动", "头部碰撞只作用在节点上", "裙摆部分跟随大腿、大幅抬腿可能穿插", "主菜单背景的杰洛特未替换", "骑马、HairWorks、游戏内 NPC 对话的表情未测", "裸体场景仍穿着衣服"],
+      "portable_kit": "portable-kits/the-witcher-3"
     }
   ]
 }

@@ -125,3 +125,18 @@ The game workflows use different formats, but the same engineering loop.
 - Adding nodes to a cooked UE4 AnimBlueprint: pose LinkIDs index AnimNodeProperties forward while the root, state
   machines and ubergraph calls index it from the end. Insert new node properties at the head of the class field chain
   and add M to every pose link, including those inside BlendPose arrays (`games/days-gone/TECHNICAL_CONTRACTS.md` §8).
+- A secondary-physics node with no gravity barely returns inside its allowed deviation: it rests wherever motion left
+  it, so the resting error is the cap, and neighbours resting off in different directions fold or twist the chain.
+  Raising stiffness or mass did not fix it in The Witcher 3; small caps plus rigid skip links at the bind length did.
+  Apply the fix to every shape-keeping chain at once, not only the one the user named (the twin tails needed another
+  round after only the tail was fixed) (`games/the-witcher-3/PHYSICS.md` §5).
+- Judge a resting shape from the side and from the user's camera, next to an offline render of the target pose with
+  every node on its stiffness target. Front and back shots hid a twisted tail for two rounds, and the agent once read a
+  tail sticking out in a burst as its modelled shape (`games/the-witcher-3/cases/KARIN_ORIGINAL.md`).
+- In offline clipping checks, propagate aim constraints: a pinned segment that looks at a drifting simulated node turns
+  with it. The Witcher 3 skirt poke only reproduced once the waist segment turned with the drifted hip ring. On pleated
+  cloth use ray casts along the skin normal, not nearest-face signed distances (`games/the-witcher-3/PHYSICS.md` §7).
+- When a tool chain round-trips binary resources through JSON, check whether a field silently changes encoding or
+  disappears: WolvenKit 7 drops `SSkeletonBone.name` on read and writes it as `StringAnsi`, which made every mesh skinned
+  to the dangle skeleton invisible. Round-trip one vanilla file and diff it before trusting a converter
+  (`games/the-witcher-3/TECHNICAL_CONTRACTS.md` §3).

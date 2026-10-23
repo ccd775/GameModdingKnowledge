@@ -1,0 +1,2 @@
+# karin_face.py (also run inside Blender with Blender's numpy) and checks/rule_check.py
+numpy>=1.26

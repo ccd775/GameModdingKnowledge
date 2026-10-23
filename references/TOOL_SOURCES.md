@@ -4,7 +4,7 @@
 
 | 工具 | 作者/维护者入口 | 在本工作区的用法 |
 | --- | --- | --- |
-| Blender | [官方历史版本](https://download.blender.org/release/) | 4.2.23 与 4.5.12 曾用于不同项目，DMC5 用 4.0.2，战神5 用 5.0.1，师父用 4.2.23（后台一律 `--factory-startup`），幻兽帕鲁用 4.2.23 + UEFormat 插件（读 `.uemodel` / `.ueanim`）；匹配源文件与插件 |
+| Blender | [官方历史版本](https://download.blender.org/release/) | 4.2.23 与 4.5.12 曾用于不同项目，DMC5 用 4.0.2，战神5 用 5.0.1，师父用 4.2.23（后台一律 `--factory-startup`），幻兽帕鲁用 4.2.23 + UEFormat 插件（读 `.uemodel` / `.ueanim`），巫师3 次世代版用 5.0 + Witcher3-Blender-Tools；匹配源文件与插件 |
 | RPKG Tool | [Glacier 工具页](https://glaciermodding.org/rpkg/) | CLI/GUI 2.34.0，导出 GLB/TGA 后重建并回读 |
 | SMF / GlacierKit | [维护者的 suit modding 指南](https://glaciermodding.org/docs/modding/hitman/guides/suitmodding/) | SMF 2.33.40、GlacierKit 1.12.15 为历史锁；使用当前实体补丁 |
 | ZModeler | [作者官网](https://www.zmodeler3.com/) | 3.3.1.1244；XBG filter、Skeleton Bind、L0/L1 Compound，需用户自己的授权。Watch Dogs 自 2026-10-03 起可不用（纯 Python XBG 写出器），仅作对照 |
@@ -47,6 +47,8 @@
 | ALERT（dat1lib） | [Tkachov/ALERT](https://github.com/Tkachov/ALERT)（GPLv3） | 漫威蜘蛛侠2 用 commit `bc90ed9b53fbcaa3b7acf94b36f00e77eab0dacb`（2024-06-05）：读 toc、DSAR 解压、crc32 / crc64。注意它按 i29 的 36 B 切资产头，i30 的头是变长的，本库脚本自己解析。便携包不带 ALERT，用 `SM2_ALERT` 指向自取的副本 |
 | Overstrike | [Tkachov/Overstrike](https://github.com/Tkachov/Overstrike) | 漫威蜘蛛侠2 的 `.stage` 格式与安装逻辑（MetaInstaller_I29 + StageInstaller_I29_V2）的参照；便携包的 `sm2_install.py` 是按其行为重写的纯标准库安装器，未复制其代码。用户也可以直接用 Overstrike 安装发行的 `.stage` |
 | UnPSARC | [rm-NoobInCoding](https://github.com/rm-NoobInCoding/UnPSARC/releases) | 对马岛 DSAR / PSARC 解包参考（本项目未直接使用；mod 包用自写的不压缩 PSARC 写入器） |
+| Witcher3-Blender-Tools | [dingdio/Witcher3-Blender-Tools](https://github.com/dingdio/Witcher3-Blender-Tools/releases) | 巫师3 次世代版用 v1.1.0（2026-09-29，`witcher3_tools.zip` SHA-256 `cc422fb00a9e6ae78ea8f9a3e10e0a61a95d5739b3effa833ea943fba76700ac`），装在 Blender 5.0 里作为扩展（模块 `bl_ext.user_default.witcher3_tools`）：读 w2rig / w2mesh / w2anims（原版动画经 `CR2W.dc_anims.load_bin_anims_single`），原生写 w2mesh（导出器补偿骨的 Rz 90°），写 xbm（调用 texconv，Blender 后台模式要先初始化 COM）。导出的顶点顺序每次运行可能不同；xbm 里写着源 PNG 的绝对路径 |
+| WolvenKit 7 nightly | [WolvenKit/WolvenKit-7-nightly](https://github.com/WolvenKit/WolvenKit-7-nightly/releases) | 巫师3 次世代版用 `7.2.0-nightly.2026-10-14`（zip SHA-256 `97f99d9cb27491e3419fdf42e53409a56ea9804d4561262b20cacecab5018734`）的 CLI 做 CR2W ↔ JSON。它把 `SSkeletonBone.name` 读丢、写成 `StringAnsi`，写出的 dyng / w3fac 必须过便携包的 `fix_cr2w_skeleton_names.py`；`.exe.config` 要 .NET 4.8.1，只有 4.8 的机器把 sku 改成 4.8 可用。bundle 和 metadata.store 用便携包自己的工具，不用 WolvenKit |
 
 黑旗使用的 AnvilToolkit 1.3.6 与 Forge Injector 只是格式比较来源；实测表明它们不是此项目 BFR 的最终编译器。最终 field-4 Forge 实现已在便携包中提供。Oodle 是按需外部依赖，必须由用户合法取得原 DLL，保持脚本中的 SHA 验证。
 
