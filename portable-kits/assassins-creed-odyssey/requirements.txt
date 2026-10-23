@@ -1,0 +1,3 @@
+# aco_phys_skel.py, aco_pose_sim.py, glb_rotate.py, glb_info.py (the Blender scripts use Blender's own numpy).
+# build_mod.py and build_atlas.py also need Pillow from the root requirements.txt.
+numpy>=1.26

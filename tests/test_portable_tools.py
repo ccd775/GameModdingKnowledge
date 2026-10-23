@@ -247,6 +247,7 @@ class PortableTools(unittest.TestCase):
             if path.parents[1].name == 'marvels-spider-man-2' and sm2_missing(path.stem): continue
             if path.parents[1].name == 'days-gone' and dg_missing(path.stem): continue
             if path.parents[1].name == 'the-witcher-3' and w3_missing(path.stem): continue
+            if path.parents[1].name == 'assassins-creed-odyssey' and aco_missing(path.stem): continue
             cli(path.parents[1].name,path.stem,'--help')
 
 
@@ -4091,5 +4092,56 @@ class TheWitcher3Tools(unittest.TestCase):
             self.assertFalse(drive.search(text), f'{rel}: {drive.search(text)}')
             self.assertIn(data.count(b'\r\n'), (0, data.count(b'\n')), rel)
             self.assertNotRegex(text, r'sys\.path\.insert\(0, *r?[\'"]', rel)
+
+
+ACO_KIT = KITS / 'assassins-creed-odyssey'
+# Odyssey kit scripts whose import (and --help) needs more than the standard library
+ACO_DEPS = {'aco_phys_skel': ('numpy',), 'aco_pose_sim': ('numpy',), 'glb_rotate': ('numpy',), 'glb_info': ('numpy',),
+            'build_mod': ('PIL',), 'build_atlas': ('PIL',)}
+
+
+def aco_missing(script):
+    return [m for m in ACO_DEPS.get(script, ()) if importlib.util.find_spec(m) is None]
+
+
+def aco_kit():
+    if not ACO_KIT.is_dir():
+        raise unittest.SkipTest('assassins-creed-odyssey is not included in this single-game export')
+    return ACO_KIT
+
+
+class AssassinsCreedOdysseyTools(unittest.TestCase):
+    """Provenance and portability of the Odyssey kit. Real work needs the game, AnvilToolkit 1.3.6 or Blender 5.0; the
+    equivalence of the changed scripts with the project originals was checked by hand (VALIDATION.md)."""
+
+    def test_aco_provenance_and_portability(self):
+        import hashlib
+        import re
+        kit = aco_kit()
+        rows = [r for r in json.loads((KITS / 'PROVENANCE.json').read_text(encoding='utf-8-sig'))
+                if r['path'].startswith('portable-kits/assassins-creed-odyssey/')]
+        files = sorted(p.relative_to(ROOT).as_posix() for p in kit.rglob('*') if p.is_file() and '__pycache__' not in p.parts)
+        own = {'portable-kits/assassins-creed-odyssey/' + n for n in ('README.md', 'toolchain.json', 'requirements.txt')}
+        self.assertEqual(sorted(r['path'] for r in rows), sorted(set(files) - own))
+        for r in rows:
+            data = (ROOT / r['path']).read_bytes()
+            self.assertEqual((hashlib.sha256(data).hexdigest(), len(data)), (r['portable_sha256'], r['portable_bytes']), r['path'])
+            self.assertTrue(r['source'].startswith(('Mods/ACOd/scripts/', 'Mods/ACOd/tools/AcoHarness/')), r['source'])
+            self.assertEqual(r['modified_for_portability'], r['portable_sha256'] != r['original_sha256'], r['path'])
+        bundled = json.loads((kit / 'toolchain.json').read_text(encoding='utf-8'))['bundled_scripts']
+        self.assertEqual(sorted('portable-kits/assassins-creed-odyssey/' + s for s in bundled), sorted(r['path'] for r in rows))
+        # no machine paths; one line-ending style per file (migrated files keep the original's); no sys.path entry is a
+        # written-in path; the private remote-screenshot helpers and the package .cmd wrappers are not bundled
+        drive = re.compile(r'(?i)(?<![\w<])[a-z]:[\\/](?![\\/])|[\\/]users[\\/]')
+        for rel in files:
+            data = (ROOT / rel).read_bytes()
+            text = data.decode('utf-8')
+            self.assertFalse(drive.search(text), f'{rel}: {drive.search(text)}')
+            self.assertIn(data.count(b'\r\n'), (0, data.count(b'\n')), rel)
+            self.assertNotRegex(text, r'sys\.path\.insert\(0, *r?[\'"]', rel)
+        for name in ('rshot.sh', 'rshots.sh', 'shrink_shot.ps1'):
+            self.assertFalse(list(kit.rglob(name)), name)
+        self.assertFalse(list(kit.rglob('*.cmd')))
+
 
 if __name__ == '__main__': unittest.main(verbosity=2)

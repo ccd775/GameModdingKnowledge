@@ -240,6 +240,17 @@
       "topics": ["bundle v5 读写", "metadata.store v7 写出（缺它 mod 被忽略）", "WolvenKit 7 的 SSkeletonBone.name StringAnsi 陷阱与修复", "CR2W 头 / 表 CRC 重算", "物品模板整体覆盖（无脚本、无 XML）", "发型物品承载 dangle 组件", "模板的 flatCompiledData 嵌套副本", "man_base 原生骨架 + 逐骨仿射拟合", "在原版待机动画里拟合肩部再解回绑定姿势", "dyng 语义：distance 上限、链接 0 / 1 / 2、look-at 三角形", "look-at 滚转规则（Z 保持父节点 Z）", "重力 0 时上限内几乎无恢复力", "模拟节点直接挂动画锚点", "刚性形状链接保形", "头部碰撞代理与 98 % 静止距离", "裙子髋圈 snug_depth 与 look-at 传递", "形状键 → 129 个平移表情姿势（k-means + NNLS 分解）", "xbm 内嵌源 PNG 路径与导出顶点顺序的不确定性", "AutoHotkey + 截图的实机测试循环"],
       "limits": ["v0.4.4 未经用户实测", "剑鞘穿过双马尾", "头发和尾巴只能整条摆动", "头部碰撞只作用在节点上", "裙摆部分跟随大腿、大幅抬腿可能穿插", "主菜单背景的杰洛特未替换", "骑马、HairWorks、游戏内 NPC 对话的表情未测", "裸体场景仍穿着衣服"],
       "portable_kit": "portable-kits/the-witcher-3"
+    },
+    {
+      "id": "assassins-creed-odyssey",
+      "path": "games/assassins-creed-odyssey",
+      "status": "runtime-confirmed-scoped",
+      "milestone": "Karin_Original 整体替换卡珊德拉 v8（Ubisoft Connect v1.5.6）：VisualMaster 去掉装备列、头部表与头发表去掉脸和发型，Karin 的 LOD0 / LOD1 原地顶替卡珊德拉专属的身体 LOD，4 个 ACD_Tex1 材质放进 patch_01 的 LOD0 数据文件；重建卡珊德拉专属的头发物理骨架 Hair_NEW（KP 骨 + Reflex3 type 21 记录）；下颌 / 眼睑 / 虹膜用绑定偏移杠杆蒙到头部骨架；原地追加安装到每一份副本（patch_01、SharedGroup_00、DLC forge）。模型与材质（v3 起）、双马尾 / 脸颊头发物理（v4）、v8 整体（眼睑挂褶骨、25° 闭合，常态稳定睁眼）经用户实机确认；v6 尾巴 / 耳朵的软化未单独评价",
+      "date": "2026-10-23",
+      "game_build": "Ubisoft Connect product 5059, v1.5.6 (ACOdyssey.exe, forge v28)",
+      "topics": ["forge v28 索引行与名字表（名字表存数据文件名）", "覆盖顺序 patch_01 > dlc_<n> > SharedGroup_00 与「每一份副本」", "DLC 身体容器是 LODSelector 空壳", "原地追加安装：改指 20 字节索引行与名字表大小、状态先写、截断卸载", "不论装备的整角色替换：VisualMaster 的 Outfit 列", "头发表的发型列与 DynamicResources", "LOD2–4 共用女性身体不替换", "ACD_Tex1：法线 B 金属度 A 光泽度、Mask0 类型 12", "皮肤 / 服装模板吃编码贴图", "AnvilToolkit 1.3.6 无界面驱动：奥德赛 schema、顶层 mip 对话框、内联 mip 模板", "compile-xml 空引用填充字节修补", "奥德赛与影的坐标系差 90°", "导入格式 v4、≤ 255 骨", "Reflex3 旧格式 blob 与 type 21 Physics 记录", "KP 物理骨局部 +X 沿链", "绑定偏移杠杆蒙皮（下颌、眼睑、虹膜）", "虹膜挂视线骨而非眼窝骨", "每根眼睑骨与眯眼 / 睁大 / 视线跟随 / 扭转姿势共用", "不对称诊断构建与录像逐帧测量", "多骨抵消不可行（每顶点 14–18 根骨）", "增益取舍：常态稳定 vs 完整眨眼", "可重新部署包：注册表定位游戏目录"],
+      "limits": ["眨眼预计只闭约 20–35 %（按 v7d 量出的褶骨峰值 5–9° ÷ 25° 换算，有意取舍）", "对话 / 过场表情未测", "DLC 区域与年老的卡珊德拉未测", "4K 贴图未做", "v6 尾巴 / 耳朵软化未经用户单独评价", "弓和箭袋仍显示", "嘴的幅度小、未专门调", "只验证了 Ubisoft Connect v1.5.6"],
+      "portable_kit": "portable-kits/assassins-creed-odyssey"
     }
   ]
 }

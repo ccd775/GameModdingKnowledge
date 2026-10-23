@@ -1,0 +1,66 @@
+{
+  "game": "Assassin's Creed Odyssey (PC, Ubisoft Connect product 5059, v1.5.6, ACOdyssey.exe)",
+  "status": "runtime-confirmed-scoped",
+  "tools": [
+    {
+      "name": "AnvilToolkit",
+      "version": "1.3.6 (third-party, user-supplied; not bundled)",
+      "role": "library behind AcoHarness: data-file unpack / pack, schema XML export / compile, glTF export / import, TextureMap read / write; GUI not used",
+      "required": true
+    },
+    {
+      "name": "AcoHarness (acoharness/)",
+      "version": "kit source (C#); acoharness/build.ps1 compiles it with the .NET SDK's Roslyn against AnvilToolkit 1.3.6 and a .NET 9 runtime (9.0.18 in the project)",
+      "role": "headless AnvilToolkit driver: unpack-export, compile-xml, pack-data, export-glb, import-glb (Odyssey vertex format v4), mesh-bones, tex-import (--id, --maptype 12), prefetch-*, scan-refs",
+      "required": true
+    },
+    {
+      "name": "Odyssey.gfl",
+      "version": "AnvilToolkit file list for Odyssey (Kamzik123/AnvilToolkit-Resources); user-supplied",
+      "role": "names for AnvilToolkit; build.ps1 copies it into the harness Lists folder; aco_gfl.py dumps it",
+      "required": true
+    },
+    {
+      "name": "Blender",
+      "version": "5.0.1, background mode",
+      "role": "scripts/blender: fit_karin.py (fit + KP physics bones), face_rig.py (jaw / lids / irises, bind-offset levers), export_karin_lods.py (aco_tex1 LOD GLBs), pose_preview.py (Workbench renders, needs an OpenGL context), aco_pack_atlas.py (rejected atlas route)",
+      "required": true
+    },
+    {
+      "name": "DirectXTex texconv",
+      "version": "user-supplied (version not recorded in the project)",
+      "role": "BC7 sRGB diffuse / BC7 linear normal and mask for build_mod.py; atlas for build_atlas.py",
+      "required": true
+    },
+    {
+      "name": "forge, table, physics and install tools (scripts/)",
+      "version": "kit; Python 3.10+ (aco_install.py alone runs on 3.8+); numpy for aco_phys_skel / aco_pose_sim / glb_rotate / glb_info, Pillow for build_mod / build_atlas",
+      "role": "forge v28 index / extract, index search, in-place install into every copy with byte-exact uninstall, BuildTable / LODSelector XML edits, payload builder with null-reference padding repair, Reflex3 physics skeleton writer, head-skeleton pose simulator, GLB frame rotation and listing",
+      "required": true
+    }
+  ],
+  "entry_documents": [
+    "README.md"
+  ],
+  "runtime_boundary": "Game v1.5.6 (Ubisoft Connect product 5059). Project builds made with the original scripts ran in game on a second test PC (v1 to v8). Confirmed by the user: the model and materials (from v3), the twin-tail and cheek-hair physics (v4) and the v8 eyelids (crease bones closed at 25 degrees; \"看起来可以了\", 2026-10-23). The v6 tail / ear softening (kept in v8) and the jaw were not judged separately. The redeployable v8 package, whose aco_install.py is the project original of scripts/aco_install.py, was redeployed on the test PC with install.cmd on 2026-10-23; that redeploy is verified at install level only (registry detection, uninstall of the previous state, every copy written, status pointing at the package payload). The portable copies were checked offline only (2026-10-23): on synthetic data the changed command-line scripts (aco_forge, aco_locate, aco_install, bt_tool, glb_rotate, glb_info, aco_phys_skel) give byte-identical outputs to the project originals, and the aco_pose_sim module gives the same global bone transforms; build_mod.py, build_atlas.py, aco_gfl.py, the Blender scripts and the AcoHarness build were not re-run with the kit. Dialogue / cutscene expressions, DLC areas and 4K textures are untested or not done.",
+  "bundled_scripts": [
+    "scripts/aco_forge.py",
+    "scripts/aco_locate.py",
+    "scripts/aco_gfl.py",
+    "scripts/aco_install.py",
+    "scripts/bt_tool.py",
+    "scripts/build_mod.py",
+    "scripts/build_atlas.py",
+    "scripts/aco_phys_skel.py",
+    "scripts/aco_pose_sim.py",
+    "scripts/glb_rotate.py",
+    "scripts/glb_info.py",
+    "scripts/blender/fit_karin.py",
+    "scripts/blender/face_rig.py",
+    "scripts/blender/export_karin_lods.py",
+    "scripts/blender/pose_preview.py",
+    "scripts/blender/aco_pack_atlas.py",
+    "acoharness/Program.cs",
+    "acoharness/build.ps1"
+  ]
+}

@@ -1,5 +1,65 @@
 # 迁移验证记录
 
+## 2026-10-23：新增刺客信条：奥德赛便携包
+
+- **迁入内容：** 18 个文件，放在 `portable-kits/assassins-creed-odyssey/`。
+  - `scripts/` 下 11 个 Python，来自项目 `scripts/`：`aco_forge.py`、`aco_locate.py`、`aco_gfl.py`、`aco_install.py`、`bt_tool.py`、`build_mod.py`、
+    `build_atlas.py`、`aco_phys_skel.py`、`aco_pose_sim.py`、`glb_rotate.py`、`glb_info.py`；
+  - `scripts/blender/` 下 5 个 Blender 脚本，来自项目 `scripts/`：`fit_karin.py`、`face_rig.py`、`export_karin_lods.py`、`pose_preview.py`、`aco_pack_atlas.py`；
+  - `acoharness/` 下 AcoHarness 的 `Program.cs`、`build.ps1`，来自项目 `tools/AcoHarness/`：项目原创的 C# 驱动，引用用户自备的 AnvilToolkit 1.3.6，
+    不带 AnvilToolkit、`Odyssey.gfl` 或 .NET 的任何文件；
+  - PROVENANCE 每个文件一行（18 行），全部有项目原件；
+  - 新增 `README.md`、`toolchain.json`、`requirements.txt`（numpy）。公共层 `modkit.py` 的游戏列表加上 `assassins-creed-odyssey`，导出器和导出测试因此覆盖它。
+- **没有迁入：** `rshot.sh`、`rshots.sh`、`shrink_shot.ps1`（测试机远程截图 / 缩图的私有辅助脚本，绑定本机的远程桌面工具链；做法写在
+  `games/assassins-creed-odyssey/DEV_TOOLING.md` §4）；可重新部署包的 `_env.cmd`、`install.cmd`（和包里的 `uninstall.cmd`、`status.cmd`）：仓库不收 `.cmd`，
+  做法写在 `games/assassins-creed-odyssey/VALIDATION_AND_RELEASE.md` §3；生成 `BUILD_INFO.json` / `MANIFEST.sha256` 的打包脚本（不在交来的项目原件里）；
+  影项目的 `skirt_follow.py`、`acsh_forge.py`、链根表、规范化的源 blend 和贴图；全部工作数据（提取的数据文件、XML、blend、GLB、payload、包 zip、录像、截图）。
+- **便携改动**在 13 个文件：
+  - 写死的本机路径改成环境变量或参数，缺了先报错并说出变量名，什么都不写：
+    - `aco_locate.py`：索引目录原来默认脚本目录旁的 `cache`，游戏目录原来默认一个固定路径 → `ACO_CACHE` / `--cache`、`ACO_GAME_DIR` / `--game`（只有 `extract` 要）；
+    - `aco_install.py`：游戏目录原来默认同一个固定路径 → `ACO_GAME_DIR` / `--game`，新增 `set_game()`；`install` / `uninstall` / `status` 的位置参数不变，
+      包里 `install.cmd` 的调用方式照常可用；
+    - `build_mod.py`：工程的 `work`、harness，影项目的 dotnet、texconv、源贴图 → `ACO_WORK`、`ACO_HARNESS`、`ACO_DOTNET`、`ACO_TEXCONV`、`ACO_SRC_TEX`，
+      在 `main()` 开头、删输出目录之前一起检查；
+    - `build_atlas.py`：影项目的 texconv → `ACO_TEXCONV` / `--texconv`；
+    - `aco_phys_skel.py`：工程 `work` 下的两个模板 XML → `ACO_WORK`，新增 `--template` / `--base`；
+    - `aco_pose_sim.py`：同步盘上的 `sys.path` 和头部骨架 XML → 脚本自己的目录、`ACO_HEAD_SKELETON_XML` / `ACO_WORK`；`Skel()` 的默认参数改为 `None`，缺了报错；
+    - `aco_gfl.py`：影项目的脚本目录和工程的 GFL → `ACO_ACSH_SCRIPTS` / `--acsh-scripts`、`ACO_GFL` / `--gfl`，`acsh_forge` 改为检查参数之后才导入；
+    - `acoharness/build.ps1`：影项目的工具目录、写死的运行时版本目录、工程的 `anvil_runtime\Lists` 和 `bin\` 输出 → `-AtkDir` / `ACO_ATK_DIR`、
+      `-DotnetRoot` / `ACO_DOTNET_ROOT`、`-ListsDir` / `ACO_ATK_LISTS`、`-OutDir` / `ACO_HARNESS` 所在目录，`-RuntimeVersion` 默认 9.0.18；
+  - 没有 argparse 的命令补上了 argparse（10 个：`aco_forge.py`、`aco_locate.py`、`aco_gfl.py`、`aco_install.py`、`bt_tool.py`、`build_mod.py`、`build_atlas.py`、
+    `aco_phys_skel.py`、`glb_rotate.py`、`glb_info.py`），位置参数和选项不变；原来 `--help` 会以非 0 退出（打印说明后 `sys.exit` 或下标越界）。
+    不认识的子命令现在由 argparse 报错（原来打印说明后退出 1）；`aco_install.py install` 缺 payload 目录时报用法错误（原来下标越界）；
+  - `blender/pose_preview.py`：按上一级的 `scripts/` 找 `aco_pose_sim`；加了 `--head-xml <xml>`，传给 `sim.Skel(...)`（不给时照旧用
+    `ACO_HEAD_SKELETON_XML` / `ACO_WORK`）；说明里补了这三种来源、一次性计划任务不继承会话环境变量、需要 OpenGL 的提示；
+  - 换行：每个迁入文件保留原来的换行，CRLF 的 `aco_install.py`、`bt_tool.py`、`build.ps1` 改动处也用 CRLF（`face_rig.py`、`Program.cs` 是 CRLF、未改）；其余 LF。
+
+  其余 5 个文件与原文件逐字节相同：`fit_karin.py`、`face_rig.py`、`export_karin_lods.py`、`aco_pack_atlas.py`、`Program.cs`。处理逻辑没有改。
+- **等价性验证（离线，本机，合成数据）：**
+  - **条件：** Windows 10 19044；Python 3.12.10 的独立虚拟环境 + numpy 2.5.4、Pillow 12.3.0；没有游戏、AnvilToolkit、.NET、texconv 或 Blender 参与。
+  - 原脚本和便携脚本在同一份合成数据上运行，输出逐字节比较，全部相同：
+    - `aco_forge.py index` / `extract`（3 个合成的 v28 forge：根目录 2 个、`dlc_58` 下 1 个）；
+    - `aco_locate.py find`（名字、16 位 ID、`/正则/`）/ `extract`；
+    - `aco_install.py install` → `status` → `uninstall`（游戏目录带空格，2 个 payload，`skip.tsv` 跳过一份 DLC 副本）：安装后的全部 forge 和状态输出相同；
+      卸载后游戏目录与安装前逐字节相同；`--game` 与 `ACO_GAME_DIR` 结果相同；
+    - `bt_tool.py edit`（`--drop`、带反斜杠路径的 `--set`、`--clear-dynres`）/ `lodsel` / `show`；
+    - `glb_rotate.py`（−90°，再转回 +90°）、`glb_info.py --joints`；
+    - `aco_phys_skel.py`（合成的 2 骨模板 + 3 骨基础骨架 + 4 节 KP 链）：原脚本、`ACO_WORK`、`--template` / `--base` 三种方式的骨架 XML 和报告相同
+      （6 根骨、2 条物理记录）；
+    - `aco_pose_sim.Skel`：合成头部骨架 + 一个姿势，0.5 权重下各骨的全局变换相同。
+  - 缺变量：`build_mod.py`（一次列出 5 个变量，输出目录没有被创建）、`build_atlas.py`、`aco_phys_skel.py`、`aco_gfl.py`、`aco_pose_sim.Skel()`、`aco_locate.py`、
+    `aco_install.py`、`build.ps1`（4 个变量）都在动手之前报出变量名；`build.ps1` 用 PowerShell 解析器解析没有错误。
+  - **没有重跑的部分：** `build_mod.py`、`build_atlas.py`、`aco_gfl.py` 的实际运行（要 AnvilToolkit / AcoHarness / texconv / 影项目的 `acsh_forge`）；5 个 Blender 脚本；
+    AcoHarness 的编译和运行；在测试机上安装便携版。实机结论来自项目用原脚本构建的 v1–v8 和 v8 包的重新部署。
+- **合成数据测试：** `AssassinsCreedOdysseyTools` 1 项：PROVENANCE 每个文件一行，哈希、字节数、修改标记、`bundled_scripts` 一致；本包文件里没有盘符路径和用户目录，
+  每个文件一种换行，`sys.path` 里没有写死的路径，没有远程截图脚本和 `.cmd`。`--help` 测试覆盖 `scripts/` 下全部 11 个脚本；没装 numpy / Pillow 时，
+  要它们的脚本跳过。上面的等价性核对是本机手工跑的，没有写进测试套件。
+- **未验证：**
+  - 便携版没有装进游戏测试；
+  - 测试套件对 Blender 脚本只做语法检查，`Program.cs` 没有编译；
+  - 非 Windows 系统（安装器用 `tasklist` 判断游戏是否在运行）、其它游戏版本 / 平台；
+  - 新模型的案例常量。
+
 ## 2026-10-23：新增巫师3 次世代版便携包
 
 - **迁入内容：** 27 个文件，放在 `portable-kits/the-witcher-3/`。
