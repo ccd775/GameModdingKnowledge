@@ -136,6 +136,26 @@ The game workflows use different formats, but the same engineering loop.
 - In offline clipping checks, propagate aim constraints: a pinned segment that looks at a drifting simulated node turns
   with it. The Witcher 3 skirt poke only reproduced once the waist segment turned with the drifted hip ring. On pleated
   cloth use ray casts along the skin normal, not nearest-face signed distances (`games/the-witcher-3/PHYSICS.md` §7).
+- Do not fit fingers with a body-wide spatial warp. Control points on neighbouring finger segments fight each other,
+  and in Horizon Forbidden West they pushed Karin's fingers up to 0.94 cm off Beta's finger axes, always toward the
+  neighbouring finger. Running looked fine, but cutscene finger curls crossed the middle and ring fingers. Map the hand
+  per bone instead and blend the maps by the source's own skin weights: align the whole palm frame including its roll,
+  then turn each segment onto its target axis. Gate the result offline on the segment-centre offset from the bone axis
+  and on an interpenetration count with every finger curled into a fist
+  (`games/horizon-forbidden-west/BUILD_PIPELINE.md` §3).
+- Rig an anime face to a joint-driven realistic face with guards on top of the nearest-surface transfer:
+  - Split the lips by topology. Karin's mouth slit rims are 0.04 cm apart, so take each rim vertex's side from the
+    direction its triangles extend in, not from its height.
+  - Average the weights of coincident vertices (mirror centre line, UV seams), or the face cracks open when it moves.
+  - Leave out joints whose travel cannot cover the source feature: lids that travel 1 cm against a 4.6 cm anime eye
+    only twitch.
+
+  Before concluding that expressions do not work, look in a scene that reliably drives the face: HFW photo mode
+  expressions did, plain gameplay showed almost none (`games/horizon-forbidden-west/BUILD_PIPELINE.md` §6).
+- When the tools cannot author new physics, borrow the target's own simulated particles: HFW Beta's PBD particle
+  bones kept simulating with her cloth meshes collapsed. Spread a long part along one particle chain (root to tip
+  levels, adjacent levels blended) rather than hanging it on one or two particles. One particle swings the whole part
+  as a rigid lever, which the user called "too uniform" (`games/horizon-forbidden-west/BUILD_PIPELINE.md` §4).
 - When a tool chain round-trips binary resources through JSON, check whether a field silently changes encoding or
   disappears: WolvenKit 7 drops `SSkeletonBone.name` on read and writes it as `StringAnsi`, which made every mesh skinned
   to the dangle skeleton invisible. Round-trip one vanilla file and diff it before trusting a converter

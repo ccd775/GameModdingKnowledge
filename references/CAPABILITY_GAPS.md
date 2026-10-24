@@ -12,7 +12,7 @@
 | L4D2 | VPK 提取/校验、VTA 缩放、StudioMDL 记录器 | 源 SMD/QC、flex/procedural/physics、MDL 深审计 |
 | HD2 | patch triplet、LUT、SDK UV 复制 | 当前 AQ/SDK、Unit carrier、权重和 Piece ownership |
 | MHWs | 仅文档（合同、排障、自测方法），无便携脚本 | RE Mesh/Chain 工具、BoneSystem、当前 REFramework；每角色骨架/脸部映射、挂点骨与碰撞拟合 |
-| Horizon Forbidden West | 构建器：VRM 拟合、遮挡剔除、分区权重继承、拼页、h2 ascii 写出；导入批处理（成功数核对）、core 包围盒与 SkinInfo 补丁、姿势预览 | id-daemon 的 h2_pc_mi_091 与 Mod Manager（用户自取）、新模型的案例常量（网格名、遮盖规则、光泽）、新 build 的槽位与原版计数复核、实机复测 |
+| Horizon Forbidden West | 构建器：VRM 拟合（手部逐骨映射）、遮挡剔除、分区权重继承、拼页、h2 ascii 写出；面部绑定到 719 面部骨（表情、口型）；借用 Beta 的 PBD 粒子（裙摆、双马尾、尾巴）；导入批处理（成功数核对）、core 包围盒与 SkinInfo 补丁、姿势、握拳与面部测试 | id-daemon 的 h2_pc_mi_091（Defender 会拦截）与 Mod Manager（用户自取）、新模型的案例常量（网格名、遮盖规则、光泽、粒子链取法）、新 build 的槽位与原版计数复核、实机复测；眨眼和长链物理做不了：导入工具不能加骨，要做就得逆向 core 的 PBD 资源 |
 | God of War Ragnarök | 完整构建器：wad / MESH / MG 读写、原地写入与槽位规划、退化三角形隐藏、补丁 lodpack / texpack、骨架角色表、Blender 姿势拟合与减面；逐顶点回读、屈膝模拟；源模型形态键烘焙（FBX / VRM） | 游戏自带的 `libSceAgcTextureTool.dll`（贴图，仅 Windows）、Blender；新角色的骨骼角色表与网格组选择、新 build 的定义下标与哈希复核；次级物理与表情未做；战斗与过场复测 |
 | Ghost of Tsushima | 完整构建器：VRM 拟合与肩部反解、剔除/减面、UV 拼页、xmesh/xpps/SPS 写入、PSARC 打包；离线校验与渲染 | 新模型的 profile（网格→槽位、遮盖规则、参数）、新 build 的偏移与断言复核、实机复测 |
 | DW Origins | 仅文档（合同、排障、读档自测流程），无便携脚本；构建脚本留在项目目录 | gust_stuff、DirectXTex；rdb/fdata/KTID 解析可用浪人便携包的 `ktdata.py`；新 build 的 KTID 槽表与原版权重分布重新统计；次级物理（NUNO / 链骨）未做；实际战斗复测 |

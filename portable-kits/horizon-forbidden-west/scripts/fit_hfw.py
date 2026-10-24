@@ -22,6 +22,16 @@ for _s, _S in (('left', 'L'), ('right', 'R')):
         for _k, _seg in enumerate(_segs):
             HUMAN2NAME[f'{_s}{_f}{_seg}'] = f'{_S}_{_F}_sjnt_{_k}'
 HUMAN2GOT = {}
+FINGERS = ('Thumb', 'Index', 'Middle', 'Ring', 'Little')
+
+
+def is_finger(h):
+    return any(f in h for f in FINGERS)
+
+
+def is_hand(h):
+    """humanoid bone in a hand subtree (hand or finger)"""
+    return h.endswith('Hand') or is_finger(h)
 
 
 def set_skeleton(names):
@@ -103,8 +113,21 @@ class TPS:
         return J
 
 
+def palm_frame(wrist, knuckles):
+    """Hand frame from the wrist and the index, middle, ring, little knuckles: x wrist -> middle knuckle,
+    y index -> little knuckle (orthogonalised), z = x cross y. Also returns the palm length and knuckle span."""
+    x = knuckles[1] - wrist
+    length = np.linalg.norm(x)
+    x = x / length
+    y = knuckles[3] - knuckles[0]
+    y = y - (y @ x) * x
+    span = np.linalg.norm(y)
+    y = y / span
+    return np.stack([x, y, np.cross(x, y)], 1), length, span
+
+
 def build_fit(vrm, got_world, scale=1.45, head_scale=None, ring_r=None, chest_share=0.0,
-              neck_drop=5.0, shoulder_fit=0.0, arm_drop=5.0, own_feet=False, foot_scale=None):
+              neck_drop=5.0, shoulder_fit=0.0, arm_drop=5.0, own_feet=False, foot_scale=None, hands='tps'):
     """Return (src, dst, info): control points mapping Karin rest (GoT space, cm) -> fitted GoT bind space.
 
     Hip, knee, ankle, elbow, wrist and finger joints land on the hero joints. The pelvis keeps
@@ -114,6 +137,9 @@ def build_fit(vrm, got_world, scale=1.45, head_scale=None, ring_r=None, chest_sh
     own_feet: the toes keep Karin's own (scaled) offset from the ankle instead of landing on the hero's
     toe joint, so the foot keeps its shape (the toe joint only bends the front of the sole); foot_scale
     (default scale) then sizes the whole foot uniformly about the ankle.
+    hands='rigid': the hand map aligns the whole palm frame (roll included) and stretches the palm onto the
+    hero's knuckles; each finger segment keeps that roll and turns onto its hero bone axis. The fingers get no
+    TPS control points: the caller places hand vertices with these maps blended by skin weight.
     """
     head_scale = head_scale or scale
     J = got_world[:, :3, 3]
@@ -168,13 +194,14 @@ def build_fit(vrm, got_world, scale=1.45, head_scale=None, ring_r=None, chest_sh
 
     src_pts, dst_pts = [], []
 
-    def frame_map(bone, tail_bone, s_perp):
-        """similarity-ish map of a bone: rotation aligning axis, along-axis stretch."""
+    def frame_map(bone, tail_bone, s_perp, pre=None):
+        """similarity-ish map of a bone: rotation aligning axis, along-axis stretch.
+        pre: rotation applied first (the hand roll for fingers), the axis is then aligned from there."""
         hs, ts = kj[bone], kj[tail_bone]
         hn, tn = tgt[bone], tgt[tail_bone]
         a_s = ts - hs
         a_n = tn - hn
-        R = rot_between(a_s, a_n)
+        R = rot_between(a_s, a_n) if pre is None else rot_between(pre @ a_s, a_n) @ pre
         k = np.linalg.norm(a_n) / (np.linalg.norm(a_s) * s_perp)
         an = a_n / np.linalg.norm(a_n)
         A = (np.eye(3) + (k - 1) * np.outer(an, an)) @ R * s_perp
@@ -198,11 +225,25 @@ def build_fit(vrm, got_world, scale=1.45, head_scale=None, ring_r=None, chest_sh
     maps['head'] = rigid_map('head', head_scale)
     for side in ('left', 'right'):
         maps[f'{side}Toes'] = (kj[f'{side}Toes'], tgt[f'{side}Toes'], maps[f'{side}Foot'][2])
-        # hand: orient by middle finger direction, no stretch
-        hs, hn, _ = frame_map(f'{side}Hand', f'{side}MiddleProximal', scale)
-        a_s = kj[f'{side}MiddleProximal'] - hs
-        a_n = tgt[f'{side}MiddleProximal'] - hn
-        maps[f'{side}Hand'] = (hs, hn, rot_between(a_s, a_n) * scale)
+        hand = f'{side}Hand'
+        if hands == 'rigid':
+            # palm frame to palm frame; length and knuckle span land on the hero's knuckles, thickness at scale
+            knuckles = [f'{side}{f}Proximal' for f in ('Index', 'Middle', 'Ring', 'Little')]
+            FK, lk, wk = palm_frame(kj[hand], [kj[b] for b in knuckles])
+            FB, lb, wb = palm_frame(tgt[hand], [tgt[b] for b in knuckles])
+            R_h = FB @ FK.T
+            maps[hand] = (kj[hand], tgt[hand], FB @ np.diag([lb / lk, wb / wk, scale]) @ FK.T)
+            for f in ('Thumb', 'Index', 'Middle', 'Ring', 'Little'):
+                segs = ('Metacarpal', 'Proximal', 'Distal') if f == 'Thumb' else ('Proximal', 'Intermediate', 'Distal')
+                for b, c in zip(segs, segs[1:]):
+                    if f'{side}{f}{b}' in kj and f'{side}{f}{c}' in kj:
+                        maps[f'{side}{f}{b}'] = frame_map(f'{side}{f}{b}', f'{side}{f}{c}', scale, pre=R_h)
+        else:
+            # hand: orient by middle finger direction, no stretch
+            hs, hn, _ = frame_map(hand, f'{side}MiddleProximal', scale)
+            a_s = kj[f'{side}MiddleProximal'] - hs
+            a_n = tgt[f'{side}MiddleProximal'] - hn
+            maps[hand] = (hs, hn, rot_between(a_s, a_n) * scale)
         for f in ('Thumb', 'Index', 'Middle', 'Ring', 'Little'):
             dist = f'{side}{f}Distal'
             prev = f'{side}{f}Intermediate' if f != 'Thumb' else f'{side}ThumbProximal'
@@ -217,6 +258,8 @@ def build_fit(vrm, got_world, scale=1.45, head_scale=None, ring_r=None, chest_sh
     ring_r = ring_r or {}
     # axis samples + rings
     for b, m in maps.items():
+        if hands == 'rigid' and is_finger(b):
+            continue
         hs, hn, A = m
         tail = None
         for chain in CHAINS:
@@ -286,7 +329,7 @@ def limb_radii(vrm, prims, pct=30):
 
 def build_warp(vrm, got_world, scale=1.45, head_scale=None, chest_share=0.0, reg=1e-2, *, neck_drop=5.0,
                shoulder_fit=0.0, arm_drop=5.0, prims=None, radius_prims=None, ctrl_policy='all', own_feet=False,
-               foot_scale=None):
+               foot_scale=None, hands='tps'):
     """TPS warp (Karin GoT-space cm -> fitted hero bind space) plus fit info.
     prims (VRM primitives) set the limb ring radii at the skin (radius_prims, when given, instead); without
     them rings use 0.35 * bone length.
@@ -295,12 +338,13 @@ def build_warp(vrm, got_world, scale=1.45, head_scale=None, chest_share=0.0, reg
       'skinned' only nodes that skin a vertex of prims (merged outfit armatures carry unused copies of the
                 arm bones under the chest), no head-subtree node below the neck (hair and cables hanging by
                 the legs follow the head rigidly and would drag the body), and torso-subtree nodes below the
-                hip joint (jacket hem) follow the hips map rather than the spine extrapolated downwards."""
+                hip joint (jacket hem) follow the hips map rather than the spine extrapolated downwards.
+    hands: see build_fit; 'rigid' also leaves the nodes below the fingers out of the control points."""
     ring_prims = radius_prims if radius_prims is not None else prims
     ring_r = limb_radii(vrm, ring_prims) if ring_prims else None
     src, dst, info = build_fit(vrm, got_world, scale=scale, head_scale=head_scale, ring_r=ring_r,
                                chest_share=chest_share, neck_drop=neck_drop, shoulder_fit=shoulder_fit,
-                               arm_drop=arm_drop, own_feet=own_feet, foot_scale=foot_scale)
+                               arm_drop=arm_drop, own_feet=own_feet, foot_scale=foot_scale, hands=hands)
     info['ring_r'] = ring_r
     if ctrl_policy not in ('all', 'skinned'):
         raise ValueError(f'unknown ctrl_policy {ctrl_policy}')
@@ -325,7 +369,7 @@ def build_warp(vrm, got_world, scale=1.45, head_scale=None, chest_share=0.0, reg
                 continue
             if h in ('spine', 'chest', 'upperChest') and p[2] < kj['leftUpperLeg'][2]:
                 h = 'hips'
-        if h not in info['maps']:
+        if h not in info['maps'] or (hands == 'rigid' and is_finger(h)):
             continue
         extra_s.append(p)
         extra_d.append(info['apply'](info['maps'][h], p))

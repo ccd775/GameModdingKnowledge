@@ -11,7 +11,7 @@
 | RE4R | KPKA v4 路径哈希、目录和 payload 提取 | [使用](resident-evil-4-remake/README.md) |
 | L4D2 | VPK 提取/回读、VTA 缩放、StudioMDL 运行记录 | [使用](left-4-dead-2/README.md) |
 | HD2 | 三件套解析、LUT 行折叠/注入、SDK UV 复制 | [使用](helldivers-2/README.md) |
-| 西之绝境 | 贝塔替换构建器（VRM 拟合、遮挡剔除、分区权重、拼页、h2 ascii）、导入批处理、core 包围盒与 SkinInfo 补丁、姿势预览、游戏按键 | [使用](horizon-forbidden-west/README.md) |
+| 西之绝境 | 贝塔替换构建器（VRM 拟合与手部逐骨映射、遮挡剔除、分区权重、借用 PBD 粒子、面部绑定、拼页、h2 ascii）、导入批处理、core 包围盒与 SkinInfo 补丁、姿势预览、握拳与面部测试、游戏按键 | [使用](horizon-forbidden-west/README.md) |
 | 对马岛 | 忠赖的铠甲角色替换完整构建器（VRM 拟合、剔除/减面、拼页、xmesh/xpps/SPS、PSARC）与离线校验渲染 | [使用](ghost-of-tsushima/README.md) |
 | 战神：诸神黄昏 | 奎托斯 / 芙蕾雅替换构建器（原地写入网格、单组补丁 lodpack、GNF 贴图包）、逐顶点回读、屈膝模拟、骨架角色表、源模型形态键烘焙、Blender 拟合与减面 | [使用](god-of-war-ragnarok/README.md) |
 | 浪人崛起 | KT 引擎 G1M / G1H 读取与原地隐藏、G1T tile 与常量填充、rdb / fdata / KTID 槽表与共用贴图审计、按原版分段重分腿部权重、shader 包拆分 | [使用](rise-of-the-ronin/README.md) |

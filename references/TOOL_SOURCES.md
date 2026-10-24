@@ -28,7 +28,7 @@
 | DirectXTex | [微软项目](https://github.com/microsoft/DirectXTex) | texconv 固定 SHA，进行 DDS 转换及解码检查。龙之信条2 贴图用 texconv 2026.5.8.1（SHA-256 `dcfdec10244e02cf5037fba089c55fb7e1326b1c8181742d77d15fa5cb5eef06`） |
 | Ghost of Tsushima Toolkit for Blender | [Dave349234（Nexus）](https://www.nexusmods.com/profile/Dave349234) / [GitHub（coolab342 仓库，README 链接 Dave349234 的 Ko-fi 与 Nexus 主页）](https://github.com/coolab342/Ghost-of-Tsushima-Toolkit-for-Blender) | 对马岛 xmesh / xpps / texmeshman 格式参考（MIT，要求署名）；本工作区的纯 Python 构建器按它核实字段后独立实现 |
 | GoT SPS Noesis 插件 | [SilverEzredes](https://github.com/SilverEzredes/fmt_GoT_SPS-Noesis-Plugin) | 对马岛 SPS（XTBS）贴图格式参考（本项目未直接使用） |
-| h2_pc_mi_091（HFW Export-Import Tool） | [id-daemon（Nexus）](https://www.nexusmods.com/horizonforbiddenwest/mods/1744) | 西之绝境 0.9.1：按流图组下标导出 / 导入 ascii 网格与 DDS 贴图；同页有 Johnny Dazzling 写的 Tutorial Edition 4（2026-03-21） |
+| h2_pc_mi_091（HFW Export-Import Tool） | [id-daemon（Nexus）](https://www.nexusmods.com/horizonforbiddenwest/mods/1744) | 西之绝境 0.9.1：按流图组下标导出 / 导入 ascii 网格与 DDS 贴图；同页有 Johnny Dazzling 写的 Tutorial Edition 4（2026-03-21）。2026-10 起 Windows Defender 把它判为 `Trojan:Win32/Wacatac.B!ml`（机器学习泛化检测），是否放行由用户决定 |
 | HFW Mod Manager | [KingJulz（Nexus）](https://www.nexusmods.com/horizonforbiddenwest/mods/137) | 西之绝境 0.9.8：Pack Mods 与 Characters 角色切换（写 `mod_NPC.ini`）；mod 文件夹放 `modinfo.json` |
 | Odradek | [ShadelessFox](https://github.com/ShadelessFox/odradek) | Decima 资源查看与 json / cast 导出，CI 构建 1.0-SNAPSHOT；西之绝境只用于勘察，需指向原版流图 |
 | GOWTool | [kainotoa](https://github.com/kainotoa/GOWTool)（`gowr-pc` 分支，commit `ef484028`，2024-11-01） | 战神5 wad 条目偏移解析与 MESH 布局的参考：便携包的 `wad.py` 移植了它的 `src/Wad.cpp` 偏移解析，`mesh.py` 按 `src/Formats.cpp` 读字段。该仓库未附许可证文件 |

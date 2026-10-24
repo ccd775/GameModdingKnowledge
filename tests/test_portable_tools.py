@@ -954,6 +954,64 @@ class HorizonForbiddenWestTools(unittest.TestCase):
         m = dict(pos=np.array([[0, 0, 2.0]]), bi=[[2, 0]], bw=[[0.5, 0.5]])
         self.assertTrue(np.allclose(pp.skin(m, M), [[0, -0.5, 1.5]]))
 
+    def test_hfw_face_closest_point_and_sampling(self):
+        FH = hfw('face_hfw')
+        import numpy as np
+        rng = np.random.default_rng(3)
+        A, B, C = (rng.normal(size=(40, 3)) for _ in range(3))
+        p = rng.normal(size=(40, 3)) * 2
+        bary = FH.closest_on_triangles(p, A, B, C)
+        self.assertLess(np.abs(bary.sum(1) - 1).max(), 1e-9)
+        self.assertGreaterEqual(bary.min(), -1e-9)
+        q = bary[:, :1] * A + bary[:, 1:2] * B + bary[:, 2:] * C
+        g = np.array([(u, v) for u in np.linspace(0, 1, 81) for v in np.linspace(0, 1, 81) if u + v <= 1])
+        for i in range(len(p)):                           # no point of a dense grid on the triangle is closer
+            grid = A[i] + g[:, :1] * (B[i] - A[i]) + g[:, 1:] * (C[i] - A[i])
+            self.assertLessEqual(np.linalg.norm(p[i] - q[i]), np.linalg.norm(grid - p[i], axis=1).min() + 1e-9)
+        # weights interpolate barycentrically at the closest surface point; slot and dense weights agree
+        X = np.array([[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0.0]])
+        T = np.array([[0, 1, 2], [1, 3, 2]])
+        bi = np.array([[0, 0], [1, 0], [2, 0], [3, 0]])
+        bw = np.array([[1.0, 0], [1.0, 0], [1.0, 0], [1.0, 0]])
+        W, d = FH.Surface(X, T, bi, bw, 4).sample(np.array([[0.25, 0.25, 0.5]]))
+        self.assertTrue(np.allclose(W, [[0.5, 0.25, 0.25, 0]]))
+        self.assertAlmostEqual(float(d[0]), 0.5)
+        Wd, _ = FH.Surface(X, T, None, np.eye(4), 4).sample(np.array([[0.25, 0.25, 0.5]]))
+        self.assertTrue(np.allclose(Wd, W))
+        a = rng.normal(size=(9, 3))                       # the landmark warp hits its landmarks
+        b = a + rng.normal(size=(9, 3)) * 0.1
+        self.assertLess(np.abs(FH.rbf_apply(FH.rbf_fit(a, b), a) - b).max(), 1e-8)
+
+    def test_hfw_particle_chain_weights(self):
+        bh = hfw('build_hfw')
+        import numpy as np
+        s = np.array([0.0, 0.05, 0.5, 1.0])               # position along the part, root to tip
+        acc = np.zeros((4, 8))
+        acc[:, 0] = 1                                     # everything on the root bone
+        p = dict(acc=acc.copy())
+        self.assertEqual(bh.chain_physics(p, [[1, 2], [3, 4], [5, 6]], s, 0.2), 3)
+        self.assertTrue(np.allclose(p['acc'].sum(1), 1))
+        self.assertTrue(np.allclose(p['acc'][0], acc[0]))  # s = 0 keeps its weights
+        self.assertAlmostEqual(p['acc'][1, 0], 1 - 0.25 * 0.25 * (3 - 2 * 0.25))   # smoothstep(0.05 / 0.2)
+        self.assertTrue(np.allclose(p['acc'][2], [0, 0, 0, 0.5, 0.5, 0, 0, 0]))   # middle level, shared
+        self.assertTrue(np.allclose(p['acc'][3], [0, 0, 0, 0, 0, 0.5, 0.5, 0]))   # tip level
+
+    def test_hfw_palm_frame_aligns_hands(self):
+        F = hfw('fit_hfw')
+        import numpy as np
+        wrist = np.array([1.0, 2, 3])
+        knuckles = wrist + np.array([[2, -1.5, 0.3], [2.2, -0.5, 0.1], [2.1, 0.5, 0], [1.8, 1.4, -0.2]])
+        frame, length, span = F.palm_frame(wrist, knuckles)
+        self.assertTrue(np.allclose(frame.T @ frame, np.eye(3)))
+        self.assertAlmostEqual(np.linalg.det(frame), 1.0)
+        self.assertAlmostEqual(length, np.linalg.norm(knuckles[1] - wrist))
+        q, _ = np.linalg.qr(np.random.default_rng(5).normal(size=(3, 3)))
+        R = q * np.sign(np.linalg.det(q))                 # a proper rotation
+        frame2, length2, span2 = F.palm_frame(R @ wrist + 5, knuckles @ R.T + 5)
+        self.assertTrue(np.allclose(frame2 @ frame.T, R))  # frame to frame recovers the hand's rotation
+        self.assertAlmostEqual(length2, length)
+        self.assertAlmostEqual(span2, span)
+
 
 class MK1Tools(unittest.TestCase):
     def test_mk1_synthetic_suite_and_cli(self):

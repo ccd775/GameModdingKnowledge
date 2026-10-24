@@ -19,8 +19,10 @@ $Tool = "<干净根>\LocalCacheWinGame"      # 内有 h2_pc_mi_091.exe、02_19A7
 # 1. 拟合、权重、拼页，写出 ascii
 python -B $Kit/build_hfw.py --vrm ../MyMod/Ref/model.vrm --export ../MyMod/Ref/Export --lods ../MyMod/Ref/Lods --work ../MyMod/Work --hide collapse --max-lod 7
 
-# 2. 离线检查：5 个姿势的 OBJ
+# 2. 离线检查：5 个身体姿势的 OBJ；握拳测试（互穿顶点数应为 0）；面部测试姿势（与 Beta 原脸对比）
 python -B $Kit/pose_preview.py ../MyMod/Work ../MyMod/Ref/Export ../MyMod/Work/poses
+python -B $Kit/hand_pose.py ../MyMod/Ref/Export ../MyMod/Work/hands new=../MyMod/Work
+python -B $Kit/face_pose.py ../MyMod/Ref/Export ../MyMod/Work/faces new=../MyMod/Work
 
 # 3. 转贴图，导入 25 个网格和 12 张贴图，收集 33 个 mod 文件
 python -B $Kit/make_mod.py ../MyMod/Work $Tool "<DirectXTex 目录>\texconv.exe" ../MyMod/Output/mod
@@ -35,8 +37,11 @@ python -B $Kit/patch_bounds.py ../MyMod/Output/mod/02_19A7C73A.core ../MyMod/Wor
 
 | 脚本 | 职责 |
 | --- | --- |
-| `build_hfw.py` | 入口。依次完成：VRM 读入，遮挡剔除，TPS 拟合与着地，按身体分区继承权重，两张 2048 颜色页和一张光泽页，上下身切分，面部骨架重映射，隐藏子网格；写出 `ascii/lod*_*.ascii`、`jobs.json`、`fit_report.json` |
-| `fit_hfw.py` | VRM 人形骨到 Beta 骨架的对应表，以及 TPS 拟合；由对马岛便携包的 `fit.py` 改写 |
+| `build_hfw.py` | 入口。依次完成：VRM 读入，遮挡剔除，TPS 拟合与着地，手部逐骨映射，按身体分区继承权重，借用 PBD 粒子（裙摆、双马尾、尾巴），两张 2048 颜色页和一张光泽页，上下身切分，面部骨架重映射与面部绑定，隐藏子网格；写出 `ascii/lod*_*.ascii`、`jobs.json`、`fit_report.json` |
+| `fit_hfw.py` | VRM 人形骨到 Beta 骨架的对应表，以及 TPS 拟合；由对马岛便携包的 `fit.py` 改写。`hands='rigid'` 时给出手掌坐标系映射，以及带手掌滚转的指骨映射 |
+| `face_hfw.py` | 面部绑定：RBF 标记点变形，从 Beta 脸皮采样 719 面部骨权重。处理唇沿分侧、眼周排除、发际渐变、平滑、重合顶点合并，并删掉藏起来的道具 |
+| `hand_pose.py` | 握拳测试：沿 Beta 的屈曲轴弯曲手指，统计互穿顶点，输出左手 OBJ |
+| `face_pose.py` | 面部测试姿势：用测试增量驱动 719 的控制骨，对 Beta 原脸和构建的脸蒙皮，输出带 UV 的 OBJ |
 | `atlas.py` | 按 UV 岛拼页；在对马岛版本上增加了按栅格化足迹合并（`mask_merge`） |
 | `vrm.py` | VRM 1.0 / 0.x 读取；与对马岛便携包中的同名文件逐字节相同 |
 | `hfwascii.py` | h2 工具 ascii 网格和骨架的读写 |
@@ -70,7 +75,10 @@ python -B $Kit/patch_bounds.py ../MyMod/Output/mod/02_19A7C73A.core ../MyMod/Wor
 - 上下身强制归属 `UPPER_MESHES` / `LOWER_MESHES`；
 - 光泽 `GLOSS`；
 - 丢弃的材质 `Karin_Alpha`；
-- 拼页用的 4 个材质名。
+- 拼页用的 4 个材质名；
+- 粒子链的取法：`HAIR_CHAIN`、`TWIN_TOP_Z` / `TWIN_LEN` / `TWIN_MIN_X`、`TAIL_CHAIN` / `TAIL_ROOT_Y` / `TAIL_LEN`、`SKIRT_PBD_TOP` / `SKIRT_PBD_FULL`，以及按网格名 `skirt`、`tail`、`hair` 选部件；
+- `hand_pose.py` 的皮肤网格名 `SKIN_MESH`；
+- `face_hfw.py` 认部件的规则：最大连通块是脸皮，两侧最靠前的眼形块是眼睛，中线最宽的细条是嘴线。换模型后要先核对 `fit_report.json` 里的 `face_rig` 一节。
 
 换模型时，这些常量要按新模型的网格名和材质名重写。
 
@@ -84,7 +92,8 @@ python -B $Kit/patch_bounds.py ../MyMod/Output/mod/02_19A7C73A.core ../MyMod/Wor
 
 - `--scale`（默认 1.3）、`--head-scale`、`--neck-drop`；
 - `--shoulder-fit`（默认 0.3）、`--arm-drop`（默认 2 cm）；
-- `--src-max`、`--hide`、`--max-lod`。
+- `--src-max`、`--hide`、`--max-lod`；
+- `--hands rigid|tps`（默认 rigid，1.0.1 起）、`--face rig|rigid`（默认 rig）、`--physics pbd|none`（默认 pbd，1.1.0 起）。三项依次改为 tps、rigid、none 时，等于 v4 的构建。
 
 `--stage` 和 `--z-split` 是早期的参数，现在已经不起作用。
 
@@ -95,15 +104,18 @@ python -B $Kit/patch_bounds.py ../MyMod/Output/mod/02_19A7C73A.core ../MyMod/Wor
   - texconv 2024.6.5.1 和 h2_pc_mi_091 0.9.1；
   - Python 3.14.0、numpy 2.5.2、scipy 1.18.0、Pillow 12.2.0。
 
-  结果：30 个构建输出相同，33 个 mod 文件相同。详见 [验证记录](../VALIDATION.md)。
-- **便携改动。** `make_mod.py`、`patch_bounds.py`、`pose_preview.py`、`gamekey.py` 改用 argparse，并加了 `--help`。`make_mod.py` 还会在缺少输入文件时直接报错。处理逻辑没有变；改动后重跑了一遍，结果仍然逐字节相同。
+  结果：30 个构建输出相同，33 个 mod 文件相同。2026-10-24 又用本包脚本复核了一次：三项开关都关时与 v4 相同，全部默认时与 1.1.0 相同，各 30 个输出。详见 [验证记录](../VALIDATION.md)。
+- **便携改动。** `make_mod.py`、`patch_bounds.py`、`pose_preview.py`、`gamekey.py` 改用 argparse，并加了 `--help`。`make_mod.py` 还会在缺少输入文件时直接报错。处理逻辑没有变；改动后重跑了一遍，结果仍然逐字节相同。1.1.0 新增的 `face_hfw.py`、`hand_pose.py`、`face_pose.py`，以及更新后的 `build_hfw.py`、`fit_hfw.py`，与项目原件逐字节相同：两个测试脚本在项目里就改成了 argparse。
 - **只做一件事。** 这套脚本只处理 Beta（b2c4），不是安装器，不改游戏目录，也不处理 mod 之间的冲突。
-- **测试：** 运行 `python -B tests/test_portable_tools.py`。其中 5 项西之绝境合成测试不需要游戏或模型：
+- **测试：** 运行 `python -B tests/test_portable_tools.py`。其中 8 项西之绝境合成测试不需要游戏或模型：
   - ascii 读写往返；
   - 包围盒和 SkinInfo 补丁，以及它在类型不符时拒绝修改；
   - 权重量化和射线锥遮挡判定；
   - 拼页时掩码合并与包围盒合并的区别；
-  - 姿势 FK 的转轴不动。
+  - 姿势 FK 的转轴不动；
+  - 三角形最近点（与暴力采样比对）和重心插值采样；
+  - 粒子链沿长度的分配和根部渐变；
+  - 手掌坐标系是右手正交系，且能对齐两组关节。
 
   没装本包的额外依赖时，这些测试会跳过，并提示安装命令。
 - **署名。**

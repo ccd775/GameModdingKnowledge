@@ -16,7 +16,7 @@
 | 龙之信条2 | [Dragon's Dogma 2](games/dragons-dogma-2/README.md) | Karin PicodraTech v1.3.0 / Karin_Original v1.0.1 替换玩家角色（build 25290080 + DLC）：不改原生文件，REFramework Lua 在游戏构建身体时递入网格 / 材质 / chain，皮肤烘焙改道、体型表清空、骨驱动表情；用户本机实机用到 PicodraTech v1.2.0（比例问题由用户发现后修复），Original v1.0.1 裙摆修复经用户确认（「这次好了」）；v1.3.0、表情与 DLC build 由 agent 在测试机实机自测（读档、装备预览、头像、物理、表情、拍照、走跑跳攻蹲），表情幅度用户未单独确认；过场 / 攀爬 / 死亡未测，只替换女性人类 |
 | 鬼武者：新生 | [Onimusha WotS](games/onimusha-way-of-the-sword/README.md) | Karin→宫本武藏 v1.11.0：几何与 chain2 v17 次级物理均由用户实机确认；仅散装文件路线可用 |
 | 怪物猎人：荒野 | [MHWs](games/monster-hunter-wilds/README.md) | Karin_Original→女装备 ch03_060_000 r6（BoneSystem 独立骨骼）：武器挂点、野外地图、裙摆碰撞与哑光材质经用户验收；依赖新版 REFramework 散装贴图加载；表情未单独签收 |
-| 地平线：西之绝境 | [Horizon Forbidden West](games/horizon-forbidden-west/README.md) | Karin_Original 替换贝塔 v4（经 Mod Manager 角色切换扮演）：读档、外观、奔跑转身由 agent 实机自测（2026-10-02），用户未单独确认；身体只换 LOD0，无次级物理与表情 |
+| 地平线：西之绝境 | [Horizon Forbidden West](games/horizon-forbidden-west/README.md) | Karin_Original 替换贝塔 1.1.0（经 Mod Manager 角色切换扮演）：过场动画中的手指修复经用户确认；面部绑到 719 面部骨（照片模式表情可用，不眨眼）；裙摆、双马尾、尾巴借用 Beta 的 PBD 粒子摆动，经用户认可（2026-10-24）；身体只换 LOD0 |
 | 战神：诸神黄昏 | [God of War Ragnarök](games/god-of-war-ragnarok/README.md) | Karin_Original 替换奎托斯与同伴芙蕾雅：外观与行走由 agent 实机自测；用户实机看过芙蕾雅并反馈膝盖穿模，已修正共享源模型（烘焙 `kisekae_Knee`）后重建，修复版用户未单独确认；无次级物理与表情 |
 | 对马岛之魂 导演剪辑版 | [Ghost of Tsushima](games/ghost-of-tsushima/README.md) | Karin 替换忠赖的铠甲：PicodraTech 第四构建经用户实机验收；Karin_Original 经用户认可（未指明版本，当时发布为 v4）（均为 2026-09-30，场景未逐项列出）；只替换 LOD0，无次级物理 |
 | 鬼泣5 | [DMC5](games/devil-may-cry-5/README.md) | KarinPT→V：标题画面经用户确认；Karin_Original→Nero / Dante / V 三包 v1.2：Nero / Dante 实战经用户验收（含裙摆碰撞修复），V 实战与过场经用户确认（含过场拉伸修复）；Nero / Dante 的过场修补、魔人形态、立绘未检查 |

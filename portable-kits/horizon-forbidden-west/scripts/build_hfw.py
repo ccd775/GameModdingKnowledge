@@ -20,6 +20,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import hfwascii as H  # noqa: E402
 import fit_hfw as F  # noqa: E402
+import face_hfw as FH  # noqa: E402
 from atlas import build_page  # noqa: E402
 from vrm import Vrm  # noqa: E402
 
@@ -234,6 +235,58 @@ def map_weights(p, vrm_names, node_human, human_nodes, donors, idx, J, skirt_z, 
     return acc
 
 
+SKIRT_PBD_TOP, SKIRT_PBD_FULL = 98.0, 88.0   # cm: the skirt moves onto Beta's skirt PBD particles from TOP to FULL
+
+
+def skirt_physics(p, names, J):
+    """Blend the skirt below the hips onto Beta's skirt PBD particles (world-space bones the game's cloth solver
+    moves; vanilla Beta's tunic skirt hangs on them between 70 and 96 cm)."""
+    parts = np.array([i for i, n in enumerate(names) if n.startswith('skirt_PBD') and np.linalg.norm(J[i]) > 1])
+    d, k = cKDTree(J[parts]).query(p['P'], k=3)
+    wd = 1.0 / np.maximum(d, 1.0) ** 2
+    wd /= wd.sum(1, keepdims=True)
+    pw = np.zeros_like(p['acc'])
+    rows = np.arange(len(p['P']))
+    for j in range(3):
+        np.add.at(pw, (rows, parts[k[:, j]]), wd[:, j])
+    t = np.clip((SKIRT_PBD_TOP - p['P'][:, 2]) / (SKIRT_PBD_TOP - SKIRT_PBD_FULL), 0, 1)
+    t = t * t * (3 - 2 * t)
+    p['acc'] = (1 - t)[:, None] * p['acc'] + t[:, None] * pw
+    return int((t > 0).sum())
+
+
+# Beta has no particle chains long enough for the twin tails (52 cm) or the tail (50 cm), but her back hair strands
+# are 4-level chains (2 particles per level, scalp to tip, 152-163 cm) and her skirt has a back centre column: each part
+# is spread along its length over such a chain, so the tip follows the freest particles and the part bends instead of
+# swinging as one piece (one particle per part looked rigid in game)
+HAIR_CHAIN = [(9, 11), (6, 8), (3, 5), (0, 2)]                      # L/R_BackStrand_PbdGeo_jbd*, scalp -> tip
+TWIN_TOP_Z, TWIN_LEN, TWIN_MIN_X = 158.0, 45.0, 4.0                  # cm: twin tails from the hair ties down
+TAIL_CHAIN = [('skirt_PBD_jbd24',), ('skirt_PBD_jbd33',), ('skirt_PBD_jbd17',)]   # back centre column, top -> bottom
+TAIL_ROOT_Y, TAIL_LEN = -6.0, 46.0                                   # cm: the tail sticks out backwards (-y)
+
+
+def chain_physics(p, levels, s, lead):
+    """Blend vertices onto a particle chain by their position s (0 root .. 1 tip) along the part: the old weights hand
+    over to the chain over the first `lead` of the length, then s runs along the levels (adjacent levels blended,
+    the particles of a level shared equally)."""
+    on = s > 0
+    if not on.any():
+        return 0
+    L = s * (len(levels) - 1)
+    i0 = np.minimum(np.floor(L).astype(int), len(levels) - 2)
+    f = L - i0
+    pw = np.zeros_like(p['acc'])
+    rows = np.arange(len(s))
+    for lv_off, share in ((0, 1 - f), (1, f)):
+        for k in range(max(len(lv) for lv in levels)):
+            b = np.array([levels[i][k % len(levels[i])] for i in i0 + lv_off])
+            np.add.at(pw, (rows, b), share / np.array([len(levels[i]) for i in i0 + lv_off]))
+    t = np.clip(s / lead, 0, 1)
+    t = np.where(on, t * t * (3 - 2 * t), 0)
+    p['acc'] = (1 - t)[:, None] * p['acc'] + t[:, None] * pw
+    return int(on.sum())
+
+
 def quantize(acc, nmax):
     top = np.argsort(-acc, axis=1)[:, :nmax]
     tw = np.take_along_axis(acc, top, 1)
@@ -269,6 +322,14 @@ def main():
     ap.add_argument('--hide', choices=('tri', 'collapse'), default='collapse',
                     help='hidden submeshes: one tiny triangle, or the vanilla topology collapsed to a point')
     ap.add_argument('--max-lod', type=int, default=7, help='write meshes of LOD 0..N only (higher LODs stay vanilla)')
+    ap.add_argument('--hands', choices=('rigid', 'tps'), default='rigid',
+                    help='hands and fingers: per-bone maps blended by skin weight (fingers on Beta\'s finger axes), '
+                         'or the body TPS (v4; crowds the fingers together)')
+    ap.add_argument('--face', choices=('rig', 'rigid'), default='rig',
+                    help="face on Beta's facial joints (expressions, lip sync; face_hfw.py) or rigid on the head (1.0.1)")
+    ap.add_argument('--physics', choices=('pbd', 'none'), default='pbd',
+                    help="skirt below the hips on Beta's skirt PBD particles, twin tails and tail spread along her "
+                         "hair-strand / skirt particle chains; or no physics (1.0.1)")
     args = ap.parse_args()
     os.makedirs(args.work, exist_ok=True)
     t0 = time.time()
@@ -289,7 +350,7 @@ def main():
     print('[cull]', report['hidden_leg_tris'], report['hidden_covered_tris'])
 
     tps, info = F.build_warp(vrm, world, scale=args.scale, head_scale=args.head_scale, neck_drop=args.neck_drop,
-                             shoulder_fit=args.shoulder_fit, arm_drop=args.arm_drop, prims=prims)
+                             shoulder_fit=args.shoulder_fit, arm_drop=args.arm_drop, prims=prims, hands=args.hands)
     report['ring_r'] = {k: round(v, 2) for k, v in info['ring_r'].items()}
     hs, hn, A_head = info['maps']['head']
     kj, tgt = info['kj'], info['tgt']
@@ -302,6 +363,22 @@ def main():
         f = sum(np.where(np.isin(p['hanc'][:, k], HEAD_BONES), p['weights'][:, k], 0) for k in range(4))
         P = f[:, None] * (hn + (P0 - hs) @ A_head.T) + (1 - f[:, None]) * P
         Jac = f[:, None, None] * A_head + (1 - f[:, None, None]) * Jac
+        if args.hands == 'rigid':
+            # the TPS left the fingers up to 0.9 cm off Beta's finger axes, pushed toward their neighbours, and
+            # curling animations then swept them into each other: hands use the per-bone maps blended by skin weight
+            hw, hp, hj = np.zeros(len(P0)), np.zeros_like(P0), np.zeros((len(P0), 3, 3))
+            for k in range(4):
+                for h in np.unique(p['hanc'][:, k]):
+                    sel = (p['hanc'][:, k] == h) & (p['weights'][:, k] > 0)
+                    if not h or not F.is_hand(h) or not sel.any():
+                        continue
+                    w = p['weights'][sel, k]
+                    ms, mn, A = info['maps'][h]
+                    hp[sel] += w[:, None] * (mn + (P0[sel] - ms) @ A.T)
+                    hj[sel] += w[:, None, None] * A
+                    hw[sel] += w
+            P = hp + (1 - hw)[:, None] * P
+            Jac = hj + (1 - hw)[:, None, None] * Jac
         p['P'], p['P0'], p['N0'] = P, P0, N0
         N = np.einsum('vji,vj->vi', np.linalg.inv(Jac), N0)
         p['N'] = N / np.linalg.norm(N, axis=1, keepdims=True).clip(1e-12)
@@ -345,6 +422,17 @@ def main():
     for p in prims:
         p['hanc_of'] = anc_cache
         p['acc'] = map_weights(p, vrm.names, vrm.node_human, vrm.human, donors, idx, J, skirt_z, len(names))
+        if args.physics == 'pbd' and p['mesh'] == 'skirt':
+            report['skirt_pbd_verts'] = report.get('skirt_pbd_verts', 0) + skirt_physics(p, names, J)
+        if args.physics == 'pbd' and p['mesh'] == 'tail':
+            s = np.clip((TAIL_ROOT_Y - p['P'][:, 1]) / TAIL_LEN, 0, 1)
+            report['tail_pbd_verts'] = chain_physics(p, [[idx[n] for n in lv] for lv in TAIL_CHAIN], s, 0.15)
+        if args.physics == 'pbd' and p['mesh'] == 'hair' and p['mat_name'] == 'Karin_Hair':
+            for sgn, side in ((-1, 'L'), (1, 'R')):     # model left is -x
+                sel = (np.sign(p['P'][:, 0]) == sgn) & (np.abs(p['P'][:, 0]) > TWIN_MIN_X) & (p['P'][:, 2] < TWIN_TOP_Z)
+                s = np.where(sel, np.clip((TWIN_TOP_Z - p['P'][:, 2]) / TWIN_LEN, 0, 1), 0)
+                levels = [[idx[f'{side}_BackStrand_PbdGeo_jbd{k}'] for k in lv] for lv in HAIR_CHAIN]
+                report[f'twin_{side}_pbd_verts'] = chain_physics(p, levels, s, 0.2)
     print(f'[weights] done {time.time() - t0:.0f}s')
 
     # ---- pages
@@ -419,6 +507,12 @@ def main():
         if faceM['A'][:, i].any():
             A719[:, to719[i]] += faceM['A'][:, i]
     faceM['A'] = A719
+    if args.face == 'rig':
+        _, fmeshes = H.read_meshes(os.path.join(args.export, 'b2c4_1.ascii'))
+        fm = {m['name'].split('_material')[0]: m for m in fmeshes}
+        faceM['joints719'] = np.array([b['pos'] for b in sk719]) * 100.0
+        faceM = FH.rig_face(faceM, names719, fm['mesh_625_sm_0'], fm['mesh_514_sm_0'], report)
+        print('[face]', report['face_rig'])
     bodyM = merge([p for p in prims if p.get('page') == 'B'])
     upper = sub(bodyM, ~bodyM['LO'])
     lower = sub(bodyM, bodyM['LO'])

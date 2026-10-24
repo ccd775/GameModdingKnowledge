@@ -353,19 +353,19 @@
   {
     "path": "portable-kits/horizon-forbidden-west/scripts/build_hfw.py",
     "source": "Mods/西之绝境/karin_original_build/scripts/build_hfw.py",
-    "original_sha256": "a98116d69a242f7ca93fd3f0563175cd02fb740ec9ec68793da5868326dcb910",
-    "source_bytes": 24854,
-    "portable_sha256": "a98116d69a242f7ca93fd3f0563175cd02fb740ec9ec68793da5868326dcb910",
-    "portable_bytes": 24854,
+    "original_sha256": "edb60c341b1faafd1d51e7fe6b3d0e140b2442491cb6dcb54f8e606b9961c98d",
+    "source_bytes": 30841,
+    "portable_sha256": "edb60c341b1faafd1d51e7fe6b3d0e140b2442491cb6dcb54f8e606b9961c98d",
+    "portable_bytes": 30841,
     "modified_for_portability": false
   },
   {
     "path": "portable-kits/horizon-forbidden-west/scripts/fit_hfw.py",
     "source": "Mods/西之绝境/karin_original_build/scripts/fit_hfw.py",
-    "original_sha256": "1970d68b51d2e51723e183bc516ee52ff0877ae242ada4b69e6e3f25f4985554",
-    "source_bytes": 15882,
-    "portable_sha256": "1970d68b51d2e51723e183bc516ee52ff0877ae242ada4b69e6e3f25f4985554",
-    "portable_bytes": 15882,
+    "original_sha256": "19201fb5e95df261e18c06b0e962f793956e583be0fc18490f6b1ff97147db7e",
+    "source_bytes": 18358,
+    "portable_sha256": "19201fb5e95df261e18c06b0e962f793956e583be0fc18490f6b1ff97147db7e",
+    "portable_bytes": 18358,
     "modified_for_portability": false
   },
   {
@@ -430,6 +430,33 @@
     "portable_sha256": "c56aa14b30628c8f8b6f9f12b44e9d4ecbbefaa098b81a829579b29d834e34aa",
     "portable_bytes": 3095,
     "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/horizon-forbidden-west/scripts/face_hfw.py",
+    "source": "Mods/西之绝境/karin_original_build/scripts/face_hfw.py",
+    "original_sha256": "108fded51a3076dcf87f5b44002c1f69f50715536e69ab18ae3ee7582c5727a6",
+    "source_bytes": 17186,
+    "portable_sha256": "108fded51a3076dcf87f5b44002c1f69f50715536e69ab18ae3ee7582c5727a6",
+    "portable_bytes": 17186,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/horizon-forbidden-west/scripts/face_pose.py",
+    "source": "Mods/西之绝境/karin_original_build/scripts/face_pose.py",
+    "original_sha256": "999698761966025e834fcfe66194eb0fc1239cd9e07a397bb2547458a0a2c6a4",
+    "source_bytes": 3950,
+    "portable_sha256": "999698761966025e834fcfe66194eb0fc1239cd9e07a397bb2547458a0a2c6a4",
+    "portable_bytes": 3950,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/horizon-forbidden-west/scripts/hand_pose.py",
+    "source": "Mods/西之绝境/karin_original_build/scripts/hand_pose.py",
+    "original_sha256": "0e2a1d8d64537d943d2009aba69f134bf93b5dc8d7c5612420ed7232f430b7ac",
+    "source_bytes": 5537,
+    "portable_sha256": "0e2a1d8d64537d943d2009aba69f134bf93b5dc8d7c5612420ed7232f430b7ac",
+    "portable_bytes": 5537,
+    "modified_for_portability": false
   },
   {
     "path": "portable-kits/god-of-war-ragnarok/scripts/build_kratos_final.py",

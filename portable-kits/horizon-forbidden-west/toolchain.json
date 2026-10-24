@@ -1,11 +1,11 @@
 {
   "game": "Horizon Forbidden West Complete Edition (PC)",
-  "status": "runtime-load-pass",
+  "status": "runtime-confirmed",
   "tools": [
     {
       "name": "Karin Beta-replacement builder (build_hfw.py and modules)",
       "version": "project-pinned",
-      "role": "VRM fitting, culling, region weight transfer, texture pages and h2 ascii writing",
+      "role": "VRM fitting (body TPS, per-bone hand maps), culling, region weight transfer, borrowed PBD particle weights (skirt, twin tails, tail), facial rig weights on skeleton 719 (face_hfw.py), texture pages and h2 ascii writing",
       "required": true
     },
     {
@@ -37,7 +37,7 @@
     "../../games/horizon-forbidden-west/README.md",
     "../../games/horizon-forbidden-west/BUILD_PIPELINE.md"
   ],
-  "runtime_boundary": "Karin_Original v4 loaded and checked in game by the agent on 2026-10-02 (appearance, hair colour, run and turn); not yet confirmed by the user. Cutscenes, combat, climbing and distant body LODs unchecked; no secondary physics or facial animation.",
+  "runtime_boundary": "Karin_Original 1.1.0 (2026-10-24): finger fix confirmed by the user in cutscenes (1.0.1); skirt, twin-tail and tail sway on borrowed PBD particles accepted by the user in game; facial expressions checked by the agent in photo mode; dialogue lip sync, combat, climbing and distant body LODs unchecked; no blinking and no long-chain hair physics.",
   "bundled_scripts": [
     "scripts/build_hfw.py",
     "scripts/fit_hfw.py",
@@ -47,7 +47,10 @@
     "scripts/make_mod.py",
     "scripts/patch_bounds.py",
     "scripts/pose_preview.py",
-    "scripts/gamekey.py"
+    "scripts/gamekey.py",
+    "scripts/face_hfw.py",
+    "scripts/hand_pose.py",
+    "scripts/face_pose.py"
   ],
   "python": "3.12+ (numpy 2.5 / scipy 1.18 wheels); tested 3.14.0",
   "dependency_install": "python -m pip install -r requirements.txt -r portable-kits/horizon-forbidden-west/requirements.txt (from bundle root)"
