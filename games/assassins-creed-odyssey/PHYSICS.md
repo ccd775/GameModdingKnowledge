@@ -2,7 +2,8 @@
 
 Karin 的双马尾、侧发、刘海、脸颊发、丝带、鞋标、裙片、耳、尾巴用游戏自己的 Reflex3 物理：拟合时把这些骨链保留成 `KP_*` 骨，
 身体网格蒙在它们上面；再把卡珊德拉专属的头发骨架 `ACD_CHF_PLA_Hair_NEW` 重建成「Reference 起的父链 + KP 骨 + 每根模拟骨一条 Physics 约束」，
-替换它的每一份副本。v5 的骨架：121 根骨（21 根基础骨、100 根 KP 骨）、66 条物理记录。
+替换它的每一份副本。v5 的骨架：121 根骨（21 根基础骨、100 根 KP 骨）、66 条物理记录。第二个模型 Karin_PicodraTech v1（2026-10-24，未实测）：
+190 根骨（10 根基础骨、180 根 KP 骨）、107 条记录（§6）。
 
 ## 1. 奥德赛的 Reflex3 blob（2026-10-19 解出，`build-sensitive`）
 
@@ -34,6 +35,9 @@ Karin 的双马尾、侧发、刘海、脸颊发、丝带、鞋标、裙片、�
 - 语义：原版链骨局部 +X 沿链、+Y 前后、+Z = X × Y（[技术合同](TECHNICAL_CONTRACTS.md) §6）。从原版马尾的范围（挂在脑后的尾巴 B = [−1.05, 0]）推断
   **B = 绕局部 Z 摆（+ = 梢向 +Y，向前）、A = 绕局部 Y 摆（侧向）**（`reference-inferred`；v5 按它把裙片改成只向外摆后，没有再报穿模）。
   **gf 被当作重力系数，含义没有确认**（`hypothesis`）。
+- **A 的正负方向没有确认**（`hypothesis`）。原版里唯一一个单侧的 A 是独眼巨人裙子的前片：A = [0, 0.38]。如果它的意思是「只许向外摆」，
+  那么 +A = 梢向骨的 +Z，和右手定则（绕 +Y 转正角时 +X 转向 −Z）相反。只有这一个样本，**没有拿它做依据**：凡是左右方向要紧的链（PicodraTech 的外套下摆片），
+  A 都取对称范围，偏向一侧的限制只放在 B 上（B 的方向也是从原版马尾推断的 `reference-inferred`，v5 的裙片按它改了之后没有再报穿模）。
 - 别的记录类型（7 / 1 / 0 三连、6 / 2 / 66、裙子和披风的 8 + 1:366、布料 63）没有解，本项目不需要。
 - 骨架 XML 往返也有空引用填充字节的问题（2 个字节），同样用 `compile_fixed` 修（[技术合同](TECHNICAL_CONTRACTS.md) §9）。
 
@@ -50,7 +54,16 @@ Karin 的双马尾、侧发、刘海、脸颊发、丝带、鞋标、裙片、�
   `Reflex3Constraints` 的对象 ID 都按新骨表重写，`BinaryData` 换成新 blob。
 - 每根要模拟的 KP 骨一条类型 21 记录：深度 0（链根）只有 `root` 时才模拟；`step` = 每隔几节模拟一节（中间的刚性跟随）；
   质心 = `com_rel` × 携带长度（自己这一段 + 到下一个模拟节点之前的刚性跟随段），至少 0.03 m；`gf` 可以是 [根, 梢] 的线性渐变；重力 9.8；
-  M2 用父骨的网格绑定。参数表 `DEFAULT_PARAMS` 按 KP 名的正则匹配（第一个匹配的优先，`*` 打底）；`--params` 追加的行排在前面。
+  M2 用父骨的网格绑定。
+- 参数表 `DEFAULT_PARAMS` 的行是 `[正则, {字段}]`，`--params` 的行排在它前面。**按键合并，不是整行取第一个**（`params_for`）：从后往前把所有匹配的行
+  都 `update` 进来，再把第一个匹配的非 `*` 行 `update` 一次；结果是每个键取最靠前的那条匹配行的值。正则用 `re.match`（前缀匹配、不分大小写），
+  所以 `KP_Tail` 也匹配 `KP_Tail_Ribbon`，宽的行里的键会漏进更具体的名字：
+  - 想让宽行 `"off": true` 下面的某几节照常模拟，具体的行要写 `"off": false`；
+  - 别的链继承来的 `step`、`gf` 渐变同样要显式覆盖（PicodraTech 的蝴蝶结飘带 `KP_Tail_Ribbon` 从尾巴的 `KP_Tail` 继承了 `step 2`，要写 `"step": 1`）。
+  第一次生成时这两处都漏了，蝴蝶结的根、环和飘带基节没有记录；看日志的记录数（100 → 修正后 107）和 `--report` 才发现。
+  JSON 字符串里正则的反斜杠要双写，经 shell heredoc 或编辑工具转写时常被吃掉一个、成了非法 JSON；数字直接写 `[0-9]`，不用 `\d`。
+- `--attach SRC=DST[;…]`（2026-10-24，同影项目 `make_phys_skel` 的做法）：SRC 链根以下的每根骨改挂到 DST 链上离它最近的一段（按绑定位置算点到线段的距离），
+  自己不写约束，也不计入 DST 链的携带长度和 gf 渐变。PicodraTech 的耳机线 `KP_Code_L/R` 挂到双马尾上（影项目里单独模拟时它们下垂、不跟着马尾走）。
 
 ## 3. KP 骨的朝向（`fit_karin.py --phys`）
 
@@ -87,8 +100,63 @@ Karin 的双马尾、侧发、刘海、脸颊发、丝带、鞋标、裙片、�
 - v5：**裙片只许向外摆**：前片的 +Y 朝外，B ≥ 0；后片的 +Y 朝向身体，B ≤ 0；侧片保持对称的小范围。同时用影项目的 `skirt_follow.py --max 0.95 --sigma 0.2`
   （不随包）加强裙子对大腿的跟随。之后没有再报穿模，但用户没有单独确认（`runtime-load-pass`）。
 
-## 6. 未决
+## 6. Karin_PicodraTech v1 的参数（`case-derived`，未实测）
+
+34 个链根、180 根 KP 骨（含 `--fix-bones` 重建的发簪流苏 `Ornaments_1…4`）。双马尾、侧发、刘海、发带、狐耳、尾巴的名字能被 `DEFAULT_PARAMS`（v6）匹配上，
+直接沿用；其余用 `--params` 的 17 行，是影项目里 PicodraTech 的调校换算到奥德赛的范围。角度为弧度；`com_rel` 除 `*` 默认行（0.5，`Belt_Ribbon`、
+`Pocket_String` 落在这一行）外都是 0.6，蝴蝶结的几行直接给质心 `com`（米）。
+
+| 链（`KP_` 前缀） | 记录数 | A | B | gf | 说明 |
+| --- | --- | --- | --- | --- | --- |
+| `Hair_Tail`（双马尾） | 8 | ±0.35 | [−0.6, 0.1] | 0.25 → 1.0 | v6 默认行，step 2 |
+| `Code`（耳机线） | 0 | — | — | — | `--attach` 到双马尾 |
+| `Hair_Side` / `Hair_Front` / `Ribbon`（发带） | 4 / 4 / 2 | ±0.2 / ±0.12 / ±0.3 | [−0.3, 0.1] / [−0.12, 0.08] / [−0.3, 0.1] | 0.5 / 0.3 / 0.6 | v6 默认行 |
+| `Ear`（狐耳，含根） / `Tail`（尾巴） | 4 / 3 | ±0.25 / ±0.35 | ±0.25 / ±0.3 | 0.5 / 0.3 → 0.75 | v6 默认行 |
+| `Ahoge`（呆毛） | 3 | ±0.2 | ±0.2 | 0.2 | |
+| `Accessory_Ear`（头顶饰件，含根） / `Halo`（光环，含根） | 2 / 1 | ±0.12 / ±0.08 | 同 A | 0.3 / 0.2 | 刚性饰件，小范围 |
+| `Ornaments`（发簪流苏） | 3 | ±0.3 | ±0.3 | 0.6 | |
+| `Breast`（含根） | 2 | ±0.06 | ±0.06 | 0.3 | |
+| `OuterA` / `OuterB` / `OuterC` / `OuterD`（外套下摆片） | 6 / 9 / 6 / 6 | ±0.1 | [−0.15, 0.3] / [−0.25, 0.25]（中后片 `OuterB`、`OuterB_<n>`：[−0.25, 0.05]） / [−0.3, 0.1] / [−0.3, 0.05] | 0.5 | B 偏向一侧（前片多向前、后片多向后；两侧的 `OuterB` 对称），A 对称（§1） |
+| `Back_Ribbon` / `Tail_Ribbon`（背后蝴蝶结的环 / 飘带） | 5 / 2 | ±0.12 / ±0.2 | 同 A | 0.5 | 只模拟根、环和飘带的基节（质心 0.25 / 0.15 / 0.2 m），其余 `"off": true` 刚性跟随（§2 的合并规则） |
+| `Belt_Ribbon` / `Pocket_String` | 11 / 6 | ±0.2 | ±0.2 | 0.5 | `*` 默认行 |
+| `Belt_String` / `Right_Belt` | 2 / 2 | ±0.25 | ±0.25 | 0.6 | |
+| `Leg_Ring_Ribbon` / `Leg_Ribbon` | 4 / 12 | ±0.3 | ±0.3 | 0.6 | |
+
+链根（`fit_karin.py --phys`，源骨名，34 个）：
+
+```text
+Hair_Tail.L,Hair_Tail.R,Tail_1,OuterA.L,OuterB.L,OuterC.L,OuterD.L,OuterA.R,OuterB.R,OuterC.R,OuterD.R,OuterB,Belt_Ribbon_Root,Hair_Side_1.L,Hair_Side_1.R,Ribbon_1.L,Ribbon_1.R,Ahoge,Hair_Front_Root,Breast_1.L,Breast_1.R,Ear_1.L,Ear_1.R,Code.L,Code.R,Leg_Ring_Root.L,Leg_Ribbon_Root.R,Belt_String_1.L,Belt_String_1.R,Right_Belt_1,Ornaments_1,Accessory_Ear.L,Accessory_Ear.R,Halo
+```
+
+`--params` 的 17 行（`aco_phys_skel.py --params`，排在 `DEFAULT_PARAMS` 前面；`"off": false` / `"step": 1` 是为了挡住宽行漏进来的键，§2）：
+
+```json
+[
+ ["KP_Tail_Ribbon(_4)?$", {"off": false, "step": 1, "a": [-0.2, 0.2], "b": [-0.2, 0.2], "com": 0.2, "gf": 0.5}],
+ ["KP_Tail_Ribbon", {"off": true}],
+ ["KP_Back_Ribbon_Root", {"off": false, "a": [-0.12, 0.12], "b": [-0.12, 0.12], "com": 0.25, "gf": 0.5}],
+ ["KP_Back_Ribbon(_[LR4])?$", {"off": false, "a": [-0.12, 0.12], "b": [-0.12, 0.12], "com": 0.15, "gf": 0.5}],
+ ["KP_Back_Ribbon", {"off": true}],
+ ["KP_OuterB(_[0-9])?$", {"a": [-0.1, 0.1], "b": [-0.25, 0.05], "com_rel": 0.6, "gf": 0.5}],
+ ["KP_OuterA", {"a": [-0.1, 0.1], "b": [-0.15, 0.3], "com_rel": 0.6, "gf": 0.5}],
+ ["KP_OuterB", {"a": [-0.1, 0.1], "b": [-0.25, 0.25], "com_rel": 0.6, "gf": 0.5}],
+ ["KP_OuterC", {"a": [-0.1, 0.1], "b": [-0.3, 0.1], "com_rel": 0.6, "gf": 0.5}],
+ ["KP_OuterD", {"a": [-0.1, 0.1], "b": [-0.3, 0.05], "com_rel": 0.6, "gf": 0.5}],
+ ["KP_Ahoge", {"a": [-0.2, 0.2], "b": [-0.2, 0.2], "com_rel": 0.6, "gf": 0.2}],
+ ["KP_Breast", {"root": true, "a": [-0.06, 0.06], "b": [-0.06, 0.06], "com_rel": 0.6, "gf": 0.3}],
+ ["KP_Accessory_Ear", {"root": true, "a": [-0.12, 0.12], "b": [-0.12, 0.12], "com_rel": 0.6, "gf": 0.3}],
+ ["KP_Halo", {"root": true, "a": [-0.08, 0.08], "b": [-0.08, 0.08], "com_rel": 0.6, "gf": 0.2}],
+ ["KP_Ornaments", {"a": [-0.3, 0.3], "b": [-0.3, 0.3], "com_rel": 0.6, "gf": 0.6}],
+ ["KP_Leg_(Ring|Ribbon)", {"a": [-0.3, 0.3], "b": [-0.3, 0.3], "com_rel": 0.6, "gf": 0.6}],
+ ["KP_(Belt_String|Right_Belt)", {"a": [-0.25, 0.25], "b": [-0.25, 0.25], "com_rel": 0.6, "gf": 0.6}]
+]
+```
+
+不做 `skirt_follow`：下摆片离中线 0.22–0.36 m，挂在大腿外侧。实机效果、A 的方向、190 根骨 / 107 条约束是否碰到引擎的上限都没有观察过。
+
+## 7. 未决
 
 - v6 尾巴 / 耳朵的软度等用户评价。
+- Karin_PicodraTech v1 的全部链都没有在游戏里看过（§6）。A 的正负方向（§1）要靠一个只给单侧 A 的诊断构建来确认（例如让一侧下摆片只许向外摆，看它往哪边去）。
 - gf 的确切含义、其它记录类型、布料约束都没有解；只用了类型 21。
 - 没有给物理链加碰撞；头发与身体的穿插没有专门检查。

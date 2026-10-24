@@ -1,5 +1,34 @@
 # 迁移验证记录
 
+## 2026-10-24：奥德赛便携包更新（第二个模型 Karin_PicodraTech）
+
+- **变更内容：**
+  - 更新 4 个文件：`build_mod.py`（`--model original|pt`：`MODELS` 表、图集自带的法线贴图 `normal_png`）、`aco_phys_skel.py`（`--attach`）、
+    `blender/export_karin_lods.py`（导出配置 `aco_pt`）、`blender/pose_preview.py`（状态里的 `rot`：按骨 ID 直接转，子骨跟着转）；
+  - 新增 2 个文件：`normal_curl.py`（法线贴图 G 约定的旋度测试）、`make_dist.py`（写 `BUILD_INFO.json` / `MANIFEST.sha256` 并打 zip；上次没迁入的打包步骤，
+    这次在项目里写成了脚本）。两个新脚本在项目里就改成了 argparse，`--help` 检查不需要另做便携改动；改完后用 `make_dist.py` 在副本上重做了 PicodraTech 包，
+    `BUILD_INFO.json` 和 `MANIFEST.sha256` 与原包逐字节相同。
+  - 便携改动：项目原件的改动按原样移植进便携版，原有的路径参数化不变；`build_mod.py` 的贴图目录变量按模型检查（`--model original` 要 `ACO_SRC_TEX`，
+    `--model pt` 要新的 `ACO_PT_TEX`），`aco_phys_skel.py` 的 `--attach` 进了 argparse。`export_karin_lods.py`、`normal_curl.py`、`make_dist.py` 与项目原件逐字节相同。
+  - PROVENANCE 更新 4 行（`original_sha256` 换成新的项目原件），新增 2 行；`toolchain.json` 的 `bundled_scripts` 加 2 个脚本。
+- **等价性验证（本机，项目的真实输入）：**
+  - **条件：** Windows 10 19044；Python 3.14.0 + numpy 2.5.2、Pillow 12.3.0；AcoHarness（项目编译的那一份）、texconv；没有 Blender 参与。
+  - `aco_phys_skel.py`：PicodraTech 的 LOD0 GLB 和拟合报告，`--params` + `--attach`（190 根骨、107 条记录）和全部默认（134 条）两种；原脚本、`ACO_WORK`、
+    `--template` / `--base` 的骨架 XML 和报告逐字节相同，`--params` + `--attach` 的输出也与 PicodraTech v1 包里用的骨架 XML 相同。
+  - `build_mod.py`：本包脚本重建 `--model pt`（PicodraTech v1）和 `--model original`（Karin_Original v8）的 payload，用 AcoHarness `unpack-data` 解开每个 `.data`
+    逐个比内部文件：PicodraTech 的 7 个数据文件（LOD0 里 18 个对象）与项目构建相同，v8 的 7 个（LOD0 里 15 个）与 v8 包相同；`skip.tsv` 相同。
+    `.data` 容器本身每次构建的字节都不同，所以不比它的哈希。
+  - 复审后 `aco_phys_skel.py` 只改了参数表上方的注释（按键合并的说明），项目原件和便携版一起改，重跑上面的骨架比较仍逐字节相同。
+  - 项目原件的回归（改共用脚本之前的版本 → 改之后）：用改过的项目脚本重建 v8，骨架 XML 逐字节相同，24 个内部文件与 v8 包逐个相同。
+- **合成测试新增 2 项：**
+  - `normal_curl.py`：按「绿色朝图像上方」烘出的高度场法线相关系数 < −0.5，翻转 G 后 > 0.5；图里另有一块近黑（各通道 < 10）、约定相反的高频图案，
+    只有跳过近黑像素时符号才对（去掉跳过那一行后这一项失败）；
+  - `build_mod.normal_png`：空白先填平（填平的区域保持平、UV 岛边缘没有被黑色拉歪的像素 —— 去掉填平那一行后这一项失败），按要求翻转 G，B = 0、A = 光泽度。
+
+  `ACO_DEPS` 里 `build_mod` 加 numpy、新增 `normal_curl`。
+- **实机证据：** 没有。PicodraTech v1 按用户要求没有安装（「暂不进行自主测试」），只有离线核对（`games/assassins-creed-odyssey/cases/KARIN_PICODRATECH.md` §3）。
+- **未验证：** 2 个 Blender 脚本（`export_karin_lods.py` 与原件相同、`pose_preview.py`）没有用本包重跑，项目里用原件跑过；`--model pt` 的贴图、物理参数、`--attach` 在游戏里的效果。
+
 ## 2026-10-24：看门狗面部表情、Windy City II 私有头部、City Noir 构建器扩展
 
 - **变更内容：**

@@ -51,6 +51,8 @@
 - **奥德赛的物理骨沿局部 +X**（原版头发 / 马尾 / 裙链都是；影用 −Z）：骨的 head → tail 指向前方并垂直于链，roll 让 Z = X × Y，于是 X 就是链的方向
   （[物理](PHYSICS.md) §3）。
 - 项目的链根表来自影项目（Karin_Original 的头发、脸颊发、丝带、鞋标、裙片、耳、尾巴），拟合里生成 139 根 KP 骨；导出的 LOD 裁到用到的骨后共 152 根。
+- Karin_PicodraTech：34 个链根、180 根 KP 骨，网格 235 根骨；`--fix-bones Ornaments_1,…,Ornaments_4` 重建源骨架里缩成一点的发簪流苏链
+  （[案例](cases/KARIN_PICODRATECH.md) §1）。
 
 ### 1.4 裙子跟随
 
@@ -68,6 +70,7 @@ v8：`--blink-angle 25 --jaw-angle 6 --lid-bone-L 0xB1A846F5 --lid-bone-R 0x8626
 ## 3. 导出与导入网格
 
 - `export_karin_lods.py --ratios 1,0.5 --profile aco_tex1 --keep-full Body`：两级 LOD，材质名是新 Material ID，脸不减面（[技术合同](TECHNICAL_CONTRACTS.md) §7）；
+  Karin_PicodraTech 用 `--profile aco_pt --keep-full Body.009`；
   `export_report.json` 记骨数和每级 LOD 的面 / 顶点数。
 - `glb_rotate.py … −90` 转回奥德赛坐标系；`glb_info.py --joints` 可核对骨数和关节位置。
 - `AcoHarness import-glb ./karin_lod0_ody.glb 0 ./karin_lod0.Mesh 00000104280E4653`（LOD1 → `0000018482B71630`）：日志打印顶点格式（应为
@@ -77,7 +80,8 @@ v8：`--blink-angle 25 --jaw-angle 6 --lid-bone-L 0xB1A846F5 --lid-bone-R 0x8626
 
 用原版 `ACD_CHF_PLA_Hair_NEW` 的 XML 做模板，`ACD_Unisex_BaseSkeleton` 提供基础骨，`--binds` 用 LOD0 的 `_ody.glb`（连没有蒙皮顶点的链根也有绑定），
 `--fit` 用拟合报告。输出骨架 XML 和报告（每根模拟骨的深度、质心、gf、两个摆角范围）。日志 `bones N (base B, KP K), physics records R`：
-v5 是 121 根（21 根基础骨、100 根 KP 骨）、66 条记录（[物理](PHYSICS.md) §2）。
+v5 是 121 根（21 根基础骨、100 根 KP 骨）、66 条记录（[物理](PHYSICS.md) §2）。`--params` 追加参数行（按键合并，[物理](PHYSICS.md) §2），
+`--attach SRC=DST` 让一条链挂在另一条上、不写自己的约束；Karin_PicodraTech 是 190 根、107 条（[物理](PHYSICS.md) §6）。
 
 ## 5. payload（`build_mod.py`）
 
@@ -90,6 +94,9 @@ v5 是 121 根（21 根基础骨、100 根 KP 骨）、66 条记录（[物理](P
 4. **物理骨架**（`--skeleton`）：`compile_fixed` 编译 `aco_phys_skel.py` 的 XML，打包成 `00000194D13C465D`。
 5. 写 `skip.tsv`（SharedGroup 的旧版头发表），删临时目录，末行 `BUILD_OK <out>`。
 
+`--model original|pt` 选材质那一段（ID 基数、4 个部位的贴图、有没有自带法线贴图、要不要翻 G，见 `build_mod.MODELS`）；表和物理骨架那几步与模型无关。
+`build_mod.py` 先删再建输出目录，**连 `tmp\` 也会在末尾删掉**：要核对材质，就对输出目录里留下的各数据文件目录（如 LOD0 那个）的对象做 `export-xml` 回读。
+
 v1 构建后把打好的容器重新解包，所有对象完好（`offline-accepted`）。
 
 ## 6. 安装与实机
@@ -99,5 +106,6 @@ v1 构建后把打好的容器重新解包，所有对象完好（`offline-accep
 
 ## 7. 可重复性
 
-没有像别的项目那样做过逐字节重建比较：Blender 一段（拟合、表情、导出）是否逐字节确定没有测过。可重新部署的包用 `BUILD_INFO.json` 记下每一步的参数、
+没有像别的项目那样做过 Blender 一段（拟合、表情、导出）的逐字节重建比较。Python 一段（2026-10-24 测过）：`aco_phys_skel.py` 的骨架 XML 在相同输入下逐字节相同；
+`build_mod.py` 重建出的 **`.data` 容器每次字节都不同**，但解包后的内部文件逐个相同 —— 比较两次构建时解包后比内部文件，不要直接比 `.data` 的哈希。可重新部署的包用 `BUILD_INFO.json` 记下每一步的参数、
 用 `MANIFEST.sha256` 记下每个文件的哈希，发行身份以 payload 的哈希为准（[验证与发布](VALIDATION_AND_RELEASE.md) §3）。

@@ -1,7 +1,7 @@
 """Prepare the fitted Karin for AnvilToolkit import and export LOD GLBs (Blender 5.0, background).
 Copied from ACShadow/scripts (2026-10-19) for Odyssey; adds the aco_* profiles below.
 
-blender -b <karin_fit.blend> --python export_karin_lods.py -- <out_dir> [--ratios 1,1,0.5,0.25,0.12] [--profile naoe|yasuke|original_naoe|original_yasuke] [--keep-full <face mesh,...>]
+blender -b <karin_fit.blend> --python export_karin_lods.py -- <out_dir> [--ratios 1,1,0.5,0.25,0.12] [--profile naoe|yasuke|original_naoe|original_yasuke|aco_tex1|aco_pt] [--keep-full <face mesh,...>]
 
 Writes <out_dir>/karin_lod<i>.glb and <out_dir>/export_report.json.
 - materials renamed to donor Material IDs (decimal) by atlas
@@ -41,6 +41,12 @@ if PROFILE == "aco_atlas":
 if PROFILE == "aco_tex1":  # new ACD_Tex1 materials 0x2A0CA5A0001..4 inside the BodyKassandra container (build_v1.py)
     ATLAS_OF = {"Karin_Face": "2889612918785", "Karin_Body": "2889612918786", "Karin_Hair": "2889612918787",
                 "Karin_Hair_Transparent": "2889612918787", "Karin_Costume": "2889612918788", "Karin_Alpha": None}
+if PROFILE == "aco_pt":  # Karin_PicodraTech (2026-10-24): one ACD_Tex1 material 0x2A0CA5B0001..4 per 4096 atlas
+    # (build_mod.py --model pt); Karin_Alpha (Body.010: blush/tear overlays, the only faces that use the atlas alpha) dropped
+    ATLAS_OF = {"Body": "2889612984321", "Karin_Face": "2889612984321", "Karin_Alpha": None,                 # Skin_Face
+                "Hair": "2889612984322", "Karin_Hair_Transparent": "2889612984322",                            # Hair_Head
+                "ClothA_Blue": "2889612984323", "Costume": "2889612984323", "Karin_Costume": "2889612984323",  # Clothing_A
+                "ClothB_Blue": "2889612984324", "Costume_1": "2889612984324", "Costume_Metalic": "2889612984324"}  # Clothing_B
 rig = bpy.data.objects["NaoeRig"]
 # face_rig.py poses the eyelid bones away from their (bind-offset) rest; the LOD normal transfer below reads the
 # evaluated full mesh, so evaluate everything at the rest position (the stored vertices = what the GLB carries)

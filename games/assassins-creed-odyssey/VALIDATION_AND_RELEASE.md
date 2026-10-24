@@ -8,7 +8,10 @@
 - **表情**：`face_rig.py` 的报告里眨眼的 `explained` 接近 1（v5 0.983）、下颌约 0.76；杠杆长度要和眼睛的尺度相称 —— 杠杆越长，非闭眼方向的姿势被放大得越多
   （v6 的 1.44 m 出了问题）。`pose_preview.py`：静止 = 原模型、眨眼的中间状态干净、扭转姿势在 0.5 权重下不撕裂；`aco_pose_sim.py` 看眼睑对各姿势的响应。
   **离线通过不代表实机通过**：v7 离线全部正常，实机被扫视驱动的偏移推翻。
-- **物理骨架**：`aco_phys_skel.py` 的骨数和记录数与上一版一致，或者变化正好是这一版要改的。
+- **物理骨架**：`aco_phys_skel.py` 的骨数和记录数与上一版一致，或者变化正好是这一版要改的。换模型时对着 `--report` 逐条链看一遍：
+  参数按键合并，宽行的 `off` / `step` 会悄悄漏进去（[物理](PHYSICS.md) §2）。
+- **自带法线贴图**：`normal_curl.py` 判断 G 的约定（原版 < 0）；转换后的贴图看 UV 岛边缘有没有接缝线（[技术合同](TECHNICAL_CONTRACTS.md) §8）。
+- **改了共用脚本**：重建上一个已验收的版本做回归。骨架 XML 直接逐字节比；`.data` 容器每次构建都不同，要解包后逐个比内部文件。
 - **payload**：每张表 `compile_fixed` 打印 `restored N null-ref padding bytes`；末行 `BUILD_OK`；7 个 `.data` 加 `skip.tsv`。改动大时把打好的数据文件重新解包
   核对对象（v1 做过）。
 - **安装**：`install` 为每个 ID 打印它写进的 forge 列表；`status` 的 `source` 指向这一版的 payload。
@@ -63,6 +66,11 @@ ACOd_KarinOriginal_v8\
   状态，把每个 ID 写进全部副本（根目录和 `dlc_*` 下的 forge，包括 `dlc_58` 的 `DataPC_ACD_Connection`）；`status.cmd` 显示来源是包里的
   `payload`。payload 与用户实测的 build_v8 逐字节相同，实机结论按身份继承；这次重新部署本身记录的是安装层面的结果。
 
+- **第二个包 `ACOd_KarinPicodraTech_v1`（2026-10-24）**：结构、安装器（SHA-256 `7672e2bd…`）、`.cmd` 入口与 v8 包相同，`BUILD_INFO.json` 和 `MANIFEST.sha256`
+  由 `make_dist.py <包目录> <payload> <info.json>` 写出并打 zip（13 884 565 字节，SHA-256 `455a08b4b4c3934d5fc86b5a295673f3ee5ab5579b99d36e0f0e062d37668117`；
+  payload 哈希见 [案例](cases/KARIN_PICODRATECH.md) §4）。payload 的 7 个 ID 与 v8 相同，两个包共用安装器和 `<游戏目录>\.karin_aco_state.json`；
+  卸载只依据状态文件，所以按安装器的逻辑，任一包的 `install.cmd` 都会先卸掉另一个再装自己（推断，没有实测过两个包之间的切换）。`MANIFEST.sha256` 用 `sha256sum -c` 核对通过；**这个包没有装过**。
+
 ## 4. 证据分层与未测场景
 
 | 项目 | 证据级 |
@@ -81,6 +89,8 @@ ACOd_KarinOriginal_v8\
 | 下颌（v5 起） | `runtime-load-pass`；幅度小，未专门调 |
 | 安装器卸载 | 测试机上 forge 长度回到原值；合成 forge 上逐字节还原（便携包核对） |
 | 包的重新部署 | 安装层面（注册表定位、卸载旧状态、写入全部副本、状态指向包） |
+| Karin_PicodraTech v1（模型、材质、物理、表情） | `offline-accepted`（拟合渲染、姿势预览、材质 XML 回读；用户要求暂不做自主测试，没有安装） |
+| 改过的共用脚本对 Karin_Original 的影响 | v8 重建：骨架 XML 逐字节相同、24 个内部文件逐个相同（离线） |
 
 未测或未做：对话和过场里的强表情（全闭 / 眯眼姿势在 25° 闭合下可能越过闭合位置，`hypothesis`）、DLC 区域（DLC forge 里的副本装了，但没去看）、
 年老的（现代篇）卡珊德拉、其它游戏版本 / 平台、4K 贴图（现在 2048）、头发透明卡片的透明效果、物理链与身体的穿插、骑马 / 游泳 / 战斗中的

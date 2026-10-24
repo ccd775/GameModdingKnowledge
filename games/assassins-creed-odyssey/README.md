@@ -3,14 +3,15 @@
 ## 范围
 
 这里整理 PC 版《刺客信条：奥德赛》（Ubisoft Connect 产品 5059，v1.5.6，`ACOdyssey.exe`，AnvilNext 2.0，forge v28）里女主角
-卡珊德拉（Kassandra）整体替换的可复用合同，来自 2026-10-19 → 10-23 的一个交付：
+卡珊德拉（Kassandra）整体替换的可复用合同，来自 2026-10-19 → 10-24 的两个交付：
 
 | 交付 | 内容 | 最高证据级 |
 | --- | --- | --- |
 | Karin_Original → 卡珊德拉 v8 | 不论穿什么装备都是 Karin：VisualMaster 去掉装备列，头部表去掉脸 / 眼 / 睫毛等，头发表去掉发型和辫子；Karin 的 LOD0 / LOD1 原地顶替卡珊德拉专属的身体 LOD，带 4 个新的 `ACD_Tex1` 材质；次级物理（双马尾、侧发、脸颊发、丝带、裙片、耳、尾巴）放进重建的头发物理骨架 `ACD_CHF_PLA_Hair_NEW`（KP 骨 + Reflex3 物理记录）；下颌、上眼睑、虹膜用「绑定偏移杠杆」蒙到卡珊德拉的头部骨架上；原地追加安装到每一份副本 | 模型与材质（v3 起）：`runtime-confirmed`（用户：「比例什么的都可以了」）；双马尾 / 脸颊头发物理（v4）：`runtime-confirmed`；v8 的眼睑（常态睁开、稳定）：`runtime-confirmed`（用户 2026-10-23：「看起来可以了」）；v6 的尾巴 / 耳朵软化：`runtime-load-pass`，用户没有单独评价；对话 / 过场表情、DLC 区域：未测 |
+| Karin_PicodraTech → 卡珊德拉 v1（2026-10-24） | 同一条流水线换第二个模型：每张 4096 图集一个 `ACD_Tex1` 材质，用图集自带的法线贴图（旋度测试判断 G 的约定，头发图集翻转）；34 个链根、180 根 KP 骨、107 条物理记录（外套下摆片、蝴蝶结、腰带、腿部缎带、狐耳、尾巴、胸等；耳机线 `--attach` 到双马尾）；表情参数同 v8 | `offline-accepted`（用户要求暂不做自主测试，没有安装；改过的共用脚本重建 v8 后内部文件逐个相同） |
 
 快照只对 v1.5.6 有效。**forge 的版本与布局、覆盖顺序里的 forge 名单、数据文件 ID 与 forge 索引号、表的列号、头部骨架的骨 ID 与姿势 ID
-是 `build-sensitive`**；拟合比例、眼睑的骨与增益、杠杆长度、物理参数是 `case-derived`（Karin_Original）。
+是 `build-sensitive`**；拟合比例、眼睑的骨与增益、杠杆长度、物理参数是 `case-derived`（Karin_Original、Karin_PicodraTech）。
 
 本作的主要贡献：
 
@@ -54,6 +55,7 @@
 - [排障手册](TROUBLESHOOTING.md)：症状 → 原因 → 处理
 - [验证与发布](VALIDATION_AND_RELEASE.md)：闸门、可重新部署的包结构与它的实测重新部署、未测场景
 - [案例：Karin_Original](cases/KARIN_ORIGINAL.md)：v1 → v8 的每一轮与证据级
+- [案例：Karin_PicodraTech](cases/KARIN_PICODRATECH.md)：换第二个模型时改了什么（材质配置、自带法线贴图、物理参数与 `--attach`）、离线核对、回归
 - [便携工具包](../../portable-kits/assassins-creed-odyssey/README.md)：forge / 安装 / 表 / 物理骨架 / 姿势模拟脚本、Blender 脚本、AcoHarness 源码
 
 ## 公开边界

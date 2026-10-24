@@ -25,7 +25,10 @@
 - **`compile-xml` 之后修补空引用的填充字节**（`build_mod.compile_fixed`）：奥德赛的写出器把它写成 0（原版 1）；表和骨架 XML 都会这样。
   打包前删掉 `compile-xml` 留下的 `.bak`。
 - **AcoHarness 的文件参数要带斜杠**（`./x.glb`）：不带斜杠的名字按 harness 所在目录解析。
-- **网格最多 255 根骨**（奥德赛的顶点格式 v4 没有宽索引），加上 KP 物理骨后 Karin 的 LOD 是 152 根。
+- **网格最多 255 根骨**（奥德赛的顶点格式 v4 没有宽索引），加上 KP 物理骨后 Karin_Original 的 LOD 是 152 根，Karin_PicodraTech 是 235 根。
+- **物理参数表按键合并、前缀匹配**（`aco_phys_skel.params_for`）：宽行的 `"off": true`、`step`、`gf` 会漏进更具体的名字；换模型时看 `--report` 逐条链核对
+  （[物理](PHYSICS.md) §2）。
+- **比较两次构建要解包**：`.data` 容器每次构建的字节都不同，内部文件才可比。
 - **坐标系**：影项目的拟合脚本按影的原始坐标系写，奥德赛的差绕竖轴 90°：拟合前 `glb_rotate.py +90`，导出的 LOD 导入前 `−90`
   （往返精确，[技术合同](TECHNICAL_CONTRACTS.md) §6）。
 - **头发表**：去掉 9 / 10 / 13 列（普通 / 兜帽 / 头盔发型的 LODSelector）还要清空行的 `DynamicResources`，否则辫子还在后颈（v2）；

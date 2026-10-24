@@ -3,9 +3,9 @@
 blender -b <fit.blend> --python pose_preview.py -- <out_dir> <states.json> [--res 700] [--dist 0.9]
         [--head-xml <Kassandra head skeleton xml>]
 
-states.json: {"name": {"poses": [[pose_id, weight], ...], "lid": deg}, ...}. Poses blend additively on the head
-skeleton's rest locals (aco_pose_sim), "lid" turns both upper-lid bones (xA5D29CD8 / x08FBF534) about the head frame's
-lateral +Z (+ = closing) on top. The game moves bone b by dW = G_pose G_rest^-1 (head frame); the rig shows the game
+states.json: {"name": {"poses": [[pose_id, weight], ...], "lid": deg, "rot": {"0xB1A846F5": deg, ...}}, ...}. Poses blend
+additively on the head skeleton's rest locals (aco_pose_sim), "lid" turns both upper-lid bones (xA5D29CD8 / x08FBF534)
+and "rot" any listed bone about the head frame's lateral +Z at its rest head (+ = closing / jaw opening) on top. The game moves bone b by dW = G_pose G_rest^-1 (head frame); the rig shows the game
 rest in its pose (face_rig keeps bind-offset bones posed back on c), so each pose bone gets A dW A^-1 * rest pose matrix,
 A = head frame -> armature space (similarity fitted on the rest heads of the head bones without a bind offset).
 Portable kit: aco_pose_sim.py is one folder up (scripts/); the head skeleton XML comes from --head-xml, else from
@@ -58,6 +58,15 @@ for b in S.order:
     depth[b] = 0 if p is None else depth[p] + 1
 
 
+def is_below(x, b):
+    p = S.parent[x]
+    while p is not None:
+        if p == b:
+            return True
+        p = S.parent[p]
+    return False
+
+
 def blend_locals(poses):
     loc = {}
     for pid, w in poses:
@@ -76,13 +85,15 @@ def blend_locals(poses):
 
 def apply_state(st):
     G = S.globals(blend_locals(st.get("poses", [])))
-    lid = math.radians(st.get("lid", 0.0))
-    if lid:
-        for b in LIDS:
+    rot = {b: st.get("lid", 0.0) for b in LIDS}
+    rot.update({int(k, 0): v for k, v in st.get("rot", {}).items()})
+    for b, deg in rot.items():
+        if deg:
             c = S.G0[b][:3, 3]
-            Rz = sim.rodrigues(np.array([0, 0, 1.0]), lid)
+            Rz = sim.rodrigues(np.array([0, 0, 1.0]), math.radians(deg))
             M = np.eye(4); M[:3, :3] = Rz; M[:3, 3] = c - Rz @ c
-            G[b] = M @ G[b]
+            for d in [b] + [x for x in S.order if x != b and is_below(x, b)]:  # children ride along
+                G[d] = M @ G[d]
     for lvl in sorted(set(depth[b] for b in pb)):
         for b in pb:
             if depth[b] != lvl:

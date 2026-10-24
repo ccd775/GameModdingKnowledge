@@ -23,7 +23,7 @@
     {
       "name": "Blender",
       "version": "5.0.1, background mode",
-      "role": "scripts/blender: fit_karin.py (fit + KP physics bones), face_rig.py (jaw / lids / irises, bind-offset levers), export_karin_lods.py (aco_tex1 LOD GLBs), pose_preview.py (Workbench renders, needs an OpenGL context), aco_pack_atlas.py (rejected atlas route)",
+      "role": "scripts/blender: fit_karin.py (fit + KP physics bones), face_rig.py (jaw / lids / irises, bind-offset levers), export_karin_lods.py (aco_tex1 / aco_pt LOD GLBs), pose_preview.py (Workbench renders of pose / lid / per-bone rot states, needs an OpenGL context), aco_pack_atlas.py (rejected atlas route)",
       "required": true
     },
     {
@@ -34,15 +34,15 @@
     },
     {
       "name": "forge, table, physics and install tools (scripts/)",
-      "version": "kit; Python 3.10+ (aco_install.py alone runs on 3.8+); numpy for aco_phys_skel / aco_pose_sim / glb_rotate / glb_info, Pillow for build_mod / build_atlas",
-      "role": "forge v28 index / extract, index search, in-place install into every copy with byte-exact uninstall, BuildTable / LODSelector XML edits, payload builder with null-reference padding repair, Reflex3 physics skeleton writer, head-skeleton pose simulator, GLB frame rotation and listing",
+      "version": "kit; Python 3.10+ (aco_install.py alone runs on 3.8+); numpy for aco_phys_skel / aco_pose_sim / glb_rotate / glb_info / build_mod / normal_curl, Pillow for build_mod / build_atlas / normal_curl",
+      "role": "forge v28 index / extract, index search, in-place install into every copy with byte-exact uninstall, BuildTable / LODSelector XML edits, payload builder per model (--model original | pt, own normal maps) with null-reference padding repair, Reflex3 physics skeleton writer (--params merge, --attach), head-skeleton pose simulator, GLB frame rotation and listing, normal-map Y-convention curl test, release package finisher (make_dist)",
       "required": true
     }
   ],
   "entry_documents": [
     "README.md"
   ],
-  "runtime_boundary": "Game v1.5.6 (Ubisoft Connect product 5059). Project builds made with the original scripts ran in game on a second test PC (v1 to v8). Confirmed by the user: the model and materials (from v3), the twin-tail and cheek-hair physics (v4) and the v8 eyelids (crease bones closed at 25 degrees; \"看起来可以了\", 2026-10-23). The v6 tail / ear softening (kept in v8) and the jaw were not judged separately. The redeployable v8 package, whose aco_install.py is the project original of scripts/aco_install.py, was redeployed on the test PC with install.cmd on 2026-10-23; that redeploy is verified at install level only (registry detection, uninstall of the previous state, every copy written, status pointing at the package payload). The portable copies were checked offline only (2026-10-23): on synthetic data the changed command-line scripts (aco_forge, aco_locate, aco_install, bt_tool, glb_rotate, glb_info, aco_phys_skel) give byte-identical outputs to the project originals, and the aco_pose_sim module gives the same global bone transforms; build_mod.py, build_atlas.py, aco_gfl.py, the Blender scripts and the AcoHarness build were not re-run with the kit. Dialogue / cutscene expressions, DLC areas and 4K textures are untested or not done.",
+  "runtime_boundary": "Game v1.5.6 (Ubisoft Connect product 5059). Project builds made with the original scripts ran in game on a second test PC (v1 to v8). Confirmed by the user: the model and materials (from v3), the twin-tail and cheek-hair physics (v4) and the v8 eyelids (crease bones closed at 25 degrees; \"看起来可以了\", 2026-10-23). The v6 tail / ear softening (kept in v8) and the jaw were not judged separately. The redeployable v8 package, whose aco_install.py is the project original of scripts/aco_install.py, was redeployed on the test PC with install.cmd on 2026-10-23; that redeploy is verified at install level only (registry detection, uninstall of the previous state, every copy written, status pointing at the package payload). The portable copies were checked offline only (2026-10-23): on synthetic data the changed command-line scripts (aco_forge, aco_locate, aco_install, bt_tool, glb_rotate, glb_info, aco_phys_skel) give byte-identical outputs to the project originals, and the aco_pose_sim module gives the same global bone transforms; build_mod.py, build_atlas.py, aco_gfl.py, the Blender scripts and the AcoHarness build were not re-run with the kit. Dialogue / cutscene expressions, DLC areas and 4K textures are untested or not done. Second model Karin_PicodraTech v1 (2026-10-24): built and packaged with the project scripts, offline-accepted only (fit renders, face pose previews, material XML read-back); the user asked for no autonomous in-game testing, so it was not installed. The 2026-10-24 kit update was checked on the project's real inputs: aco_phys_skel gives byte-identical skeleton XML and report to the project original (with --params / --attach and with the defaults), and build_mod --model pt / original rebuilds payloads whose unpacked inner files equal the project builds (the .data containers differ byte-wise between any two builds).",
   "bundled_scripts": [
     "scripts/aco_forge.py",
     "scripts/aco_locate.py",
@@ -55,6 +55,8 @@
     "scripts/aco_pose_sim.py",
     "scripts/glb_rotate.py",
     "scripts/glb_info.py",
+    "scripts/normal_curl.py",
+    "scripts/make_dist.py",
     "scripts/blender/fit_karin.py",
     "scripts/blender/face_rig.py",
     "scripts/blender/export_karin_lods.py",

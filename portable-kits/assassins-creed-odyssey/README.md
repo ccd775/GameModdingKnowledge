@@ -4,7 +4,7 @@
 安装器、卡珊德拉的数据 ID 与坐标系见 [技术合同](../../games/assassins-creed-odyssey/TECHNICAL_CONTRACTS.md)；物理骨架见
 [物理](../../games/assassins-creed-odyssey/PHYSICS.md)；眼睑与下颌见 [表情](../../games/assassins-creed-odyssey/FACE.md)。
 
-这是 Karin_Original 整体替换卡珊德拉（Kassandra）的 mod（v8，2026-10-23 用户实机接受）实际使用的工具：forge v28 索引 / 提取、
+这是 Karin_Original 整体替换卡珊德拉（Kassandra）的 mod（v8，2026-10-23 用户实机接受）和第二个模型 Karin_PicodraTech（v1，2026-10-24，只做了离线核对）实际使用的工具：forge v28 索引 / 提取、
 原地追加式安装器（每一份副本、逐字节卸载）、BuildTable / LODSelector 的 XML 编辑、payload 构建器、Reflex3 物理骨架生成器、
 头部骨架姿势模拟、GLB 坐标系旋转，Blender 拟合 / 表情 / 导出 / 预览脚本，以及无界面驱动 AnvilToolkit 的 AcoHarness（C# 源码）。
 
@@ -19,7 +19,7 @@
 - **Blender：** 5.0.1，后台模式。`pose_preview.py` 用 Workbench 渲染，需要 OpenGL 上下文（SSH 会话里会崩，见下文 §2）。
 - **texconv：** DirectXTex 的 `texconv.exe`，用户自备。
 - **Python：** 3.10 或更高（`aco_install.py` 单独在 3.8+ 上跑）；`aco_phys_skel.py`、`aco_pose_sim.py`、`glb_rotate.py`、`glb_info.py` 要 numpy
-  （`requirements.txt`），`build_mod.py`、`build_atlas.py` 要根目录 `requirements.txt` 里的 Pillow；其余只用标准库。
+  （`requirements.txt`），`build_mod.py` 要 numpy 和根目录 `requirements.txt` 里的 Pillow，`build_atlas.py` 要 Pillow，`normal_curl.py` 两个都要；其余只用标准库。
 
 ## 环境变量
 
@@ -31,7 +31,8 @@
 | `ACO_HARNESS` | `build_mod.py`、`acoharness/build.ps1`（输出到它所在的目录） | `AcoHarness.dll` 的路径 |
 | `ACO_DOTNET` | `build_mod.py` | 运行 AcoHarness 的 `dotnet.exe`（.NET 9 运行时） |
 | `ACO_TEXCONV` | `build_mod.py`、`build_atlas.py` | `texconv.exe`；`build_atlas.py` 也可用 `--texconv` |
-| `ACO_SRC_TEX` | `build_mod.py` | 源模型贴图目录：`Karin_Face.png`、`Karin_Body.png`、`Karin_Hair.png`、`Karin_Costume.png` |
+| `ACO_SRC_TEX` | `build_mod.py --model original`（默认） | 源模型贴图目录：`Karin_Face.png`、`Karin_Body.png`、`Karin_Hair.png`、`Karin_Costume.png` |
+| `ACO_PT_TEX` | `build_mod.py --model pt` | Karin_PicodraTech 的贴图目录：`Karin_PT_Atlas_<部位>_ColorAlpha_4096.png` 和 `_Normal_4096.png`，部位 = `Skin_Face`（没有法线贴图）、`Hair_Head`、`Clothing_A`、`Clothing_B_Accessories` |
 | `ACO_HEAD_SKELETON_XML` | `aco_pose_sim.py`、`blender/pose_preview.py`（`pose_preview.py` 给了 `--head-xml` 时不需要） | 卡珊德拉头部骨架的 XML；不设时按 `ACO_WORK` 的布局找，两个都没有就报错 |
 | `ACO_ATK_DIR`、`ACO_DOTNET_ROOT`、`ACO_ATK_LISTS` | `acoharness/build.ps1` | 解压的 AnvilToolkit 1.3.6、.NET 9 运行时文件夹、放 `Odyssey.gfl` 的目录；或 `-AtkDir` / `-DotnetRoot` / `-ListsDir` |
 | `ACO_GFL`、`ACO_ACSH_SCRIPTS` | `aco_gfl.py` | `Odyssey.gfl`；放 `acsh_forge.py` 的目录（刺客信条：影项目的脚本，**不在本包**） |
@@ -157,6 +158,7 @@ python -B $Kit/scripts/build_mod.py "$W\mesh" "$W\build" --skeleton "$W\phys\Hai
 
 `aco_phys_skel.py` 打印骨数（基础骨 + KP 骨）和物理记录数；`--params <json>` 追加 `[正则, {字段}]` 行覆盖 `DEFAULT_PARAMS`（v6 的值）。
 `build_mod.py` 先删掉再重建输出目录，写 `$W\build\payload\`：7 个 `<IDHEX>_<名字>.data` 和 `skip.tsv`；`--tex-size`（默认 2048）、`--gloss`（默认 70）。
+参数行**按键合并、前缀匹配**：宽行的 `"off": true`、`step`、`gf` 会漏进更具体的名字，具体的行要显式覆盖（[物理](../../games/assassins-creed-odyssey/PHYSICS.md) §2）。
 
 ### 5. 安装 / 卸载（游戏关闭时）
 
@@ -172,7 +174,36 @@ python -B $Kit/scripts/aco_install.py uninstall
 
 可重新部署的包结构（`payload\`、`aco_install.py`、`_env.cmd` / `install.cmd` / `uninstall.cmd` / `status.cmd`、README、`BUILD_INFO.json`、
 `MANIFEST.sha256`）和它的实测重新部署见 [验证与发布](../../games/assassins-creed-odyssey/VALIDATION_AND_RELEASE.md) §3。`.cmd` 包装脚本不在本包里
-（仓库不收 `.cmd`），那一节写了它们的做法。
+（仓库不收 `.cmd`），那一节写了它们的做法。包目录里放好 README、`aco_install.py` 和 4 个 `.cmd` 之后，`make_dist.py` 拷入 payload、写 `BUILD_INFO.json`
+（`<info.json>` 给出 `name` / `version` / `built` / `status` / `build`，脚本补上固定的游戏信息块（商店、产品号、v1.5.6、exe）和 payload、安装器的哈希）和 `MANIFEST.sha256`，再在包目录旁边打 zip：
+
+```powershell
+python -B $Kit/scripts/make_dist.py "$W\dist\<包名>" "$W\build\payload" "$W\dist\info.json"     # 末行打印 zip 的大小和 SHA-256
+```
+
+### 7. 第二个模型：Karin_PicodraTech
+
+同一条流水线，改的只有下面几处（[案例](../../games/assassins-creed-odyssey/cases/KARIN_PICODRATECH.md)）。源是 PicodraTech 的统一图集 blend，直接当 `<源模型.blend>` 用：
+
+```powershell
+# 1. 拟合：34 个链根；发簪流苏在源骨架里缩成一点，用 --fix-bones 沿蒙皮顶点重建
+blender -b --factory-startup --python $Kit/scripts/blender/fit_karin.py -- "$W\fit\kassandra_fit_naoeframe.glb" <PicodraTech.blend> "$W\fit\pt_fit.blend" `
+    --scale auto --ground -0.008 --foot-scale 1.0 --foot-squash 0.8 --phys <34 个链根> --fix-bones Ornaments_1,Ornaments_2,Ornaments_3,Ornaments_4
+# 2. 表情：参数同 v8（不做 skirt_follow）
+blender -b "$W\fit\pt_fit.blend" --python $Kit/scripts/blender/face_rig.py -- <PicodraTech.blend> "$W\fit\pt_face.blend" `
+    --blink-angle 25 --jaw-angle 6 --lid-bone-L 0xB1A846F5 --lid-bone-R 0x86260864 --report "$W\fit\pt_face.json"
+# 3. 导出：每张图集一个材质，脸的网格叫 Body.009；之后的 glb_rotate / import-glb 同 §3
+blender -b "$W\fit\pt_face.blend" --python $Kit/scripts/blender/export_karin_lods.py -- "$W\mesh_pt" --ratios 1,0.5 --profile aco_pt --keep-full Body.009
+# 4. 物理骨架：参数行 + 耳机线挂到双马尾上
+python -B $Kit/scripts/aco_phys_skel.py "$W\phys_pt\Hair_NEW_karin_pt.Skeleton.xml" --binds "$W\mesh_pt\karin_lod0_ody.glb" --fit "$W\fit\pt_fit_fit.json" `
+    --params "$W\phys_pt\params.json" --attach "KP_Code_L=KP_Hair_Tail_L;KP_Code_R=KP_Hair_Tail_R" --report "$W\phys_pt\report.json"
+# 5. payload：材质 ID 段 0x2A0CA5B0000、图集自带的法线贴图（Hair_Head 翻转 G）
+python -B $Kit/scripts/build_mod.py "$W\mesh_pt" "$W\build_pt" --model pt --skeleton "$W\phys_pt\Hair_NEW_karin_pt.Skeleton.xml"
+python -B $Kit/scripts/normal_curl.py "$env:ACO_PT_TEX\Karin_PT_Atlas_Hair_Head_Normal_4096.png"     # < 0 = 与原版同向；> 0 = 要翻 G
+```
+
+链根表和 `params.json` 的 17 行是案例值，原文都在 [物理](../../games/assassins-creed-odyssey/PHYSICS.md) §6（`--phys` 用逗号连起来的源骨名，
+`params.json` 照抄那个 JSON 块）。日志应为 `bones 190 (base 10, KP 180), physics records 107`；网格 235 根骨。
 
 ## 脚本
 
@@ -182,17 +213,19 @@ python -B $Kit/scripts/aco_install.py uninstall
 | `scripts/aco_locate.py` | `[--cache] [--game] find <名字\|IDHEX\|/正则/>…`、`extract <out> <名字\|IDHEX>…` | 按索引找数据文件的全部副本；`*` 行和 `extract` 用脚本的启发式（patch > 其它主 forge > DLC），没有 patch_01 副本时可能与实测的覆盖顺序不符（§0 第 2 步） |
 | `scripts/aco_install.py` | `install <payload>`、`uninstall`、`status`，`[--game]` | 原地追加安装器；`payload\skip.tsv`（`IDHEX<TAB>forge`）里的副本保持原版；`payload\root\*` 覆盖游戏根目录文件（先备份、按哈希还原） |
 | `scripts/bt_tool.py` | `show <xml>`、`edit <in> <out> [--drop 列,…] [--set 列=ID[:路径]]… [--clear-dynres]`、`lodsel <in> <out> --lod I=ID[:路径]…` | BuildTable / LODSelector 的 schema XML 编辑 |
-| `scripts/build_mod.py` | `<mesh_dir> <out_dir> [--tex-size] [--gloss] [--skeleton <xml>]` | 构建 payload；数据 ID、列号、材质 ID 是卡珊德拉 / Karin 的案例值 |
-| `scripts/aco_phys_skel.py` | `<out.xml> --binds <glb\|mesh-bones 输出> --fit <fit json> [--params] [--report] [--template] [--base]` | 重建 `ACD_CHF_PLA_Hair_NEW`：Reference 起的父链 + KP 骨 + Reflex3 type 21 物理记录 |
+| `scripts/build_mod.py` | `<mesh_dir> <out_dir> [--model original\|pt] [--tex-size] [--gloss] [--skeleton <xml>]` | 构建 payload；数据 ID、列号是卡珊德拉的案例值，材质 ID 段、贴图和法线处理在 `MODELS` 表里按模型给 |
+| `scripts/aco_phys_skel.py` | `<out.xml> --binds <glb\|mesh-bones 输出> --fit <fit json> [--params] [--attach SRC=DST[;…]] [--report] [--template] [--base]` | 重建 `ACD_CHF_PLA_Hair_NEW`：Reference 起的父链 + KP 骨 + Reflex3 type 21 物理记录；`--attach` 让一条链挂在另一条上、不写自己的约束 |
 | `scripts/aco_pose_sim.py` | 模块（numpy） | 把头部骨架的姿势组（绝对局部变换）作用到带蒙皮的 GLB 上（线性混合蒙皮，用 GLB 自己的绑定） |
 | `scripts/glb_rotate.py` | `<in.glb> <out.glb> <度>` | 绕原始竖轴整体旋转（位置、法线、切线、IBM、根节点）；+90 / −90 往返精确 |
 | `scripts/glb_info.py` | `<glb> [--joints]` | 网格、图元、材质、蒙皮关节与世界位置 |
 | `scripts/aco_gfl.py` | `<out.tsv> [--gfl] [--acsh-scripts]` | 把 `Odyssey.gfl` 转成 TSV（id、类哈希、forge、数据文件、名字）；需要影项目的 `acsh_forge.read_gfl`（不在本包） |
+| `scripts/normal_curl.py` | `<normal.png>…` | 法线贴图 G 约定的旋度测试：相关系数 < 0 = 绿色朝图像上方（原版奥德赛），> 0 = 朝下，≈ 0 判断不了 |
+| `scripts/make_dist.py` | `<包目录> <payload 目录> <info.json>` | 完成可重新部署的包：拷 payload、写 `BUILD_INFO.json` 和 `MANIFEST.sha256`、在旁边打 zip（游戏版本字段写的是 v1.5.6） |
 | `scripts/build_atlas.py` | `<src_tex> <out> [--size 4096] [--texconv]` | 2×2 图集 + BC7 DDS（**被放弃的**皮肤材质路线，见技术合同 §8） |
 | `scripts/blender/fit_karin.py` | `blender -b --factory-startup --python … -- <骨架 glb> <源 blend> <out.blend> […]` | 刚性躯干 + 四肢对关节的拟合，`--phys` 生成 +X 沿链的 KP 骨 |
 | `scripts/blender/face_rig.py` | `blender -b <fit.blend> --python … -- <源 blend> <out.blend> […]` | 下颌、眼睑、虹膜的绑定偏移（杠杆）蒙皮 |
-| `scripts/blender/export_karin_lods.py` | `blender -b <blend> --python … -- <out> --ratios … --profile aco_tex1 --keep-full Body` | 改材质名为目标 Material ID、合并、三角化、白顶点色、≤ 4 权重、裁骨、减面 LOD |
-| `scripts/blender/pose_preview.py` | `blender -b <blend> --python … -- <out> <states.json> [--res] [--dist] [--head-xml <xml>]` | 头部姿势下的脸部渲染（Workbench，需 OpenGL）；头部骨架 XML 用 `--head-xml`，或 `ACO_HEAD_SKELETON_XML` / `ACO_WORK` |
+| `scripts/blender/export_karin_lods.py` | `blender -b <blend> --python … -- <out> --ratios … --profile aco_tex1\|aco_pt --keep-full <脸的网格>` | 改材质名为目标 Material ID、合并、三角化、白顶点色、≤ 4 权重、裁骨、减面 LOD；`aco_tex1` = Karin_Original 的 4 个部位，`aco_pt` = PicodraTech 的 4 张图集 |
+| `scripts/blender/pose_preview.py` | `blender -b <blend> --python … -- <out> <states.json> [--res] [--dist] [--head-xml <xml>]` | 头部姿势下的脸部渲染（Workbench，需 OpenGL）；状态 = 原版姿势 `poses` + 旧眼睑骨 `lid` + 按骨 ID 直接转的 `rot`；头部骨架 XML 用 `--head-xml`，或 `ACO_HEAD_SKELETON_XML` / `ACO_WORK` |
 | `scripts/blender/aco_pack_atlas.py` | `blender -b <blend> --python … -- <out.blend> <材质名> [--drop Karin_Alpha]` | 把 UV 收进 2×2 图集（被放弃的路线） |
 | `acoharness/Program.cs`、`build.ps1` | 见下表 | AcoHarness 源码与构建脚本 |
 
@@ -216,12 +249,15 @@ python -B $Kit/scripts/aco_install.py uninstall
 
 ## 换一个模型时
 
-- `build_mod.py` 的数据 ID、表的列号、索引号、`PARTS` 贴图名，`export_karin_lods.py` 的 `aco_tex1` 材质映射，`face_rig.py` 的眼睑骨 / 角度，
+- `build_mod.py` 的数据 ID、表的列号、索引号，`MODELS` 里每个模型的材质 ID 段和贴图，`export_karin_lods.py` 的 `aco_tex1` / `aco_pt` 材质映射，`face_rig.py` 的眼睑骨 / 角度，
   `aco_phys_skel.py` 的 `DEFAULT_PARAMS`（按 `KP_*` 名字匹配）都是 Karin_Original 对卡珊德拉的案例值；换模型或换角色要重新测量。
+- 加一个模型的做法（Karin_PicodraTech 就是这样加的）：`export_karin_lods.py` 加一个配置（每个材质名 → 新 Material ID），`build_mod.py` 的 `MODELS` 加一行
+  （新的 ID 基数、4 个部位的漫反射 / 法线贴图、要不要翻 G），物理用 `--params` 补参数行；改完重建上一个已验收的版本做回归（解包后比内部文件）。
 - forge 读取、索引搜索、安装器、`bt_tool.py`、`glb_rotate.py`、Reflex3 记录写出、姿势模拟与模型无关。
 
 ## 边界
 
 便携副本只在合成数据上做了离线核对（2026-10-23）：改动过的命令行脚本与项目原脚本输出逐字节相同（[VALIDATION.md](../VALIDATION.md)）。
-`build_mod.py`、Blender 脚本和 AcoHarness 没有用本包重跑；实机结论来自项目用原脚本构建的 v1–v8。不带游戏资源、源模型、AnvilToolkit、
+2026-10-24 的更新在项目的真实输入上核对：`aco_phys_skel.py` 与项目原脚本输出逐字节相同，`build_mod.py`（`--model pt` 和 `original`）重建的 payload
+解包后与项目构建的内部文件相同。Blender 脚本和 AcoHarness 没有用本包重跑；实机结论来自项目用原脚本构建的 v1–v8。不带游戏资源、源模型、AnvilToolkit、
 .NET、texconv、`Odyssey.gfl`、影项目的脚本或构建产物。

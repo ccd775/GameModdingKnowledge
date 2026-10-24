@@ -3,7 +3,12 @@ Kassandra-only) rebuilt as Reference-rooted parent chains + the KP_* bones of fi
 record (type 21) per simulated KP bone.
 
 python aco_phys_skel.py <out_skel.xml> --binds <mesh-bones dump of LOD0> --fit <fit report json> [--params <json>]
-                        [--report <json>] [--template <Hair_NEW xml>] [--base <Unisex_BaseSkeleton xml>]
+                        [--attach "KP_Code_L=KP_Hair_Tail_L[;...]"] [--report <json>] [--template <Hair_NEW xml>]
+                        [--base <Unisex_BaseSkeleton xml>]
+
+--attach (2026-10-24, Karin_PicodraTech; as ACShadow make_phys_skel): every bone below the first chain's root hangs from
+the bone of the second chain with the nearest segment (bind heads) and gets no constraint of its own (the headphone
+cords run along the twin tails; on their own they drooped instead of following the tails, ACShadow user 2026-10-07).
 
 Portable kit: the vanilla XML exports are read from the project layout under ACO_WORK unless --template and --base
 are given.
@@ -32,7 +37,8 @@ BASE = os.path.join(WORK, "x2", "p1", "xml", "19895_-_ACD_CHR_Playable_BaseEntit
 HIPS_H = 0.9639999866485596  # RootBoneDefaultLocalPosition z of Reference-rooted vanilla skeletons
 PTR0 = 4160749568           # inlined object IDs: 0xF8000000 + index
 
-# Per-chain parameters: regex matched at the start of the KP name (first match wins). Fields:
+# Per-chain parameters: regex matched at the start of the KP name; every matching row applies and per field the first
+# matching row wins (a broad row's "off" or "step" reaches more specific names unless they set it). Fields:
 #   off      no constraint (rigid on its parent)      root   also simulate the chain root (parent = body bone)
 #   step     simulate every step-th link (the ones between ride rigidly)
 #   a, b     [min, max] swing (rad); a = about local Y (sideways), b = about local Z (+ = tip forward)
@@ -195,6 +201,7 @@ def main():
     ap.add_argument("--binds", required=True, help="Karin LOD0 *_ody.glb or an AcoHarness mesh-bones dump")
     ap.add_argument("--fit", required=True, help="fit report JSON of fit_karin.py --phys (its 'phys' table)")
     ap.add_argument("--params", help="JSON list of [regex, {fields}] rows, matched before DEFAULT_PARAMS")
+    ap.add_argument("--attach", help="SRC_ROOT=DST_ROOT[;...]: the SRC chain rides on the DST chain, no own records")
     ap.add_argument("--report", help="JSON: bone order and the written physics parameters")
     ap.add_argument("--template", help="vanilla ACD_CHF_PLA_Hair_NEW Skeleton XML (default: under ACO_WORK)")
     ap.add_argument("--base", help="vanilla ACD_Unisex_BaseSkeleton Skeleton XML (default: under ACO_WORK)")
@@ -218,6 +225,32 @@ def main():
         while p in fit and p not in used:
             used.add(p); p = fit[p]["parent"]
     kp_parent = {n: fit[n]["parent"] for n in used}
+    attached = set()
+    if a.attach:
+        def chain_of(root):
+            out = [root]
+            for x in out:
+                out += sorted(k for k in used if fit[k]["parent"] == x)
+            return out
+
+        def seg_dist(p, s, e):
+            d = e - s
+            t = 0.0 if d @ d < 1e-12 else min(1.0, max(0.0, (p - s) @ d / (d @ d)))
+            return float(np.linalg.norm(p - s - t * d))
+        bind_head = lambda n: binds[crc(n)][:3, 3]
+        for part in a.attach.split(";"):
+            src_root, dst_root = part.split("=")
+            if src_root not in used or dst_root not in used:
+                raise SystemExit(f"--attach: {src_root} / {dst_root} not a skinned KP chain")
+            tgt = chain_of(dst_root)
+            segs = []
+            for t in tgt:
+                kids = [k for k in tgt if fit[k]["parent"] == t]
+                segs.append((t, bind_head(t), bind_head(kids[0]) if kids else bind_head(t)))
+            for n in chain_of(src_root)[1:]:
+                kp_parent[n] = min(segs, key=lambda sg: seg_dist(bind_head(n), sg[1], sg[2]))[0]
+                attached.add(n)
+            print("attached", src_root, "->", sorted({kp_parent[n] for n in chain_of(src_root)[1:]}))
     need = set()
     for n in used:
         p = kp_parent[n]
@@ -273,9 +306,10 @@ def main():
         depth[n] = depth[par] + 1 if par in depth else 0
     kp_children = {}
     for n in used:
-        kp_children.setdefault(kp_parent[n], []).append(n)
+        if n not in attached:  # attached bones ride on another chain: not part of its carried length / gf ramp
+            kp_children.setdefault(kp_parent[n], []).append(n)
     for n in order:
-        if n in base:
+        if n in base or n in attached:
             continue
         P = params_for(n, table)
         d = depth[n]

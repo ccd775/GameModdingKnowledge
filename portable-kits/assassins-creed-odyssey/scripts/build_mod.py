@@ -1,8 +1,15 @@
 """Build the Karin_Original -> Kassandra payload (model + materials; milestone 2: + physics skeleton).
 
-  python build_mod.py <mesh_dir> <out_dir> [--tex-size 2048] [--gloss 70] [--skeleton <aco_phys_skel.py xml>]
+  python build_mod.py <mesh_dir> <out_dir> [--model original|pt] [--tex-size 2048] [--gloss 70]
+                      [--skeleton <aco_phys_skel.py xml>]
 
-<mesh_dir>: karin_lod0.Mesh / karin_lod1.Mesh (import-glb of export_karin_lods --profile aco_tex1, rotated -90).
+<mesh_dir>: karin_lod0.Mesh / karin_lod1.Mesh (import-glb of export_karin_lods --profile aco_tex1 (original) or aco_pt
+(pt), rotated -90).
+--model pt (2026-10-24): Karin_PicodraTech, one ACD_Tex1 material 0x2A0CA5B0001..4 per 4096 atlas (Skin_Face, Hair_Head,
+Clothing_A, Clothing_B_Accessories), diffuse = ColorAlpha RGB (the opaque material ignores alpha; only the dropped
+Karin_Alpha overlays use it), normal = the atlas normal map as (X, Y, B metal 0, A gloss) with empty (black) texels made
+flat; Hair_Head G flipped (curl test: the atlas is +0.78 against vanilla Kassandra body/head -0.30/-0.25; clothing atlases
+~0, mixed, left as is); Skin_Face has no normal map -> the shared flat normal. Emission maps are not used.
 Writes <out_dir>/payload/<IDHEX>_<name>.data; aco_install.py puts each into every forge holding that ID.
 
 Data files (vanilla sources unpacked under <ACO_WORK>/x1, x2, x5; layout in the kit README). Override order in the main
@@ -23,8 +30,8 @@ DataPC_patch_01 > dlc_<n> forges (dlc_43, dlc_58 incl. DataPC_ACD_Connection rep
   00000194D13C465D ACD_CHF_PLA_Hair_NEW skeleton (Hair table col 3, Kassandra-only; --skeleton): Karin's KP bones +
         Reflex3 Physics records (aco_phys_skel.py); the mesh dir must then hold the matching KP-skinned LODs.
 No .prefetch edit: data-file root references (LOD meshes, the ACD_Tex1 template) load on demand.
-Machine paths (portable kit): ACO_WORK, ACO_DOTNET, ACO_HARNESS, ACO_TEXCONV, ACO_SRC_TEX; all are checked before
-anything is written.
+Machine paths (portable kit): ACO_WORK, ACO_DOTNET, ACO_HARNESS, ACO_TEXCONV and ACO_SRC_TEX (--model original) or
+ACO_PT_TEX (--model pt); all are checked before anything is written.
 """
 import argparse
 import difflib
@@ -34,16 +41,19 @@ import shutil
 import subprocess
 import sys
 
+import numpy as np
 from PIL import Image
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 # machine paths (portable kit): environment variables, checked in main() before anything is written
-ENV = ("ACO_WORK", "ACO_DOTNET", "ACO_HARNESS", "ACO_TEXCONV", "ACO_SRC_TEX")
+ENV = ("ACO_WORK", "ACO_DOTNET", "ACO_HARNESS", "ACO_TEXCONV")
+MODEL_ENV = {"original": "ACO_SRC_TEX", "pt": "ACO_PT_TEX"}
 WORK = os.environ.get("ACO_WORK", "")         # project work folder with the unpacked vanilla data files (x1, x2, x5)
 DOTNET = os.environ.get("ACO_DOTNET", "")     # dotnet.exe of the .NET 9 runtime
 HARNESS = os.environ.get("ACO_HARNESS", "")   # AcoHarness.dll (acoharness/build.ps1)
 TEXCONV = os.environ.get("ACO_TEXCONV", "")   # DirectXTex texconv.exe
 SRC_TEX = os.environ.get("ACO_SRC_TEX", "")   # Karin_Face.png / Karin_Body.png / Karin_Hair.png / Karin_Costume.png
+PT_TEX = os.environ.get("ACO_PT_TEX", "")     # Karin_PicodraTech textures: Karin_PT_Atlas_<part>_ColorAlpha_4096.png, _Normal_4096.png
 sys.path.insert(0, HERE)
 import bt_tool  # noqa: E402
 
@@ -69,12 +79,14 @@ TPL_DIFF = os.path.join(SKIN_DIR, "3_-_ACD_CHF_PLA_Kassandra_Head_DiffuseMap.Tex
 TPL_NORM = os.path.join(SKIN_DIR, "1_-_ACD_CHR_P_Kassandra_Body_NormalMap.TextureMap")      # inline mips, linear
 BOW = os.path.join(X5, "sg", "xml", "9245_-_ACD_CHW_PLA_01_BowAlexios")
 
-BASE = 0x2A0CA5A0000
-PARTS = [("Face", "Karin_Face.png"), ("Body", "Karin_Body.png"), ("Hair", "Karin_Hair.png"), ("Costume", "Karin_Costume.png")]
-MAT = {p: BASE + 1 + i for i, (p, _) in enumerate(PARTS)}       # matches export_karin_lods.py --profile aco_tex1
-SET = {p: BASE + 0x11 + i for i, (p, _) in enumerate(PARTS)}
-DIFF = {p: BASE + 0x21 + i for i, (p, _) in enumerate(PARTS)}
-NORM, MASK0 = BASE + 0x31, BASE + 0x32
+# model -> (ID base, [(part, diffuse png, normal png or None, flip G)]); part order = material IDs base+1.. (export
+# profiles aco_tex1 / aco_pt)
+MODELS = {
+    "original": (0x2A0CA5A0000, [(p, os.path.join(SRC_TEX, f"Karin_{p}.png"), None, False) for p in ("Face", "Body", "Hair", "Costume")]),
+    "pt": (0x2A0CA5B0000, [(p, os.path.join(PT_TEX, f"Karin_PT_Atlas_{p}_ColorAlpha_4096.png"),
+                            os.path.join(PT_TEX, f"Karin_PT_Atlas_{p}_Normal_4096.png") if p != "Skin_Face" else None, p == "Hair_Head")
+                           for p in ("Skin_Face", "Hair_Head", "Clothing_A", "Clothing_B_Accessories")]),
+}
 # bow material/texture set (ACD_Tex1, opaque) used as XML templates
 BOW_MAT, BOW_SET, BOW_DIFF, BOW_NORM, BOW_MASK = "535855619145", "535855618945", "535855618950", "535855618954", "535855618958"
 
@@ -141,26 +153,55 @@ def compile_fixed(xml, out, vanilla_bin=None, vanilla_xml=None):
     print(f"  {os.path.basename(out)}: restored {restored} null-ref padding bytes ({lost} inside dropped cells)")
 
 
-def add_materials(folder, n, tmp, tex_size, gloss):
-    """4 ACD_Tex1 Materials + TextureSets + diffuse maps, shared flat normal (B metal 0, A gloss) and Mask0 (B occlusion 1),
-    written as objects n, n+1, ... of <folder>; returns the next free index"""
+def normal_png(src, flip_g, gloss, size, out):
+    """tangent-space normal atlas -> ACD_Tex1 normal RGBA (X, Y, B metal 0, A gloss); empty (black) atlas space is made
+    flat BEFORE the resize (resized black edges normalize to strongly tilted texels = seam lines around every UV island)"""
+    a = np.array(Image.open(src).convert("RGB"))
+    a[a.max(-1) < 10] = (128, 128, 255)
+    a = np.asarray(Image.fromarray(a).resize((size, size), Image.LANCZOS)).astype(np.float32) / 127.5 - 1
+    if flip_g:
+        a[..., 1] = -a[..., 1]
+    a /= np.maximum(np.linalg.norm(a, axis=2, keepdims=True), 1e-6)
+    rg = np.clip(np.round((a[..., :2] + 1) * 127.5), 0, 255).astype(np.uint8)
+    Image.fromarray(np.dstack([rg, np.zeros((size, size), np.uint8), np.full((size, size), gloss, np.uint8)]), "RGBA").save(out)
+    return out
+
+
+def add_materials(folder, n, tmp, tex_size, gloss, model):
+    """4 ACD_Tex1 Materials + TextureSets + diffuse maps, normal maps (shared flat normal: B metal 0, A gloss) and a shared
+    Mask0 (B occlusion 1), written as objects n, n+1, ... of <folder>; returns the next free index"""
+    base, parts = MODELS[model]
+    MAT = {p: base + 1 + i for i, (p, *_) in enumerate(parts)}
+    SET = {p: base + 0x11 + i for i, (p, *_) in enumerate(parts)}
+    DIFF = {p: base + 0x21 + i for i, (p, *_) in enumerate(parts)}
+    NORM, MASK0 = base + 0x31, base + 0x32
+    OWN_NORM = {p: base + 0x41 + i for i, (p, _, nrm, _) in enumerate(parts) if nrm}
     bow_mat = open(os.path.join(BOW, "0_-_ACD_CHW_PLA_01_BowAlexios.Material.xml"), encoding="utf-8-sig").read()
     bow_set = open(os.path.join(BOW, "1_-_ACD_CHW_PLA_01_BowAlexios_Set.TextureSet.xml"), encoding="utf-8-sig").read()
     lpath = r"DataPC_patch_01\ACD_CHF_PLA_B01_A01_BodyKassandra_LOD0" + "\\"
-    for part, png in PARTS:
+    for part, png, nrm, flip_g in parts:
         nm = f"Karin_{part}"
-        mx = subst(bow_mat, [(BOW_MAT, MAT[part]), (BOW_SET, SET[part]), (BOW_DIFF, DIFF[part]), (BOW_NORM, NORM), (BOW_MASK, MASK0)])
+        norm = OWN_NORM.get(part, NORM)
+        mx = subst(bow_mat, [(BOW_MAT, MAT[part]), (BOW_SET, SET[part]), (BOW_DIFF, DIFF[part]), (BOW_NORM, norm), (BOW_MASK, MASK0)])
         mx = mx.replace('<Bool Name="TwoSided">False</Bool>', '<Bool Name="TwoSided">True</Bool>')
         mx = re.sub(r'Path="DataPC_SharedGroup_00\\ACD_CHW_PLA_01_BowAlexios\\ACD_CHW_PLA_01_BowAlexios_Set\.TextureSet"', lambda _: f'Path="{lpath}{nm}_Set.TextureSet"', mx)
-        sx = subst(bow_set, [(BOW_SET, SET[part]), (BOW_DIFF, DIFF[part]), (BOW_NORM, NORM), (BOW_MASK, MASK0)])
+        sx = subst(bow_set, [(BOW_SET, SET[part]), (BOW_DIFF, DIFF[part]), (BOW_NORM, norm), (BOW_MASK, MASK0)])
         for f, x in ((f"{nm}.Material", mx), (f"{nm}_Set.TextureSet", sx)):
             xp = os.path.join(tmp, f + ".xml")
             open(xp, "w", encoding="utf-8").write(bt_tool.fix_null_refs(x))
             run("compile-xml", xp, os.path.join(folder, f"{n}_-_{f}"))
             n += 1
-        dds = texconv(os.path.join(SRC_TEX, png), tmp, "BC7_UNORM_SRGB", tex_size)
+        if Image.open(png).mode != "RGB":  # ColorAlpha atlas: the opaque material ignores alpha, keep BC7 bits for colour
+            rgb = os.path.join(tmp, f"{nm}_diffuse.png")
+            Image.open(png).convert("RGB").save(rgb)
+            png = rgb
+        dds = texconv(png, tmp, "BC7_UNORM_SRGB", tex_size)
         print(" ", run("tex-import", TPL_DIFF, dds, os.path.join(folder, f"{n}_-_{nm}_DiffuseMap.TextureMap"), "--id", f"{DIFF[part]:X}").splitlines()[-1])
         n += 1
+        if nrm:
+            npng = normal_png(nrm, flip_g, gloss, tex_size, os.path.join(tmp, f"{nm}_normal.png"))
+            print(" ", run("tex-import", TPL_NORM, texconv(npng, tmp, "BC7_UNORM"), os.path.join(folder, f"{n}_-_{nm}_NormalMap.TextureMap"), "--id", f"{OWN_NORM[part]:X}").splitlines()[-1])
+            n += 1
     flat = os.path.join(tmp, "karin_flat_normal.png")
     Image.new("RGBA", (64, 64), (128, 128, 0, gloss)).save(flat)
     print(" ", run("tex-import", TPL_NORM, texconv(flat, tmp, "BC7_UNORM"), os.path.join(folder, f"{n}_-_Karin_FlatNormal_NormalMap.TextureMap"), "--id", f"{NORM:X}").splitlines()[-1])
@@ -176,11 +217,12 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("mesh_dir")
     ap.add_argument("out_dir")
+    ap.add_argument("--model", choices=("original", "pt"), default="original")
     ap.add_argument("--tex-size", type=int, default=2048)
     ap.add_argument("--gloss", type=int, default=70)
     ap.add_argument("--skeleton", help="Hair_NEW skeleton XML written by aco_phys_skel.py")
     a = ap.parse_args()
-    missing = [n for n in ENV if not os.environ.get(n)]
+    missing = [n for n in ENV + (MODEL_ENV[a.model],) if not os.environ.get(n)]
     if missing:
         raise SystemExit("set " + ", ".join(missing) + " (see the kit README)")
     mesh_dir, out = a.mesh_dir, a.out_dir
@@ -212,7 +254,7 @@ def main():
         assert len(target) == 1 and target[0].startswith("0_-_")
         shutil.copy(os.path.join(mesh_dir, mesh), os.path.join(d, target[0]))
         if entry is LOD0:
-            add_materials(d, 1, tmp, tex_size, gloss)
+            add_materials(d, 1, tmp, tex_size, gloss, a.model)
         pack(entry, d, payload)
 
     # --- tables -------------------------------------------------------------------------------------------

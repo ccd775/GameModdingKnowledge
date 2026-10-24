@@ -4287,7 +4287,7 @@ class TheWitcher3Tools(unittest.TestCase):
 ACO_KIT = KITS / 'assassins-creed-odyssey'
 # Odyssey kit scripts whose import (and --help) needs more than the standard library
 ACO_DEPS = {'aco_phys_skel': ('numpy',), 'aco_pose_sim': ('numpy',), 'glb_rotate': ('numpy',), 'glb_info': ('numpy',),
-            'build_mod': ('PIL',), 'build_atlas': ('PIL',)}
+            'build_mod': ('PIL', 'numpy'), 'build_atlas': ('PIL',), 'normal_curl': ('numpy', 'PIL')}
 
 
 def aco_missing(script):
@@ -4332,6 +4332,65 @@ class AssassinsCreedOdysseyTools(unittest.TestCase):
         for name in ('rshot.sh', 'rshots.sh', 'shrink_shot.ps1'):
             self.assertFalse(list(kit.rglob(name)), name)
         self.assertFalse(list(kit.rglob('*.cmd')))
+
+    def aco_numpy_pil(self, script):
+        aco_kit()
+        if aco_missing(script):
+            raise unittest.SkipTest('pip install -r portable-kits/assassins-creed-odyssey/requirements.txt and Pillow (missing '
+                                    + ', '.join(aco_missing(script)) + ')')
+        import numpy as np
+        from PIL import Image
+        return np, Image
+
+    def test_aco_normal_curl_sign(self):
+        # a height field baked with green toward the image top (vanilla Odyssey) correlates negatively; flipping the
+        # convention turns the sign. Near-black texels (empty atlas space, every channel < 10) carry a fine pattern of
+        # the opposite convention: the sign only survives because they are skipped (without the mask both are ~0)
+        np, Image = self.aco_numpy_pil('normal_curl')
+        r, c = np.mgrid[0:128, 0:128].astype(np.float64)
+
+        def baked(h, green_up):   # x = right (col), y = up (-row): ny = -dh/dy = +dh/drow
+            dr, dc = np.gradient(h)
+            n = np.dstack([-dc, dr if green_up else -dr, np.ones_like(h)])
+            return n / np.linalg.norm(n, axis=2, keepdims=True)
+
+        def image(green_up):
+            img = np.round((baked(np.sin(r / 6.0) * np.sin(c / 9.0) + 0.5 * np.sin((r + c) / 13.0), green_up) + 1) * 127.5)
+            dark = baked(1.5 * np.sin(r / 1.3) * np.sin(c / 1.7), not green_up)
+            img[:, :48] = np.round(4.5 + 4.5 * dark / np.abs(dark).max(axis=(0, 1)))[:, :48]
+            return img.astype(np.uint8)
+
+        with tempfile.TemporaryDirectory(prefix='modding aco ') as d:
+            up, down = Path(d, 'up.png'), Path(d, 'down.png')
+            Image.fromarray(image(True)).save(up)
+            Image.fromarray(image(False)).save(down)
+            self.assertLess(int(np.asarray(Image.open(up))[:, :48].max()), 10)
+            out = cli('assassins-creed-odyssey', 'normal_curl', up, down).stdout.splitlines()
+        v = [float(line.rsplit(':', 1)[1]) for line in out]
+        self.assertLess(v[0], -0.5)
+        self.assertGreater(v[1], 0.5)
+
+    def test_aco_build_mod_normal_png(self):
+        # atlas normal -> ACD_Tex1 normal: empty (black) space made flat before the resize (no tilted seam texels at the
+        # island edge), G flipped on request, B = metalness 0, A = gloss
+        np, Image = self.aco_numpy_pil('build_mod')
+        bm = module('assassins-creed-odyssey', 'build_mod')
+        src = np.zeros((64, 64, 3), np.uint8)
+        src[:, 32:] = (160, 200, 230)
+        with tempfile.TemporaryDirectory(prefix='modding aco ') as d:
+            Image.fromarray(src).save(Path(d, 'n.png'))
+            for flip in (False, True):
+                out = np.asarray(Image.open(bm.normal_png(str(Path(d, 'n.png')), flip, 70, 32, str(Path(d, f'o{flip}.png')))))
+                self.assertEqual(out.shape, (32, 32, 4))
+                self.assertTrue((out[..., 2] == 0).all() and (out[..., 3] == 70).all())
+                xy = out[..., :2].astype(np.float64) / 127.5 - 1
+                tilt = np.linalg.norm(xy, axis=2)
+                want = np.array([160, 200], np.float64) / 127.5 - 1
+                want /= np.linalg.norm(np.append(want, 230 / 127.5 - 1))
+                self.assertLess(tilt.max(), np.linalg.norm(want) + 0.1)    # no black-mix seam (those tilt ~0.9)
+                self.assertLess(tilt[:, :12].max(), 0.02)                  # filled space stays flat
+                g = out[16, 28:, 1].astype(int)
+                self.assertTrue((g < 128).all() if flip else (g > 128).all(), g)
 
 
 if __name__ == '__main__': unittest.main(verbosity=2)

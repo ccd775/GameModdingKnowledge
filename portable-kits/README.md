@@ -21,7 +21,7 @@
 | 漫威蜘蛛侠2 | Karin 替换 Peter / Miles 全部战衣的构建链：i30 toc / DAT1、`.model`、`.texture`、`.material`、`.actor` 读写，`.stage` 读写与不依赖 Overstrike 的纯标准库安装器，名字索引与解包，VRM 拟合、批量构建、表情绑定、AnimDynamics 链、蜘蛛猫挂件和头部载体物理，离线回读与往返校验 | [使用](marvels-spider-man-2/README.md) |
 | 往日不再 | Karin 替换迪肯：Blender 构建（VRM 拟合到迪肯骨架、按迪肯变形后的头部取面部权重、眼睑骨、逐 viseme 解口型权重）；烘焙后资产改写（骨架引用与根骨姿势、原地改名字表的材质实例、66 个外观、GPU 顶点缓冲的法线与位移、放大骨静止姿势、动画蓝图里插入的 AnimDynamics 弹簧和 CopyBone 节点）、逐轨压缩面部动画解码、pak v3 读写；DgExport（CUE4Parse）的 C# 源码、UE 4.11 cook、带哈希校验的安装与启动记录工具 | [使用](days-gone/README.md) |
 | 巫师3 次世代版 | Karin 替换杰洛特：v5 bundle 与 v7 metadata.store 读写、WolvenKit 骨名修复、空 / dangle / 头部物品模板与 dyng / w3fac 生成器、铺满全部杰洛特物品模板的打包；Blender 构建（逐骨拟合、待机姿势肩部拟合、dyng 规格、形状键 → 表情骨分解）；离线检查（目标形状、裙子穿模射线、look-at 滚转、头部碰撞中心、网格内容比较、store 重建比较）；准备 / 构建流水线 | [使用](the-witcher-3/README.md) |
-| 刺客信条：奥德赛 | Karin 整体替换卡珊德拉：forge v28 索引 / 提取 / 按名字查找、原地追加安装器（每一份副本、截断卸载）、BuildTable / LODSelector 的 XML 编辑与 payload 构建（空引用填充字节修补）、Reflex3 type 21 物理骨架生成、头部骨架姿势模拟、GLB 坐标系旋转；Blender 拟合 / 绑定偏移杠杆表情 / LOD 导出 / 脸部预览；无界面驱动 AnvilToolkit 1.3.6 的 AcoHarness（C# 源码） | [使用](assassins-creed-odyssey/README.md) |
+| 刺客信条：奥德赛 | Karin 整体替换卡珊德拉：forge v28 索引 / 提取 / 按名字查找、原地追加安装器（每一份副本、截断卸载）、BuildTable / LODSelector 的 XML 编辑与 payload 构建（空引用填充字节修补）、Reflex3 type 21 物理骨架生成（参数行、`--attach`）、头部骨架姿势模拟、GLB 坐标系旋转、法线贴图 G 约定检查、发行包打包；Blender 拟合 / 绑定偏移杠杆表情 / LOD 导出 / 脸部预览；无界面驱动 AnvilToolkit 1.3.6 的 AcoHarness（C# 源码） | [使用](assassins-creed-odyssey/README.md) |
 
 [公共层](common/README.md) 提供项目初始化、哈希锁、断点、工具预检、确定性 ZIP 和 Blender 审计。
 

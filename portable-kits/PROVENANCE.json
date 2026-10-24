@@ -3017,10 +3017,10 @@
   {
     "path": "portable-kits/assassins-creed-odyssey/scripts/build_mod.py",
     "source": "Mods/ACOd/scripts/build_mod.py",
-    "original_sha256": "c4ad397471dd115667b7c43a04fa303a8b46f95fd35b58b76313e2d4a93b7039",
-    "source_bytes": 14467,
-    "portable_sha256": "1a5742bd0ed17cdcc148fbe41a39a2789a9af90f10338ceca0c3725519f57cdc",
-    "portable_bytes": 15229,
+    "original_sha256": "ae6f8b174b3fe93157e5dc1f83e8584e530a744e82e39bb34d92f733aa5ba746",
+    "source_bytes": 17483,
+    "portable_sha256": "d54e265ea6c0d320583dea022129d69a5fccf867c4a3040702b9028059cecb2a",
+    "portable_bytes": 18279,
     "modified_for_portability": true
   },
   {
@@ -3035,10 +3035,10 @@
   {
     "path": "portable-kits/assassins-creed-odyssey/scripts/aco_phys_skel.py",
     "source": "Mods/ACOd/scripts/aco_phys_skel.py",
-    "original_sha256": "a80819e5e99aa199e914b393e7cd7a6b656a3a2134c820eab745ea29330fa163",
-    "source_bytes": 16516,
-    "portable_sha256": "95c8599c222fa8ee6f8879fbf134760fcaeb7e5bc6a225f4057ca007845c6280",
-    "portable_bytes": 17720,
+    "original_sha256": "acd7cd79e5c484979fd8543c4c150f27ee6bd7ec7bff43124c3b807c6077ad24",
+    "source_bytes": 18415,
+    "portable_sha256": "02f7a80e0edef00df7c24769fecee5092e695dfbf314c0b84658db4e0403540f",
+    "portable_bytes": 19747,
     "modified_for_portability": true
   },
   {
@@ -3089,19 +3089,19 @@
   {
     "path": "portable-kits/assassins-creed-odyssey/scripts/blender/export_karin_lods.py",
     "source": "Mods/ACOd/scripts/export_karin_lods.py",
-    "original_sha256": "e1acdfef72ca3a9b0abd6ec4dc70722ae49461cc4c46afd3322eff6910aca45d",
-    "source_bytes": 9386,
-    "portable_sha256": "e1acdfef72ca3a9b0abd6ec4dc70722ae49461cc4c46afd3322eff6910aca45d",
-    "portable_bytes": 9386,
+    "original_sha256": "d3f9c1645d124b69e1a4b18108c0a24b31830c5640d1286982a1bb09ade114ce",
+    "source_bytes": 10137,
+    "portable_sha256": "d3f9c1645d124b69e1a4b18108c0a24b31830c5640d1286982a1bb09ade114ce",
+    "portable_bytes": 10137,
     "modified_for_portability": false
   },
   {
     "path": "portable-kits/assassins-creed-odyssey/scripts/blender/pose_preview.py",
     "source": "Mods/ACOd/scripts/pose_preview.py",
-    "original_sha256": "bdbaddf77fcde5bcfba2a760f97d2d49c06ded4b7e48c6cf428a27247b3c2c7f",
-    "source_bytes": 6264,
-    "portable_sha256": "d496f94baecc4683807d92c3cd2ac74158ee43ae9def1f8e337080a56a245b0d",
-    "portable_bytes": 6814,
+    "original_sha256": "f01bd26a7f05dffdd502953644f10234b600fd385c11154e105d38262a51175b",
+    "source_bytes": 6710,
+    "portable_sha256": "901dbc8ae413a897502825a869200d3429558ecf7e1f85cf858574312ee18ee9",
+    "portable_bytes": 7260,
     "modified_for_portability": true
   },
   {
@@ -3111,6 +3111,24 @@
     "source_bytes": 2166,
     "portable_sha256": "a106c9ee313584c923e9e55c55bdeb0343a05bd3354c840d475f376ac4df5b66",
     "portable_bytes": 2166,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/assassins-creed-odyssey/scripts/normal_curl.py",
+    "source": "Mods/ACOd/scripts/normal_curl.py",
+    "original_sha256": "a55bb9364ecf07e5d44dd6495b68c7e00d0a7a4d7417b85f5c8fac71239a9992",
+    "source_bytes": 1327,
+    "portable_sha256": "a55bb9364ecf07e5d44dd6495b68c7e00d0a7a4d7417b85f5c8fac71239a9992",
+    "portable_bytes": 1327,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/assassins-creed-odyssey/scripts/make_dist.py",
+    "source": "Mods/ACOd/scripts/make_dist.py",
+    "original_sha256": "d499355c8355375c13dc471c6dea011bc4c00ef00286a71ec86ea981c8d9e1f5",
+    "source_bytes": 2460,
+    "portable_sha256": "d499355c8355375c13dc471c6dea011bc4c00ef00286a71ec86ea981c8d9e1f5",
+    "portable_bytes": 2460,
     "modified_for_portability": false
   },
   {
