@@ -18,6 +18,7 @@ from repack_fat8 import path_hash  # noqa: E402
 
 CHAR = "graphics/characters/char/char01/"
 XBG = CHAR + "char01.xbg"
+FACIAL = CHAR + "char01_facial_definition.dpdx"  # facial rest pose and controls (dpdx_format); not in the base packs
 LASHES_KEY = "com_u_las_uni04_d"
 LASHES = "graphics/characters/kits/common/unisex/lashes/" + LASHES_KEY + ".xbt"
 # texture key -> (slot name, map kind); slots follow the char01 material table: head, coat, hair, lashes

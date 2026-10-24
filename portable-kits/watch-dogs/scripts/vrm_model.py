@@ -31,6 +31,8 @@ class Primitive:
     weights: np.ndarray  # (n,k)
     triangles: np.ndarray  # (t,3)
     color: np.ndarray | None = None
+    target_names: list[str] = field(default_factory=list)  # morph targets (shape keys), read on demand
+    target_positions: list[int] = field(default_factory=list)  # POSITION accessor per target, -1 if absent
 
 
 @dataclass
@@ -60,6 +62,14 @@ class Vrm:
     def inverse_binds(self, s: int) -> np.ndarray:
         m = self.accessor(self.json["skins"][s]["inverseBindMatrices"]).reshape(-1, 4, 4)
         return np.transpose(m, (0, 2, 1)).astype(np.float64)  # glTF is column-major
+
+    def morph(self, prim: int, name: str) -> np.ndarray | None:
+        """Position deltas (n,3) of primitive `prim`'s shape key `name` in mesh-node space, or None."""
+        p = self.primitives[prim]
+        if name not in p.target_names:
+            return None
+        acc = p.target_positions[p.target_names.index(name)]
+        return None if acc < 0 else self.accessor(acc).astype(np.float64)
 
 
 def read_accessor(j: dict, binary: bytes, i: int) -> np.ndarray:
@@ -167,8 +177,12 @@ def load(path: Path | str) -> Vrm:
             wt = np.hstack(weights) if weights else np.zeros((len(pos), 0))
             tri = read_accessor(j, binary, prim["indices"]).reshape(-1, 3).astype(np.int64)
             col = read_accessor(j, binary, at["COLOR_0"]).astype(np.float64) if "COLOR_0" in at else None
+            targets = prim.get("targets", [])
+            tnames = (mesh.get("extras", {}).get("targetNames") or prim.get("extras", {}).get("targetNames")
+                      or [f"target{k}" for k in range(len(targets))])
             model.primitives.append(Primitive(mesh.get("name", f"mesh{nd['mesh']}"), pi, prim.get("material", -1),
-                                              pos, nrm, uv, jt, wt, tri, col))
+                                              pos, nrm, uv, jt, wt, tri, col, list(tnames[:len(targets)]),
+                                              [t.get("POSITION", -1) for t in targets]))
             model.prim_skin.append(nd.get("skin", -1))
             model.prim_node.append(ni)
     return model

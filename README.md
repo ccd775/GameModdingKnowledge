@@ -24,7 +24,7 @@
 | 浪人崛起 | [Rise of the Ronin](games/rise-of-the-ronin/README.md) | Karin_Picodra：头发 / 脸 / 下身材质 / 背标 / 上衣 UV / 手指动画逐项经用户验收（20260908f 为基线）；20261004a 的腿部分段权重、13 张共用贴图恢复（NPC 发白）与下身 SHADING 仅离线检查；Karin_Original 从 FBX 构建，两种头部变体由 agent 实机自测；无物理与表情，室内绑腿未解决 |
 | 剑星 | [Stellar Blade](games/stellar-blade/README.md) | Karin_Original→EVE 初始服装 `CH_P_EVE_09` v1.0：从 VRM 完整构建（UE 4.26 SB 分支，IoStore）；后处理 AnimBP 由编辑器插件无界面生成（ControlRig、运行时改腿长、28 个 KawaiiPhysics，物理链借用游戏骨架配件链）；比例、材质、物理与裙摆穿模修复经用户实机验收；表情未在游戏里检查，服装变体未替换 |
 | 杀手暗杀世界 | [Hitman WOA](games/hitman-world-of-assassination/README.md) | Signature Suit 0.1.0 在 Dartmoor 的基础动作 |
-| 看门狗 | [Watch Dogs](games/watch-dogs/README.md) | 默认服装 v1.3.0，保留少数手指变形限制。2026-10-03 起不再需要 ZModeler：纯 Python 写出 XBG 的 1.4 / 1.5 和 Karin_Original 0.1.2 经用户实机认可；Karin_Original 只确认了读档和脸部。附通用 VRM 构建器，配置驱动，可逐字节重建 0.1.2 |
+| 看门狗 | [Watch Dogs](games/watch-dogs/README.md) | 默认服装 v1.3.0，保留少数手指变形限制。2026-10-03 起不再需要 ZModeler：纯 Python 写出 XBG 的 1.4 / 1.5 和 Karin_Original 0.1.2 经用户实机认可；Karin_Original 只确认了读档和脸部。附通用 VRM 构建器，配置驱动，可逐字节重建 0.1.2。2026-10-06 物理（链、大衣布料）经实机验收；2026-10-10 私有头部材质兼容 Windy City II；2026-10-24 面部表情（改写面部定义 dpdx）第一轮实机：嘴会动，眨眼和视线的修正版尚未实机 |
 | 刺客信条黑旗记忆重置 | [Black Flag Resynced](games/assassins-creed-black-flag/README.md) | 角色替换及最终 1.6.1 修复，用户于 9 月 6 日确认 |
 | 生化危机4重制版 | [RE4R](games/resident-evil-4-remake/README.md) | 多个角色案例，具体场景/build 分别记录 |
 | 求生之路2 | [L4D2](games/left-4-dead-2/README.md) | 多个实机确认案例，另有静态完成待复测项目 |

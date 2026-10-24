@@ -1,0 +1,11 @@
+{
+ "schema": "watchdogs.xbg_face_profile.v1",
+ "note": "Karin 1.6.0 (karin_replacer, Karin_PT / karin_picodra.vrm, built from the FBX handoff) plus facial expressions: xbg_face.py on the released char01.xbg, same face section as karin_original_face.json.",
+ "xbg_face_material": 0,
+ "vrm_face_materials": ["Karin_Face"],
+ "face": {
+  "blink": {"L": "blink_L", "R": "blink_R", "gain": 1.0, "follow_scale": 0.5},
+  "jaw": {"key": "kuchi_A", "gain": 1.0},
+  "gaze": {"keys": ["LookLeft", "LookRight", "LookUp", "LookDown"], "gain": 2.0}
+ }
+}

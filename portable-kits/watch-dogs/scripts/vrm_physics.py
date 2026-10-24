@@ -5,8 +5,9 @@
                              | {"legs": true} | {"derived": "body"|"face"}, ...]},
     "chains": [{"start": VRM joint, "attach": char01 bone, "colliders": set name, "gravity": g, "damping": d,
                 "pull": p, "radius": [root, 30 %, tip], "pool": "spare"|"collar"|"coat"|"any",
-                optional "anchors": [bones], "drop_end": true, "link_kind": 1}, ...],
-    "cloth": {"joints": VRM joint prefix (e.g. "Skirt_"), "skip": [joint names], "gravity": -2.0,
+                optional "anchors": [bones], "drop_end": true, "pin_parent": true, "link_kind": 1}, ...],
+    "cloth": {"joints": VRM joint prefix (e.g. "Skirt_"), "skip": [joint names] | "roots": [chain root joints],
+              "gravity": -2.0,
               "damping_scale": 0.12, "k": 8, "sigma": 0.08, "thigh_radius": 0.125, "hang_from_pelvis": true},
     "double_sided": [VRM part names, e.g. "skirt/0"]
   }
@@ -90,11 +91,15 @@ class Rig:
                 struct.pack_into("<f", data, coat_off + 8, cloth.get("gravity", before[1]))
                 scale = cloth.get("damping_scale", 1.0)
                 struct.pack_into("<3f", data, coat_off + 12, *(v * scale for v in before[2:5]))
+                radii = dict(cloth.get("capsule_radius", {}))
                 if cloth.get("thigh_radius"):
+                    radii.setdefault("L Thigh", cloth["thigh_radius"])
+                    radii.setdefault("R Thigh", cloth["thigh_radius"])
+                if radii:
                     caps_at = P.coat_capsules(bytes(data), coat_off)
-                    for bone in ("L Thigh", "R Thigh"):
+                    for bone, radius in radii.items():
                         f7 = list(struct.unpack_from("<7f", data, caps_at[bone]))
-                        f7[0] = f7[3] = cloth["thigh_radius"]
+                        f7[0] = f7[3] = radius
                         struct.pack_into("<7f", data, caps_at[bone], *f7)
                         capsules_changed[bone] = f7
             data = bytes(data)
@@ -102,30 +107,57 @@ class Rig:
             self.centre = skf.bind[skf.index["Pelvis"]][:3, 3]
             names = m.node_names
             self.cloth_swing, self.cloth_all, move_report, switched = set(), set(), None, 0
+            remap_report = None
+            if cloth and cloth.get("remap_z"):
+                # cape: slide the whole particle lattice up or down (linear in height) before the radial push
+                (za, za2), (zb, zb2) = cloth["remap_z"]
+                lifted = {}
+                for n in [nm for nm in skf.names if nm.startswith(P.COAT_PREFIX)]:
+                    p = skf.bind[skf.index[n]][:3, 3].copy()
+                    p[2] = za2 + (p[2] - za) * (zb2 - za2) / (zb - za)
+                    lifted[n] = p
+                data, remap_report = P.move(data, lifted)
+                skf = _skeleton(data, Path(tmp))
             if cloth:
-                prefix, skip = cloth["joints"], set(cloth.get("skip", []))
-                chains = [vrm_chain(m, n) for n in names if n.startswith(prefix) and "." not in n and n not in skip]
+                if cloth.get("roots"):  # explicit chain roots (FBX-derived names have no "." to tell roots apart)
+                    chains = [vrm_chain(m, n) for n in cloth["roots"]]
+                else:
+                    prefix, skip = cloth["joints"], set(cloth.get("skip", []))
+                    chains = [vrm_chain(m, n) for n in names if n.startswith(prefix) and "." not in n and n not in skip]
                 self.cloth_swing = {j for js in chains for j in js[1:]}
                 self.cloth_all = {j for js in chains for j in js}
                 pts = np.concatenate([part.positions[(np.isin(part.joints, list(self.cloth_all)) & (part.weights > 0)).any(1)]
                                       for part in fit.parts])
                 targets = P.particle_targets(skf, pts, self.centre)
-                if cloth.get("thigh_radius"):
-                    targets = P.clear_of_capsules(data, coat_off, skf, targets)
-                leg_hung = [n for i, n in enumerate(skf.names)
-                            if n.startswith(P.COAT_PREFIX) and skf.names[skf.parent[i]] in P.LEG_HELPERS]
-                spine_hung = [n for i, n in enumerate(skf.names) if n.startswith(P.COAT_PREFIX)
-                              and skf.names[skf.parent[i]] in P.SPINE_BONES] if cloth.get("hang_from_pelvis") else []
-                data, move_report = P.move(data, targets, {n: "Pelvis" for n in leg_hung + spine_hung})
+                clear = cloth.get("clear_capsules", ["L Thigh", "R Thigh"] if cloth.get("thigh_radius") else [])
+                if clear:
+                    targets = P.clear_of_capsules(data, coat_off, skf, targets, bones=tuple(clear))
+                coat_names = [n for n in skf.names if n.startswith(P.COAT_PREFIX)]
+                anchor_bone = cloth.get("anchor_bone")
+                if anchor_bone:
+                    # cape: every particle referenced to anchor_bone; skeleton parent anchor_bone where the node
+                    # order allows it (parents come first), else the Pelvis
+                    ab = skf.index[anchor_bone]
+                    parents = {n: (anchor_bone if skf.index[n] > ab else "Pelvis") for n in coat_names}
+                    parents = {n: p for n, p in parents.items() if skf.names[skf.parent[skf.index[n]]] != p}
+                    want, expected = P.COAT_ANCHORS.index(anchor_bone), None
+                else:
+                    leg_hung = [n for i, n in enumerate(skf.names)
+                                if n.startswith(P.COAT_PREFIX) and skf.names[skf.parent[i]] in P.LEG_HELPERS]
+                    spine_hung = [n for i, n in enumerate(skf.names) if n.startswith(P.COAT_PREFIX)
+                                  and skf.names[skf.parent[i]] in P.SPINE_BONES] if cloth.get("hang_from_pelvis") else []
+                    parents = {n: "Pelvis" for n in leg_hung + spine_hung}
+                    want, expected = P.PELVIS_ANCHOR, len(leg_hung) + len(spine_hung)
+                data, move_report = P.move(data, targets, parents)
                 data = bytearray(data)
                 groups = (0, 1, 3, 4, 5) if cloth.get("hang_from_pelvis") else (0, 1)
-                flags = P.coat_particle_flags(data, coat_off, [n for n in skf.names if n.startswith(P.COAT_PREFIX)])
+                flags = P.coat_particle_flags(data, coat_off, coat_names)
                 for n, off in flags.items():
                     f = struct.unpack_from("<I", data, off)[0]
-                    if f >> 16 in groups:
-                        struct.pack_into("<I", data, off, (P.PELVIS_ANCHOR << 16) | (f & 0xFFFF))
+                    if (f >> 16 != want) if anchor_bone else (f >> 16 in groups):
+                        struct.pack_into("<I", data, off, (want << 16) | (f & 0xFFFF))
                         switched += 1
-                if switched != len(leg_hung) + len(spine_hung):
+                if expected is not None and switched != expected:
                     raise SystemExit("coat anchor switch count mismatch")
                 data = bytes(data)
             sk_c = _skeleton(data, Path(tmp))
@@ -147,6 +179,13 @@ class Rig:
                 js = vrm_chain(m, ch["start"])
                 if ch.get("drop_end"):
                     js = js[:-1]
+                if ch.get("pin_parent"):
+                    # the start joint's parent becomes the pinned root, so a chain whose joints all carry weight
+                    # (or a single joint) swings as a whole
+                    par = m.parent[js[0]]
+                    if np.linalg.norm(fit.posed_joint[js[0]] - fit.posed_joint[par]) < 1e-3:
+                        raise SystemExit(f"{ch['start']}: parent joint coincides with it; pin_parent impossible")
+                    js = [par] + js
                 pts = fit.posed_joint[js]
                 n = len(js)
                 attach = ch["attach"]
@@ -176,7 +215,7 @@ class Rig:
         self.report = {"objects_kept": layout["keep"], "objects_dropped": layout["objects"] - layout["keep"],
                        "table_entries": layout["table_entries"], "table_dropped": layout["table_dropped"],
                        "global_cut": layout["global_cut"], "coat_capsules_changed": capsules_changed,
-                       "particles_moved": move_report, "anchors_switched": switched, "rig": rig_report,
+                       "lattice_remapped": remap_report, "particles_moved": move_report, "anchors_switched": switched, "rig": rig_report,
                        "chains": chains_report}
         return rigged
 

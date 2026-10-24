@@ -1,5 +1,49 @@
 # 迁移验证记录
 
+## 2026-10-24：看门狗面部表情、Windy City II 私有头部、City Noir 构建器扩展
+
+- **变更内容：**
+  - 更新 10 个文件，同步为项目 kit（`.work/karin_citynoir/kit/scripts/`）的当前版本：
+    - `build_from_vrm.py`、`vrm_fit.py`、`vrm_model.py`、`vrm_textures.py`、`vrm_physics.py`、`xbg_physics.py`、`xbt_encode.py`：City Noir 的悬挂、权重改挂、UV 岛重排、加大漫反射、披肩布料选项，以及 `face` 段和 `--facial-definition`；
+    - `package_mod.py`、`repack_fat8.py`、`char01_paths.py`：`transform=` 钩子、可增删条目的 `write()`、dpdx 路径。
+  - 新增 5 个文件：
+    - `dpdx_format.py`、`vrm_face.py`、`xbg_face.py`、`private_head.py`：与项目原件逐字节相同；
+    - `face_preview.py`：只把导入路径改成脚本自身目录。
+  - 新增 2 个配置样板：`karin_original_face.json`、`karin_pt_face.json`。
+  - PROVENANCE 更新 14 行（只改 portable 哈希，原始取证值不变），新增 5 行。
+  - 公开版之前只有旧版代码，没有便携改动，所以直接以 kit 原件覆盖。行尾统一为 LF。
+- **本次修正：** `xbg_face.py` 原来用 scipy 的 KD 树做最近邻。改成纯 numpy 后，输出的 XBG 变了。
+  - 原因：VRM 接缝处同一位置有几个顶点，其中 4 个在 blink 键下会分开，两种实现对并列的处理不同。
+  - 改为在重合顶点里取网格邻点与 XBG 顶点的邻点重合的那个，改后与 KD 树起点得到的结果相同。
+  - 项目里的蓝白 Karin 1.7.0-test 已按此重建。
+- **等价性验证：**
+  - **条件：** Python 3.14.0、numpy 2.5.2、Pillow 12.3.0，全部用本包脚本。
+  - **结果：**
+    - `profiles/karin_original.json`：ZIP 与 Karin_Original 0.1.2 逐字节相同（`20D92DD7…`）；
+    - `profiles/karin_original_1_0_0.json` + char10 碰撞体：XBG 与 1.0.0 相同（`609B07FC…`）；
+    - `profiles/karin_original_face.json`：XBG `52159161…`、dpdx `70B4CDF6…`，与 Karin_Original 1.1.1-test 的构建相同；
+    - `xbg_face.py` 加在蓝白 Karin 1.6.0 的 XBG（`338CB93E…`）上：XBG `EFE581FE…`、dpdx `271CBE64…`，与 1.7.0-test 的构建相同。
+- **离线闸门：**
+  - `face_preview.py`：静止位移 0，眨眼控制最多移动 46–50 mm；
+  - 眨眼相对残差约 0.07，眼睑边缘到位 99.5% 以上；
+  - `xbg_face.py` 对齐：中位误差 0.04 mm，最大 0.09 mm，3,254 个顶点全部对上；
+  - 改动范围：骨架只改眼骨和下巴的局部平移，29 个逆绑定（都在这三根骨的子孙上）；网格只改两个 LOD 脸的权重。
+- **实机证据：**
+  - Karin_Original 1.1.0-test：游戏读取包里的 dpdx，嘴会动，眨眼闭不严，眼珠几乎看不出在动；
+  - 私有头部：Karin_Original 1.0.1-test 在装与不装 WC2 1.1.2 时脸都正常（2026-10-10）；
+  - City Noir 0.1.0–0.1.2 的结果见 `games/watch-dogs/PHYSICS.md` §7。
+- **合成测试新增 `WatchDogsFace` 5 项：**
+  - dpdx：四元数编解码；无旋转码；纯平移增量；旋转缩放；写出与读取的往返；截断文件报错；
+  - 平移眼睑：两方向锥的拟合，份额非负且和不超过 1；单骨主方向；带上限的非负最小二乘；
+  - dpdx 改写：父空间平移、跟随比例、去掉睁大方向和其他轴的控制、无旋转码、挪动骨骼的静止平移，以及不一致时报错；
+  - 对齐：相似变换复原、分块最近邻，接缝两侧各取自己一侧的顶点；
+  - FAT：`write()` 增删条目、16 字节对齐、拒绝异常尾部。
+- **未验证：**
+  - 平移眼睑、视线 ×2 未经实机；
+  - `xbg_face.py` 只用在蓝白 Karin 1.6.0 上；
+  - `face` 段和 `private_head.py` 没有端到端的合成测试，只用真实数据核对过；
+  - City Noir 的选项只有部分实机结论（0.1.3 起的结果未知）。
+
 ## 2026-10-24：西之绝境构建器更新（手部、表情、借用物理）
 
 - **变更内容：**

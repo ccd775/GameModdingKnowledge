@@ -1,0 +1,293 @@
+{
+ "schema": "watchdogs.vrm_profile.v1",
+ "note": "Karin_Original 1.0.0 plus facial expressions (vrm_face.py): blink (lid translations), jaw open and gaze (eye share x2) driven by the game's facial controls through a patched char01_facial_definition.dpdx; build with --facial-definition. 1.1.0-test in game: mouth moved, blink did not close, eyes barely moved.",
+ "materials": {
+  "Karin_Face": {
+   "slot": "head"
+  },
+  "Karin_Alpha": {
+   "slot": "lashes"
+  },
+  "Karin_Costume": {
+   "slot": "coat",
+   "spec": "cloth"
+  },
+  "Karin_Body": {
+   "slot": "coat",
+   "spec": "skin"
+  },
+  "Karin_Hair": {
+   "slot": "hair"
+  },
+  "Karin_Hair_Transparent": {
+   "slot": "hair"
+  }
+ },
+ "chains": [],
+ "physics": {
+  "colliders": {
+   "hair_l": [
+    {
+     "from": "Ph_Ch_Tail_Nicky_SMUNode_1",
+     "fallback": "body"
+    },
+    {
+     "legs": true
+    }
+   ],
+   "hair_r": [
+    {
+     "from": "Ph_Ch_Tail_Nicky_SMUNode_1",
+     "mirror": [
+      "Spine2"
+     ],
+     "fallback": "body"
+    },
+    {
+     "legs": true
+    }
+   ],
+   "face": [
+    {
+     "from": "Ph_Ch_Couet_FL_Soft_Nicky_SMUNode_1",
+     "fallback": "face"
+    }
+   ]
+  },
+  "chains": [
+   {
+    "start": "Hair_tail_L",
+    "attach": "Head",
+    "colliders": "hair_l",
+    "gravity": -4.0,
+    "damping": 0.15,
+    "pull": 0.1,
+    "radius": [
+     0.01,
+     0.03,
+     0.012
+    ],
+    "pool": "spare"
+   },
+   {
+    "start": "Hair_tail_R",
+    "attach": "Head",
+    "colliders": "hair_r",
+    "gravity": -4.0,
+    "damping": 0.15,
+    "pull": 0.1,
+    "radius": [
+     0.01,
+     0.03,
+     0.012
+    ],
+    "pool": "spare"
+   },
+   {
+    "start": "Ear_L",
+    "attach": "Head",
+    "colliders": "none",
+    "gravity": -2.0,
+    "damping": 0.15,
+    "pull": 0.3,
+    "radius": [
+     0.01,
+     0.015,
+     0.01
+    ],
+    "pool": "spare"
+   },
+   {
+    "start": "Ear_R",
+    "attach": "Head",
+    "colliders": "none",
+    "gravity": -2.0,
+    "damping": 0.15,
+    "pull": 0.3,
+    "radius": [
+     0.01,
+     0.015,
+     0.01
+    ],
+    "pool": "spare"
+   },
+   {
+    "start": "Hair_front",
+    "attach": "Head",
+    "colliders": "face",
+    "gravity": -4.0,
+    "damping": 0.15,
+    "pull": 0.1,
+    "radius": [
+     0.005,
+     0.008,
+     0.008
+    ],
+    "pool": "spare"
+   },
+   {
+    "start": "Hair_front_L",
+    "attach": "Head",
+    "colliders": "face",
+    "gravity": -4.0,
+    "damping": 0.15,
+    "pull": 0.1,
+    "radius": [
+     0.005,
+     0.008,
+     0.008
+    ],
+    "pool": "spare"
+   },
+   {
+    "start": "Hair_front_R",
+    "attach": "Head",
+    "colliders": "face",
+    "gravity": -4.0,
+    "damping": 0.15,
+    "pull": 0.1,
+    "radius": [
+     0.005,
+     0.008,
+     0.008
+    ],
+    "pool": "spare"
+   },
+   {
+    "start": "Hair_side_L",
+    "attach": "Head",
+    "colliders": "face",
+    "gravity": -4.0,
+    "damping": 0.15,
+    "pull": 0.1,
+    "radius": [
+     0.005,
+     0.01,
+     0.008
+    ],
+    "pool": "spare"
+   },
+   {
+    "start": "Hair_side_R",
+    "attach": "Head",
+    "colliders": "face",
+    "gravity": -4.0,
+    "damping": 0.15,
+    "pull": 0.1,
+    "radius": [
+     0.005,
+     0.01,
+     0.008
+    ],
+    "pool": "spare"
+   },
+   {
+    "start": "Cheek_Root_L",
+    "attach": "Head",
+    "colliders": "face",
+    "gravity": -4.0,
+    "damping": 0.15,
+    "pull": 0.1,
+    "radius": [
+     0.005,
+     0.008,
+     0.008
+    ],
+    "pool": "spare"
+   },
+   {
+    "start": "Cheek_Root_R",
+    "attach": "Head",
+    "colliders": "face",
+    "gravity": -4.0,
+    "damping": 0.15,
+    "pull": 0.1,
+    "radius": [
+     0.005,
+     0.008,
+     0.008
+    ],
+    "pool": "spare"
+   },
+   {
+    "start": "Ribbon_L",
+    "attach": "Head",
+    "colliders": "none",
+    "gravity": -4.0,
+    "damping": 0.15,
+    "pull": 0.1,
+    "radius": [
+     0.005,
+     0.01,
+     0.01
+    ],
+    "pool": "spare"
+   },
+   {
+    "start": "Ribbon_R",
+    "attach": "Head",
+    "colliders": "none",
+    "gravity": -4.0,
+    "damping": 0.15,
+    "pull": 0.1,
+    "radius": [
+     0.005,
+     0.01,
+     0.01
+    ],
+    "pool": "spare"
+   },
+   {
+    "start": "Tail",
+    "attach": "Pelvis",
+    "colliders": "legs",
+    "gravity": -4.0,
+    "damping": 0.5,
+    "pull": 0.1,
+    "radius": [
+     0.03,
+     0.035,
+     0.02
+    ],
+    "pool": "spare",
+    "drop_end": true
+   }
+  ],
+  "cloth": {
+   "joints": "Skirt_",
+   "skip": [
+    "Skirt_root"
+   ],
+   "gravity": -2.0,
+   "damping_scale": 0.12,
+   "k": 8,
+   "sigma": 0.08,
+   "thigh_radius": 0.125,
+   "hang_from_pelvis": true
+  },
+  "double_sided": [
+   "skirt/0"
+  ]
+ },
+ "face": {
+  "blink": {
+   "L": "blink_L",
+   "R": "blink_R",
+   "gain": 1.0,
+   "follow_scale": 0.5
+  },
+  "jaw": {
+   "key": "kuchi_A",
+   "gain": 1.0
+  },
+  "gaze": {
+   "keys": [
+    "LookLeft",
+    "LookRight",
+    "LookUp",
+    "LookDown"
+   ],
+   "gain": 2.0
+  }
+ }
+}

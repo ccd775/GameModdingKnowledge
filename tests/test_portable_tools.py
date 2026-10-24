@@ -1822,6 +1822,138 @@ class WatchDogsPhysics(unittest.TestCase):
         parts = json.loads((out / 'build_report.json').read_text())['parts']
         self.assertIn(cloth_part + '/back', [p['part'] for p in parts])
 
+class WatchDogsFace(unittest.TestCase):
+    """Facial definition (.dpdx), translation eyelids, dpdx rewrite, seam-aware face matching, FAT entry add/drop."""
+
+    def test_wd_dpdx_round_trip_and_items(self):
+        import numpy as np
+        dp = wd('dpdx_format')
+        rng = np.random.default_rng(1)
+        for _ in range(100):
+            q = rng.normal(size=4)
+            q /= np.linalg.norm(q)
+            self.assertGreater(abs(float(np.dot(dp.decode_quat(dp.encode_quat(q)), q))), 0.999)
+        self.assertTrue(np.allclose(dp.decode_quat(dp.NO_ROTATION), (0, 0, 0, 1), atol=1e-3))
+        self.assertEqual(dp.encode_quat(dp.decode_quat(dp.NO_ROTATION)), dp.NO_ROTATION)
+        item = dp.Item.translation_only(32, (0.01, -0.0457, 0.0))
+        self.assertEqual(item.control, 32)
+        self.assertTrue(np.allclose(item.translation, (0.01, -0.0457, 0.0), atol=dp.UNIT))
+        with self.assertRaises(ValueError):
+            dp.Item.translation_only(1, (5.0, 0.0, 0.0))
+        turn = dp.Item(struct.pack('<I3hH', dp.encode_quat((np.sin(0.2), 0, 0, np.cos(0.2))), 0, 0, 0, 42))
+        turn.scale_rotation(0.5)
+        self.assertAlmostEqual(2 * np.arccos(turn.rotation[3]), 0.2, places=2)
+        bones = [dp.Bone((0, 0, 0, 1), (0.01, 0.02, 0.03), dp.name_hash('L_Eye'), [item, turn]),
+                 dp.Bone((0, 0, 0, 1), (0.0, 0.0, 0.0), dp.name_hash('_Jaw'), [])]
+        raw = dp.dump(dp.Dpdx(2, bones, [0x11, 0x22]))
+        back = dp.load(raw)
+        self.assertEqual(dp.dump(back), raw)
+        self.assertEqual(back.bone('L_Eye').delta(42).raw, turn.raw)
+        self.assertIsNone(back.bone('_Jaw').delta(42))
+        with self.assertRaises(ValueError):
+            dp.load(raw[:-4])
+
+    def test_wd_face_translation_fit(self):
+        import numpy as np
+        vf = wd('vrm_face')
+        rng = np.random.default_rng(2)
+        dirs = np.array([[0.0, 0.0, -0.045], [0.018, 0.0, -0.043]])
+        tgt = rng.uniform(0, 0.5, size=(300, 2)) @ dirs
+        basis, shares = vf._translations(tgt, 2)
+        self.assertTrue((shares >= 0).all())
+        self.assertLessEqual(shares.sum(1).max(), 1 + 1e-9)
+        got = shares @ basis
+        self.assertLess(np.sqrt(((tgt - got) ** 2).sum() / (tgt ** 2).sum()), 0.02)
+        one, s1 = vf._translations(tgt, 1)
+        self.assertAlmostEqual(float(s1.max()), 1.0, places=6)
+        self.assertGreater(float(one[0] @ np.array([0, 0, -1.0])), 0)  # the main direction points along the motion
+        self.assertTrue(np.allclose(vf._nnls(np.eye(3), np.array([2.0, 1.0, -1.0])), (1, 0, 0)))  # best capped support
+        self.assertTrue(np.allclose(vf._nnls(np.eye(3), np.array([2.0, 1.0, -1.0]), cap=False), (2, 1, 0)))
+
+    def test_wd_facial_definition_writes_lid_translations(self):
+        import numpy as np
+        from types import SimpleNamespace
+        dp, vf = wd('dpdx_format'), wd('vrm_face')
+        names = ['Head', 'Facial_Hook', '_ELid_U_L', 'L_Eye']
+        parent = [-1, 0, 1, 1]
+        turn = np.array([[0.0, -1.0, 0.0], [1.0, 0.0, 0.0], [0.0, 0.0, 1.0]])  # Facial_Hook: 90 degrees about z
+        local = [np.eye(4) for _ in names]
+        local[0][:3, 3] = (0, 0, 1.6)
+        local[1][:3, :3] = turn
+        local[2][:3, 3] = (0.08, 0.06, 0.03)
+        local[3][:3, 3] = (0.09, 0.07, 0.03)
+        bind = []
+        for i, p in enumerate(parent):
+            bind.append(local[i] if p < 0 else bind[p] @ local[i])
+        sk = SimpleNamespace(names=names, parent=parent, index={n: i for i, n in enumerate(names)},
+                             local=np.array(local), bind=np.array(bind))
+
+        def rot(axis, frac):
+            a = 0.68 * frac / 2
+            return struct.pack('<I', dp.encode_quat((*(np.array(axis) * np.sin(a)), np.cos(a))))
+
+        def definition():
+            lid = [dp.Item(rot((0, 1, 0), 0.2) + struct.pack('<3hH', 0, 0, 0, 18))]  # another axis: no closing
+            lid += [dp.Item(rot((1, 0, 0), k) + struct.pack('<3hH', 0, 0, 0, c)) for c, k in ((32, 1.0), (50, 0.445), (51, -0.3))]
+            return dp.Dpdx(2, [dp.Bone((0, 0, 0, 1), tuple(local[2][:3, 3]), dp.name_hash('_ELid_U_L'), lid),
+                               dp.Bone((0, 0, 0, 1), (0.05, 0.07, 0.03), dp.name_hash('L_Eye'), [])], [0] * 60)
+
+        move = np.array([0.0, 0.0, -0.04])
+        face = vf.FaceRig(world={}, moved=['L_Eye'], lids=[vf.LidMove('_ELid_U_L', 'L', move, True)], follow_scale=0.5)
+        raw, report = vf.facial_definition(definition(), sk, face)
+        back = dp.load(raw)
+        items = back.bone('_ELid_U_L').items
+        self.assertEqual([it.control for it in items], [32, 50])  # the opening (51) and other-axis (18) controls go
+        want = turn.T @ move  # parent (Facial_Hook) space
+        self.assertTrue(np.allclose(items[0].translation, want, atol=dp.UNIT))
+        self.assertTrue(np.allclose(items[1].translation, 0.5 * 0.445 * want, atol=2 * dp.UNIT))
+        self.assertTrue(all(struct.unpack_from('<I', it.raw)[0] == dp.NO_ROTATION for it in items))
+        self.assertTrue(np.allclose(back.bone('L_Eye').rest_t, local[3][:3, 3]))  # a moved bone takes the XBG's rest
+        self.assertAlmostEqual(report['lid_follow']['L']['50'], 0.445, places=2)
+        face.moved = []
+        with self.assertRaises(ValueError):  # L_Eye's rest would disagree with the XBG
+            vf.facial_definition(definition(), sk, face)
+
+    def test_wd_xbg_face_alignment_and_seams(self):
+        import numpy as np
+        from types import SimpleNamespace
+        xf = wd('xbg_face')
+        rng = np.random.default_rng(3)
+        src = rng.normal(size=(200, 3))
+        q, _ = np.linalg.qr(rng.normal(size=(3, 3)))
+        q *= np.sign(np.linalg.det(q))
+        dst = 1.6 * src @ q.T + np.array([0.1, -0.2, 1.5])
+        s, r, t = xf.umeyama(src, dst)
+        self.assertAlmostEqual(s, 1.6, places=9)
+        self.assertTrue(np.allclose(r, q) and np.allclose(t, (0.1, -0.2, 1.5)))
+        _, i = xf.nearest(src, src[[7, 3, 3, 150, 0]] + 1e-4, chunk=2)
+        self.assertEqual(i.tolist(), [7, 3, 3, 150, 0])
+        # a seam: rows 0 and 4 sit at one position; each XBG mesh must take the copy on its own side
+        pos = np.array([[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0], [0, 0, 0], [-1, 0, 0], [0, -1, 0]], float)
+        face = SimpleNamespace(aligned=pos, triangles=np.array([[0, 1, 2], [1, 3, 2], [4, 5, 6]]))
+        _, near = xf.match_rows(face, pos[[0, 1, 2, 3]], np.array([[0, 1, 2], [1, 3, 2]]))
+        self.assertEqual(near.tolist(), [0, 1, 2, 3])
+        _, near = xf.match_rows(face, pos[[4, 5, 6]], np.array([[0, 1, 2]]))
+        self.assertEqual(near.tolist(), [4, 5, 6])
+
+    def test_wd_fat8_write_adds_and_drops_entries(self):
+        if not (KITS / 'watch-dogs' / 'scripts' / 'repack_fat8.py').is_file():
+            raise unittest.SkipTest('watch-dogs is not included in this single-game export')
+        repack, extract = module('watch-dogs', 'repack_fat8'), module('watch-dogs', 'extract_fat8')
+        entries = {0x10: b'a' * 5, 0x20: b'b' * 17}
+        dat = b'a' * 5 + b'\0' * 11 + b'b' * 17
+        fat = (b'3TAF' + struct.pack('<3I', 8, 0, 2) + struct.pack('<4I', 0x10, 0, 5, 0)
+               + struct.pack('<4I', 0x20, 0, 17, 2) + b'\0' * 4)
+        self.assertEqual({h: dat[o:o + n] for h, o, n in extract.read_entries(fat)}, entries)
+        new_fat, new_dat = repack.write(fat, {0x20: b'b' * 17, 0x28E502D9: b'Dp' * 9})
+        got = {h: new_dat[o:o + n] for h, o, n in extract.read_entries(new_fat)}
+        self.assertEqual(got, {0x20: b'b' * 17, 0x28E502D9: b'Dp' * 9})
+        self.assertEqual(struct.unpack_from('<I', new_fat, 12)[0], 2)
+        self.assertEqual([o % 16 for _, o, _ in extract.read_entries(new_fat)], [0, 0])
+        with self.assertRaises(SystemExit):
+            repack.write(fat[:-4] + b'\1\0\0\0', entries)
+
+
 RONIN_KIT = KITS / 'rise-of-the-ronin'
 RONIN_NUMPY_SCRIPTS = ('leg_weights',)
 RONIN_DEPENDENCIES = ('numpy', 'scipy')

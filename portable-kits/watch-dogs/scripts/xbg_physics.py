@@ -502,11 +502,16 @@ def export_colliders(xbg: Path) -> dict:
 
 def collider_set(spec: list, sk, legs: list, exported: dict | None) -> tuple[list, list]:
     """Build one collider set from its profile spec: items {"from": object key[, "mirror": [bones]],
-    "fallback": "body"|"face"} | {"legs": true} | {"derived": "body"|"face"}."""
+    "fallback": "body"|"face"} | {"legs": true} | {"derived": "body"|"face"} | {"arm": "L"|"R", "radius": r}
+    (upper arm and forearm capsules from joint to joint)."""
     spheres, caps = [], []
     for item in spec:
         if item.get("legs"):
             caps += legs
+        elif item.get("arm"):
+            s_, r = item["arm"], float(item.get("radius", 0.05))
+            caps.append(capsule_between(sk, f"{s_} UpperArm", sk.head(f"{s_} UpperArm"), sk.head(f"{s_} Forearm"), r))
+            caps.append(capsule_between(sk, f"{s_} Forearm", sk.head(f"{s_} Forearm"), sk.head(f"{s_} Hand"), r))
         elif "from" in item and exported and item["from"] in exported["objects"]:
             src = exported["objects"][item["from"]]
             mirror = set(item.get("mirror", []))

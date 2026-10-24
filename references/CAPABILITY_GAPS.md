@@ -6,7 +6,7 @@
 | --- | --- | --- |
 | MK1 | Atlas/索引检查、骨盆与颈部数学算子、三件套预检和备份部署 | 每角色骨架映射、定制UE导入/Cook、native多export/store/redirect写入、游戏复测 |
 | Hitman | GLB/PRIM 验证、roundtrip、六槽 TEXT 重建 | 当前实体 QuickEntity、rig/atlas、RPKG/SMF |
-| Watch Dogs | 不用 ZModeler 的 XBG 写出器（FBX→char01.xbg）、骨架关节移动、FAT v8 解包/重打包、XBT 解析/注入/配对、PNG 直接编码 XBT；通用 VRM 构建器：拟合与摆姿势、骨架贴合、权重映射、贴图拼图集、打包 ModManager ZIP；物理：在闲置节点上搭链、裙子或大衣挂到模板的大衣布料上、背面副本、导出游戏碰撞体 | 一个 ZModeler 布局的 char01 底包（模板 XBG 与贴图 donor）、新模型的 profile（材质分槽、次级骨链、物理段）、可选的游戏碰撞体导出文件、XBG GPU 面数审计、实机检查；表情未做；链只原地晃动，跑动时不会向后飘（引擎限制） |
+| Watch Dogs | 不用 ZModeler 的 XBG 写出器（FBX→char01.xbg）、骨架关节移动、FAT v8 解包/重打包、XBT 解析/注入/配对、PNG 直接编码 XBT；通用 VRM 构建器：拟合与摆姿势、骨架贴合、权重映射、贴图拼图集、打包 ModManager ZIP；物理：在闲置节点上搭链、裙子或大衣挂到模板的大衣布料上、背面副本、导出游戏碰撞体；面部表情：改写 char01_facial_definition.dpdx，从形态键绑定眼睑、下巴、眼骨，也能加到已有 XBG 上；私有头部材质（Windy City II 兼容） | 一个 ZModeler 布局的 char01 底包（模板 XBG 与贴图 donor）、新模型的 profile（材质分槽、次级骨链、物理段）、可选的游戏碰撞体导出文件、XBG GPU 面数审计、实机检查；表情只有眨眼、视线、张嘴，修正版眼睑和视线未经实机，原版 dpdx 需从游戏解出；链只原地晃动，跑动时不会向后飘（引擎限制） |
 | Black Flag | Forge v50 LZ4 提取/重建 | 当前 Mesh writer/target rig、纹理和角色局部资源合同 |
 | RE4R | KPKA v4 哈希/目录/提取 | RE Mesh/Chain 工具、每角色映射和 PFB/RSZ |
 | L4D2 | VPK 提取/校验、VTA 缩放、StudioMDL 记录器 | 源 SMD/QC、flex/procedural/physics、MDL 深审计 |

@@ -10,6 +10,7 @@ No texconv is needed.  The output has exactly the donor's size, format and mip c
 from __future__ import annotations
 
 import argparse
+import struct
 import io
 import sys
 from pathlib import Path
@@ -43,7 +44,34 @@ def _encode_level(img: Image.Image, fmt: str) -> bytes:
     return payload
 
 
-def encode(png: Path | Image.Image, donor_xbt: Path, out_xbt: Path) -> dict:
+MIPS_BYTE = 0x19  # XBT header: mip levels of the whole texture (low stream: its own levels + the high one)
+
+
+def resized_header(donor: bytes, info, top: tuple[int, int]) -> tuple[bytes, bytes, int, int, int]:
+    """XBT prefix + DDS header for a texture whose full size is `top` instead of the donor's.
+
+    Streamed char01 textures come in pairs: the _high XBT holds only the top level (1 mip), the low XBT holds
+    every level below it, and its header byte 0x19 counts all levels including the top.  The donor's layout is
+    kept; only the DDS height/width/linear size/mip count and that byte change."""
+    dds = info.dds
+    high = dds.mip_count == 1
+    dtop = (dds.width, dds.height) if high else (dds.width * 2, dds.height * 2)
+    if not high and donor[MIPS_BYTE] != int(np.log2(max(dtop))) + 1:
+        raise ValueError(f"donor mip byte {donor[MIPS_BYTE]} does not match its top size {dtop}")
+    w, h = top if high else (top[0] // 2, top[1] // 2)
+    mips = 1 if high else int(np.log2(max(w, h))) + 1
+    prefix = bytearray(donor[:info.dds_offset])
+    if not high:
+        prefix[MIPS_BYTE] = int(np.log2(max(top))) + 1
+    hdr = bytearray(donor[info.dds_offset:info.dds_offset + 128])
+    block = BLOCK[dds.pixel_format]
+    struct.pack_into("<III", hdr, 12, h, w, max(1, (w + 3) // 4) * max(1, (h + 3) // 4) * block)
+    struct.pack_into("<I", hdr, 28, mips)
+    return bytes(prefix), bytes(hdr), w, h, mips
+
+
+def encode(png: Path | Image.Image, donor_xbt: Path, out_xbt: Path, top: tuple[int, int] | None = None) -> dict:
+    """top: full texture size when it should differ from the donor's (see resized_header)."""
     donor = donor_xbt.read_bytes()
     info = xbt_tool.parse_xbt(donor)
     dds = info.dds
@@ -53,25 +81,29 @@ def encode(png: Path | Image.Image, donor_xbt: Path, out_xbt: Path) -> dict:
     src = png if isinstance(png, Image.Image) else Image.open(png)
     mode = "RGBA" if fmt == "FOURCC:DXT5" else "RGB"
     src = src.convert(mode)
-    payload = b""
-    for level in range(dds.mip_count):
-        lw, lh = max(1, dds.width >> level), max(1, dds.height >> level)
-        payload += _encode_level(src.resize((lw, lh), Image.LANCZOS), fmt)
     off = info.dds_offset
-    header = donor[off : off + 128]
-    new = donor[:off] + header + payload
-    if len(new) != len(donor):
+    if top:
+        prefix, header, width, height, mip_count = resized_header(donor, info, tuple(top))
+    else:
+        prefix, header, width, height, mip_count = donor[:off], donor[off:off + 128], dds.width, dds.height, dds.mip_count
+    payload = b""
+    for level in range(mip_count):
+        lw, lh = max(1, width >> level), max(1, height >> level)
+        payload += _encode_level(src.resize((lw, lh), Image.LANCZOS), fmt)
+    new = prefix + header + payload
+    if not top and len(new) != len(donor):
         raise ValueError(f"size mismatch {len(new)} vs donor {len(donor)}")
     check = xbt_tool.parse_xbt(new)
-    if (check.dds.width, check.dds.height, check.dds.mip_count, check.dds.pixel_format) != (dds.width, dds.height, dds.mip_count, fmt):
-        raise ValueError("re-parsed XBT metadata differs from donor")
+    if (check.dds.width, check.dds.height, check.dds.mip_count, check.dds.pixel_format) != (width, height, mip_count, fmt):
+        raise ValueError("re-parsed XBT metadata differs from what was written")
+    dds = check.dds
     out_xbt.parent.mkdir(parents=True, exist_ok=True)
     out_xbt.write_bytes(new)
     # fidelity check on the top level
-    top = Image.open(io.BytesIO(header + payload))
-    top.load()
+    top_img = Image.open(io.BytesIO(header + payload))
+    top_img.load()
     ref = np.asarray(src.resize((dds.width, dds.height), Image.LANCZOS)).astype(float)
-    got = np.asarray(top.convert(mode)).astype(float)
+    got = np.asarray(top_img.convert(mode)).astype(float)
     mse = float(((ref - got) ** 2).mean())
     psnr = 99.0 if mse == 0 else 10 * np.log10(255**2 / mse)
     return {"xbt": str(out_xbt), "size": [dds.width, dds.height], "mips": dds.mip_count, "format": fmt, "psnr_top": round(float(psnr), 2)}

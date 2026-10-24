@@ -2,7 +2,13 @@
 
 先读 [游戏知识](../../games/watch-dogs/README.md) 和 [不用 ZModeler 生成 XBG](../../games/watch-dogs/XBG_WITHOUT_ZMODELER.md)。
 
-本包附带 Karin 1.4、1.5、Karin_Original 0.1.2 实际使用的 XBG 写出器（不需要 ZModeler）、骨架修改、FAT v8 打包和不依赖 texconv 的贴图编码脚本，从 VRM 直接构建整个替换包的通用构建器，以及原有的 XBT 工具。
+本包附带：
+
+- Karin 1.4、1.5、Karin_Original 0.1.2 实际使用的 XBG 写出器（不需要 ZModeler）、骨架修改、FAT v8 打包，以及不依赖 texconv 的贴图编码脚本；
+- 从 VRM 直接构建整个替换包的通用构建器，含物理和面部表情；
+- 给已有 XBG 加表情的 `xbg_face.py`；
+- Windy City II 兼容用的私有头部处理；
+- 原有的 XBT 工具。
 
 - **Python 版本**：XBT 工具、FAT 工具、`char01_paths.py` 和 `package_mod.py` 只需标准库，Python 3.10+。XBG 写出器、骨架工具、VRM 构建器和 `xbt_encode.py` 需要 numpy 和 Pillow；钉住的 numpy 2.5 需要 Python 3.12+（测试环境 Python 3.14.0）。
 - **运行位置**：以下命令都从交接包根目录执行。
@@ -93,7 +99,23 @@ python -B $Kit/package_mod.py --base-fat ../MyMod/Ref/old_mod.fat --out-dir ../M
 - `materials`：网格用到的每个材质都要列出，否则报错。同一槽位内按 base color 贴图分组：一张原样使用；两张上下拼；三张以上拼成网格，每格四周复制边缘作缝隙。`lashes` 槽只放一张贴图，裁到几何体实际用到的 UV 区域。`spec` 决定外套和头发的高光常量（省略时按槽位取默认）。
 - `chains`：非人形骨骼默认把权重并给最近的人形祖先。匹配的规则按链级把 `shares[级]` 比例的权重移给 `to`，或按顶点 X 分给左右两根骨骼（`to_side`；中线处各半，`side_width` 是过渡宽度，单位米，默认 0.02）。规则必须且只能有 `to` 和 `to_side` 之一。链级是向上数到分叉节点或人形骨骼的步数；超出列表时沿用最后一个值。
 - `replace_head_maps`：默认保留底包头部的法线和高光，只换头部颜色贴图。
-- 固定规则：眼骨和下巴并入 `Head`（面部骨骼位置会被动画重置）；上臂、前臂按 Karin 1.3 实测比例分给扭转骨；手部权重向指根渐变到掌骨。
+- 固定规则：
+  - 没有 `face` 段时，眼骨和下巴并入 `Head`（面部骨骼的位置由 dpdx 重置，见下文"面部表情"）；
+  - 上臂、前臂按 Karin 1.3 实测比例分给扭转骨；
+  - 手部权重向指根渐变到掌骨。
+
+Karin City Noir 加的可选项（2026-10-07，部分实机，见 [char01 物理](../../games/watch-dogs/PHYSICS.md) §7）：
+
+- 骨链悬挂：
+  - `hang`：列出的关节及其子树在重摆姿势时保持 T-pose 的朝向，用于挂在上臂下、要竖直下垂的面板；
+  - `hang_offset [外, 后]`（米）：这些子树整体外移、后移；
+  - `hang_tilt`（度）：整体后倾（实测不采用）。
+- `weight_remap`：`[{"part": 部件名前缀, "from": [VRM 关节], "to": VRM 关节}]`。在拟合之后把权重改挂，不改绑定形状，例如让夹克的手肘区不跟前臂走。
+- 贴图：
+  - `repack_slots`：把某槽位各材质在各 atlas 页上的 UV 岛逐个拷进一张画布，并改写顶点 UV。适合多个槽位共用 atlas 页的模型；
+  - `repack_density {"部件名前缀": 倍数}`：重排时放大某些部件的像素密度；
+  - `texture_size {"槽位": [宽, 高]}`：让漫反射比 donor 大，只改 DDS 头和低流的 0x19 字节，布局沿用 char01 已有的贴图。实机：头发 512→1024 后尾巴显示正常；同一版本里发带"镂空"的原因还没有确定；
+  - `crop_slots`：只按 UV 包围盒裁剪（对散布的岛无效，保留备用）。
 
 ### 检查门
 
@@ -122,17 +144,26 @@ python -B $Kit/build_from_vrm.py --vrm ../MyMod/Source/model.vrm --profile ../po
 
 `physics` 段（完整字段见 `vrm_physics.py` 文件头）：
 
-- `chains`：每条链写明起始关节、挂点骨骼（`Head`、`Pelvis` 等）、碰撞组，以及重力、阻尼、拉力、半径、节点池。可选 `drop_end`，去掉无权重的末端关节。
+- `chains`：每条链写明起始关节、挂点骨骼（`Head`、`Pelvis` 等）、碰撞组，以及重力、阻尼、拉力、半径、节点池。可选：
+  - `drop_end`：去掉无权重的末端关节；
+  - `pin_parent`：把起始关节的父关节作为固定根。只有一节的链靠它才能摆动。
 - `cloth`：
   - `joints`：裙子关节前缀；
   - `gravity`、`damping_scale`：布料参数；
   - `k`、`sigma`：每个顶点混合几个粒子，以及衰减；
   - `thigh_radius`：可选，加大大腿胶囊半径；
   - `hang_from_pelvis`：短裙必开，把整块布料挂到胯部。
+  - 披肩用的选项（Karin City Noir）：
+    - `roots`：显式列出链根；
+    - `remap_z [[z0, z1], [z0', z1']]`：把粒子格按高度线性映射；
+    - `anchor_bone`：所有粒子改挂这根骨；
+    - `capsule_radius {骨骼: 半径}`：改布料的胶囊半径（`thigh_radius` 是它的特例）；
+    - `clear_capsules [骨骼]`：把静止时落在这些胶囊里的粒子推出去。
 - `colliders`：碰撞组。每项可以是：
   - `{"from": 导出对象名, "mirror": [骨骼], "fallback": "body"|"face"}`；
   - `{"legs": true}`（模板布料的大腿、骨盆、小腿胶囊）；
-  - `{"derived": ...}`（由骨架推出的胶囊）。
+  - `{"derived": ...}`（由骨架推出的胶囊）；
+  - `{"arm": "L"|"R", "radius": r}`（上臂、前臂胶囊）。
 - `double_sided`：要加背面的 VRM 部件名，例如 `skirt/0`。
 
 检查门：
@@ -144,6 +175,72 @@ python -B $Kit/build_from_vrm.py --vrm ../MyMod/Source/model.vrm --profile ../po
   - 跑动、急停、转身、蹲下、上坡；
   - 各部件是否抽搐，尾巴和裙子是否黏在一起；
   - 下蹲时是否露出大腿。
+
+## 面部表情：眨眼、视线、张嘴
+
+原理、格式和实测见 [面部表情](../../games/watch-dogs/FACE.md)。
+
+- 需要原版 `char01_facial_definition.dpdx`（FAT 哈希 `28E502D9`），从游戏的 `windy_city.fat` 解出，XMemCompress 压缩，仓库不收录。
+- 构建器写出改好的副本，打包时作为**新条目**加进包里。底包里原本没有这个条目。
+
+```powershell
+# VRM 构建：配置文件加 face 段（样板 profiles/karin_original_face.json），并给出原版 dpdx
+python -B $Kit/build_from_vrm.py --vrm ../MyMod/Source/model.vrm --profile ../MyMod/Work/profile_face.json `
+  --base-fat ../MyMod/Ref/old_mod.fat --colliders ../MyMod/Work/colliders.json `
+  --facial-definition ../MyMod/Ref/char01_facial_definition.dpdx --out-dir ../MyMod/Work/build --package ...
+
+# 已有的 char01.xbg（不是本构建器做的），脸和某个 VRM 的脸是同一个网格（样板 profiles/karin_pt_face.json）
+python -B $Kit/xbg_face.py --xbg ../MyMod/Ref/old_char01.xbg --vrm ../MyMod/Source/model.vrm `
+  --profile ../MyMod/Work/xbg_face.json --facial-definition ../MyMod/Ref/char01_facial_definition.dpdx --out-dir ../MyMod/Work/face
+
+# 离线检查：每个控制在权重 1 时移动多少顶点、最多几毫米；静止位移必须为 0
+python -B $Kit/face_preview.py ../MyMod/Work/build --controls 32 36 55 42 50
+python -B $Kit/dpdx_format.py ../MyMod/Work/build/char01_facial_definition.dpdx --xbg ../MyMod/Work/build/char01.xbg
+```
+
+`face` 段：
+
+- `blink`：`L` / `R` 指定左右眨眼的形态键，或用 `key` 指定一个、按左右拆开。另有：
+  - `gain`：放大目标；
+  - `follow_scale`：上眼睑跟随向下看等控制的比例，默认 0.5。
+- `jaw`：`key`（张嘴键）、`gain`。
+- `gaze`：`keys`（Look 键）、`gain`：在拟合出的眼骨份额上再乘的倍数，Karin 用 2.0。
+
+三项都可省略。`xbg_face.py` 的配置另需：
+- `xbg_face_material`：XBG 里脸的材质序号；
+- `vrm_face_materials`：VRM 里脸的材质名；
+- 可选 `eye_nodes {"L": 节点名, "R": 节点名}`。
+
+`xbg_face.py` 用相似变换把 VRM 的脸对到 XBG 的脸上，再带过形态键。只挪眼骨和下巴，每个顶点相同的 LOD 都重写脸的权重，其余逐值不变。
+
+检查门：
+
+- `READBACK PASS`（`xbg_face.py` 自带回读）。
+- dpdx 的静止平移与 XBG 一致：构建时自动检查，不一致直接失败。
+- `build_report.json` 的 `face` 段：
+  - `blink.*.relative_residual` 约 0.07，`edge_reach` 接近 1；
+  - 每个 Look 键配到的控制和相关系数（不低于 0.5）；
+  - `xbg_face.py` 还要看 `match` 的中位和最大误差，以及有没有未匹配的顶点。
+- `face_preview.py`：静止位移 0，眨眼控制移动的毫米数与形态键相当。
+- 实机：眨眼是否闭严、视线、张嘴，以及向下看时眼睑压得多不多。
+
+## Windy City II：私有头部材质
+
+The Fall of Windy City II 改写 Aiden 的头部材质，替换 mod 的脸会发黑。`private_head.py` 对已构建的包做后处理：
+
+- 头部槽改用私有材质；
+- 用三张单文件的私有头部贴图；
+- 删掉 Aiden 的 6 个头部贴图条目。
+
+见 [Windy City II 兼容](../../games/watch-dogs/WINDY_CITY_2_COMPAT.md)。
+
+```powershell
+# 原版头部材质 graphics\_materials\mkamelaquino-m-20130115113413.material.bin 从游戏里解出，仓库不收录
+python -B $Kit/private_head.py ../MyMod/Output/my_mod.fat ../MyMod/Output/private `
+  --vanilla-material ../MyMod/Ref/mkamelaquino-m-20130115113413.material.bin
+```
+
+在打包脚本里，也可以用 `package_mod.package(..., transform=lambda e: private_head.privatize(e, material))` 直接处理。
 
 ## XBT：原有工具
 
@@ -181,13 +278,23 @@ python -B $Kit/build_xbt_pair.py ../MyMod/Ref/source.png ../MyMod/Ref/low.xbt ..
 | `smu_format.py` | 物理块里 SMU 对象（链、jiggle；布料的头部和碰撞表）的读写，矩阵按文件偏移对齐 |
 | `xbg_physics.py` | 在闲置节点上搭链、移动或改挂节点并重写逆绑定；定位大衣布料、碰撞胶囊和表；粒子外推、按角度和高度分配权重；碰撞组；`export-colliders` 命令 |
 | `vrm_physics.py` | VRM 构建器的 `physics` 段：链、裙子或大衣挂到布料上、背面副本 |
+| `dpdx_format.py` | 面部定义 `.dpdx` 读写（逐字节往返）、smallest-three 四元数、纯平移增量；命令行打印各表，并与 XBG 的静止姿势对比 |
+| `vrm_face.py` | VRM 构建器的 `face` 段：眼骨定位，平移眼睑（每个顶点解非负份额），下巴枢轴搜索，视线份额；改写 dpdx 并校验 |
+| `xbg_face.py` | 入口：给已有的 char01.xbg 加表情。VRM 脸相似变换对齐、带过形态键、只挪眼骨和下巴、重写各 LOD 的脸权重 |
+| `face_preview.py` | 离线预览：在构建好的 XBG 和 dpdx 上施加控制并蒙皮，可写 OBJ |
+| `private_head.py` | 私有头部材质和单文件私有头部贴图，删掉 Aiden 的头部贴图条目（Windy City II 兼容） |
 | `xbt_tool.py`、`audit_xbt_templates.py`、`build_xbt_pair.py` | 原有 XBT 解析、注入、模板审计和 texconv 配对构建 |
 
 ## 限制
 
 - 只支持 char01 骨架和模板里的材质槽。每个顶点最多 4 个权重，每个子网格最多 65,535 个顶点，调色板最多 255 根骨骼；超出时直接报错，不会静默拆分。
 - VRM 构建器只对 Karin_Original（VRM 1.0）做过逐字节核对：用样板配置重建的 XBG、15 个 XBT、FAT/DAT、modconfig 和 ZIP 与实机认可的 0.1.2 完全一致。VRM 0.x 和其他模型只有合成数据测试，未经实机。
-- VRM 构建器不做表情和视线：脸是刚性的，嘴和眼睛不会动。没有 `physics` 段时，头发和裙子只随骨骼按比例摆动。
+- 面部表情：
+  - 只做了眨眼、视线、张嘴，上唇不动；
+  - 实机只测过第一版（Karin_Original 1.1.0-test）：嘴会动，眨眼闭不严，眼珠几乎不动；
+  - 现在的平移眼睑和视线 ×2（1.1.1-test、蓝白 Karin 1.7.0-test）只有离线验证；
+  - 没有 `face` 段时，脸是刚性的。
+- 没有 `physics` 段时，头发和裙子只随骨骼按比例摆动。
 - 物理：
   - `profiles/karin_original_1_0_0.json` 配合从 char10.xbg 导出的碰撞体，重建的 char01.xbg 与实机验收的 Karin_Original 1.0.0 逐字节相同；
   - 游戏的链只会原地晃动，跑动时不会往后飘；

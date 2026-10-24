@@ -139,11 +139,27 @@ def palm_normal(wrist, index, middle, pinky):
     return n / np.linalg.norm(n)
 
 
-def build_fit(vrm_path: Path, sk) -> Fit:
+def build_fit(vrm_path: Path, sk, hang: list[str] | None = None, hang_tilt: float = 0.0,
+              hang_offset: tuple[float, float] = (0.0, 0.0)) -> Fit:
+    """hang: joints whose subtrees keep their T-pose orientation in the repose (their roots still follow the
+    parent), e.g. garment panels hanging from the upper arms, which would otherwise swing into the body when the
+    arms are lowered to the template's bind pose.  hang_tilt (degrees) swings those subtrees backward about the
+    left-right axis, leaving room for the elbows behind the arms.  hang_offset (outward, backward), in metres of the
+    fitted model, moves each hang joint (and so its subtree) away from the body side and toward the back."""
     m = vrm_model.load(vrm_path)
     missing = [b for b in REQUIRED if b not in m.humanoid]
     if missing:
         raise ValueError(f"VRM humanoid lacks required bones {missing}")
+    hang_roots = {m.node_names.index(n) for n in hang or [] if n in m.node_names}
+    hanging: set[int] = set()
+    for name in hang or []:
+        if name not in m.node_names:
+            raise ValueError(f"hang joint {name!r} not in the VRM")
+        stack = [m.node_names.index(name)]
+        while stack:
+            k = stack.pop()
+            hanging.add(k)
+            stack += [c for c, p in enumerate(m.parent) if p == k]
     axes = model_axes(m)
     s = scale_for(m, sk, axes)
     nn = len(m.node_names)
@@ -172,6 +188,9 @@ def build_fit(vrm_path: Path, sk) -> Fit:
         par = m.parent[i]
         rp = R[par] if par >= 0 else np.eye(3)
         P[i] = rest[i] if par < 0 else P[par] + R[par] @ (rest[i] - rest[par])
+        if i in hang_roots and any(hang_offset):
+            out_dir = 1.0 if rest[i][0] > 0 else -1.0  # XBG: the character's left is -X
+            P[i] = P[i] + np.array([out_dir * hang_offset[0], -hang_offset[1], 0.0])
         h = by_node.get(i)
         Ri = rp
         if h in CHAIN:
@@ -193,6 +212,9 @@ def build_fit(vrm_path: Path, sk) -> Fit:
                     her_n = Ri @ palm_normal(rest[i], rest[hn[fingers[0]]], rest[mid], rest[hn[fingers[2]]])
                     aid_n = palm_normal(A[f"{s_} Hand"], A[f"{s_} Index01"], A[f"{s_} Middle01"], A[f"{s_} Pinky01"])
                     Ri = rot_about(A[f"{s_} Middle01"] - A[f"{s_} Hand"], her_n, aid_n) @ Ri
+        if i in hanging:
+            t = np.radians(-hang_tilt)  # rotation about +X: a downward vector turns toward -Y (backward)
+            Ri = np.array([[1.0, 0.0, 0.0], [0.0, np.cos(t), -np.sin(t)], [0.0, np.sin(t), np.cos(t)]])
         R[i] = Ri
 
     # ---- skin parts with DQS on the VRM skeleton

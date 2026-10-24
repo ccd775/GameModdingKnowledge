@@ -24,7 +24,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from extract_fat8 import read_entries  # noqa: E402
-from repack_fat8 import entry_hash, rebuild  # noqa: E402
+from repack_fat8 import entry_hash, rebuild, write  # noqa: E402
 
 MINIMAL_CONFIG = {"friendlyId": "", "name": "", "author": "", "description": "", "packs": [], "version": "",
                   "configVersion": 1, "luaAutoStart": [], "dominoAutoStart": [], "donationUrl": "",
@@ -40,7 +40,9 @@ def entries_of(fat: bytes, dat: bytes) -> dict[int, bytes]:
 
 
 def package(base_fat: Path, replacements: dict[int, bytes], out_dir: Path, config: dict, pack: str,
-            zip_date=(1980, 1, 1, 0, 0, 0)) -> dict:
+            zip_date=(1980, 1, 1, 0, 0, 0), transform=None) -> dict:
+    """transform: optional f(entries) -> (entries, report) applied after the replacements (it may add or drop
+    entries, e.g. private_head.privatize); its report is returned under "transform"."""
     fat, dat = base_fat.read_bytes(), base_fat.with_suffix(".dat").read_bytes()
     new_fat, new_dat = rebuild(fat, dat, replacements)
     src, dst = entries_of(fat, dat), entries_of(new_fat, new_dat)
@@ -49,6 +51,10 @@ def package(base_fat: Path, replacements: dict[int, bytes], out_dir: Path, confi
     for h in src:
         if dst[h] != replacements.get(h, src[h]):
             raise SystemExit(f"entry {h:08X} mismatch after repack")
+    extra = None
+    if transform:
+        entries, extra = transform(dst)
+        new_fat, new_dat = write(new_fat, entries)
     folder = out_dir / "package"
     folder.mkdir(parents=True, exist_ok=True)
     files = {f"{pack}.dat": new_dat, f"{pack}.fat": new_fat,
@@ -64,9 +70,12 @@ def package(base_fat: Path, replacements: dict[int, bytes], out_dir: Path, confi
             info.compress_type = zipfile.ZIP_DEFLATED
             info.external_attr = 0o644 << 16
             z.writestr(info, data, compresslevel=9)
-    return {"zip": str(zip_path), "zip_sha256": sha(zip_path.read_bytes()),
-            "files": {n: sha(d) for n, d in files.items()},
-            "replaced_entries": sorted(f"{h:08X}" for h in replacements), "unchanged_entries": len(src) - len(replacements)}
+    result = {"zip": str(zip_path), "zip_sha256": sha(zip_path.read_bytes()),
+              "files": {n: sha(d) for n, d in files.items()},
+              "replaced_entries": sorted(f"{h:08X}" for h in replacements), "unchanged_entries": len(src) - len(replacements)}
+    if transform:
+        result["transform"] = extra
+    return result
 
 
 def make_config(base_fat: Path, modconfig: Path | None, pack: str, friendly_id: str, name: str, version: str,

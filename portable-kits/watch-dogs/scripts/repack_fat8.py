@@ -57,6 +57,29 @@ def rebuild(fat: bytes, dat: bytes, replacements: dict[int, bytes]) -> tuple[byt
     return fat[:16] + bytes(out_entries) + fat[16 + len(entries) * 16 :], bytes(out_dat)
 
 
+def write(fat: bytes, entries: dict[int, bytes]) -> tuple[bytes, bytes]:
+    """(FAT, DAT) holding exactly `entries` (entries may be added or dropped), laid out like rebuild():
+    ascending hash order, 16-byte aligned files; header and trailer taken from `fat` with the new count."""
+    if fat[16 + len(read_entries(fat)) * 16 :] != b"\0\0\0\0":
+        raise SystemExit("unexpected FAT trailer")
+    out_dat = bytearray()
+    out_entries = bytearray()
+    for name_hash in sorted(entries):
+        blob = entries[name_hash]
+        out_dat += b"\0" * ((-len(out_dat)) % 16)
+        new_offset = len(out_dat)
+        if len(blob) >= 1 << 29 or new_offset >= 1 << 35:
+            raise SystemExit("entry does not fit FAT v8 packing")
+        out_dat += blob
+        out_entries += struct.pack("<4I", name_hash, 0, len(blob) | ((new_offset & 7) << 29), new_offset >> 3)
+    header = bytearray(fat[:16])
+    struct.pack_into("<I", header, 12, len(entries))
+    new_fat = bytes(header) + bytes(out_entries) + b"\0\0\0\0"
+    if {h: bytes(out_dat[o : o + s]) for h, o, s in read_entries(new_fat)} != entries:
+        raise SystemExit("rewritten pack does not read back")
+    return new_fat, bytes(out_dat)
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="Rebuild an uncompressed Watch Dogs FAT v8 / DAT pair, replacing entries.")
     ap.add_argument("src_fat", type=Path, help="source FAT; the DAT next to it is read")
