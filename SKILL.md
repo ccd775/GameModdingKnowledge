@@ -46,6 +46,7 @@ before authoring. Never use this root document as a live candidate state file.
 - Days Gone (PC, `days_gone_classic` branch) -> `games/days-gone/`
 - The Witcher 3: Wild Hunt — Remastered (PC 5.x) -> `games/the-witcher-3/`
 - Assassin's Creed Odyssey (PC, Ubisoft Connect v1.5.6) -> `games/assassins-creed-odyssey/`
+- Assassin's Creed Unity (PC, Steam build 21970519, v1.5.1) -> `games/assassins-creed-unity/`
 
 - Hitman: World of Assassination -> `games/hitman-world-of-assassination/`
 - Watch Dogs -> `games/watch-dogs/`

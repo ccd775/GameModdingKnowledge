@@ -248,6 +248,7 @@ class PortableTools(unittest.TestCase):
             if path.parents[1].name == 'days-gone' and dg_missing(path.stem): continue
             if path.parents[1].name == 'the-witcher-3' and w3_missing(path.stem): continue
             if path.parents[1].name == 'assassins-creed-odyssey' and aco_missing(path.stem): continue
+            if path.parents[1].name == 'assassins-creed-unity' and acu_missing(path.stem): continue
             cli(path.parents[1].name,path.stem,'--help')
 
 
@@ -4391,6 +4392,277 @@ class AssassinsCreedOdysseyTools(unittest.TestCase):
                 self.assertLess(tilt[:, :12].max(), 0.02)                  # filled space stays flat
                 g = out[16, 28:, 1].astype(int)
                 self.assertTrue((g < 128).all() if flip else (g > 128).all(), g)
+
+
+ACU_KIT = KITS / 'assassins-creed-unity'
+# Unity kit scripts whose import (and --help) needs more than the standard library
+ACU_DEPS = {'acu_phys_skel': ('numpy',), 'head_bones': ('numpy',), 'glb_rotate': ('numpy',), 'glb_info': ('numpy',),
+            'build_mod': ('PIL',)}
+
+
+def acu_missing(script):
+    return [m for m in ACU_DEPS.get(script, ()) if importlib.util.find_spec(m) is None]
+
+
+def acu_kit():
+    if not ACU_KIT.is_dir():
+        raise unittest.SkipTest('assassins-creed-unity is not included in this single-game export')
+    return ACU_KIT
+
+
+def acu_forge_file(path, entries, tables=2):
+    """synthetic forge v27: entries [(id, name, bytes)], index split over `tables` chained tables"""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    chunks = [entries[i::tables] for i in range(tables)]
+    body = bytearray(b'scimitar\0' + struct.pack('<IQ', 27, 64))
+    body += b'\0' * (64 - len(body))
+    hdr = len(body)
+    body += b'\0' * 44
+    tpos = []
+    for _ in chunks:
+        tpos.append(len(body))
+        body += b'\0' * 48
+    at = {}
+    for oid, _, data in entries:
+        at[oid] = len(body)
+        body += data
+    for ti, ch in enumerate(chunks):
+        idx = len(body)
+        for oid, _, data in ch:
+            body += struct.pack('<qQi', at[oid], oid, len(data))
+        names = len(body)
+        for oid, name, data in ch:
+            row = bytearray(0xC0)
+            struct.pack_into('<I', row, 0, len(data))
+            row[44:44 + len(name)] = name.encode()
+            body += row
+        struct.pack_into('<IIqqIIqq', body, tpos[ti], len(ch), 0, idx, tpos[ti + 1] if ti + 1 < len(chunks) else -1,
+                         0, len(ch) - 1, names, 0)
+    struct.pack_into('<IIqqiIIq', body, hdr, len(entries), 0, 0, 0, 0, len(entries), tables, tpos[0])
+    path.write_bytes(body)
+
+
+class AssassinsCreedUnityTools(unittest.TestCase):
+    """Synthetic forges, payloads and skeleton templates. Real work needs the game, AnvilToolkit 1.3.6 or Blender 5.0; the
+    equivalence of the changed scripts with the project originals was checked on the build PC (VALIDATION.md)."""
+
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(prefix='modding acu ')
+        self.root = Path(self.temp.name)
+
+    def tearDown(self):
+        self.temp.cleanup()
+
+    def test_acu_provenance_and_portability(self):
+        import hashlib
+        import re
+        kit = acu_kit()
+        rows = [r for r in json.loads((KITS / 'PROVENANCE.json').read_text(encoding='utf-8-sig'))
+                if r['path'].startswith('portable-kits/assassins-creed-unity/')]
+        files = sorted(p.relative_to(ROOT).as_posix() for p in kit.rglob('*') if p.is_file() and '__pycache__' not in p.parts)
+        own = {'portable-kits/assassins-creed-unity/' + n for n in ('README.md', 'toolchain.json', 'requirements.txt')}
+        self.assertEqual(sorted(r['path'] for r in rows), sorted(set(files) - own))
+        for r in rows:
+            data = (ROOT / r['path']).read_bytes()
+            self.assertEqual((hashlib.sha256(data).hexdigest(), len(data)), (r['portable_sha256'], r['portable_bytes']), r['path'])
+            self.assertTrue(r['source'].startswith(('Mods/ACU/scripts/', 'Mods/ACU/tools/AcuHarness/')), r['source'])
+            self.assertEqual(r['modified_for_portability'], r['portable_sha256'] != r['original_sha256'], r['path'])
+        bundled = json.loads((kit / 'toolchain.json').read_text(encoding='utf-8'))['bundled_scripts']
+        self.assertEqual(sorted('portable-kits/assassins-creed-unity/' + s for s in bundled), sorted(r['path'] for r in rows))
+        # no machine paths; one line-ending style per file (migrated files keep the original's); no sys.path entry is a
+        # written-in path; the local game-window helpers and .cmd wrappers are not bundled
+        drive = re.compile(r'(?i)(?<![\w<])[a-z]:[\\/](?![\\/])|[\\/]users[\\/]')
+        for rel in files:
+            data = (ROOT / rel).read_bytes()
+            text = data.decode('utf-8')
+            self.assertFalse(drive.search(text), f'{rel}: {drive.search(text)}')
+            self.assertIn(data.count(b'\r\n'), (0, data.count(b'\n')), rel)
+            self.assertNotRegex(text, r'sys\.path\.insert\(0, *r?[\'"]', rel)
+        for name in ('gsnap.py', 'game_input.ahk'):
+            self.assertFalse(list(kit.rglob(name)), name)
+        self.assertFalse(list(kit.rglob('*.cmd')))
+
+    def acu_game(self, name='Game Dir'):
+        game = self.root / name
+        A, B, C = 0x70CF6709B, 0x313DB95D16, 0x1842175574
+        acu_forge_file(game / 'DataPC.forge', [(A, 'CN_P_Arno', b'a' * 50), (B, 'CN_U_FR_Arno_Head', b'b' * 40), (7, 'Other', b'o' * 9)])
+        acu_forge_file(game / 'DataPC_patch_01.forge', [(A, 'CN_P_Arno', b'A' * 70), (B, 'CN_U_FR_Arno_Head', b'B' * 44)])
+        acu_forge_file(game / 'dlc_11' / 'DataPC_11_dlc.forge', [(C, 'DataAI_UIDataRoot', b'c' * 33)], tables=1)
+        (game / 'ACU.exe').write_bytes(b'MZ')
+        pay = self.root / 'src' / 'payload'
+        (pay / 'forge' / 'DataPC_patch_01.forge').mkdir(parents=True)
+        (pay / 'forge' / 'dlc_11__DataPC_11_dlc.forge').mkdir(parents=True)
+        (pay / f'{A:016X}_CN_P_Arno.data').write_bytes(b'generic' * 5)
+        (pay / 'forge' / 'DataPC_patch_01.forge' / f'{A:016X}_CN_P_Arno.data').write_bytes(b'patch' * 9)
+        (pay / 'forge' / 'dlc_11__DataPC_11_dlc.forge' / f'{C:016X}_UI.data').write_bytes(b'ui' * 13)
+        (pay / f'{B:016X}_CN_U_FR_Arno_Head.data').write_bytes(b'head' * 11)
+        (pay / 'skip.tsv').write_text(f'{B:016X}\tDataPC.forge\n')
+        return game, pay, (A, B, C)
+
+    def test_acu_install_variants_skip_xz_and_uninstall(self):
+        acu_kit()
+        forge = module('assassins-creed-unity', 'acu_forge')
+        game, pay, (A, B, C) = self.acu_game()
+        forges = ['DataPC.forge', 'DataPC_patch_01.forge', os.path.join('dlc_11', 'DataPC_11_dlc.forge')]
+        vanilla = {f: (game / f).read_bytes() for f in forges}
+        (pay / 'vanilla_sizes.tsv').write_text(''.join(f'{f}\t{len(vanilla[f])}\n' for f in forges), encoding='utf-8')
+        index = cli('assassins-creed-unity', 'acu_forge', 'index', *(game / f for f in forges)).stdout.splitlines()
+        self.assertEqual(len(index), 6)
+        self.assertIn(f'dlc_11{os.sep}DataPC_11_dlc.forge\t0\t{C:016X}', '\n'.join(index))
+        out = cli('assassins-creed-unity', 'acu_install', 'install', pay, '--game', game).stdout
+        self.assertIn(f'{A:016X}\t2 copies', out)
+        rows = lambda f: {oid: (off, size) for _, oid, off, size, _ in forge.read_index(str(game / f))}
+        read = lambda f, oid: (game / f).read_bytes()[rows(f)[oid][0]:][:rows(f)[oid][1]]
+        self.assertEqual(read('DataPC.forge', A), b'generic' * 5)                # generic payload
+        self.assertEqual(read('DataPC_patch_01.forge', A), b'patch' * 9)         # forge variant wins
+        self.assertEqual(read('DataPC_patch_01.forge', B), b'head' * 11)
+        self.assertEqual(read('DataPC.forge', B), b'b' * 40)                     # skip.tsv keeps this copy vanilla
+        self.assertEqual(read(forges[2], C), b'ui' * 13)
+        self.assertIn('"forges"', cli('assassins-creed-unity', 'acu_install', 'status', '--game', game).stdout)
+        cli('assassins-creed-unity', 'acu_install', 'install', pay, '--game', game, ok=False)   # state exists
+        cli('assassins-creed-unity', 'acu_install', 'uninstall', '--game', game)
+        self.assertEqual({f: (game / f).read_bytes() for f in forges}, vanilla)
+        self.assertFalse((game / '.karin_acu_state.json').exists())
+        # a release-style .tar.xz payload, found through ACU_GAME_DIR
+        import tarfile
+        txz = self.root / 'payload_t.tar.xz'
+        with tarfile.open(txz, 'w:xz') as t:
+            t.add(pay, arcname='payload')
+        env = dict(os.environ, ACU_GAME_DIR=str(game))
+        script = ACU_KIT / 'scripts' / 'acu_install.py'
+        for cmd in (['install', str(txz)], ['uninstall']):
+            r = subprocess.run([sys.executable, '-B', str(script), *cmd], capture_output=True, text=True, env=env)
+            self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertEqual({f: (game / f).read_bytes() for f in forges}, vanilla)
+        # another game version (or another mod) in a forge: refused before anything is written
+        with (game / 'DataPC.forge').open('ab') as f:
+            f.write(b'x')
+        r = cli('assassins-creed-unity', 'acu_install', 'install', pay, '--game', game, ok=False)
+        self.assertIn('differ from the vanilla game', r.stdout + r.stderr)
+        self.assertFalse((game / '.karin_acu_state.json').exists())
+        # a copy without payload or skip line (only patch_01 has a CN_P_Arno variant now): refused
+        (pay / 'vanilla_sizes.tsv').unlink()
+        (pay / f'{A:016X}_CN_P_Arno.data').unlink()
+        r = cli('assassins-creed-unity', 'acu_install', 'install', pay, '--game', game, ok=False)
+        self.assertIn(f'{A:016X} in DataPC.forge', r.stdout + r.stderr)
+        self.assertFalse((game / '.karin_acu_state.json').exists())
+
+    def test_acu_release_zip_installs(self):
+        acu_kit()
+        import tarfile
+        import zipfile
+        game, pay, _ = self.acu_game()
+        z = self.root / 'rel' / 'Karin_ACU_test.zip'
+        r = subprocess.run([sys.executable, '-B', str(ACU_KIT / 'scripts' / 'make_release.py'), str(z), f'v7={pay}'],
+                           capture_output=True, text=True, env=dict(os.environ, ACU_GAME_DIR=str(game)))
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        with zipfile.ZipFile(z) as zf:
+            self.assertEqual(sorted(zf.namelist()), ['README.txt', 'acu_install.py', 'install_v7.cmd', 'payload_v7.tar.xz',
+                                                     'status.cmd', 'uninstall.cmd'])
+            self.assertIn(b'install "payload_v7.tar.xz" %*', zf.read('install_v7.cmd'))
+            zf.extractall(self.root / 'pkg')
+        with tarfile.open(self.root / 'pkg' / 'payload_v7.tar.xz') as t:
+            sizes = t.extractfile('payload/vanilla_sizes.tsv').read().decode()
+        self.assertIn(f'DataPC.forge\t{(game / "DataPC.forge").stat().st_size}', sizes)
+        before = (game / 'DataPC_patch_01.forge').read_bytes()
+        for cmd in (['install', 'payload_v7.tar.xz', '--game', str(game)], ['uninstall', '--game', str(game)]):
+            r = subprocess.run([sys.executable, '-B', 'acu_install.py', *cmd], cwd=self.root / 'pkg', capture_output=True, text=True)
+            self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertEqual((game / 'DataPC_patch_01.forge').read_bytes(), before)
+
+    def test_acu_phys_skeleton_rules_offsets_and_collision(self):
+        import re
+        acu_kit()
+        if acu_missing('acu_phys_skel'):
+            raise unittest.SkipTest('numpy is not installed')
+        s = 0.70710678
+        nodes = [
+            {'name': 'Reference', 'children': [1]},
+            {'name': 'Hips', 'translation': [0, 0, 1.0], 'children': [2, 3, 4, 7]},
+            {'name': 'LeftUpLeg', 'translation': [0.1, 0, -0.05]},
+            {'name': 'RightUpLeg', 'translation': [-0.1, 0, -0.05]},
+            {'name': 'KP_Skirt_0', 'translation': [0, -0.1, 0], 'rotation': [0, s, 0, s], 'children': [5]},   # local X down
+            {'name': 'KP_Skirt_0_001', 'translation': [0.15, 0, 0], 'children': [6]},
+            {'name': 'KP_Skirt_0_end', 'translation': [0.15, 0, 0]},
+            {'name': 'KP_Tail', 'translation': [0, 0.1, 0], 'rotation': [0, 0, s, s], 'children': [8]},       # local X back
+            {'name': 'KP_Tail_001', 'translation': [0.1, 0, 0], 'children': [9]},
+            {'name': 'KP_Tail_002', 'translation': [0.1, 0, 0], 'children': [10]},
+            {'name': 'KP_Tail_end', 'translation': [0.1, 0, 0]},
+        ]
+        doc = json.dumps({'asset': {'version': '2.0'}, 'nodes': nodes, 'skins': [{'joints': list(range(len(nodes)))}]}).encode()
+        doc += b' ' * (-len(doc) % 4)
+        glb = self.root / 'karin_lod0_acu.glb'
+        glb.write_bytes(b'glTF' + struct.pack('<II', 2, 20 + len(doc)) + struct.pack('<I', len(doc)) + b'JSON' + doc)
+        tpl = self.root / 'ACU_U_Arno_Hair.Skeleton.xml'
+        tpl.write_text('<?xml version="1.0" encoding="utf-8"?>\n<Object ID="77" Type="Skeleton">\n'
+                       '    <DynamicSmallArray Name="Bones" Type="ObjectPtr">\n    </DynamicSmallArray>\n'
+                       '    <ObjectPtr Name="RootBone" PointerType="Link">\n        <Link Name="RootBone" Path="1">1</Link>\n'
+                       '    </ObjectPtr>\n    <Unsigned32 Name="SkeletonKey">5</Unsigned32>\n'
+                       '    <Unsigned32 Name="SkeletonHierarchyKey">5</Unsigned32>\n</Object>', encoding='utf-8')
+        out = self.root / 'a' / 'karin_phys.Skeleton.xml'
+        out.parent.mkdir()
+        cli('assassins-creed-unity', 'acu_phys_skel', tpl, glb, out, '--id', 323218444032, '--report', self.root / 'a' / 'r.json')
+        x = out.read_text(encoding='utf-8')
+        self.assertIn('<Object ID="323218444032"', x)
+        # the v3 crash rules: depth-first order, Index = position, ChildBoneCount = DESCENDANTS, a key of its own
+        names = re.findall(r'<Hash32 Name="BoneID" HashValue="([^"]+)"', x)
+        self.assertEqual(names, ['Reference', 'Hips', 'KP_Skirt_0', 'KP_Skirt_0_001', 'KP_Skirt_0_end',
+                                 'KP_Tail', 'KP_Tail_001', 'KP_Tail_002', 'KP_Tail_end'])           # thighs: not KP ancestors
+        counts = re.findall(r'<Unsigned16 Name="Index">(\d+)</Unsigned16>\s*<Unsigned16 Name="ChildBoneCount">(\d+)<', x)
+        self.assertEqual([(int(i), int(c)) for i, c in counts], [(0, 8), (1, 7), (2, 2), (3, 1), (4, 0), (5, 3), (6, 2), (7, 1), (8, 0)])
+        keys = re.findall(r'<Unsigned32 Name="Skeleton(?:Hierarchy)?Key">(\d+)<', x)
+        self.assertEqual(len(set(keys)), 1)
+        self.assertNotEqual(keys[0], '5')
+        self.assertEqual(x.count('Type="BallJointBoneModifier"'), 4)                    # tail step 2: links 0 and 2
+        self.assertEqual(x.count('<Reference Name="LiteRagdoll" Type="LiteRagdoll" PointerType="Null" />'), 4)
+        self.assertEqual(x.count('<ObjectPtr Name="OrientationBone" PointerType="Null" />'), 4)
+        self.assertEqual(x.count('"GlobalOwnGravity">2'), 2)                             # the skirt joints collide
+        # gravity compensation: the hanging skirt link swings outward (-Y = forward), the horizontal tail upward
+        joints = {j['bone']: j for j in json.loads((self.root / 'a' / 'r.json').read_text())['joints']}
+        self.assertAlmostEqual(joints['KP_Skirt_0']['pitch'], -14, places=2)
+        self.assertAlmostEqual(joints['KP_Skirt_0']['yaw'], 0, places=2)
+        self.assertAlmostEqual(joints['KP_Tail']['yaw'], -12, places=2)
+        self.assertAlmostEqual(joints['KP_Tail']['pitch'], 0, places=2)
+        lr = (self.root / 'a' / 'karin_phys.LiteRagdoll.xml').read_text(encoding='utf-8')
+        self.assertIn('<Object ID="323218444034" Type="LiteRagdoll"', lr)
+        self.assertEqual(lr.count('Type="LiteRagdollShape"'), 4)                        # two capsules per thigh
+        cd = (self.root / 'a' / 'karin_phys.BallJointCommonData.xml').read_text(encoding='utf-8')
+        self.assertIn('<Float Name="LastBoneLength">0.15</Float>', cd)
+        out2 = self.root / 'b' / 'karin_phys.Skeleton.xml'
+        out2.parent.mkdir()
+        cli('assassins-creed-unity', 'acu_phys_skel', tpl, glb, out2, '--no-collide')
+        self.assertNotIn('GlobalOwnGravity', out2.read_text(encoding='utf-8'))
+        self.assertIn('<Object ID="77"', out2.read_text(encoding='utf-8'))              # no --id: the template's
+        self.assertEqual(sorted(p.name for p in out2.parent.iterdir()), ['karin_phys.Skeleton.xml'])
+        out3 = self.root / 'c' / 'karin_phys.Skeleton.xml'
+        out3.parent.mkdir()
+        cli('assassins-creed-unity', 'acu_phys_skel', tpl, glb, out3, '--capsule-scale', 2)
+        self.assertIn('<Float Name="Radius">0.26</Float>', (self.root / 'c' / 'karin_phys.LiteRagdoll.xml').read_text(encoding='utf-8'))
+
+    def test_acu_objs_to_tsv(self):
+        acu_kit()
+        log = self.root / 'objs.log'
+        log.write_text('== DataPC_ACU_Paris.forge\nOBJ\t0000002DFA9960D6\tBody_Custom\t000000070CF6709B_CN_P_Arno\n'
+                       'OBJ\t0000002DFA9960D6\tBody_Custom\t0000001842175574_DataAI_UIDataRoot\nERR\tbad\tX\nDONE 3\n'
+                       '== dlc_11\\DataPC_11_dlc.forge\nOBJ\t00000026A4C11760\tHeads\t000000070CF6709B_CN_P_Arno\n', encoding='utf-8')
+        out = cli('assassins-creed-unity', 'objs_to_tsv', self.root / 't.tsv', log).stdout
+        self.assertIn('3 rows, 3 data files', out)
+        self.assertIn('ERR DataPC_ACU_Paris.forge: ERR\tbad\tX', out)
+        self.assertEqual((self.root / 't.tsv').read_text(encoding='utf-8').splitlines()[0],
+                         'DataPC_ACU_Paris.forge\t000000070CF6709B\tCN_P_Arno\t0000002DFA9960D6')
+
+    def test_acu_missing_variables_stop_before_writing(self):
+        acu_kit()
+        env = {k: v for k, v in os.environ.items() if not k.startswith('ACU_')}
+        for script, args, names in (('build_mod', [self.root / 'mesh', self.root / 'out'], 'ACU_DOTNET, ACU_HARNESS'),
+                                    ('scan_objs', [self.root / 'o.log', '70CF6709B', 'Paris'], 'ACU_DOTNET, ACU_HARNESS, ACU_CACHE')):
+            if acu_missing(script):
+                continue
+            r = subprocess.run([sys.executable, '-B', str(ACU_KIT / 'scripts' / f'{script}.py'), *map(str, args)],
+                               capture_output=True, text=True, env=env)
+            self.assertNotEqual(r.returncode, 0)
+            self.assertIn(names, r.stdout + r.stderr)
+            self.assertFalse((self.root / 'out').exists() or (self.root / 'o.log').exists())
 
 
 if __name__ == '__main__': unittest.main(verbosity=2)

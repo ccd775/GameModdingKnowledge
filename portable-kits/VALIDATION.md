@@ -1,5 +1,63 @@
 # 迁移验证记录
 
+## 2026-10-24：新增刺客信条：大革命便携包
+
+- **迁入内容：** 18 个文件，放在 `portable-kits/assassins-creed-unity/`。
+  - `scripts/` 下 11 个 Python，来自项目 `scripts/`：`acu_forge.py`、`scan_objs.py`、`objs_to_tsv.py`、`acu_install.py`、`bt_tool.py`、`build_mod.py`、`acu_phys_skel.py`、
+    `make_release.py`、`head_bones.py`、`glb_rotate.py`、`glb_info.py`；
+  - `scripts/blender/` 下 5 个 Blender 脚本，来自项目 `scripts/`：`prep_karin_original.py`、`fit_karin.py`、`face_rig.py`、`export_karin_lods.py`、`render_compare.py`；
+  - `acuharness/` 下 AcuHarness 的 `Program.cs`、`build.ps1`，来自项目 `tools/AcuHarness/`：项目原创的 C# 驱动（奥德赛 AcoHarness 的分支），引用用户自备的
+    AnvilToolkit 1.3.6，不带 AnvilToolkit、`Unity.gfl` 或 .NET 的任何文件；
+  - PROVENANCE 每个文件一行（18 行），全部有项目原件；
+  - 新增 `README.md`、`toolchain.json`、`requirements.txt`（numpy）。公共层 `modkit.py` 的游戏列表加上 `assassins-creed-unity`，导出器和导出测试因此覆盖它。
+- **没有迁入：** 本机实机测试的窗口 / 按键辅助脚本 `gsnap.py`、`game_input.ahk`（绑定本机的窗口桥、AutoHotkey 路径和前台锁，做法写在
+  `games/assassins-creed-unity/DEV_TOOLING.md` §5）；发行包里的 `.cmd`（由 `make_release.py` 生成，仓库不收 `.cmd`）；崩溃转储的一次性分析脚本和
+  原版 BallJoint 的统计脚本（方法写在 `DEV_TOOLING.md` §4 和 `PHYSICS.md` §2、§4）；反编译的 AnvilToolkit；全部工作数据（索引、副本清单、提取的数据文件、
+  XML、blend、GLB、payload、发行 zip、截图、崩溃报告）。
+- **便携改动**在 12 个文件：
+  - 写死的本机路径改成环境变量或参数，缺了先报错并说出变量名，什么都不写：
+    - `acu_install.py`：模块级的游戏目录默认值原来是一个固定路径 → 空（`ACU_GAME_DIR` 或 `find_game()` 的 Steam 库查找；`find_game()` 原样保留）；
+    - `build_mod.py`：工程的 `work`、`cache`、harness，共享工具目录里的 dotnet、texconv → `ACU_DOTNET`、`ACU_HARNESS`、`ACU_TEXCONV`、`ACU_SRC_TEX`、`ACU_TEMPLATES`、
+      `ACU_CACHE`，在 `main()` 开头、删输出目录之前一起检查；游戏目录原来来自 `acu_install` 的固定默认值 → `--game` / `ACU_GAME_DIR` / Steam 库；
+    - `scan_objs.py`：dotnet、harness、`cache` 和游戏目录 → `ACU_DOTNET`、`ACU_HARNESS`、`ACU_CACHE`、`--game` / `ACU_GAME_DIR` / Steam 库；
+    - `acuharness/build.ps1`：共享工具目录、写死的运行时版本目录、工程的 `anvil_runtime\Lists` 和 `bin\` 输出 → `-AtkDir` / `ACU_ATK_DIR`、`-DotnetRoot` / `ACU_DOTNET_ROOT`、
+      `-ListsDir` / `ACU_ATK_LISTS`、`-OutDir` / `ACU_HARNESS` 所在目录，`-RuntimeVersion` 默认 9.0.18；
+  - 没有 argparse 的命令补上了 argparse（`acu_forge.py`、`objs_to_tsv.py`、`acu_install.py`、`bt_tool.py`、`build_mod.py`、`acu_phys_skel.py`、`make_release.py`、`head_bones.py`、
+    `scan_objs.py`），位置参数和选项不变；原来 `--help` 会以非 0 退出，`objs_to_tsv.py --help` 和 `make_release.py --help` 甚至会把 `--help` 当输出文件名。
+    `acu_phys_skel.py` 的 `--no-collide` 原来在 `params()` 里查 `sys.argv`，改成 `main()` 设置的模块变量（第一次改时 argparse 的结果和函数里后面的局部变量 `a` 重名，
+    被等价性核对抓到，已改名）；
+  - `glb_rotate.py`、`glb_info.py` 与奥德赛便携包的同名文件相同（项目原件也和奥德赛的项目原件相同）；
+  - 换行：每个迁入文件保留原来的换行（`build_mod.py`、`fit_karin.py`、`face_rig.py`、`Program.cs` 是 CRLF，其余 LF）。
+
+  其余 6 个文件与原文件逐字节相同：`prep_karin_original.py`、`fit_karin.py`、`face_rig.py`、`export_karin_lods.py`、`render_compare.py`、`Program.cs`。处理逻辑没有改。
+- **等价性验证（本机，2026-10-24）：**
+  - **条件：** Windows 10 19044；Python 3.14.0 + numpy 2.5.2、Pillow 12.3.0；游戏（Steam build 21970519，原版）、AnvilToolkit 1.3.6、.NET 9.0.18 运行时、texconv 在本机。
+  - 原脚本和便携脚本在同一份输入上运行，输出逐字节比较，31 项全部相同：
+    - 合成数据：`acu_forge.py index` / `extract`（3 个合成的 v27 forge，两张链接的索引表、`dlc_1\` 下一个）；`acu_install.py` 的 install → status → uninstall
+      （游戏目录带空格；通用 payload、forge 专用版本、`skip.tsv`、`vanilla_sizes.tsv`；`--game` 与 `ACU_GAME_DIR` 两种方式；`.tar.xz` payload；forge 大小不符时的拒绝信息），
+      卸载后游戏目录与安装前逐字节相同；`make_release.py`（两个标签）：zip 里除 `acu_install.py`（便携包打进便携版，按设计不同）外每个成员相同，便携包打的包能用
+      包里的安装器装上再卸掉；
+    - 本机真实数据：`bt_tool.py` 的 `edit`（`--drop` + `--clear-dynres`、带路径的 `--set`）/ `lodsel` / `show`（亚诺的原版表和 LODSelector）；`acu_phys_skel.py` 四种参数
+      （v7、v7x 的 `--capsule-scale 2`、`--no-collide`、不给 `--id`）：骨架、`BallJointCommonData`、`LiteRagdoll` 和报告相同，且 v7 / v7x 的输出与项目里实际发行用的
+      XML 逐字节相同；`objs_to_tsv.py`（项目的两份扫描日志）；`head_bones.py`、`glb_info.py`、`glb_rotate.py +90`（Karin 的 LOD0 GLB）；
+  - `acu_forge.py index` 跑全部 63 个 forge（180 245 行），与项目的 `cache/index.tsv` 逐字节相同；
+  - `acuharness/build.ps1` 用上面的变量编译出 AcuHarness；便携的 `build_mod.py`（经 Steam 库自动找到游戏）用它重建 v7：457 个数据文件、`skip.tsv` 与发行的 v7 同名，
+    `skip.tsv` 逐字节相同；数据文件容器的字节每次打包都不同，两边都用 harness 的 `unpack-data` 解开后，14 585 个对象全部逐字节相同；
+  - 便携的 `make_release.py` 打包发行的 v7 payload：`payload_v7.tar.xz`（44 232 152 字节）、三个 `.cmd`、`README.txt` 与发行包逐字节相同，只有 `acu_install.py` 不同；
+  - 缺变量：`build_mod.py`（一次列出 6 个变量，输出目录没有被创建）、`scan_objs.py`（3 个）、`build.ps1` 都在动手之前报出变量名。
+  - **没有重跑的部分：** `scan_objs.py` 的实际扫描（只核对了缺变量的报错；它调用的 `scan-objs` 在构建里间接用到的副本清单与项目相同）；5 个 Blender 脚本；在游戏里装便携版
+    重建的 payload（与发行的 v7 内容相同）。实机结论来自项目用原脚本构建的 v1–v7。
+- **合成数据测试：** `AssassinsCreedUnityTools` 6 项：PROVENANCE / 便携性（每个文件一行，哈希、字节数、修改标记、`bundled_scripts` 一致；没有盘符路径、用户目录、
+  写死的 `sys.path`、窗口辅助脚本和 `.cmd`）；合成 forge 上的安装（通用 / 专用版本、`skip.tsv`、状态、重复安装拒绝、逐字节卸载、`.tar.xz` 与 `ACU_GAME_DIR`、大小不符和缺 payload 的拒绝）；
+  发行 zip 的成员、`vanilla_sizes.tsv` 和用包里的安装器往返；附加骨架的 v3 规则（深度优先、`Index`、`ChildBoneCount` = 后代数、自己的键、BallJoint 引用为空）、
+  重力补偿的方向（下垂的裙片朝外、水平的尾巴朝上）、碰撞对象和 `--no-collide` / `--capsule-scale`；`objs_to_tsv.py`；缺变量的报错。`--help` 测试覆盖 `scripts/` 下全部 11 个脚本；
+  没装 numpy / Pillow 时，要它们的项跳过。上面的等价性核对是本机手工跑的，没有写进测试套件。
+- **未验证：**
+  - 便携版没有装进游戏测试（重建出的 payload 内容与用户接受的 v7 相同）；
+  - 测试套件对 Blender 脚本只做语法检查，`Program.cs` 没有在测试里编译；
+  - 非 Windows 系统（安装器用 `tasklist` 判断游戏是否在运行、用注册表找 Steam）、其它游戏版本 / 平台；
+  - 新模型的案例常量。
+
 ## 2026-10-24：奥德赛便携包更新（第二个模型 Karin_PicodraTech）
 
 - **变更内容：**

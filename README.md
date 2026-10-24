@@ -1,7 +1,7 @@
 如果你觉得内容有帮助，可以前往https://ifdian.net/a/ccd775 赞助我以获得贴贴！
 # Game Modding Shared Knowledge
 
-供人和 agent 接续长线 Mod 项目的知识库与便携工具包。它包含二十五款游戏的实际项目方法、成功与失败记录（其中十八款附便携工具包）、19 个原项目迁移脚本、MK1 参数化工具、对马岛 / 西之绝境 / 战神5 构建器、浪人崛起的 KT 引擎格式工具、龙之信条2 的 DD2Tool 与 REFramework 注入脚本、师父的 UE 4.26 编辑器插件与 Blender 构建器、幻兽帕鲁的 UE 5.1 编辑器插件与 KawaiiPhysics 离线模拟器、漫威蜘蛛侠2 的 i30 格式读写与安装器、往日不再的 UE 4.11 烘焙动画蓝图插节点与面部权重求解工具、巫师3 次世代版的 bundle / metadata.store 读写与 dyng / mimic 生成器、刺客信条：奥德赛的 forge v28 原地安装器与 Reflex3 物理骨架生成器和公共运行工具；不需要注册 Skill。
+供人和 agent 接续长线 Mod 项目的知识库与便携工具包。它包含二十六款游戏的实际项目方法、成功与失败记录（其中十九款附便携工具包）、19 个原项目迁移脚本、MK1 参数化工具、对马岛 / 西之绝境 / 战神5 构建器、浪人崛起的 KT 引擎格式工具、龙之信条2 的 DD2Tool 与 REFramework 注入脚本、师父的 UE 4.26 编辑器插件与 Blender 构建器、幻兽帕鲁的 UE 5.1 编辑器插件与 KawaiiPhysics 离线模拟器、漫威蜘蛛侠2 的 i30 格式读写与安装器、往日不再的 UE 4.11 烘焙动画蓝图插节点与面部权重求解工具、巫师3 次世代版的 bundle / metadata.store 读写与 dyng / mimic 生成器、刺客信条：奥德赛的 forge v28 原地安装器与 Reflex3 物理骨架生成器、刺客信条：大革命的内嵌副本扫描与附加骨架物理生成器和公共运行工具；不需要注册 Skill。
 
 ## 从这里开始
 
@@ -36,6 +36,7 @@
 | 往日不再 | [Days Gone](games/days-gone/README.md) | Karin_Original→迪肯 t31（`days_gone_classic` 分支，Bend 改版 UE 4.11）：全部几何放进头部网格，往游戏的烘焙动画蓝图里插入 91 个逐骨 AnimDynamics 弹簧与 10 个 CopyBone；表情蒙到迪肯的 280 个面部关节，眨眼用网格专用放大骨，对话口型按 17 个口型逐顶点解权重；物理、眨眼、口型、头发幅度各经用户实机确认；照片模式右侧双马尾会被拉伸（未修），过场、骑车与其它服装未逐项测 |
 | 巫师3 次世代版 | [The Witcher 3](games/the-witcher-3/README.md) | Karin_Original→杰洛特 v0.4.3（5.01，DX12）：不改脚本，覆盖全部 817 个杰洛特物品模板，发型物品承载整个 Karin 网格和 dyng 次级物理，头部物品带从形状键解出的 Karin 自己的表情骨架；dyng 靠挂锚点、滚转规则、刚性形状链接和头部碰撞代理保形，双马尾 / 侧发停下后的形状和跑动不穿脸经用户实机确认（「看起来好了」）；v0.4.4 修走动时髋侧穿出裙子，离线通过、待用户实测；骑马、HairWorks、游戏内 NPC 对话未测 |
 | 刺客信条：奥德赛 | [AC Odyssey](games/assassins-creed-odyssey/README.md) | Karin_Original→卡珊德拉 v8（Ubisoft Connect v1.5.6）：不论装备的整角色替换（VisualMaster 去掉装备列，头部 / 头发表去掉脸和发型，Karin 的 LOD0 / LOD1 原地顶替卡珊德拉专属的身体 LOD，`ACD_Tex1` 材质），原地追加安装到 patch_01、SharedGroup 和 DLC forge 里的每一份副本；次级物理放进重建的头发物理骨架（Reflex3 type 21 记录），下颌 / 眼睑 / 虹膜用绑定偏移杠杆蒙到卡珊德拉的头部骨架；模型与材质、双马尾物理、v8 的眼睑（低增益、常态稳定）经用户实机确认（「看起来可以了」），眨眼按测量换算预计只闭约 20–35 %；尾巴 / 耳朵的软化未单独评价，对话 / 过场表情、DLC 区域未测；第二个模型 Karin_PicodraTech v1（每张图集一个材质、图集自带法线贴图、耳机线挂到双马尾上的物理）只做了离线核对 |
+| 刺客信条：大革命 | [AC Unity](games/assassins-creed-unity/README.md) | Karin_Original→亚诺 v7（Steam build 21970519）：不论装备的整角色替换（装备表去掉全部可视列、身体也去掉，Karin 的 LOD0–3 原地顶替亚诺头部容器里的 LOD，武器模板材质）；同一批表对象内嵌在 189 个数据文件里，每一份按自己的版本改，原地追加安装到 21 个 forge；次级物理是新的附加骨架（BallJoint 没有弹簧，用从原版统计出的锥偏移约定做重力补偿），裙片经 CommonData 与大腿胶囊碰撞；模型与材质由 agent 本机实机确认，物理保形与摆动、跑动时裙子与大腿的碰撞经用户实机确认（「v7 可以了」）；表情未单独评价，菜单模型、旧时代服装、过场、DLC 亡者之王自己的亚诺表未测或未处理 |
 | 生化危机 安魂曲 | [RE9 Requiem](games/resident-evil-requiem/README.md) | Karin_Original→里昂 / 格蕾丝 v1.2.0：从源模型完整构建（refskel 路线、全部部件与 mdf2 变体、chain2 物理与无 Chain2 身体 prefab 注入、CollisionTarget=Self 让 chain2 自带碰撞体生效）；仅在「游戏模型」展柜由 agent 截图与运行时探针验证，实际游玩未测、用户未验收；另修复用户自制 Leon Karin 的乳胶感材质（离线） |
 
 ## 独立交接与验证
@@ -47,7 +48,7 @@ python -B tools/check_repository.py
 python -B tools/export_kit.py --all --output ../Modding-Portable-Exports --zip
 ```
 
-输出十八份不依赖父仓库的目录，以及对应 ZIP/文件哈希清单。每份包含该游戏文档、脚本、公共层和安装依赖说明。[验证记录](portable-kits/VALIDATION.md) 明确哪些进行了组件测试，哪些还需要专用工具和游戏实测。
+输出十九份不依赖父仓库的目录，以及对应 ZIP/文件哈希清单。每份包含该游戏文档、脚本、公共层和安装依赖说明。[验证记录](portable-kits/VALIDATION.md) 明确哪些进行了组件测试，哪些还需要专用工具和游戏实测。
 
 ## 下载便携包
 
@@ -66,7 +67,7 @@ python -B tools/export_kit.py --all --output ../Modding-Portable-Exports --zip
 | 求生之路2 | [下载](https://github.com/ccd775/GameModdingKnowledge/releases/download/v0.2.0/left-4-dead-2.zip) |
 | 绝地潜兵2 | [下载](https://github.com/ccd775/GameModdingKnowledge/releases/download/v0.2.0/helldivers-2.zip) |
 
-浪人崛起、龙之信条2、师父、幻兽帕鲁、漫威蜘蛛侠2、往日不再、巫师3 与奥德赛的便携包是 v0.2.0 之后加入的，还不在 Release 里，请用下面的命令自行导出。
+浪人崛起、龙之信条2、师父、幻兽帕鲁、漫威蜘蛛侠2、往日不再、巫师3、奥德赛与大革命的便携包是 v0.2.0 之后加入的，还不在 Release 里，请用下面的命令自行导出。
 
 单独导出某一款时运行（导出目录旁会生成同名 ZIP 和 `.files.json` 清单）：
 

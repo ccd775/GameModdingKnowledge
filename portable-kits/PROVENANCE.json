@@ -3148,5 +3148,167 @@
     "portable_sha256": "68e696b45a952728d116e442179532773c9d56d7fa953ee8f3d6d3c0d4e90ab9",
     "portable_bytes": 4137,
     "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/assassins-creed-unity/scripts/acu_forge.py",
+    "source": "Mods/ACU/scripts/acu_forge.py",
+    "original_sha256": "6602170d4a33011173592c46f0c9dd684752c314de575da2e9c0418ac99d1571",
+    "source_bytes": 3157,
+    "portable_sha256": "8f5a706e08df7ff0591b6d758c278d727660ace2bc957d05edb89c2350144fef",
+    "portable_bytes": 3638,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/assassins-creed-unity/scripts/scan_objs.py",
+    "source": "Mods/ACU/scripts/scan_objs.py",
+    "original_sha256": "360a00adc0a0db1f0dfcbdfa2d19f1ef75dc83d390b4a8d6982c047a6439259a",
+    "source_bytes": 1924,
+    "portable_sha256": "d5ff8c12a87083618ae4c35f76821c850d471fd9c524fd2b56f17def0e72bea5",
+    "portable_bytes": 2927,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/assassins-creed-unity/scripts/objs_to_tsv.py",
+    "source": "Mods/ACU/scripts/objs_to_tsv.py",
+    "original_sha256": "673377246e084828510ee7dbb5b608c5a8b29fa8d6e8881ef65c140ba375bebd",
+    "source_bytes": 1111,
+    "portable_sha256": "fced68ec413d3cd1a0da4790e6539c91c87335a23e1800dd41400e55829abf13",
+    "portable_bytes": 1463,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/assassins-creed-unity/scripts/acu_install.py",
+    "source": "Mods/ACU/scripts/acu_install.py",
+    "original_sha256": "bff7586a4afac53a485acb6c0b00610cfca56afbbe58342dfec0f4581a27d0a3",
+    "source_bytes": 10672,
+    "portable_sha256": "d02e4dbfe52c413a40b2dc2e97a390ce4e8848a80300719841da92685fcb26d7",
+    "portable_bytes": 11166,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/assassins-creed-unity/scripts/bt_tool.py",
+    "source": "Mods/ACU/scripts/bt_tool.py",
+    "original_sha256": "875c24b4ae1694b7a7b0d19534c7765bc56837c09d355ec4e1cc68d8d9761c32",
+    "source_bytes": 5466,
+    "portable_sha256": "dfed37e34ff501bcefc1ef7c6b2bd7c5d3adfb305c02b754da905258f67fd0ca",
+    "portable_bytes": 6010,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/assassins-creed-unity/scripts/build_mod.py",
+    "source": "Mods/ACU/scripts/build_mod.py",
+    "original_sha256": "4edb24c9d2f961acdfc1d239630960d2e0e518e13e931771e098d526a6e29de8",
+    "source_bytes": 21262,
+    "portable_sha256": "fe2f44a8aaf52b8e91a8255d104acbe4966fee5dc62f487a054095c638592299",
+    "portable_bytes": 22735,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/assassins-creed-unity/scripts/acu_phys_skel.py",
+    "source": "Mods/ACU/scripts/acu_phys_skel.py",
+    "original_sha256": "57dbf809bc2f8e6c6873250b3828afb033b3c5d3fc8da2145277cbcc60592f61",
+    "source_bytes": 21767,
+    "portable_sha256": "705a0e109a4839b0ca2dbd3a4fd3f0157ac8f7b045cb294b22ca508d9a3ee412",
+    "portable_bytes": 22565,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/assassins-creed-unity/scripts/make_release.py",
+    "source": "Mods/ACU/scripts/make_release.py",
+    "original_sha256": "a2ccc799371d83f4472381ca9bb1e081f345263abe67fe6a95d001e8003f198a",
+    "source_bytes": 5843,
+    "portable_sha256": "bd57309217092be0ed4d484f18ec4180349745c6ea3ca3140dc3435aa1163285",
+    "portable_bytes": 6337,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/assassins-creed-unity/scripts/head_bones.py",
+    "source": "Mods/ACU/scripts/head_bones.py",
+    "original_sha256": "3b588b4a3d092a03083a92bb3558e3277f58b98e661ff65e83f9b4d66202b30c",
+    "source_bytes": 3106,
+    "portable_sha256": "ec33bb9ee99a9ba959f782a7c1b4b3edb6c13c5774c628ee7e7d2e2f133c4a61",
+    "portable_bytes": 3317,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/assassins-creed-unity/scripts/glb_rotate.py",
+    "source": "Mods/ACU/scripts/glb_rotate.py",
+    "original_sha256": "1b59ab9cc9f40c07a041d9b93eb49ae743ee95bfd7046caf43f5d73aeeed4288",
+    "source_bytes": 5486,
+    "portable_sha256": "afb12846a9674c0929786c642f390ace81a3e9eb66267c45c03e7b47f198eb0d",
+    "portable_bytes": 5788,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/assassins-creed-unity/scripts/glb_info.py",
+    "source": "Mods/ACU/scripts/glb_info.py",
+    "original_sha256": "aa4de65f5b502234d620d15ecfdadd674d6106fb2667fb21b8a0b02d88cbc74c",
+    "source_bytes": 2090,
+    "portable_sha256": "0cec70206add925c057f446c1222b1299ce09b3debe2766a55fafd1b5a6aa37b",
+    "portable_bytes": 2363,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/assassins-creed-unity/scripts/blender/prep_karin_original.py",
+    "source": "Mods/ACU/scripts/prep_karin_original.py",
+    "original_sha256": "16edfcadc7961df583a665ad9cc032f2efd4957b1e02784219e17c237ee343bb",
+    "source_bytes": 3338,
+    "portable_sha256": "16edfcadc7961df583a665ad9cc032f2efd4957b1e02784219e17c237ee343bb",
+    "portable_bytes": 3338,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/assassins-creed-unity/scripts/blender/fit_karin.py",
+    "source": "Mods/ACU/scripts/fit_karin.py",
+    "original_sha256": "3826f860190e8b733fa111955c29d053427fe0061bd5f7dca4aabdd0f75f48af",
+    "source_bytes": 27077,
+    "portable_sha256": "3826f860190e8b733fa111955c29d053427fe0061bd5f7dca4aabdd0f75f48af",
+    "portable_bytes": 27077,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/assassins-creed-unity/scripts/blender/face_rig.py",
+    "source": "Mods/ACU/scripts/face_rig.py",
+    "original_sha256": "303c245238109e7742857bfb1b47f3d129e38fc5313a78ef051dbdac7ea3ca55",
+    "source_bytes": 22293,
+    "portable_sha256": "303c245238109e7742857bfb1b47f3d129e38fc5313a78ef051dbdac7ea3ca55",
+    "portable_bytes": 22293,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/assassins-creed-unity/scripts/blender/export_karin_lods.py",
+    "source": "Mods/ACU/scripts/export_karin_lods.py",
+    "original_sha256": "eada5f8316816af3f13b5bec5511e2986306a0ae56f1ed1750a2728d071744c1",
+    "source_bytes": 9753,
+    "portable_sha256": "eada5f8316816af3f13b5bec5511e2986306a0ae56f1ed1750a2728d071744c1",
+    "portable_bytes": 9753,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/assassins-creed-unity/scripts/blender/render_compare.py",
+    "source": "Mods/ACU/scripts/render_compare.py",
+    "original_sha256": "4d6296226fbdbd6e36c1e93638e05faa1e1b2e1f7a985178949c18eb3c246a2b",
+    "source_bytes": 2708,
+    "portable_sha256": "4d6296226fbdbd6e36c1e93638e05faa1e1b2e1f7a985178949c18eb3c246a2b",
+    "portable_bytes": 2708,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/assassins-creed-unity/acuharness/Program.cs",
+    "source": "Mods/ACU/tools/AcuHarness/Program.cs",
+    "original_sha256": "b6fea68f9cdbd1200c93a89a134d995422354857f8d84d463907792c0d279552",
+    "source_bytes": 47782,
+    "portable_sha256": "b6fea68f9cdbd1200c93a89a134d995422354857f8d84d463907792c0d279552",
+    "portable_bytes": 47782,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/assassins-creed-unity/acuharness/build.ps1",
+    "source": "Mods/ACU/tools/AcuHarness/build.ps1",
+    "original_sha256": "cd473659834dfed207434ac1143191df4edd4c0118356537f635c10cede847e2",
+    "source_bytes": 3140,
+    "portable_sha256": "a4f5464ad02833efaaaf757016f0b47966d839932c8beaa29ae2725052ebd87f",
+    "portable_bytes": 4063,
+    "modified_for_portability": true
   }
 ]

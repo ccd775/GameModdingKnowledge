@@ -1,0 +1,66 @@
+{
+  "game": "Assassin's Creed Unity (PC, Steam 289650, build 21970519, in-game 1.5.1, ACU.exe)",
+  "status": "runtime-confirmed-scoped",
+  "tools": [
+    {
+      "name": "AnvilToolkit",
+      "version": "1.3.6 (third-party, user-supplied; not bundled)",
+      "role": "library behind AcuHarness: data-file unpack / pack, schema XML export / compile, glTF export / import, TextureMap read / write; GUI not used",
+      "required": true
+    },
+    {
+      "name": "AcuHarness (acuharness/)",
+      "version": "kit source (C#, fork of the Odyssey AcoHarness); acuharness/build.ps1 compiles it with the .NET SDK's Roslyn against AnvilToolkit 1.3.6 and a .NET 9 runtime (9.0.18 in the project)",
+      "role": "headless AnvilToolkit driver: batch (many commands in one process), scan-objs (embedded-copy search), unpack-export, compile-xml, pack-data, export-glb, import-glb (Unity vertex format v2), mesh-bones, tex-import",
+      "required": true
+    },
+    {
+      "name": "Unity.gfl",
+      "version": "AnvilToolkit file list for Unity (Kamzik123/AnvilToolkit-Resources); user-supplied",
+      "role": "names for AnvilToolkit; build.ps1 copies it into the harness Lists folder",
+      "required": true
+    },
+    {
+      "name": "Blender",
+      "version": "5.0.1, background mode",
+      "role": "scripts/blender: prep_karin_original.py (FBX to source blend + textures), fit_karin.py (fit + KP physics bones), face_rig.py (jaw / lids / eyes, bind-offset levers), export_karin_lods.py (acu_weapon LOD GLBs), render_compare.py (fit check renders)",
+      "required": true
+    },
+    {
+      "name": "DirectXTex texconv",
+      "version": "user-supplied (version not recorded in the project)",
+      "role": "BC7 sRGB diffuse / BC7 normal + gloss / BC7 sRGB specular for build_mod.py",
+      "required": true
+    },
+    {
+      "name": "forge, copy-scan, table, physics, install and release tools (scripts/)",
+      "version": "kit; Python 3.10+ (acu_install.py alone runs on 3.8+); numpy for acu_phys_skel / head_bones / glb_rotate / glb_info, Pillow for build_mod",
+      "role": "forge v27 index / extract, embedded-copy scan and table list, in-place install into every copy with per-forge variants, vanilla-size check and xz payloads, BuildTable XML edits, payload builder with a vanilla recompile check, add-on physics skeleton with gravity-compensated BallJoints and thigh-capsule collision, redeployable release zip, facial bone listing, GLB frame rotation and listing",
+      "required": true
+    }
+  ],
+  "entry_documents": [
+    "README.md"
+  ],
+  "runtime_boundary": "Steam build 21970519 (in-game 1.5.1). Project builds made with the original scripts ran in game: v1 / v2 on the build PC (agent screenshots), v3 to v7 on the user's second PC from release packages. Confirmed: the model and materials (v2, agent screenshots; the user: v2 starts), the shape-keeping and swinging secondary physics (v6, the user: \"overall the physics is fine\") and the skirt / thigh collision when running (v7, the user: \"v7 is OK\", 2026-10-24). The facial rig ships since v4 but was not judged separately. Every release package was round-tripped on the build PC with its own .cmd files (install, status, uninstall: all 63 forges back to vanilla size). The portable copies were checked on 2026-10-24 on the build PC: on synthetic data and on local real data the changed command-line scripts (acu_forge, acu_install, bt_tool, acu_phys_skel, make_release, objs_to_tsv, head_bones, glb_rotate, glb_info) give byte-identical outputs to the project originals; acu_forge index over all 63 game forges equals the project index; acuharness/build.ps1 compiled AcuHarness and the kit build_mod.py rebuilt v7 with every object of its 457 data files identical to the released v7; the kit make_release.py repacked the released v7 payload into a byte-identical payload_v7.tar.xz. scan_objs.py was checked for its missing-variable errors only; the Blender scripts were not re-run with the kit. The customization / menu model, legacy outfits, cutscenes, the Dead Kings DLC's own Arno tables and the party outfit are untested or not handled.",
+  "bundled_scripts": [
+    "scripts/acu_forge.py",
+    "scripts/scan_objs.py",
+    "scripts/objs_to_tsv.py",
+    "scripts/acu_install.py",
+    "scripts/bt_tool.py",
+    "scripts/build_mod.py",
+    "scripts/acu_phys_skel.py",
+    "scripts/make_release.py",
+    "scripts/head_bones.py",
+    "scripts/glb_rotate.py",
+    "scripts/glb_info.py",
+    "scripts/blender/prep_karin_original.py",
+    "scripts/blender/fit_karin.py",
+    "scripts/blender/face_rig.py",
+    "scripts/blender/export_karin_lods.py",
+    "scripts/blender/render_compare.py",
+    "acuharness/Program.cs",
+    "acuharness/build.ps1"
+  ]
+}
