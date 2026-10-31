@@ -1,5 +1,97 @@
 # 迁移验证记录
 
+## 2026-11-01：新增仁王3便携包
+
+- **迁入内容：** 56 个文件，放在 `portable-kits/nioh-3/`，按项目的相对布局（脚本里 `sys.path.insert(parent)` 的写法因此不用改）。
+  - `scripts/` 下 35 个 Python，来自项目 `tools/`：格式库 `g1m_tool.py`、`g1t_tool.py`、`ktdata.py`（与浪人崛起便携包的同名文件逐字节相同），`n3_g1t.py`、`n3_g1t_resize.py`、
+    `nuno4.py`、`fpose.py`、`g1a.py`、`g2a.py`、`n3inject.py`，`collapse_set.py`、`ktid_setref.py`、`ktid_repoint.py`，定位与统计 `etw_reads.py`、`find_variant.py`、
+    `ktid_find.py`、`alias_entry.py`、`alias_ktid.py`、`raw_ref.py`、`slot_defaults.py`、`model_refs.py`、`extract_many.py`、`census.py`、`missing.py`、`dump_names.py`、
+    `rec_params.py`、`phase_diff.py`、`phase_only.py`，报表 `face_bones.py`、`g1m_summary.py`、`g1m_subs.py`、`g1m_render.py`、`tex_stats.py`，只读 PE 检查 `peinfo.py`、`patscan.py`；
+  - `scripts/karin_install.py`，来自发行包 `release/Karin_Nioh3/`（终端用户的安装器）；
+  - `scripts/n3build/` 下构建链的 10 个文件，来自 `tools/n3build/`：`n3_common.py`、`n3_conform.py`、`n3_physics.py`、`n3_face.py`、`n3_build_g1m.py`、`n3_g1m_physics.py`、
+    `n3_validate_g1m.py`、`n3_registry.py`、`n3_textures.py`、`blender_shapekeys.py`（Blender）；
+  - `scripts/blender/ko_extract_source.py`，来自 `tools/ko/ronin_original/`（构建第 1 步，FBX → `source.json` / `source.npz`，在 Blender 4.0.2 里运行）；
+  - `scripts/checks/` 下 7 个离线检查，来自会话临时目录的 `ana/`：`swing.py`、`facecheck.py`、`blinkgap.py`、`fit_butt3.py`、`coll_cover.py`、`lloc_dump.py`、`diff24.py`；
+  - `configs/` 下发行包的 `collapse.txt`（13 个要塌缩的模型哈希）和 `vanilla.json`（33 个被替换资源的 v2.0.0.2 原版 sha256）：先查过，两份只有资源哈希和 sha256，没有任何资源内容；
+  - PROVENANCE 每个文件一行（56 行）；离线检查的来源记为 `Mods/Nioh3/(session scratchpad)/ana/<名字>`，不写本机路径；
+  - 新增 `README.md`、`toolchain.json`、`requirements.txt`（numpy、scipy、matplotlib：按实际导入核对，`g1m_render.py`、`g1m_subs.py` 和两个渲染检查用 matplotlib；Pillow 在根目录的
+    `requirements.txt` 里）。公共层 `modkit.py` 的游戏列表加上 `nioh-3`，导出器和导出测试因此覆盖它。
+- **没有迁入：** 测试机远程辅助脚本（`tools/remote/*.sh`：`.sh` 不是本库允许的类型，而且只服务于项目那台测试机）；`tools/ko/ronin_original/` 下其余的浪人崛起构建脚本；
+  格式说明 `tools/N3_G1T_FORMAT.md`（移到了 `games/nioh-3/G1T_FORMAT.md`）；会话临时目录里的 `n3dis.py`、`crash.txt`、文本转储、`upd_state*.py`、`patch*.py`、`r*.ps1` 和其余一次性脚本；
+  `__pycache__`；源模型、游戏数据、构建产物、发行包的 `files\`、`package.json`、`.cmd` 和 zip。
+- **便携改动**在 45 个文件：
+  - 写死的本机路径：
+    - `n3build/n3_common.py`：`BUILD` 原来默认是会话临时目录里的 `build\`（已经可以用 `N3_BUILD` 覆盖），改为只认 `N3_BUILD`。`BUILD` / `ORIG` 改成延迟求值的路径对象
+      （`n3_face.POSE_LIB`、`n3_textures.TEXCONV` 这些模块级常量也是从它拼出来的），真正用到路径时才读变量，没设时报错并说出变量名，导入和 `--help` 不需要它；
+    - `n3build/n3_physics.py`：写死的源模型 VRM 路径 → `N3_VRM` / `--vrm`，默认模式在读 VRM 时检查，`--geometry` 不需要；
+    - `checks/` 的 7 个脚本：`sys.path.insert(0, r'<项目>\tools…')` 改为相对 `__file__` 的 `scripts/`、`scripts/n3build/`；`swing.py`、`facecheck.py` 里写死的会话目录改为
+      `N3_BUILD`（构建报告、模型、面部文件）和 `--png`（原来把图写进会话临时目录的根，现在默认写当前目录）；
+    - `find_variant.py`、`tex_stats.py`：texconv 原来只找脚本旁边的 `texconv.exe`，加 `--texconv`，默认不变；
+    - `karin_install.py`：工具原来只从 `HERE/tools` 导入，现在 `tools/n3inject.py` 存在时用它（发行包布局），否则用脚本所在目录（便携包布局）；`files\`、`collapse.txt`、
+      `vanilla.json`、`package.json` 和 `staging\` 的目录加 `--data`，默认是脚本所在目录。发行包布局下的行为与原脚本相同（见下）。
+  - 没有 argparse 或在模块级读 `sys.argv` 的 44 个命令补上了 argparse，位置参数和选项不变：`scripts/` 下 29 个（`nuno4`、`fpose`、`g1a`、`g2a`、`collapse_set`、`ktid_setref`、
+    `ktid_repoint`、`etw_reads`、`find_variant`、`ktid_find`、`alias_entry`、`alias_ktid`、`raw_ref`、`slot_defaults`、`model_refs`、`extract_many`、`census`、`missing`、
+    `dump_names`、`face_bones`、`g1m_summary`、`g1m_subs`、`g1m_render`、`tex_stats`、`rec_params`、`phase_diff`、`phase_only`、`peinfo`、`patscan`），`karin_install.py`，
+    `n3build/` 下 7 个（`n3_build_g1m`、`n3_conform`、`n3_face`、`n3_physics`、`n3_registry`、`n3_textures`、`n3_validate_g1m`），`checks/` 下 7 个。原来 `--help` 会被当成包目录或文件名，
+    `n3_conform.py`、`n3_physics.py`、`n3_face.py`、`n3_build_g1m.py`、`n3_registry.py`、`n3_textures.py`、`coll_cover.py` 会直接开始处理（`n3_textures.py` 先清空 `g1t/`）。
+    `n3_build_g1m.py` 和 `n3_physics.py` 原来在函数里查 `sys.argv`，改为读解析结果（`geometry()` 多一个 `with_skirt` 参数）。细节上的差别：未知选项现在被拒绝（原来忽略）；
+    `n3_build_g1m.py` / `n3_registry.py` 的目标只接受 `ninja` / `samurai`（原来别的名字是 KeyError）；`nuno4.py` 不给文件时报用法错误（原来什么也不做）；`alias_ktid.py` 的
+    `--ktid` / `--tex` 不再要求先后顺序；`g1a.py` / `g2a.py` 给的是哈希却没有 `--package` 时报用法错误（原来是 ValueError）；`fit_butt3.py` 的第三个参数（皮肤带的上沿 y）原来读了
+    但没写进用法，现在是必填位置参数。`find_variant.py`、`tex_stats.py`、`g1m_subs.py` 和 7 个检查在解析参数之后才导入 numpy / Pillow / matplotlib，`--help` 不需要它们；
+    其余要 numpy 的命令同时被别的脚本当库导入，导入位置没动；
+  - 换行：每个文件保留原来的换行：`n3inject.py`、`extract_many.py`、`face_bones.py`、`n3build/` 下 7 个（`n3_build_g1m`、`n3_common`、`n3_face`、`n3_g1m_physics`、`n3_physics`、
+    `n3_registry`、`n3_validate_g1m`）和 `configs/vanilla.json` 是 CRLF，其余 LF。
+
+  其余 11 个文件与原文件逐字节相同：`g1m_tool.py`、`g1t_tool.py`、`ktdata.py`、`n3_g1t.py`、`n3_g1t_resize.py`、`n3inject.py`、`n3build/n3_g1m_physics.py`、`n3build/blender_shapekeys.py`、
+  `blender/ko_extract_source.py`、`configs/collapse.txt`、`configs/vanilla.json`。`n3_g1t.py` 的说明里仍写着格式说明在脚本旁边（现在在 `games/nioh-3/G1T_FORMAT.md`），没有为此改字节。
+  处理逻辑没有改。
+- **离线核对（本机，2026-11-01）：**
+  - **条件：** Windows 10 19044；Python 3.14.0 + numpy 2.5.2、scipy 1.18.0、matplotlib 3.11.2、Pillow 12.3.0、markdown-it-py 4.0.0（系统 Python，没有另装包）；项目构建目录里的
+    texconv；输入是会话临时目录 `build\` 的副本（`orig\` 15 个原版文件、不含 FBX 的 `source\`、`face\`、`tex\`、`toolchain\`）和源模型目录里的 VRM（原地只读）。原脚本从项目目录
+    原地运行（`python -B`，不写任何东西进项目），输出都写进本次的工作目录。
+  - 原脚本和便携脚本在同一份输入上运行，比较退出码、标准输出（只替换各自的工作目录路径）和写出的每个文件（npz 按数组比较，其余逐字节）：
+    - 构建链（build24 的参数）：`n3_conform` → `n3_physics` → `n3_face` → `n3_build_g1m.py ninja / samurai --physics --collide --face` → 两次 `n3_validate_g1m`（都是 PASS）→
+      `n3_registry.py ninja / samurai` → `n3_textures`，10 步的输出相同，22 个文件相同；便携版写出的 10 个文件（两件上衣、两个注册表、两个计数、四张贴图）与发行包 build24 的
+      `files\` 逐字节相同；
+    - 构建链的其余参数（另一份新副本）：`n3_physics.py --geometry --skirt`、`n3_face.py --extended`、`n3_build_g1m.py ninja --physics --collide`（几何链的裙子：两边都以
+      `skirt: no triangles` 停下）、`samurai` 不带物理、`n3_validate_g1m.py --layout-changed`、物理改回默认后 `ninja --physics --face`、`n3_registry.py ninja --no-counts`、
+      `samurai --g1m <忍者模型>`（两边都在计数核对处停下），10 步相同，11 个文件相同；
+    - 离线检查：`blinkgap`、`lloc_dump`、`diff24`（build23 → build24）、`coll_cover`、`swing`（忍者 30°、武士 20°）、`facecheck`（忍者子网格 25）、`fit_butt3 2 0.3 102`，8 次输出相同，
+      3 张渲染图逐字节相同。`swing.py`、`facecheck.py` 的原件会写进会话临时目录的根（那里有主控的 `swing.png`），所以用只把 `S` 那一行改成本次工作目录的副本来跑；
+    - 定位和报表：在用本次测试夹具做的合成包（kidsobjdb、KTID、模型、贴图、NameDatabase、缺一个容器）、真实原版贴图组成的贴图包、合成的 ETW CSV 和本机的模型 / 面部文件 /
+      texconv 上，27 个脚本 32 次运行输出相同，写出的 17 个文件相同（提取、塌缩、两个 KTID、名字转储、ETW JSON、渲染、texconv 的 DDS / PNG）。`find_variant.py`、`tex_stats.py`
+      的原件要 texconv 在旁边，用复制出的原件跑；
+    - `karin_install.py`：原件和便携版各放进发行包布局（`tools\` 用发行包的），在同一个合成游戏的两份副本上依次「版本不符被拒 → 安装 → 校验 → 卸载」，每一步的退出码、输出和
+      `package\` 里每个文件都相同。
+  - 全部 Python 过 AST 解析（`tools/check_repository.py`）；全部命令的 `--help` 以 0 退出，不需要 `N3_BUILD` / `N3_VRM`。
+  - **没有重跑的部分：** Blender（`ko_extract_source.py`、`blender_shapekeys.py`；`source\` 是项目之前导出的）；游戏和测试机（`n3inject.py`、`karin_install.py` 没有对真实的
+    `package\` 运行）；`g1a.py`、`g2a.py` 只测了 `--help`（本机没有动画文件）。实机结论来自项目用原脚本构建的 build7–build24：build21 关卡内物理和 build23 由用户确认，
+    build24 由发行包装进测试机（`verify` 33/33），实机效果待用户确认。
+- **合成数据测试：** `Nioh3Tools` 共 10 项，不需要游戏、Blender、源模型或 texconv：
+  - `n3inject.py`：合成的 `root.rdb`（32 字节头，13 / 17 字节两种尾巴，参数块）/ `root.rdx` / 两个 fdata（存储、u32 分块 zlib、u16 zlib）放在带空格的路径里：安装（新容器、槽 102、
+    `.original` 备份、记录和条目的参数块保留）→ 校验 → 重装逐字节相同 → 还原逐字节相同；不在表里的覆盖在写任何东西之前被拒；游戏换掉表之后的两条路径（重装改备份当前文件；
+    还原保留游戏的文件、删掉过期备份）；
+  - `karin_install.py`（只在 Windows 上）：原版 sha256 不符时拒绝，只留下首次备份、不暂存不安装；版本相符时从便携包（`--data`）和发行包两种布局安装 → 校验 → 卸载，覆盖和塌缩出的
+    模型从游戏里读回相同，卸载后 `package\` 逐字节还原；
+  - `n3_g1t.py`：按 G1T_FORMAT 做的 v0066 存储类型 3 合成贴图（BC1 512：mip 0 两个 tile，其余在尾部；BC7 256：mip 0 正好一个 tile）：解析、布局、解码；`info`；`dds` → `encode`
+    回到模板逐字节相同；新像素的编码只改块数据和块表；拒绝覆盖、拒绝尺寸不符；`n3_g1t_resize.py` 换成 256；BC1 和 BC7 的 `constant`（BC7 mode 6 精确得到 (10,10,10,160)）；
+  - `n3_g1m_physics.lloc_entry_bytes` 在合成 LLOC 组后追加 `KARIN_HIPS` 两个椭球（形状 5、骨号、+16 半轴、+32 单位旋转行、+80 中心、n 更新，其余字取自第一个碰撞体），`new_lloc`
+    每个碰撞组只追加一次并给出每条链的组号；
+  - `n3_registry.py`：合成模型（5 个子网格、MESH_LOD 类型 2 组、ONUN 3 个 type-4 条目）上的注册表 (x, id) 和每材质计数逐字节等于预期；`--g1m`、`--no-counts`；已有 type-4 条目、
+    材质没有子网格时拒绝；`nuno4.py` 读回 `parse exact`；
+  - 定位：`census`、`missing`、`extract_many`、`ktid_find`、`model_refs`、`raw_ref`、`alias_entry`、`alias_ktid`、`rec_params`、`slot_defaults`、`dump_names`、`ktid_setref`（含拒绝覆盖、
+    找不到槽）、`ktid_repoint`、`collapse_set`；`etw_reads.py`（按 PID 选游戏进程、阶段标记、读范围映射回记录）、`phase_diff.py`、`phase_only.py`；
+  - `N3_BUILD` / `N3_VRM`：没设时用到路径才报错并说出变量名，路径延迟拼接；合成 VRM 的弹簧链名；构建链和检查的 14 个命令的 `--help`（`scripts/` 下 36 个在 `test_all_cli_help` 里）；
+  - PROVENANCE 与可移植性：每个文件一行，哈希、字节数、修改标记、`bundled_scripts` 一致；没有盘符路径、用户目录、测试机或用户名、写死的 `sys.path`；CRLF 正好是上面列的 11 个；
+    `configs/` 只有哈希和 sha256；没有 `.sh`、`.cmd`、二进制、游戏数据和远程辅助脚本。
+
+  没装 numpy / scipy 时，要它们的项和命令的 `--help` 跳过。上面的等价性核对是本机手工跑的，没有写进测试套件。整套 `tests/test_portable_tools.py` 116 项通过（本机依赖齐全，没有跳过），
+  `tests/test_export_portability.py`、`tools/check_repository.py` 通过。
+- **未验证：**
+  - 便携版没有在 Blender、游戏、测试机上重跑（构建链的产物与 build24 发行文件相同）；
+  - `g1a.py`、`g2a.py` 的实际数据；非 Windows 系统（`karin_install.py` 用 `tasklist`，texconv 只有 Windows 版）；其他游戏版本（`vanilla.json` 锁定 v2.0.0.2）；
+  - 新模型的案例常量。
+
 ## 2026-10-31：新增影之刃零便携包
 
 - **迁入内容：** 37 个文件，放在 `portable-kits/phantom-blade-zero/`。

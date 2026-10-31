@@ -306,6 +306,17 @@
       "topics": ["UE 5.7.4（S-GAME 改版）", "IoStore 加密索引 + Oodle", "~mods 的 utoc/ucas + 伴随 pak", "带版本号的 cook（无版本号会崩）", "objscan 定位重排的 GUObjectArray", "Dumper-7 补丁与 usmap 继承属性修正", "CUE4Parse 读蓝图字节码", "外观数据表 DT_PBZAppearanceTable", "身体网格就是领导者（CharacterMesh0）", "原版身体的武器子骨（weapon_*_child）", "AnimationScaled / Animation 重定向下的关节摆放", "错类型的隐藏占位", "分层材质只改第 0 层", "虚拟纹理", "雨水湿润参数", "Chaos 骨骼网格布料：从材质槽建、掩码、backstop、CCD、求解器", "布料焊点与法线抵消", "百褶裙的平滑外壳模拟网格", "每 LOD 一个 section 的绑定限制与合成贴图", "退化三角让布料段失败", "MetaHuman CTRL_expressions 曲线名形变与 ARKit 别名", "RefreshMaterialParamByHead 的动态材质实例", "CopyPose 叠加眨眼动画蓝图与类名门控", "过场的主头发模式与 groom 占位", "无界面 UE Python 的资产注册表扫描", "按材质合并的 blend 源模型分支"],
       "limits": ["醉剑修复（v3）未进游戏复测，其它用到 *_child 骨的武器未逐一检查", "其它服装（各自的身体网格）未替换，换上后头部显示不正常", "关闭或调低 groom 头发时的过场只做了推断（两张脸可能闪）", "平时游玩没有受击 / 对话的面部反应（原版也没有）", "Karin_PicodraTech 没有用户反馈；法线图集未用、服装不加自发光", "游戏 AES 密钥、usmap、Oodle DLL 不随库发布"],
       "portable_kit": "portable-kits/phantom-blade-zero"
+    },
+    {
+      "id": "nioh-3",
+      "path": "games/nioh-3",
+      "status": "runtime-confirmed-scoped",
+      "milestone": "Karin_Original 替换女性主角（忍者 / 武士两种流派）：资源表注入（不用 DLL）、Karin 写进两件上衣并塌缩其余 13 个模型、TextureAlias 染色变体贴图表、脸蒙到共享面部骨（权重 > 1 + 负头骨权重）、VRM 37 条弹簧链 → NUNO type-4 骨链（MESH_LOD 类型 2 + 独立缓冲 + 物理注册表 + 精确每材质计数），模型 / 表情 / 物理（build21）/ 袜子皮肤（build23）用户实机确认；裙摆臀部碰撞 build24 待实机；可再部署安装包",
+      "date": "2026-11-01",
+      "game_build": "Nioh3.exe 2.0.0.2 (PC)",
+      "topics": ["KT 引擎（与浪人崛起 / 真三国无双 起源同构的 rdb / fdata / KTID / G1M / G1T）", "root.rdb / root.rdx 注入：新 fdata 容器 + rdx 新槽 + 重建记录，识别过期备份", "ETW 文件读取追踪按阶段定位资源", "TextureAlias 染色变体 KTID（静态 KTID 会被盖掉）", "G1T v0066 存储类型 3（逐 tile zlib + 线性尾部）", "调色板存骨架存储序号（与浪人相反）", "SUBMESH +12 运行时材质组", "u16 BLENDINDICES 突破 85 骨（上限 128）", "三角形塌缩隐藏原版部件，安装器从玩家数据现场生成", "每材质计数资源（按子网格下标分段、不能多不能少）", "物理注册表（kidsobjdb prop 0x7F0DE9A3）", "NUNO type-4 骨链格式、SM1G 物理关节与组表、FM1G type-4 统计", "MESH_LOD 类型 2 网格组（NUN id 0x2710 + k）", "VRM 弹簧链 → type-4 骨链（仿射拟合映射点、逐骨源权重）", "参数模板：头发保形 vs 腰带垂饰纯摆锤", "LLOC 碰撞体 28 字布局与自定义椭球", "面部骨 400–737、g1fpose / g1frani、逐顶点面部骨权重拟合", "换装形态键按高度遮罩（开口那圈不动）", "可再部署安装包（原版 sha256 核对）"],
+      "limits": ["build24 臀部碰撞待用户实机", "武士流派裙摆发橙红未查清（build20 起未再被提及）", "关卡内喊声 / 受伤 / 过场表情与眼神未做或未测", "物理手感未专门调", "过场、死亡、隐藏头盔 / 下身、NPC 与被隐藏模型、其它染色未测", "共用计数资源的上衣 0x1af713a6 未测", "只对 v2.0.0.2 有效"],
+      "portable_kit": "portable-kits/nioh-3"
     }
   ]
 }

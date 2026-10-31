@@ -23,6 +23,7 @@
 | The Witcher 3 Remastered | [便携命令](../portable-kits/the-witcher-3/README.md) |
 | Hogwarts Legacy | [便携命令](../portable-kits/hogwarts-legacy/README.md) |
 | Death Stranding 2 | [便携命令](../portable-kits/death-stranding-2/README.md) |
+| Nioh 3 | [便携命令](../portable-kits/nioh-3/README.md) |
 
 各游戏原知识中的脚本职责表仍有大量角色专属实现；没有对应 portable-kits 脚本的名称是历史设计参考，不能假设文件已在交接包内。新项目需要按当前资源实现对应步骤，不要尝试调用不存在的旧路径。
 

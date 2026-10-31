@@ -250,6 +250,7 @@ class PortableTools(unittest.TestCase):
             if path.parents[1].name == 'assassins-creed-odyssey' and aco_missing(path.stem): continue
             if path.parents[1].name == 'assassins-creed-unity' and acu_missing(path.stem): continue
             if path.parents[1].name == 'hogwarts-legacy' and hl_missing(path.stem): continue
+            if path.parents[1].name == 'nioh-3' and n3_missing(path.stem): continue
             if path.parents[1].name == 'assassins-creed-syndicate' and acs_missing(path.stem): continue
             if path.parents[1].name == 'death-stranding-2' and ds2_missing(path.stem): continue
             cli(path.parents[1].name,path.stem,'--help')
@@ -5986,6 +5987,652 @@ class PhantomBladeZeroTools(unittest.TestCase):
             self.assertNotRegex(text, r'sys\.path\.insert\(0, *r?[\'"]', rel)
             self.assertNotRegex(text, r'(?i)PBZX_AES\s*=\s*["\']?[0-9a-f]{16}', rel)   # no key written in
         self.assertFalse([p for p in kit.rglob('*') if p.suffix in ('.sh', '.cmd', '.bat', '.exe', '.dll', '.usmap', '.utoc', '.ucas', '.pak')])
+
+
+N3_KIT = KITS / 'nioh-3'
+# Nioh 3 kit scripts whose import (and --help) needs more than the standard library. The locators, n3inject.py,
+# karin_install.py, g1m_tool / g1t_tool / ktdata and the offline checks' --help use the standard library.
+N3_DEPS = {'n3_g1t': ('numpy',), 'n3_g1t_resize': ('numpy',), 'fpose': ('numpy',), 'g1a': ('numpy',), 'g2a': ('numpy',),
+           'face_bones': ('numpy',), 'g1m_render': ('numpy', 'matplotlib'), 'n3_conform': ('numpy', 'scipy'),
+           'n3_physics': ('numpy', 'scipy'), 'n3_face': ('numpy', 'scipy'), 'n3_build_g1m': ('numpy',),
+           'n3_registry': ('numpy',), 'n3_validate_g1m': ('numpy',), 'n3_textures': ('numpy', 'PIL')}
+N3_NOT_COMMANDS = ('blender_shapekeys', 'n3_common', 'n3_g1m_physics')      # a Blender script and two libraries
+N3_SHARED_NAMES = ('g1m_tool', 'g1t_tool', 'ktdata')                       # same module names as the Ronin kit's
+# migrated files that keep the original's CRLF line endings; every other kit file is LF
+N3_CRLF = {'scripts/n3inject.py', 'scripts/extract_many.py', 'scripts/face_bones.py', 'configs/vanilla.json'} | {
+    f'scripts/n3build/{n}.py' for n in ('n3_build_g1m', 'n3_common', 'n3_face', 'n3_g1m_physics', 'n3_physics',
+                                       'n3_registry', 'n3_validate_g1m')}
+N3_G1M, N3_G1T, N3_KTID, N3_NAMES = 0x563BDEF1, 0xAFBEC60C, 0x8E39AA37, 0xBF6B52C7
+N3_IDENTITY = [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
+
+
+def n3_missing(script):
+    return [m for m in N3_DEPS.get(script, ()) if importlib.util.find_spec(m) is None]
+
+
+def n3_kit():
+    if not N3_KIT.is_dir():
+        raise unittest.SkipTest('nioh-3 is not included in this single-game export')
+    return N3_KIT
+
+
+def n3_need(*mods):
+    n3_kit()
+    missing = [m for m in mods if importlib.util.find_spec(m) is None]
+    if missing:
+        raise unittest.SkipTest('pip install -r portable-kits/nioh-3/requirements.txt (missing ' + ', '.join(missing) + ')')
+
+
+def n3_module(rel):
+    """Kit module by path below scripts/ (e.g. 'n3build/n3_g1m_physics'); the Ronin kit's copies of the shared
+    format modules are dropped from sys.modules first so the Nioh 3 ones load."""
+    path = n3_kit() / 'scripts' / f'{rel}.py'
+    for shared in N3_SHARED_NAMES + (path.stem,):
+        sys.modules.pop(shared, None)
+    sys.path.insert(0, str(path.parent))
+    spec = importlib.util.spec_from_file_location(path.stem, path)
+    obj = importlib.util.module_from_spec(spec)
+    sys.modules[path.stem] = obj
+    spec.loader.exec_module(obj)
+    return obj
+
+
+def n3_run(rel, *args, env=None, ok=True, script=None):
+    """Run a kit script (path below scripts/, or `script`) with none of the caller's N3_* variables (plus env)."""
+    path = script or n3_kit() / 'scripts' / rel
+    full = {k: v for k, v in os.environ.items() if not k.startswith('N3_')}
+    full.update(env or {}, PYTHONIOENCODING='utf-8')
+    process = subprocess.run([sys.executable, '-B', str(path), *map(str, args)], capture_output=True, text=True,
+                             encoding='utf-8', env=full, timeout=300)
+    if (process.returncode == 0) != ok:
+        raise AssertionError(f'{rel}: exit {process.returncode}\n{process.stdout}\n{process.stderr}')
+    return process
+
+
+def n3_package(folder, resources, slots=(100, 101), extra_rdx=()):
+    """Nioh 3 package folder: root.rdb (32-byte _DRK header; every record a 4-byte parameter block and a 13- or
+    17-byte fdata trailer), root.rdx and one 0x<hash>.fdata per slot (entries with an 8-byte parameter block; stored,
+    zlib with u32 chunk sizes, or zlib with a u16 size + 8 bytes). resources: [(hash, type, payload)], round robin
+    over the containers. extra_rdx: (slot, fdata hash) pairs whose container is not written."""
+    folder.mkdir(parents=True, exist_ok=True)
+    fdatas = [0xF0000000 + i for i in range(len(slots))]
+    packs = [bytearray(b'PDRK0000' + struct.pack('<2I', 0x10, 0)) for _ in slots]
+    rdb = bytearray(b'_DRK0000' + struct.pack('<2I', 32, 0) + bytes(16))
+    for n, (h, typ, payload) in enumerate(resources):
+        c, mode = n % len(slots), n % 3
+        stored, flags = payload, 0
+        if mode == 1:
+            half = len(payload) // 2
+            stored = b''.join(struct.pack('<I', len(z)) + z for z in (zlib.compress(payload[:half]), zlib.compress(payload[half:])))
+            flags = 0x100000
+        elif mode == 2 and len(zlib.compress(payload)) < 0x10000:        # u16 size: small payloads only
+            z = zlib.compress(payload)
+            stored = struct.pack('<H', len(z)) + bytes(8) + z
+        if len(stored) == len(payload):            # equal sizes mean "stored" to the reader
+            stored, flags = payload, 0
+        fparams = struct.pack('<2I', 0xF00D0000 | n, 0x11)
+        offset = len(packs[c])
+        entry = b'IDRK0000' + struct.pack('<3Q4I', 48 + len(fparams) + len(stored), len(stored), len(payload), 0x31 + n, h,
+                                          typ, flags) + fparams + stored
+        packs[c] += entry + b'\0' * (-len(entry) % 16)
+        trailer = (struct.pack('<HII', 0x401, offset, len(entry)) if n % 2 == 0 else
+                   struct.pack('<HB3sII', 0x401, 0, bytes(3), offset, len(entry))) + struct.pack('<H', slots[c]) + b'\0'
+        params = struct.pack('<I', 0xA0000000 | n)
+        rec = b'IDRK0000' + struct.pack('<QI4sQ4I', 0x30 + len(params) + len(trailer), len(trailer), bytes(4), len(payload),
+                                        0x50 + n, h, typ, 0) + params + trailer
+        rdb += rec + b'\0' * (-len(rec) % 4)
+    for pack, fh in zip(packs, fdatas):
+        struct.pack_into('<I', pack, 12, len(pack))
+        (folder / f'0x{fh:08x}.fdata').write_bytes(bytes(pack))
+    (folder / 'root.rdb').write_bytes(bytes(rdb))
+    (folder / 'root.rdx').write_bytes(b''.join(struct.pack('<HhI', s, -1, f) for s, f in list(zip(slots, fdatas)) + list(extra_rdx)))
+    return {h: p for h, _, p in resources}
+
+
+def n3_kids(entries):
+    """kidsobjdb: entries (name, type, [(property, u32 value)]); the first property's value is the entry's first value"""
+    out = b'_DOK0000' + bytes(20)
+    for name, typ, props in entries:
+        body = struct.pack('<4I', 0, name, typ, len(props)) + b''.join(struct.pack('<3I', 5, 1, p) for p, _ in props)
+        body += b''.join(struct.pack('<I', v) for _, v in props)
+        out += b'IDOK0000' + body + b'\0' * (-len(body) % 4)
+    return out
+
+
+def n3_model(sets=(0,), verts=4):
+    """Rise of the Ronin G1M fixture (ronin_g1m): one root joint, one palette, `verts` vertices on the root; one
+    submesh per entry of `sets` (its texture set), each drawing the same triangles"""
+    tris = [0, 1, 2] + ([1, 2, 3] if verts > 3 else [])
+    return ronin_g1m(((0, -1, (0, 0, 0)),), [N3_IDENTITY], [[(s, 1 + s)] for s in sorted(set(sets))],
+                     [((0, i, 0), [1] + [0] * 7, [0] * 8) for i in range(verts)], [[(0, 0)]],
+                     [(0, m, 0, verts, 0, len(tris)) for m in sets], tris)
+
+
+def n3_with_chunks(g1m, *chunks):
+    """the G1M with chunks appended (file size and chunk count follow)"""
+    body = g1m[24:] + b''.join(chunks)
+    return g1m[:8] + struct.pack('<4I', 24 + len(body), 24, 0, struct.unpack_from('<I', g1m, 20)[0] + len(chunks)) + body
+
+
+def n3_gm_section(gt, g1m, magic, count, payload):
+    """the G1M with one more G1MG section (GM1G is the last chunk of ronin_g1m)"""
+    gm = gt.parse_chunks(g1m)[0]['GM1G'].offset
+    out = bytearray(g1m + struct.pack('<3I', magic, 12 + len(payload), count) + payload)
+    for at in (gm + 8, 8):
+        struct.pack_into('<I', out, at, struct.unpack_from('<I', out, at)[0] + 12 + len(payload))
+    struct.pack_into('<I', out, gm + 44, struct.unpack_from('<I', out, gm + 44)[0] + 1)
+    return bytes(out)
+
+
+def n3_prim(shape, bone, size, centre, rows=((1, 0, 0), (0, 1, 0), (0, 0, 1))):
+    """112-byte LLOC primitive: 0 shape, 1 bone id, 2 = -1, 4-6 semi-axes, 8-10 / 12-14 / 16-18 rotation rows,
+    20-22 centre in bone space, 23 = 1.0"""
+    b = bytearray(112)
+    struct.pack_into('<2Ii', b, 0, shape, bone, -1)
+    struct.pack_into('<3f', b, 16, *size)
+    for i, r in enumerate(rows):
+        struct.pack_into('<3f', b, 32 + 16 * i, *r)
+    struct.pack_into('<4f', b, 80, *centre, 1.0)
+    return bytes(b)
+
+
+def n3_lloc(entries):
+    """LLOC chunk: (magic, version, size, 1), subchunk (0x20001, size, entries), entry = (flags, n, n primitives)"""
+    body = b''.join(struct.pack('<2I', flags, len(prims)) + b''.join(prims) for flags, prims in entries)
+    sub = struct.pack('<3I', 0x20001, 12 + len(body), len(entries)) + body
+    return b'LLOC0010' + struct.pack('<2I', 16 + len(sub), 1) + sub
+
+
+def n3_onun(entries):
+    """ONUN (version 0036) with one type-4 subchunk; entries: (entry id, anchor bone, [skeleton storage per point]),
+    one chain each, one LLOC index (A = 1), the anchor bound with weight 1"""
+    blob = b''
+    for eid, anchor, storages in entries:
+        n = len(storages)
+        b = struct.pack('<7I', anchor, n, 1, 1, n, 1, eid) + bytes(168) + struct.pack('<I9f', 0, 1, 0, 0, 0, 1, 0, 0, 0, 1)
+        for i in range(n):
+            b += struct.pack('<4fIff', 0, 150 - 5 * i, 0, 1.0, 0x80000000 if i == 0 else 0, i / (n - 1), 5.0 if i else 0.0)
+        b += struct.pack('<I', 0) + b''.join(struct.pack('<2I', i, st) for i, st in enumerate(storages))
+        blob += b + struct.pack('<4I', 0, 3 | (24 << 16), 4, 1) + struct.pack('<If', anchor, 1.0)
+    sub = struct.pack('<3I', 0x30004, 12 + len(blob), len(entries)) + blob
+    return b'ONUN0036' + struct.pack('<2I', 16 + len(sub), 1) + sub
+
+
+def n3_mesh_lod(groups):
+    """MESH_LOD body: one block (36-byte head, c1 at +12) of groups (type, NUN id, [submeshes]) named like the body"""
+    out = struct.pack('<9I', 0, 0, 0, len(groups), 0, 0, 0, 0, 0)
+    for typ, nun, subs in groups:
+        out += b'@EE29F247'.ljust(16, b'\0') + struct.pack('<HHII', typ, 0, nun, len(subs)) + struct.pack(f'<{len(subs)}I', *subs)
+    return out
+
+
+def n3_g1t_file(fmt, log_size, bpe, blk, fill):
+    """Single planar square G1T, version 0066, storage 3 (G1T_FORMAT.md): mips down to 4x4 for BC; a mip of at least
+    one 64 KB tile is tiled (row-major tiles of plain linear rows; meta1 = tiles x, tiles y, 0, first tile), the
+    smaller ones are packed raw into the tail (meta2 = row bytes, size, 0xBAADBAAD x 2); every tile deflated at
+    zlib level 6 behind a u32 size. fill(n) -> n bytes. Returns (file, {(mip, 0): linear image})."""
+    tw, th = {8: (128, 64), 16: (64, 64)}[bpe]
+    mips = log_size + 1 - (2 if blk == 4 else 0)
+    meta1, meta2, tiles, tail, images = [], [], [], b'', {}
+    for mip in range(mips):
+        e = max(1, (1 << log_size >> mip) // blk)
+        img = images[mip, 0] = fill(e * e * bpe)
+        if len(img) >= 65536:
+            nx, ny = -(-e // tw), -(-e // th)
+            meta1.append((nx, ny, 0, len(tiles)))
+            rows = [img[r * e * bpe:(r + 1) * e * bpe].ljust(nx * tw * bpe, b'\0') for r in range(e)]
+            rows += [bytes(nx * tw * bpe)] * (ny * th - e)
+            tiles += [b''.join(rows[ty * th + y][tx * tw * bpe:(tx + 1) * tw * bpe] for y in range(th))
+                      for ty in range(ny) for tx in range(nx)]
+        else:
+            meta2.append((e * bpe // blk, len(img), 0xBAADBAAD, 0xBAADBAAD))
+            tail += img
+    zb = b'0000' + struct.pack('<8i', 36 + 16 * (len(meta1) + len(meta2)) + 8 * len(tiles) + 8, 128, 65536, len(meta1),
+                               len(tiles), len(meta2), 1, len(tail)) + b''.join(struct.pack('<4I', *m) for m in meta1 + meta2)
+    texture = bytes([mips << 4, fmt, log_size << 4 | log_size, 0, 0x00, 0x10, 0x21, 0x12]) + struct.pack('<IfHBB', 12, -1.0, 0, 3, 0)
+    blobs = [struct.pack('<I', len(c)) + c for c in (zlib.compress(t, 6) for t in tiles)]
+    pos, table = 32 + 4 + len(texture) + len(zb) + 8 * len(tiles) + 8, b''
+    for b in blobs:
+        table += struct.pack('<2I', pos, len(b))
+        pos += len(b)
+    body = struct.pack('<I', 4) + texture + zb + table + struct.pack('<2I', pos, len(tail)) + b''.join(blobs) + tail
+    return b'GT1G6600' + struct.pack('<6I', 32 + len(body), 32, 1, 10, 0, 0) + body, images
+
+
+class Nioh3Tools(unittest.TestCase):
+    """Synthetic root.rdb / root.rdx / fdata packages and G1M / G1T / LLOC / ONUN / registry fixtures. Real work needs
+    the game's package folder, the build inputs (N3_BUILD), the source VRM and Blender 4.0.2; the build chain and the
+    offline checks were compared with the project originals on real data (VALIDATION.md)."""
+
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(prefix='modding nioh 3 ')
+        self.root = Path(self.temp.name)
+
+    def tearDown(self): self.temp.cleanup()
+
+    @classmethod
+    def tearDownClass(cls):
+        for name in N3_SHARED_NAMES:
+            sys.modules.pop(name, None)
+
+    def test_n3_help_build_chain_and_checks(self):
+        kit = n3_kit()
+        scripts = sorted(p for d in ('n3build', 'checks') for p in (kit / 'scripts' / d).glob('*.py')
+                         if p.stem not in N3_NOT_COMMANDS)
+        self.assertEqual(len(scripts), 14)
+        for p in scripts:              # the top-level scripts are in test_all_cli_help
+            if not n3_missing(p.stem):
+                self.assertIn('usage:', n3_run(p.relative_to(kit / 'scripts').as_posix(), '--help').stdout)
+        # without N3_BUILD the build steps stop as soon as they need a path, naming the variable
+        if importlib.util.find_spec('numpy'):
+            for rel, args in (('n3build/n3_registry.py', ['ninja']), ('checks/lloc_dump.py', ['0x6a0d18db'])):
+                self.assertIn('N3_BUILD is not set', n3_run(rel, *args, ok=False).stderr)
+
+    def test_n3_build_dir_and_vrm_come_from_the_environment(self):
+        from unittest import mock
+        n3_need('numpy', 'scipy')
+        common = n3_module('n3build/n3_common')
+        with mock.patch.dict(os.environ):
+            os.environ.pop('N3_BUILD', None)
+            model = common.ORIG / '0x5548953f.g1m'                 # joining stays lazy
+            with self.assertRaises(SystemExit) as e:
+                model.read_bytes()
+            self.assertIn('N3_BUILD', str(e.exception))
+            os.environ['N3_BUILD'] = str(self.root)
+            self.assertEqual(Path(model), self.root / 'orig' / '0x5548953f.g1m')
+            self.assertEqual((str(common.BUILD / 'g1m'), common.BUILD.name), (str(self.root / 'g1m'), self.root.name))
+            (common.BUILD / 'g1m').mkdir()
+            self.assertTrue((self.root / 'g1m').is_dir())
+        physics = n3_module('n3build/n3_physics')
+        physics.VRM = None
+        with self.assertRaises(SystemExit) as e:
+            physics.springs()
+        self.assertIn('N3_VRM', str(e.exception))
+        doc = json.dumps({'nodes': [{'name': 'Hair.tail L'}, {'name': 'Hair.tail L 001'}, {'name': 'Skirt.0'}],
+                          'extensions': {'VRMC_springBone': {'springs': [{'joints': [{'node': 0}, {'node': 1}]},
+                                                                         {'joints': [{'node': 2}]}]}}}).encode()
+        vrm = self.root / 'Karin model.vrm'
+        vrm.write_bytes(struct.pack('<4sII', b'glTF', 2, 20 + len(doc)) + struct.pack('<I4s', len(doc), b'JSON') + doc)
+        physics.VRM = str(vrm)
+        self.assertEqual(physics.springs(), [('Hair_tail_L', ['Hair_tail_L', 'Hair_tail_L_001']), ('Skirt_0', ['Skirt_0'])])
+
+    def test_n3_inject_install_verify_restore(self):
+        k = n3_module('ktdata')
+        inject = n3_module('n3inject')
+        pkg = self.root / 'Nioh 3' / 'package'
+        res = [(0x11110001, N3_G1M, b'model' * 40), (0x33330001, N3_G1T, bytes(range(256)) * 3),
+               (0x22220001, N3_KTID, struct.pack('<4I', 0, 0x3001, 1, 0x3002))]
+        n3_package(pkg, res)
+        vanilla = {n: (pkg / n).read_bytes() for n in ('root.rdb', 'root.rdx')}
+        mod = self.root / 'mod files'
+        mod.mkdir()
+        new_tex, new_ktid = b'KARIN' * 99, struct.pack('<2I', 0, 0x3002)
+        (mod / '0x33330001.g1t').write_bytes(new_tex)
+        (mod / '0x22220001.ktid').write_bytes(new_ktid)
+        (mod / 'notes.txt').write_text('not an override')
+        out = n3_run('n3inject.py', 'install', pkg, mod).stdout
+        self.assertIn('installed 2 overrides into 0x4b415249.fdata (slot 102,', out)
+        self.assertIn('records changed: 2 (unexpected: 0) total 3 vs 3', out)
+        for n, b in vanilla.items():
+            self.assertEqual((pkg / f'{n}.original').read_bytes(), b)
+        self.assertEqual((pkg / 'root.rdx').read_bytes(), vanilla['root.rdx'] + struct.pack('<HhI', 102, -1, 0x4B415249))
+        game = k.GameData(pkg)
+        self.assertEqual([game.read(h) for h in (0x11110001, 0x33330001, 0x22220001)], [b'model' * 40, new_tex, new_ktid])
+        # each rebuilt record keeps its type, entry type and parameter block, the new fdata entry the old one's
+        old = k.parse_rdb(pkg / 'root.rdb.original', pkg / 'root.rdx.original')
+        rdb = (pkg / 'root.rdb').read_bytes()
+        for h in (0x33330001, 0x22220001):
+            self.assertEqual(inject.rdb_record_parts(rdb, game.records[h]), inject.rdb_record_parts(vanilla['root.rdb'], old[h]))
+            self.assertEqual(inject.fdata_entry_parts(game.records[h], pkg), inject.fdata_entry_parts(old[h], pkg))
+            self.assertEqual((game.records[h].type_hash, game.records[h].fdata_hash), (old[h].type_hash, 0x4B415249))
+        state = json.loads((pkg / 'n3inject.json').read_text())
+        self.assertEqual((state['fdata'], state['slot'], [f['hash'] for f in state['files']]),
+                         ('0x4b415249', 102, ['0x22220001', '0x33330001']))
+        n3_run('n3inject.py', 'verify', pkg, mod)
+        installed = (pkg / 'root.rdb').read_bytes()
+        n3_run('n3inject.py', 'install', pkg, mod)                 # a reinstall starts from the backups again
+        self.assertEqual((pkg / 'root.rdb').read_bytes(), installed)
+        self.assertIn('restored vanilla', n3_run('n3inject.py', 'restore', pkg).stdout)
+        for n, b in vanilla.items():
+            self.assertEqual((pkg / n).read_bytes(), b)
+        self.assertFalse((pkg / '0x4b415249.fdata').exists() or (pkg / 'n3inject.json').exists())
+        # an override that is not in root.rdb is refused before anything is written
+        (mod / '0x99999999.g1t').write_bytes(b'x')
+        self.assertIn('is not in root.rdb', n3_run('n3inject.py', 'install', pkg, mod, ok=False).stderr)
+        self.assertEqual(((pkg / 'root.rdb').read_bytes(), (pkg / '0x4b415249.fdata').exists()), (vanilla['root.rdb'], False))
+        (mod / '0x99999999.g1t').unlink()
+
+        def game_update(tag):            # the game rewrites root.rdb / rdx and its containers (update, file check)
+            new = self.root / tag
+            n3_package(new, res + [(0x44440001, N3_NAMES, tag.encode() * 9)])
+            for p in new.iterdir():
+                (pkg / p.name).write_bytes(p.read_bytes())
+            return {n: (new / n).read_bytes() for n in ('root.rdb', 'root.rdx')}
+
+        n3_run('n3inject.py', 'install', pkg, mod)
+        update = game_update('update one')
+        out = n3_run('n3inject.py', 'install', pkg, mod).stdout     # stale backups: back up the game's files instead
+        self.assertIn('were replaced by the game since the last install', out)
+        self.assertIn('records changed: 2 (unexpected: 0) total 4 vs 4', out)
+        self.assertEqual((pkg / 'root.rdb.original').read_bytes(), update['root.rdb'])
+        n3_run('n3inject.py', 'restore', pkg)
+        self.assertEqual({n: (pkg / n).read_bytes() for n in update}, update)
+        n3_run('n3inject.py', 'install', pkg, mod)
+        update = game_update('a second game update')                # another length: another root.rdb
+        out = n3_run('n3inject.py', 'restore', pkg).stdout          # never copies an older backup over the game's files
+        self.assertIn('kept them, dropped the old backups', out)
+        self.assertEqual({n: (pkg / n).read_bytes() for n in update}, update)
+        self.assertFalse([p.name for p in pkg.iterdir() if p.name.endswith('.original') or p.name in ('n3inject.json', '0x4b415249.fdata')])
+
+    @unittest.skipUnless(os.name == 'nt', 'karin_install.py checks for a running game with tasklist (Windows)')
+    def test_n3_karin_install_checks_vanilla_and_round_trips(self):
+        import hashlib
+        import shutil
+        kit = n3_kit()
+        k = n3_module('ktdata')
+        game = self.root / 'Nioh 3 game'
+        pkg = game / 'package'
+        model, tex = n3_model(), bytes(range(200))
+        n3_package(pkg, [(0x4BA258DF, N3_G1M, model), (0x8B541440, N3_G1T, tex)])
+        before = {p.name: p.read_bytes() for p in pkg.iterdir()}
+        (self.root / 'body.g1m').write_bytes(model)
+        n3_run('g1m_tool.py', 'hide', self.root / 'body.g1m', '--all', '--output', self.root / 'hidden.g1m')
+        hidden, new_tex = (self.root / 'hidden.g1m').read_bytes(), b'atlas' * 50
+        sha = lambda b: hashlib.sha256(b).hexdigest()  # noqa: E731
+        data = self.root / 'Karin package'
+        (data / 'files').mkdir(parents=True)
+        (data / 'files' / '0x8b541440.g1t').write_bytes(new_tex)
+        (data / 'collapse.txt').write_text('0x4ba258df\n')
+        (data / 'package.json').write_text(json.dumps({'0x4ba258df': sha(hidden), '0x8b541440': sha(new_tex)}))
+        # another game version: refused before anything is staged or installed
+        (data / 'vanilla.json').write_text(json.dumps({'0x4ba258df': sha(model), '0x8b541440': sha(b'other version')}))
+        err = n3_run('karin_install.py', 'install', game, '--data', data, ok=False).stderr
+        self.assertIn('1 vanilla resources differ from Nioh 3 v2.0.0.2 (0x8b541440', err)
+        after = {p.name: p.read_bytes() for p in pkg.iterdir()}
+        self.assertEqual(sorted(set(after) - set(before)), ['root.rdb.original', 'root.rdx.original'])   # first-use backups
+        self.assertEqual(({n: after[n] for n in before}, after['root.rdb.original']), (before, before['root.rdb']))
+        self.assertFalse((data / 'staging').exists())
+        self.assertIn('has no root.rdb', n3_run('karin_install.py', 'verify', self.root, '--data', data, ok=False).stderr)
+        # the right version, from the kit (--data) ...
+        (data / 'vanilla.json').write_text(json.dumps({'0x4ba258df': sha(model), '0x8b541440': sha(tex)}))
+        out = n3_run('karin_install.py', 'install', game, '--data', data).stdout
+        self.assertIn("staged 2 overrides (1 collapsed from this game's files)", out)
+        self.assertIn('install OK', out)
+        live = k.GameData(pkg)
+        self.assertEqual((live.read(0x8B541440), live.read(0x4BA258DF)), (new_tex, hidden))
+        self.assertIn('2 of 2 overrides in place', n3_run('karin_install.py', 'verify', game, '--data', data).stdout)
+        n3_run('karin_install.py', 'uninstall', game, '--data', data)
+        self.assertEqual({n: (pkg / n).read_bytes() for n in before}, before)
+        self.assertFalse((pkg / '0x4b415249.fdata').exists() or (data / 'staging').exists())
+        # ... and from the release layout: installer beside files/, tools/ beside it, no --data
+        shutil.copy(kit / 'scripts' / 'karin_install.py', data)
+        (data / 'tools').mkdir()
+        for n in ('ktdata.py', 'n3inject.py', 'g1m_tool.py'):
+            shutil.copy(kit / 'scripts' / n, data / 'tools')
+        release = data / 'karin_install.py'
+        self.assertIn('install OK', n3_run('karin_install.py', 'install', game, script=release).stdout)
+        self.assertIn('2 of 2 overrides in place', n3_run('karin_install.py', 'verify', game, script=release).stdout)
+        n3_run('karin_install.py', 'uninstall', game, script=release)
+        self.assertEqual({n: (pkg / n).read_bytes() for n in before}, before)
+
+    def test_n3_g1t_storage3_roundtrip_constant_and_resize(self):
+        import random
+        n3_need('numpy')
+        g = n3_module('n3_g1t')
+        rnd = random.Random(3)
+        bc1, images = n3_g1t_file(0x59, 9, 8, 4, rnd.randbytes)        # BC1 512: mip 0 = 2 tiles, mips 1-7 in the tail
+        bc7, images7 = n3_g1t_file(0x5F, 8, 16, 4, rnd.randbytes)      # BC7 256: mip 0 = exactly one tile
+        for blob, imgs, tiled in ((bc1, images, 1), (bc7, images7, 1)):
+            head, texs = g.parse(blob)
+            self.assertEqual((head['version'], head['count'], texs[0]['storage']), ('6600', 1, 3))
+            kinds = [r['kind'] for r in g.layout(texs[0])]
+            self.assertEqual(kinds, ['tiled'] * tiled + ['tail'] * (len(imgs) - tiled))
+            self.assertEqual(g.decode_images(blob, texs[0]), imgs)
+        src = self.root / 'bc1 template.g1t'
+        src.write_bytes(bc1)
+        info = json.loads(n3_run('n3_g1t.py', 'info', src).stdout)['textures'][0]
+        self.assertEqual((info['format'], info['width'], info['mips'], info['zlib_block']['chunk_count'],
+                          info['zlib_block']['tail_size']), ('0x59 BC1', 512, 8, 2, 43688))
+        self.assertTrue(info['chunks']['all_inflate_to_window'])
+        # decode to a DDS and encode it back onto the template: the same file (chunks deflated at level 6)
+        n3_run('n3_g1t.py', 'dds', src, '--output', self.root / 'all.dds')
+        n3_run('n3_g1t.py', 'encode', src, self.root / 'all.dds', '--output', self.root / 'same.g1t')
+        self.assertEqual((self.root / 'same.g1t').read_bytes(), bc1)
+        self.assertIn('refusing to overwrite', n3_run('n3_g1t.py', 'encode', src, self.root / 'all.dds', '--output',
+                                                      self.root / 'same.g1t', ok=False).stderr)
+        # new pixels: the images change, headers and meta tables stay the template's
+        dds_blob = (self.root / 'all.dds').read_bytes()
+        new = dds_blob[:148] + rnd.randbytes(len(dds_blob) - 148)
+        (self.root / 'new.dds').write_bytes(new)
+        n3_run('n3_g1t.py', 'encode', src, self.root / 'new.dds', '--output', self.root / 'new.g1t')
+        out = (self.root / 'new.g1t').read_bytes()
+        t2 = g.parse(out)[1][0]
+        self.assertEqual(g.decode_images(out, t2), g.dds_images(t2, g.read_dds(new)))
+        q = t2['z']['data_start'] - 8 * t2['z']['chunk_count'] - 8
+        self.assertEqual(out[12:q], bc1[12:q])
+        # another size is refused by encode and written by n3_g1t_resize with the template's header
+        small_payload = rnd.randbytes(43688)                             # BC1 256, 7 mips down to 4x4
+        (self.root / 'small.dds').write_bytes(dds(256, 256, 7, 71, small_payload))
+        self.assertIn('template needs', n3_run('n3_g1t.py', 'encode', src, self.root / 'small.dds', '--output',
+                                               self.root / 'x.g1t', ok=False).stderr)
+        n3_run('n3_g1t_resize.py', src, self.root / 'small.dds', '--output', self.root / 'small.g1t')
+        small = (self.root / 'small.g1t').read_bytes()
+        ts = g.parse(small)[1][0]
+        self.assertEqual((ts['width'], ts['height'], ts['mips'], ts['format'], small[36 + 3:36 + 20]),
+                         (256, 256, 7, 0x59, bc1[36 + 3:36 + 20]))
+        self.assertEqual(b''.join(g.decode_images(small, ts)[m, 0] for m in range(7)), small_payload)
+        # constant: every mip one block value; BC7 mode 6 reproduces the shading constant exactly
+        res = json.loads(n3_run('n3_g1t.py', 'constant', src, '--rgba', '128,128,255,255', '--output', self.root / 'flat.g1t').stdout)
+        flat = (self.root / 'flat.g1t').read_bytes()
+        unit = g.constant_unit(0x59, [128, 128, 255, 255], None)
+        self.assertTrue(all(img == unit * (len(img) // 8) for img in g.decode_images(flat, g.parse(flat)[1][0]).values()))
+        self.assertEqual(res['decoded_value'], g.unit_value(0x59, unit))
+        (self.root / 'bc7.g1t').write_bytes(bc7)
+        res = json.loads(n3_run('n3_g1t.py', 'constant', self.root / 'bc7.g1t', '--rgba', '10,10,10,160', '--output',
+                                self.root / 'shade.g1t').stdout)
+        self.assertEqual(res['decoded_value'], [10, 10, 10, 160])
+
+    def test_n3_lloc_extra_ellipsoids_and_collision_sets(self):
+        from unittest import mock
+        n3_need('numpy')
+        build = self.root / 'build'
+        (build / 'orig').mkdir(parents=True)
+        legs = [n3_prim(5, 3, (20.0, 6.0, 6.0), (10.0, 0.0, 0.0)),
+                n3_prim(5, 4, (20.0, 6.0, 6.0), (10.0, 0.0, 0.0), rows=((0, 1, 0), (-1, 0, 0), (0, 0, 1)))]
+        donor = n3_with_chunks(n3_model(), n3_lloc([(0, [n3_prim(6, 2, (9.0, 9.0, 9.0), (0.0, 0.0, 0.0))]), (0x10, legs)]))
+        (build / 'orig' / '0x6a0d18db.g1m').write_bytes(donor)           # the 'legs' / 'skirt' sets: entry 1
+        own = n3_prim(6, 10, (5.0, 5.0, 5.0), (1.0, 2.0, 3.0))
+        chest = n3_with_chunks(n3_model(), n3_lloc([(0, [own])]))
+        with mock.patch.dict(os.environ, {'N3_BUILD': str(build)}):
+            ph = n3_module('n3build/n3_g1m_physics')
+            b, n = ph.lloc_entry_bytes('0x6a0d18db', 1, ph.KARIN_HIPS)
+            self.assertEqual((n, struct.unpack_from('<2I', b), b[8:8 + 224]), (4, (0x10, 4), b''.join(legs)))
+            for i, (bone, size, centre) in enumerate(ph.KARIN_HIPS):     # appended ellipsoids, cloned from primitive 0
+                p = b[8 + 112 * (2 + i):8 + 112 * (3 + i)]
+                self.assertEqual(struct.unpack_from('<2I', p), (5, bone))
+                self.assertEqual(struct.unpack_from('<3f', p, 16), size)
+                self.assertEqual(struct.unpack_from('<12f', p, 32), (1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0))
+                self.assertEqual(struct.unpack_from('<3f', p, 80), centre)
+                self.assertEqual(p[8:16] + p[28:32] + p[92:], legs[0][8:16] + legs[0][28:32] + legs[0][92:])
+            self.assertEqual(ph.lloc_entry_bytes('0x6a0d18db', 1), (struct.pack('<2I', 0x10, 2) + b''.join(legs), 2))
+            # new_lloc appends each named set once, after the model's own entries, and lists them per chain
+            chains = [{'collide': ['skirt']}, {'collide': ['legs', 'skirt']}, {'collide': []}]
+            chunk, entries, prims = ph.new_lloc(chest, ph.gt.embedded_models(chest)[-1], chains)
+        self.assertEqual(([c['lloc'] for c in chains], entries, prims), ([[1], [2, 1], []], 3, 7))
+        hips = [b[8 + 112 * i:8 + 112 * (i + 1)] for i in range(4)]
+        self.assertEqual(chunk, n3_lloc([(0, [own]), (0x10, hips), (0x10, legs)]))
+
+    def test_n3_registry_and_material_counts(self):
+        n3_need('numpy')
+        gt = n3_module('g1m_tool')
+        build = self.root / 'build'
+        (build / 'orig').mkdir(parents=True)
+        (build / 'g1m').mkdir()
+        model = n3_model(sets=(0, 1, 0, 1, 0), verts=3)                  # 5 submeshes on texture sets 0 / 1
+        model = n3_gm_section(gt, model, 0x00010009, 1, n3_mesh_lod([(0, 0xFFFFFFFF, [0]), (0, 0xFFFFFFFF, [1]),
+                                                                    (2, 0x2710, [2]), (2, 0x2711, [3]), (2, 0x2712, [4])]))
+        model = n3_with_chunks(model, n3_onun([(21, 2, [1, 2]), (22, 12, [3, 4, 5]), (23, 2, [6, 7])]))
+        self.assertEqual([s['material'] for s in gt.parse(model).submeshes], [0, 1, 0, 1, 0])
+        (build / 'g1m' / '0x5548953f.g1m').write_bytes(model)
+        reg = struct.pack('<10I', 1, 2, 1, 0, 0xAAAA0001, 2, 0, 1, 0, 7)  # 1 set of 2 materials, one type-5 entry, no type 4
+        counts = struct.pack('<16I', 0xC0, 0, 1, 0, 0, 1, 0, 0, 0xC1, 0, 1, 0, 0, 1, 0, 0)
+        (build / 'orig' / '0x5583ad7d.bin').write_bytes(reg)
+        (build / 'orig' / '0x5c3826bd.bin').write_bytes(counts)
+        env = {'N3_BUILD': str(build)}
+        self.assertIn('type-4 entries 3', n3_run('n3build/n3_registry.py', 'ninja', env=env).stdout)
+        # (x, id) per type-4 entry in ONUN order, x = its index among the entries drawn with the same material
+        self.assertEqual((build / 'g1m' / '0x5583ad7d.bin').read_bytes(),
+                         struct.pack('<16I', 1, 2, 1, 3, 0xAAAA0001, 2, 0, 1, 0, 7, 0, 21, 0, 22, 1, 23))
+        self.assertEqual((build / 'g1m' / '0x5c3826bd.bin').read_bytes(),
+                         struct.pack('<16I', 0xC0, 0, 3, 0, 0, 1, 0, 0, 0xC1, 0, 2, 0, 0, 1, 0, 0))
+        self.assertIn('type4 x3 parse exact', n3_run('nuno4.py', build / 'g1m' / '0x5548953f.g1m').stdout)
+        # the samurai registry from a given model, without counts
+        (build / 'orig' / '0xedd65b47.bin').write_bytes(reg)
+        (self.root / 'other model.g1m').write_bytes(model)
+        n3_run('n3build/n3_registry.py', 'samurai', '--g1m', self.root / 'other model.g1m', '--no-counts', env=env)
+        self.assertEqual(((build / 'g1m' / '0xedd65b47.bin').is_file(), (build / 'g1m' / '0xf48ad487.bin').exists()), (True, False))
+        # refused: a registry that already lists type-4 entries, a material without submeshes
+        (build / 'orig' / '0x5583ad7d.bin').write_bytes(struct.pack('<12I', 1, 2, 1, 1, 0xAAAA0001, 2, 0, 1, 0, 7, 0, 9))
+        self.assertIn('already lists type-4', n3_run('n3build/n3_registry.py', 'ninja', env=env, ok=False).stderr)
+        (build / 'orig' / '0x5583ad7d.bin').write_bytes(reg)
+        (build / 'orig' / '0x5c3826bd.bin').write_bytes(counts + struct.pack('<8I', 0xC2, 0, 1, 0, 0, 1, 0, 0))
+        self.assertIn('material 2 has no submeshes', n3_run('n3build/n3_registry.py', 'ninja', env=env, ok=False).stderr)
+
+    def test_n3_locators_on_a_synthetic_package(self):
+        k = n3_module('ktdata')
+        gt = n3_module('g1m_tool')
+        pkg = self.root / 'game package'
+        m1, k1, t1, t2, names = 0x11110001, 0x22220001, 0x33330001, 0x33330002, 0x44440001
+        kids = n3_kids([(0x1000, 0x77, [(0xA0, m1), (0xB0, 0x2000)]), (0x2000, 0x77, [(0xA0, k1)]),
+                        (0x3001, 0x77, [(0xA0, t1)]), (0x3002, 0x77, [(0xA0, t2)])])
+        model = ronin_g1m(((0, -1, (0, 0, 0)),), [N3_IDENTITY], [[(0, 1), (1, 2)]],
+                          [((0, i, 0), [1] + [0] * 7, [0] * 8) for i in range(4)], [[(0, 0)]], [(0, 0, 0, 4, 0, 6)],
+                          [0, 1, 2, 1, 2, 3])
+        n3_package(pkg, [(k.CHARACTER_EDITOR_DB, k.KIDSOBJDB_TYPE, kids), (m1, N3_G1M, model),
+                         (k1, N3_KTID, struct.pack('<4I', 0, 0x3001, 1, 0x3002)), (t1, N3_G1T, b'T1' * 300),
+                         (t2, N3_G1T, b'T2' * 400), (names, N3_NAMES, b'\0\0KarinChest\0ninja_top\0')],
+                   extra_rdx=((102, 0xF00000FF),))                         # a container the folder lacks
+        for n in ('root.rdb', 'root.rdx'):
+            (pkg / f'{n}.original').write_bytes((pkg / n).read_bytes())
+        self.assertIn('records 6', n3_run('census.py', pkg).stdout)
+        self.assertIn('rdx 3 missing 1', n3_run('missing.py', pkg).stdout)
+        out = self.root / 'extracted'
+        self.assertIn('ok 3 failed 0', n3_run('extract_many.py', pkg, out, hex(m1), hex(t1), hex(k1)).stdout)
+        self.assertEqual(sorted(p.name for p in out.iterdir()), ['0x11110001.g1m', '0x22220001.ktid', '0x33330001.g1t'])
+        self.assertEqual((out / '0x11110001.g1m').read_bytes(), model)
+        found = n3_run('ktid_find.py', pkg, hex(t1)).stdout
+        self.assertIn("KTID 0x22220001 {0: '0x33330001', 1: '0x33330002'}", found)
+        self.assertIn('matches 1', found)
+        refs = n3_run('model_refs.py', pkg, hex(m1)).stdout
+        self.assertIn('entry 0x00001000', refs)
+        self.assertIn('  entry 0x00002000', refs)
+        raw = n3_run('raw_ref.py', pkg, 'all', hex(t1)).stdout
+        self.assertIn(f'in 0x{k.CHARACTER_EDITOR_DB:08X}', raw)
+        self.assertIn('hits 1', raw)
+        self.assertIn('entry 0x00003001 type 0x00000077', n3_run('alias_entry.py', pkg, hex(k.CHARACTER_EDITOR_DB), hex(t1)).stdout)
+        alias = n3_run('alias_ktid.py', pkg, hex(k.CHARACTER_EDITOR_DB), '--ktid', hex(k1), '--tex', hex(t2)).stdout
+        self.assertIn("KTID 0x22220001 [(0, '0x00003001', '0x33330001'), (1, '0x00003002', '0x33330002')]", alias)
+        self.assertIn('alias object 0x00003002 -> 0x33330002', alias)
+        params = n3_run('rec_params.py', pkg, hex(t1)).stdout
+        self.assertIn('rdb params 4 030000a0', params)
+        self.assertIn('params 8', params)
+        self.assertIn('type 1 tex 0x33330001 size 600 used 1', n3_run('slot_defaults.py', pkg, '1', '2').stdout)
+        n3_run('dump_names.py', pkg, self.root / 'names.txt')
+        self.assertIn('KarinChest | ninja_top', (self.root / 'names.txt').read_text(encoding='utf-8'))
+        # KTID edits write a new payload and never overwrite a file
+        setref, repoint = self.root / 'set.ktid', self.root / 'repoint.ktid'
+        n3_run('ktid_setref.py', pkg, hex(k1), setref, '1=0x3001')
+        self.assertEqual(setref.read_bytes(), struct.pack('<4I', 0, 0x3001, 1, 0x3001))
+        n3_run('ktid_setref.py', pkg, hex(k1), setref, '1=0x3001', ok=False)
+        self.assertIn('slots not found: [7]', n3_run('ktid_setref.py', pkg, hex(k1), self.root / 'x.ktid', '7=0x3001', ok=False).stderr)
+        n3_run('ktid_repoint.py', pkg, hex(k1), repoint, f'0={hex(t2)}')
+        self.assertEqual(repoint.read_bytes(), struct.pack('<4I', 0, 0x3002, 1, 0x3002))
+        # collapse: the listed models from the first search dir holding them; a missing one is reported
+        hidden = self.root / 'hidden'
+        hidden.mkdir()
+        res = n3_run('collapse_set.py', hidden, '0x11110001', '0x99999999', '--from', self.root / 'nowhere', out).stdout
+        self.assertIn('0x11110001 ok', res)
+        self.assertIn('0x99999999 MISSING', res)
+        h = (hidden / '0x11110001.g1m').read_bytes()
+        self.assertEqual(len(h), len(model))
+        self.assertTrue(all(gt.is_hidden(gt.parse(h), s) for s in gt.parse(h).submeshes))
+
+    def test_n3_etw_reads_and_phase_tools(self):
+        k = n3_module('ktdata')
+        pkg = self.root / 'package'
+        r1, r2, r3 = 0x11110001, 0x33330001, 0x33330002
+        n3_package(pkg, [(r1, N3_G1M, b'm' * 300), (r2, N3_G1T, b'a' * 500), (r3, N3_G1T, b'b' * 700)])
+        recs = k.parse_rdb(pkg / 'root.rdb', pkg / 'root.rdx')
+
+        def row(eid, t, pid, **cols):           # tracerpt CSV row of Microsoft-Windows-Kernel-File
+            r = [''] * 25
+            r[0], r[1], r[8], r[15] = 'Microsoft-Windows-Kernel-File', eid, pid, str(t)
+            for i, v in cols.items():
+                r[int(i[1:])] = v
+            return r
+
+        dev = '\\Device\\HarddiskVolume3\\Games\\Nioh 3\\package\\'
+        rows = [['Event Name', 'Type'],
+                row('12', 10, '4242', c19='0xA', c24=dev + '0xf0000000.fdata'), row('12', 11, '4242', c19='0xB', c24=dev + '0xf0000001.fdata'),
+                row('12', 12, '99', c19='0xC', c24=dev + '0xf0000000.fdata'),
+                row('15', 20, '4242', c20='0xA', c18=hex(recs[r1].fdata_offset), c23='0x40'),
+                row('12', 30, '4242', c24='\\Device\\HarddiskVolume3\\trace\\MARK_01_menu.txt'),
+                row('15', 40, '4242', c20='0xB', c18=hex(recs[r2].fdata_offset), c23=hex(recs[r2].fdata_full_size)),
+                row('15', 41, '99', c20='0xC', c18=hex(recs[r1].fdata_offset), c23='0x40'),
+                row('12', 50, '4242', c24='\\Device\\HarddiskVolume3\\trace\\MARK_02_level.txt'),
+                row('15', 60, '4242', c20='0xA', c18=hex(recs[r1].fdata_offset), c23=hex(1 << 20))]
+        trace = self.root / 'trace file.csv'
+        trace.write_text('\n'.join(', '.join(r) for r in rows) + '\n', encoding='utf-8')
+        out = n3_run('etw_reads.py', trace, pkg, self.root / 'reads.json').stdout
+        self.assertIn("game pid 4242 container opens {'4242': 2, '99': 1}", out)
+        reads = json.loads((self.root / 'reads.json').read_text())
+        phases = {p['name']: p['resources'] for p in reads['phases']}
+        self.assertEqual(list(phases), ['before_01_menu', '01_menu', '02_level'])
+        self.assertEqual({n: sorted(v) for n, v in phases.items()},
+                         {'before_01_menu': ['0x11110001'], '01_menu': ['0x33330001'], '02_level': ['0x11110001', '0x33330002']})
+        self.assertEqual((phases['01_menu']['0x33330001']['type'], phases['before_01_menu']['0x11110001']['bytes_read']), ('g1t', 64))
+        common = n3_run('phase_diff.py', self.root / 'reads.json', 'g1m', 'before_01_menu', '02_level').stdout
+        self.assertIn('g1m [1, 1] common 1', common)
+        self.assertIn('1 only in 01_menu', n3_run('phase_only.py', self.root / 'reads.json', 'g1t', '01_menu', '02_level').stdout)
+        self.assertIn('0 only in 02_level', n3_run('phase_only.py', self.root / 'reads.json', 'g1t', '02_level', '01_menu', '800').stdout)
+
+    def test_n3_provenance_and_portability(self):
+        import hashlib
+        import re
+        kit = n3_kit()
+        rows = [r for r in json.loads((KITS / 'PROVENANCE.json').read_text(encoding='utf-8-sig'))
+                if r['path'].startswith('portable-kits/nioh-3/')]
+        files = sorted(p.relative_to(ROOT).as_posix() for p in kit.rglob('*') if p.is_file() and '__pycache__' not in p.parts)
+        own = {'portable-kits/nioh-3/' + n for n in ('README.md', 'toolchain.json', 'requirements.txt')}
+        self.assertEqual(sorted(r['path'] for r in rows), sorted(set(files) - own))
+        for r in rows:
+            data = (ROOT / r['path']).read_bytes()
+            self.assertEqual((hashlib.sha256(data).hexdigest(), len(data)), (r['portable_sha256'], r['portable_bytes']), r['path'])
+            self.assertTrue(r['source'].startswith(('Mods/Nioh3/tools/', 'Mods/Nioh3/release/Karin_Nioh3/',
+                                                    'Mods/Nioh3/(session scratchpad)/ana/')), r['source'])
+            self.assertEqual(r['modified_for_portability'], r['portable_sha256'] != r['original_sha256'], r['path'])
+        bundled = json.loads((kit / 'toolchain.json').read_text(encoding='utf-8'))['bundled_scripts']
+        self.assertEqual(sorted('portable-kits/nioh-3/' + s for s in bundled), sorted(r['path'] for r in rows))
+        # no machine paths, machine / user names or written-in sys.path entries; CRLF only where the original had it
+        drive = re.compile(r'(?i)(?<![\w<])[a-z]:[\\/](?![\\/])|[\\/]users[\\/]')
+        crlf = set()
+        for rel in files:
+            data = (ROOT / rel).read_bytes()
+            text = data.decode('utf-8')
+            self.assertFalse(drive.search(text), f'{rel}: {drive.search(text)}')
+            self.assertNotRegex(text.lower(), r'kln55mi|desktop-|baidusync|droylouo|tenoke|uuremote|nioh3work', rel)
+            self.assertNotRegex(text, r'sys\.path\.insert\(0, *r?[\'"]', rel)
+            self.assertIn(data.count(b'\r\n'), (0, data.count(b'\n')), rel)
+            if b'\r\n' in data:
+                crlf.add(rel.split('/', 2)[2])
+        self.assertEqual(crlf, N3_CRLF)
+        # case data: resource hashes and sha256 of the vanilla v2.0.0.2 resources only
+        self.assertTrue(all(re.fullmatch(r'0x[0-9a-f]{8}', h) for h in (kit / 'configs' / 'collapse.txt').read_text().split()))
+        vanilla = json.loads((kit / 'configs' / 'vanilla.json').read_text())
+        self.assertTrue(vanilla and all(re.fullmatch(r'0x[0-9a-f]{8}', h) and re.fullmatch(r'[0-9a-f]{64}', s) for h, s in vanilla.items()))
+        # not bundled: the test-machine shell helpers, .cmd wrappers, binaries, game data
+        self.assertFalse([p for p in kit.rglob('*') if p.suffix in ('.sh', '.cmd', '.bat', '.exe', '.dll', '.g1m', '.g1t',
+                                                                       '.fdata', '.zip') or 'remote' in p.parts])
 
 
 if __name__ == '__main__': unittest.main(verbosity=2)

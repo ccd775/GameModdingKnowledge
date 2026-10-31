@@ -1,0 +1,119 @@
+{
+  "game": "Nioh 3 (PC, v2.0.0.2, KT engine: root.rdb / root.rdx / fdata, G1M, G1T v0066)",
+  "status": "runtime-confirmed-scoped",
+  "tools": [
+    {
+      "name": "Blender",
+      "version": "4.0.2 in the project, run with --factory-startup --background",
+      "role": "scripts/blender/ko_extract_source.py: Karin_Original FBX -> source.json / source.npz / packed textures (build step 1); scripts/n3build/blender_shapekeys.py: every shape key as world-space deltas relative to Basis",
+      "required": true
+    },
+    {
+      "name": "n3build (scripts/n3build)",
+      "version": "kit",
+      "role": "n3_conform (affine-per-bone fit onto the player skeleton, vanilla-body weight transfer), n3_physics (VRM spring chains -> NUNO type-4 chains and chain weights), n3_face (per-vertex face-bone weights from the game's pose library), n3_build_g1m + n3_g1m_physics (Karin into the ninja / samurai chest G1M: appended meshes, u16 palettes, native binds, SM1G joints, ONUN type 4, LLOC collision sets, FM1G statistics), n3_validate_g1m (independent read-back), n3_registry (physics registry 0xB340861A, per-material counts 0x56EFE45C), n3_textures (4096 BC7 atlas + constants)",
+      "required": true
+    },
+    {
+      "name": "n3_g1t.py / n3_g1t_resize.py",
+      "version": "kit",
+      "role": "G1T v0066 storage type 3 (zlib-deflated DX12 64 KB tiles + linear mip tail): info, decode to DDS, encode onto a template, constant fill, rebuild at a new size",
+      "required": true
+    },
+    {
+      "name": "n3inject.py / karin_install.py",
+      "version": "kit",
+      "role": "resource overrides by rewriting root.rdb / root.rdx into a new container 0x4b415249.fdata (no DLL, no exe change), first-use .original backups, verify, restore, stale-backup handling; the release installer: vanilla sha256 check, collapsed vanilla models made from the player's own data, staged-file check",
+      "required": true
+    },
+    {
+      "name": "g1m_tool.py / g1t_tool.py / ktdata.py",
+      "version": "kit (byte-identical to the Rise of the Ronin kit)",
+      "role": "G1M / G1H reader, in-place hiding, native-bind check; G1T header and DX12 tiles; root.rdb / root.rdx / fdata extraction, kidsobjdb and KTID tables",
+      "required": true
+    },
+    {
+      "name": "locators and reports (etw_reads, phase_diff, phase_only, find_variant, ktid_find, alias_entry, alias_ktid, raw_ref, slot_defaults, model_refs, extract_many, census, missing, dump_names, rec_params, nuno4, fpose, g1a, g2a, face_bones, g1m_summary, g1m_subs, g1m_render, tex_stats, peinfo, patscan, collapse_set, ktid_setref, ktid_repoint)",
+      "version": "kit",
+      "role": "which resources the game reads per phase (ETW), KTID / kidsobjdb / TextureAlias lookups, colour-variant search, vanilla extraction and statistics, NUNO / face-pose / animation readers, model and texture reports, read-only PE inspection, model collapse and KTID slot edits",
+      "required": false
+    },
+    {
+      "name": "offline checks (scripts/checks)",
+      "version": "kit",
+      "role": "swing (bind drift, per-chain rigid swing moves only its own vertices), facecheck (face submesh skinned with facial poses), blinkgap (fitted vs target blink displacement), fit_butt3 (hips ellipsoid fit for the skirt collision set), coll_cover, lloc_dump, diff24",
+      "required": false
+    },
+    {
+      "name": "DirectXTex texconv",
+      "version": "user-supplied (Windows)",
+      "role": "BC7 compression of the atlas and DDS -> PNG for n3_textures.py (N3_BUILD/toolchain/texconv.exe), find_variant.py and tex_stats.py (--texconv)",
+      "required": true
+    }
+  ],
+  "entry_documents": [
+    "../../games/nioh-3/README.md",
+    "../../games/nioh-3/BUILD_PIPELINE.md"
+  ],
+  "runtime_boundary": "Game v2.0.0.2 (PC). Loading by root.rdb / root.rdx injection (n3inject.py). Project builds with the original scripts: build21 in-level physics and build23 confirmed by the user in game; build24 (hips collision ellipsoids) installed on the test machine from the release package (verify 33/33), in-game result pending. The portable copies were checked offline only: original and portable scripts on the same inputs gave byte-identical outputs (build chain on the local build copies, matching the build24 release files; offline checks; locators and reports on synthetic and local data), plus synthetic tests; Blender, the game and the test machine were not re-run (see VALIDATION.md).",
+  "bundled_scripts": [
+    "scripts/g1m_tool.py",
+    "scripts/g1t_tool.py",
+    "scripts/ktdata.py",
+    "scripts/n3_g1t.py",
+    "scripts/n3_g1t_resize.py",
+    "scripts/nuno4.py",
+    "scripts/fpose.py",
+    "scripts/g1a.py",
+    "scripts/g2a.py",
+    "scripts/n3inject.py",
+    "scripts/collapse_set.py",
+    "scripts/ktid_setref.py",
+    "scripts/ktid_repoint.py",
+    "scripts/etw_reads.py",
+    "scripts/find_variant.py",
+    "scripts/ktid_find.py",
+    "scripts/alias_entry.py",
+    "scripts/alias_ktid.py",
+    "scripts/raw_ref.py",
+    "scripts/slot_defaults.py",
+    "scripts/model_refs.py",
+    "scripts/extract_many.py",
+    "scripts/census.py",
+    "scripts/missing.py",
+    "scripts/dump_names.py",
+    "scripts/face_bones.py",
+    "scripts/g1m_summary.py",
+    "scripts/g1m_subs.py",
+    "scripts/g1m_render.py",
+    "scripts/tex_stats.py",
+    "scripts/rec_params.py",
+    "scripts/phase_diff.py",
+    "scripts/phase_only.py",
+    "scripts/peinfo.py",
+    "scripts/patscan.py",
+    "scripts/n3build/blender_shapekeys.py",
+    "scripts/n3build/n3_build_g1m.py",
+    "scripts/n3build/n3_common.py",
+    "scripts/n3build/n3_conform.py",
+    "scripts/n3build/n3_face.py",
+    "scripts/n3build/n3_g1m_physics.py",
+    "scripts/n3build/n3_physics.py",
+    "scripts/n3build/n3_registry.py",
+    "scripts/n3build/n3_textures.py",
+    "scripts/n3build/n3_validate_g1m.py",
+    "scripts/blender/ko_extract_source.py",
+    "scripts/karin_install.py",
+    "scripts/checks/swing.py",
+    "scripts/checks/facecheck.py",
+    "scripts/checks/blinkgap.py",
+    "scripts/checks/fit_butt3.py",
+    "scripts/checks/coll_cover.py",
+    "scripts/checks/lloc_dump.py",
+    "scripts/checks/diff24.py",
+    "configs/collapse.txt",
+    "configs/vanilla.json"
+  ],
+  "python": "3.10+ for the standard-library scripts (karin_install.py alone also runs on 3.8+); the build chain, n3_g1t, the face / animation readers and the checks need numpy 2.5 (3.12+), n3_conform / n3_physics / n3_face also scipy 1.18, the renders matplotlib 3.11, n3_textures / find_variant / tex_stats the bundle-root Pillow; Blender scripts run in Blender's Python; tested 3.14.0",
+  "dependency_install": "python -m pip install -r requirements.txt -r portable-kits/nioh-3/requirements.txt (from bundle root)"
+}

@@ -1,0 +1,8 @@
+# Nioh 3: the build chain (scripts/n3build), n3_g1t.py / n3_g1t_resize.py, fpose / g1a / g2a / face_bones and the
+# offline checks need numpy; n3_conform / n3_physics / n3_face also scipy; g1m_render / g1m_subs and checks/swing /
+# checks/facecheck also matplotlib; n3_textures, find_variant and tex_stats also the bundle-root Pillow. The locators,
+# n3inject.py, karin_install.py and g1m_tool / g1t_tool / ktdata use the standard library; the Blender scripts use
+# Blender's bundled Python and numpy. These pins need Python 3.12+; tested on Python 3.14.0.
+numpy==2.5.2
+scipy==1.18.0
+matplotlib==3.11.2

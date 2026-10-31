@@ -51,6 +51,7 @@ before authoring. Never use this root document as a live candidate state file.
 - Death Stranding 2: On the Beach (PC, DS2.exe 1.0.48.0) -> `games/death-stranding-2/`
 - Hogwarts Legacy (PC, game version 1613387) -> `games/hogwarts-legacy/`
 - Phantom Blade Zero (PC, Steam buildid 26266538) -> `games/phantom-blade-zero/`
+- Nioh 3 (PC, Nioh3.exe v2.0.0.2) -> `games/nioh-3/`
 
 - Hitman: World of Assassination -> `games/hitman-world-of-assassination/`
 - Watch Dogs -> `games/watch-dogs/`

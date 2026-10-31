@@ -168,3 +168,17 @@ The game workflows use different formats, but the same engineering loop.
   import, so the stub project looks fine; a shared export armature had given the head and placeholder meshes 95 dynamic
   bones the game skeleton lacks, and the game crashed minutes into play. Check each cooked mesh's bone names against
   the game skeleton before release (`games/hogwarts-legacy/TECHNICAL_CONTRACTS.md` §4).
+- Physics that moves on the title screen may not run in gameplay. Nioh 3 bone chains (NUNO type 4) only simulate in
+  levels when four things agree: the chain entries and joints in the model, a draw group (MESH_LOD type 2) per entry
+  naming a mesh with its own vertex buffer and palette, the outfit's physics registry, and per-material counts equal
+  to the real submeshes. Judge physics in gameplay by whether ears and skirt sag at rest, not on menus or from
+  low-resolution running frames (`games/nioh-3/PHYSICS.md` §2).
+- Survey every vanilla instance before guessing a format field. Nioh 3's invisible-parts / crash loop (build12-19)
+  broke on survey facts: none of 13259 vanilla count records is empty, the counts cover consecutive submesh indices,
+  and one vanilla outfit already had the target layout (`games/nioh-3/TECHNICAL_CONTRACTS.md` §5).
+- A shape key that hides skin under clothing must not move the ring at the garment opening: applied whole, Nioh 3's
+  thigh key pulled the sock-top ring in and the bare skin above narrowed into the sock like a cone. Mask the key by
+  height so the opening keeps weight 0 (`games/nioh-3/TROUBLESHOOTING.md` §4).
+- Borrowed collision volumes fit the vanilla body. Measure the gap between them and the new body's skin, then fit extra
+  volumes against the chain particles (collisions act on particles, and a skirt mesh at rest already touches the skin)
+  (`games/nioh-3/PHYSICS.md` §4.3).

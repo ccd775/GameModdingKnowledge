@@ -4,7 +4,7 @@
 
 | 工具 | 作者/维护者入口 | 在本工作区的用法 |
 | --- | --- | --- |
-| Blender | [官方历史版本](https://download.blender.org/release/) | 4.2.23 与 4.5.12 曾用于不同项目，DMC5 用 4.0.2，战神5 用 5.0.1，师父用 4.2.23（后台一律 `--factory-startup`），幻兽帕鲁用 4.2.23 + UEFormat 插件（读 `.uemodel` / `.ueanim`），巫师3 次世代版用 5.0 + Witcher3-Blender-Tools，霍格沃茨之遗用 4.0.2（4.1 之前设自定义法线要先开 `use_auto_smooth`）；匹配源文件与插件 |
+| Blender | [官方历史版本](https://download.blender.org/release/) | 4.2.23 与 4.5.12 曾用于不同项目，DMC5 用 4.0.2，战神5 用 5.0.1，师父用 4.2.23（后台一律 `--factory-startup`），幻兽帕鲁用 4.2.23 + UEFormat 插件（读 `.uemodel` / `.ueanim`），巫师3 次世代版用 5.0 + Witcher3-Blender-Tools，霍格沃茨之遗用 4.0.2（4.1 之前设自定义法线要先开 `use_auto_smooth`），仁王3 用 4.0.2（源模型导出、形态键位移导出）；匹配源文件与插件 |
 | RPKG Tool | [Glacier 工具页](https://glaciermodding.org/rpkg/) | CLI/GUI 2.34.0，导出 GLB/TGA 后重建并回读 |
 | SMF / GlacierKit | [维护者的 suit modding 指南](https://glaciermodding.org/docs/modding/hitman/guides/suitmodding/) | SMF 2.33.40、GlacierKit 1.12.15 为历史锁；使用当前实体补丁 |
 | ZModeler | [作者官网](https://www.zmodeler3.com/) | 3.3.1.1244；XBG filter、Skeleton Bind、L0/L1 Compound，需用户自己的授权。Watch Dogs 自 2026-10-03 起可不用（纯 Python XBG 写出器），仅作对照 |
@@ -14,10 +14,11 @@
 | Fluffy Mod Manager | [作者官网](https://www.fluffyquack.com/) | MHWs、DMC5、RE9 的 mod 安装/回退（DMC5 为 invalidate 方式）；以其 `installed.ini` 为游戏目录的权威记录 |
 | REE.PAK.Tool 路径表 | [Ekey](https://github.com/Ekey/REE.PAK.Tool) | `Projects/*_STM_Release.list`：RE Engine 游戏的文件路径表，用于按表提取与枚举部件/mdf2 变体（PRAGMATA、RE9）；游戏更新后重新下载。龙之信条2 用 `DD2_STM_Release.list`（2025-03-15），经 DD2Tool `resolve` 改写成当前 build 的版本号后再提取 |
 | REasy | [seifhassine/REasy](https://github.com/seifhassine/REasy) | `resources/data/dumps/` 下的 RSZ 类型库：PRAGMATA 用 `rszpragmata.json`，RE9 用 `rszre9.json`（2026-10-01 取自 main）；先对原生 prefab 做逐字节往返再用 |
-| gust_stuff | [eArmada8](https://github.com/eArmada8/gust_stuff) | v1.3.13：KT 引擎 G1M 导出 / 导入（fmt/ib/vb/vgmap + `mesh_metadata.json`）；真三国无双 起源先验证往返逐字节一致，再作为网格写回通道。浪人崛起便携包的 G1M 解析按它的 `parseG1MS` / `parseG1MG` 字段布局独立实现；导出会丢弃未被索引引用的顶点 |
+| gust_stuff | [eArmada8](https://github.com/eArmada8/gust_stuff) | v1.3.13：KT 引擎 G1M 导出 / 导入（fmt/ib/vb/vgmap + `mesh_metadata.json`）；真三国无双 起源先验证往返逐字节一致，再作为网格写回通道。浪人崛起便携包的 G1M 解析按它的 `parseG1MS` / `parseG1MG` 字段布局独立实现；导出会丢弃未被索引引用的顶点。仁王3：解析 ONUN 时跳过 type-4 骨链（`0x30004`），骨链用便携包的 `nuno4.py` 读 |
 | ROTR Mod Loader（RONPATCHER） | [Nexus Mods：Rise of the Ronin 第 9 号 mod](https://www.nexusmods.com/riseoftheronin/mods/9) | 1.0（2025-03 的文件）：`dinput8.dll` 代理；`RONPATCHER/root` 下按哈希命名的散装文件覆盖资源；mod 包不附带其 ini / Patches / system；同包附带的 g1ttools 与 qrdbtool 是独立工具 |
-| RDBExplorer | [MrIkso](https://github.com/MrIkso/RDBExplorer)（MIT，commit `22e72d8`） | 面向仁王 3 的 rdb / fdata 浏览器；浪人崛起便携包的 G1T 64 KB tile 布局按它的 G1TParser 核实 |
-| Project-G1M | [Joschuka](https://github.com/Joschuka/Project-G1M)（[浪人贴图格式 issue #42](https://github.com/Joschuka/Project-G1M/issues/42)） | 浪人崛起 G1T tile 存储的社区讨论；本项目未直接使用其插件 |
+| RDBExplorer | [MrIkso](https://github.com/MrIkso/RDBExplorer)（MIT，commit `22e72d8`） | 面向仁王 3 的 rdb / fdata 浏览器；浪人崛起便携包的 G1T 64 KB tile 布局按它的 G1TParser 核实；仁王3 的 G1T v0066 存储类型 3 也以它的 `G1TParser.cs` 为参照（`games/nioh-3/G1T_FORMAT.md`） |
+| yumia_fdata_tools | [eArmada8](https://github.com/eArmada8/yumia_fdata_tools)（GPL-3.0） | 写自定义 fdata 并注入 `root.rdb` / `root.rdx`，原为《优米雅的炼金工房》（Atelier Yumia）而写，仁王3 社区 mod 也用它安装。仁王3 便携包的 `n3inject.py` 是同一方案的独立实现（新容器 + rdx 新槽 + 重建被覆盖的记录），两者改的是同一张表，不能同时装 |
+| Project-G1M | [Joschuka](https://github.com/Joschuka/Project-G1M)（[浪人贴图格式 issue #42](https://github.com/Joschuka/Project-G1M/issues/42)） | 浪人崛起 G1T tile 存储的社区讨论；本项目未直接使用其插件。仁王3 便携包的 `g1a.py` / `g2a.py`（动画读取，v0042 / v0040）移植自它的 `G1A.h` / `G2A.h` |
 | dxc（Windows SDK） | [微软 Windows SDK](https://developer.microsoft.com/windows/downloads/windows-sdk/) | 10.0.26100.0 的 `dxc.exe -dumpbin` 反汇编浪人崛起的 DXIL 蒙皮着色器（`shader_dump.py --dxc`） |
 | RenderDoc | [官方](https://renderdoc.org/) | 1.46：在浪人崛起上抓不到帧（设备经 NVIDIA Streamline 创建），已放弃；只作记录 |
 | DWO Mod Loader（DWOPATCHER） | 作者 vagonumero13（Nexus Mods 的 DYNASTY WARRIORS: ORIGINS 页面） | `dinput8.dll` 代理；`DWOPATCHER/root` 下按哈希命名的散装文件覆盖资源；mod 包不附带其 ini / Patches，启动日志 `patcher_log.txt` 可确认加载 |

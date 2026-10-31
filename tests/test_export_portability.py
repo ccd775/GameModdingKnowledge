@@ -151,6 +151,21 @@ class DetachedExports(unittest.TestCase):
                                      'test_pbz_powershell_names_and_installer', 'test_pbz_provenance_and_portability'):
                             self.assertIn(name, process.stderr)
                         self.assertFalse([l for l in process.stderr.splitlines() if 'test_pbz_' in l and 'skipped' in l])
+                    if game == 'nioh-3':
+                        self.assertTrue((target/'portable-kits/nioh-3/requirements.txt').is_file())
+                        for name in ('test_n3_inject_install_verify_restore', 'test_n3_locators_on_a_synthetic_package',
+                                     'test_n3_etw_reads_and_phase_tools', 'test_n3_help_build_chain_and_checks',
+                                     'test_n3_provenance_and_portability'):
+                            self.assertIn(name, process.stderr)
+                        self.assertFalse([l for l in process.stderr.splitlines() if 'test_n3_' in l and 'skipped' in l
+                                          and not any(k in l for k in ('g1t_storage3', 'lloc_extra', 'registry_and',
+                                                                       'build_dir_and_vrm', 'karin_install'))])
+                    if game == 'nioh-3' and all(importlib.util.find_spec(m) for m in ('numpy', 'scipy')):
+                        for name in ('test_n3_g1t_storage3_roundtrip_constant_and_resize', 'test_n3_lloc_extra_ellipsoids_and_collision_sets',
+                                     'test_n3_registry_and_material_counts', 'test_n3_build_dir_and_vrm_come_from_the_environment'):
+                            self.assertIn(name, process.stderr)
+                        self.assertFalse([l for l in process.stderr.splitlines() if 'test_n3_' in l and 'skipped' in l
+                                          and 'karin_install' not in l])
                     print(f'{game}: detached tests passed (unselected games skipped)')
 
 

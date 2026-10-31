@@ -4543,5 +4543,509 @@
     "portable_sha256": "d1f9420dabeb698a1f27189f19d2fc14e766e426856e8e8fbad8f2407e175bed",
     "portable_bytes": 652,
     "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/nioh-3/scripts/g1m_tool.py",
+    "source": "Mods/Nioh3/tools/g1m_tool.py",
+    "original_sha256": "873179f4088379c463d672d8c3a60ef12ed7a39d4f566a2ee85b392054cc3dbc",
+    "source_bytes": 21756,
+    "portable_sha256": "873179f4088379c463d672d8c3a60ef12ed7a39d4f566a2ee85b392054cc3dbc",
+    "portable_bytes": 21756,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/nioh-3/scripts/g1t_tool.py",
+    "source": "Mods/Nioh3/tools/g1t_tool.py",
+    "original_sha256": "c773d0aaa3f6f06a060894d557883f8c61ad9d14be1f5a5a16e51929ce6afc12",
+    "source_bytes": 16627,
+    "portable_sha256": "c773d0aaa3f6f06a060894d557883f8c61ad9d14be1f5a5a16e51929ce6afc12",
+    "portable_bytes": 16627,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/nioh-3/scripts/ktdata.py",
+    "source": "Mods/Nioh3/tools/ktdata.py",
+    "original_sha256": "efe5f771c77aea23fb9cce9c705380856b55bc8f4dcdf2850a319f134c1111f1",
+    "source_bytes": 16976,
+    "portable_sha256": "efe5f771c77aea23fb9cce9c705380856b55bc8f4dcdf2850a319f134c1111f1",
+    "portable_bytes": 16976,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/nioh-3/scripts/n3_g1t.py",
+    "source": "Mods/Nioh3/tools/n3_g1t.py",
+    "original_sha256": "8691a9bb4a03d14af8c0f209c97e9f895d4bad00900dba73dd18cc49622a4db4",
+    "source_bytes": 30807,
+    "portable_sha256": "8691a9bb4a03d14af8c0f209c97e9f895d4bad00900dba73dd18cc49622a4db4",
+    "portable_bytes": 30807,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/nioh-3/scripts/n3_g1t_resize.py",
+    "source": "Mods/Nioh3/tools/n3_g1t_resize.py",
+    "original_sha256": "47fb2204a13725d0bc2a2044ff14d0fb4a7d1b4e739d5f8a345bf9d082ad361a",
+    "source_bytes": 4798,
+    "portable_sha256": "47fb2204a13725d0bc2a2044ff14d0fb4a7d1b4e739d5f8a345bf9d082ad361a",
+    "portable_bytes": 4798,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/nioh-3/scripts/nuno4.py",
+    "source": "Mods/Nioh3/tools/nuno4.py",
+    "original_sha256": "6e9b97d1431c2f2788298fd4ed9b7a1f7b5b8f0fe269f7066936e9666a48f370",
+    "source_bytes": 4859,
+    "portable_sha256": "69932cede9e079483eec2ce3a7838377ea1945117a4c6ab390a8aa51da136feb",
+    "portable_bytes": 5133,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/nioh-3/scripts/fpose.py",
+    "source": "Mods/Nioh3/tools/fpose.py",
+    "original_sha256": "59b7ca62e0b2e27b8ad5c79027f0464b0ca5892ffb4bf09315226cba1d21cc9f",
+    "source_bytes": 3134,
+    "portable_sha256": "5d0505abbd828e9da083f45d01c1cd86eee0372a780c200ccba515f184eaaac2",
+    "portable_bytes": 3415,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/nioh-3/scripts/g1a.py",
+    "source": "Mods/Nioh3/tools/g1a.py",
+    "original_sha256": "2c4eda3e7eb98bc83988a9c03b4286d9dd6bbf028e5b1a4e2e696bd2c2bb8ef7",
+    "source_bytes": 4091,
+    "portable_sha256": "336383ba5e32888e21b34ae4be7e52d6f25f2a0bd54e26ad095ec29e7a433cca",
+    "portable_bytes": 4644,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/nioh-3/scripts/g2a.py",
+    "source": "Mods/Nioh3/tools/g2a.py",
+    "original_sha256": "bba061f4e0458021d05f4ce28ef52263e793a69d190be381ca5ef5172152bbab",
+    "source_bytes": 4785,
+    "portable_sha256": "2fb46a5931cfad8b1beae1ecfb75d5322ba79f824d9a07207f0a858117c96b2d",
+    "portable_bytes": 5259,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/nioh-3/scripts/n3inject.py",
+    "source": "Mods/Nioh3/tools/n3inject.py",
+    "original_sha256": "93764e49d6fc5eca6a45a39e422d81308fcca1ee9578579e7bca6e69b09d79f5",
+    "source_bytes": 9064,
+    "portable_sha256": "93764e49d6fc5eca6a45a39e422d81308fcca1ee9578579e7bca6e69b09d79f5",
+    "portable_bytes": 9064,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/nioh-3/scripts/collapse_set.py",
+    "source": "Mods/Nioh3/tools/collapse_set.py",
+    "original_sha256": "2c6feb3568928cf68aeba287d2c1f2e55f653540f884cd582dabccf0bb8d1347",
+    "source_bytes": 946,
+    "portable_sha256": "b16c9219093e9f5a0cbedf3ac28e0e04b990af3ba23bc4136a9fd8d35d4a86d4",
+    "portable_bytes": 1201,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/nioh-3/scripts/ktid_setref.py",
+    "source": "Mods/Nioh3/tools/ktid_setref.py",
+    "original_sha256": "515bc56d83c3decb6740354cde5a1c32d2166b408edb02ee83f174c8121fea17",
+    "source_bytes": 892,
+    "portable_sha256": "36d9ed3e671fdd0355cd5c18ab5a4c622ac3f510007348bab339636dc8f0bd9d",
+    "portable_bytes": 1224,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/nioh-3/scripts/ktid_repoint.py",
+    "source": "Mods/Nioh3/tools/ktid_repoint.py",
+    "original_sha256": "42248f5acf54ed4ce17f377743e17290d8a9aa78d96ea79a120d986b9c7afe5f",
+    "source_bytes": 1548,
+    "portable_sha256": "4f7f206abdedc1aecd87ee0ece339e06df4cbf0b6c36563af89d166d52283cf4",
+    "portable_bytes": 1877,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/nioh-3/scripts/etw_reads.py",
+    "source": "Mods/Nioh3/tools/etw_reads.py",
+    "original_sha256": "642fa597bc621dd9e2cf3717ab9d529d53947e22a1d7d847fe74bdded17d7d99",
+    "source_bytes": 5451,
+    "portable_sha256": "f34f638acb345de8e6ea473a1332ab2247a0311bfa4aba935e376153b894a085",
+    "portable_bytes": 5844,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/nioh-3/scripts/find_variant.py",
+    "source": "Mods/Nioh3/tools/find_variant.py",
+    "original_sha256": "1ed06d892485c54d988ebefd40f6be7eb62c70ca921d7857fb94939eb4dccf36",
+    "source_bytes": 2106,
+    "portable_sha256": "c6cc807537c43d2132b697a436c6c3ff835575d091ebf85c23ca4248137f9d15",
+    "portable_bytes": 2590,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/nioh-3/scripts/ktid_find.py",
+    "source": "Mods/Nioh3/tools/ktid_find.py",
+    "original_sha256": "548a760f38ddcb88e73dce7a4c9aaef2c7596f2a9176e0f0e1618f1395119696",
+    "source_bytes": 1502,
+    "portable_sha256": "84638dc4e3e1e2388e0e9ab5ea32ff3d04c12f911342cab65bf674e46f43963a",
+    "portable_bytes": 1672,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/nioh-3/scripts/alias_entry.py",
+    "source": "Mods/Nioh3/tools/alias_entry.py",
+    "original_sha256": "aba567e67156dbe1939d8e14e2a8d6a2dee0ecd6a602807c3eb2984692d9e119",
+    "source_bytes": 1316,
+    "portable_sha256": "643d46c6f82247d8f863398782ce0b229bcfda05a58f3d1f7eb4ea364766de64",
+    "portable_bytes": 1589,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/nioh-3/scripts/alias_ktid.py",
+    "source": "Mods/Nioh3/tools/alias_ktid.py",
+    "original_sha256": "e17f7109f9e851f356addfcfe349cb4cda3884d9e9a369ed84f09ad42f10f424",
+    "source_bytes": 1051,
+    "portable_sha256": "a086cd7928d84fd8e0d3862bc9d7b58ec47cfd1eb21fff24059fa77ab8d2d9de",
+    "portable_bytes": 1372,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/nioh-3/scripts/raw_ref.py",
+    "source": "Mods/Nioh3/tools/raw_ref.py",
+    "original_sha256": "fc9302d0e06b6b6092120ef7c5d7cb0ae84cbf4b3497c9f1bc8d8c0873afaabb",
+    "source_bytes": 999,
+    "portable_sha256": "3050dd3cf9fb284a31cf88f72ae701171da756765953bffb5d5d0e4fcc543eac",
+    "portable_bytes": 1295,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/nioh-3/scripts/slot_defaults.py",
+    "source": "Mods/Nioh3/tools/slot_defaults.py",
+    "original_sha256": "723011830cd0f3395f2e0226eaa443c46fc8471ddb09ce44091d6aec13da2b18",
+    "source_bytes": 1913,
+    "portable_sha256": "e876ed7057868c5a05810ceb2f8764304bf24ac16c21f3d558f26e3c7b212ff4",
+    "portable_bytes": 2183,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/nioh-3/scripts/model_refs.py",
+    "source": "Mods/Nioh3/tools/model_refs.py",
+    "original_sha256": "9de96b7e3fe7bc1f66910d68516fdd1eec921b5afbde25d457c6ea6f78b7870a",
+    "source_bytes": 1191,
+    "portable_sha256": "49d359356db6dc0a000e83ae43209fb941aaa0d4a3a8dcb238f588d0e3dbe4a6",
+    "portable_bytes": 1409,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/nioh-3/scripts/extract_many.py",
+    "source": "Mods/Nioh3/tools/extract_many.py",
+    "original_sha256": "a45392924214b2579acd8eadf3845ebf83b485abbc0b476e944fa92599b04fe2",
+    "source_bytes": 1662,
+    "portable_sha256": "dcf8e8c6f117a1b2a21a69256a17f7bed5edf5183edef53e1d5aec9ea4bc8035",
+    "portable_bytes": 1891,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/nioh-3/scripts/census.py",
+    "source": "Mods/Nioh3/tools/census.py",
+    "original_sha256": "ae2377480daff4c6b9a739d8b310b89b241bc21657cecd5d38af67dc6c1c7970",
+    "source_bytes": 695,
+    "portable_sha256": "237050bb468e0abfd282aaa6ed9bbbdbb31b7315b3d4e0aeb5baa2fafc4e5546",
+    "portable_bytes": 849,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/nioh-3/scripts/missing.py",
+    "source": "Mods/Nioh3/tools/missing.py",
+    "original_sha256": "25b80c23368a496db8533500086429b3c2d61b5b8294cd3cfdd63bf02fc00308",
+    "source_bytes": 740,
+    "portable_sha256": "6dafe1e4817228bb4398e429aac514f91159fc43b37cba8f94e90b39ac97682b",
+    "portable_bytes": 894,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/nioh-3/scripts/dump_names.py",
+    "source": "Mods/Nioh3/tools/dump_names.py",
+    "original_sha256": "f1511cc5d9d9d064e099411cf34ed2e78d93cdea978caa5b9db6bceda2406e54",
+    "source_bytes": 1045,
+    "portable_sha256": "504e1888efe2b4564b367854b25883f428ed6d209c9e3ff2f2f3c90d3755003a",
+    "portable_bytes": 1324,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/nioh-3/scripts/face_bones.py",
+    "source": "Mods/Nioh3/tools/face_bones.py",
+    "original_sha256": "a685f5fbb0f996c8cd8e168fba2d90d7b131e8f1d3f7fe51d6228ee0752e9b21",
+    "source_bytes": 2993,
+    "portable_sha256": "ac0a673ea5c6b9ebae5669b8112bcc8147e4eb066b04294d1943653f08b441ea",
+    "portable_bytes": 3247,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/nioh-3/scripts/g1m_summary.py",
+    "source": "Mods/Nioh3/tools/g1m_summary.py",
+    "original_sha256": "852a6068cd57a1a38d196cceba85ec3b17162613bb61e54c267dbd50febe7ab7",
+    "source_bytes": 1910,
+    "portable_sha256": "26e39fd9928ebfd5b9a281b7294fa1e30c5fb54ed40f6a223472ce44482da12a",
+    "portable_bytes": 2084,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/nioh-3/scripts/g1m_subs.py",
+    "source": "Mods/Nioh3/tools/g1m_subs.py",
+    "original_sha256": "223f3ab036267893c13e5abd88305062070703531bdfea91a00a2db67872ca2b",
+    "source_bytes": 967,
+    "portable_sha256": "10f4c6fc30a7f715d35270590f2bd177edcace38cb3b62310bdfc06a4f578daa",
+    "portable_bytes": 1092,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/nioh-3/scripts/g1m_render.py",
+    "source": "Mods/Nioh3/tools/g1m_render.py",
+    "original_sha256": "1a6e8051275db2b01feaffb1f6a9cadf485639518c35b02e92a99a78d57ba466",
+    "source_bytes": 3603,
+    "portable_sha256": "74e6ecc0807a52025e18e14beca96823f1053f5719f6e2f2d2e9c10f8cca91de",
+    "portable_bytes": 3883,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/nioh-3/scripts/tex_stats.py",
+    "source": "Mods/Nioh3/tools/tex_stats.py",
+    "original_sha256": "a17b960a9f23fa0302996fc8737125b869b2149b7393b9664809452b0c80e7b5",
+    "source_bytes": 1352,
+    "portable_sha256": "c1330a22271a7a244cb1004e30d9b318d69449219b23a0ca1ad32dc331845c69",
+    "portable_bytes": 1712,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/nioh-3/scripts/rec_params.py",
+    "source": "Mods/Nioh3/tools/rec_params.py",
+    "original_sha256": "79acd0942378aff014399a7415685988b6720e4b090d141c0344c826bfcd7f65",
+    "source_bytes": 1311,
+    "portable_sha256": "d82a2ab5709029f3de5916ffd12825f75431aadf79943a7a817ac2f540ad5548",
+    "portable_bytes": 1475,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/nioh-3/scripts/phase_diff.py",
+    "source": "Mods/Nioh3/tools/phase_diff.py",
+    "original_sha256": "3641954f387b7542a7fc41edeef5c2b7bc709e4a10c2358ace024ccc7379e2c6",
+    "source_bytes": 619,
+    "portable_sha256": "27d07b5300f5a61df59675a6434ebf5665d878cfe87c71979a01953892c68a66",
+    "portable_bytes": 851,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/nioh-3/scripts/phase_only.py",
+    "source": "Mods/Nioh3/tools/phase_only.py",
+    "original_sha256": "7d9731f1db14b2a600f90f44197f2eeda37db410ac69fa0d226953d68f87accd",
+    "source_bytes": 537,
+    "portable_sha256": "99348c2dc8313203bc50408e08784bc59eafc826eae405709ba1e3d30f239580",
+    "portable_bytes": 848,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/nioh-3/scripts/peinfo.py",
+    "source": "Mods/Nioh3/tools/peinfo.py",
+    "original_sha256": "2b2aa0fe7e6d6e711e0f50ebb3a170b50b487a657a99ebfd9cc77a6fc7687b24",
+    "source_bytes": 1201,
+    "portable_sha256": "935c883a6027e746895c91e620dd668076d94f1f9ae5d1af3459d94d536e274f",
+    "portable_bytes": 1316,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/nioh-3/scripts/patscan.py",
+    "source": "Mods/Nioh3/tools/patscan.py",
+    "original_sha256": "e9294a9192371db1b66c5c36909a4c687102ef573c20ca52698ea54806abbb79",
+    "source_bytes": 642,
+    "portable_sha256": "5064a8984403aeb136d6ef136738b07f39ac11e68e6b52b56c7f16f8ed4bb4d9",
+    "portable_bytes": 850,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/nioh-3/scripts/n3build/blender_shapekeys.py",
+    "source": "Mods/Nioh3/tools/n3build/blender_shapekeys.py",
+    "original_sha256": "8ac8cdff4a9cb256b7b9f17493b22541800ea935373abdfa7328df98ae9bdbd9",
+    "source_bytes": 1919,
+    "portable_sha256": "8ac8cdff4a9cb256b7b9f17493b22541800ea935373abdfa7328df98ae9bdbd9",
+    "portable_bytes": 1919,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/nioh-3/scripts/n3build/n3_build_g1m.py",
+    "source": "Mods/Nioh3/tools/n3build/n3_build_g1m.py",
+    "original_sha256": "60bd864fb76553a686e5d5a7c18cd128e9392713af9a62daeb8dd514cf2fa4f8",
+    "source_bytes": 33837,
+    "portable_sha256": "6c1c6a73bcdf5b1c8f548680cd82e542e26d4acaf91a14923363ba376b667824",
+    "portable_bytes": 34256,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/nioh-3/scripts/n3build/n3_common.py",
+    "source": "Mods/Nioh3/tools/n3build/n3_common.py",
+    "original_sha256": "b8f4e2e5299235601e32fdafa9ba5c9eeb097df73236bbd64c8ba158bf4b3a31",
+    "source_bytes": 4561,
+    "portable_sha256": "17202db630f4190383d35de0d3e62f351b1ba4f48afef3400173d7c3feffa556",
+    "portable_bytes": 5347,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/nioh-3/scripts/n3build/n3_conform.py",
+    "source": "Mods/Nioh3/tools/n3build/n3_conform.py",
+    "original_sha256": "2c9379665d5cbbaf00769e46a590a32099572c4fc07e470f188c0fb59247af97",
+    "source_bytes": 17089,
+    "portable_sha256": "503ef42a1828d0303e329bf30f9ddec5997f54cc82b97089b41c2cc1e3f2af0f",
+    "portable_bytes": 17291,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/nioh-3/scripts/n3build/n3_face.py",
+    "source": "Mods/Nioh3/tools/n3build/n3_face.py",
+    "original_sha256": "a6dc795993bb41ac7c04bc6b5e1eaecb7c3ed67bf0c944f80c748d28afe26a88",
+    "source_bytes": 10541,
+    "portable_sha256": "76080f62a5ef83e235380e5be48f33fb606a8f943c60f284c38032574e32145e",
+    "portable_bytes": 10791,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/nioh-3/scripts/n3build/n3_g1m_physics.py",
+    "source": "Mods/Nioh3/tools/n3build/n3_g1m_physics.py",
+    "original_sha256": "ba9b7d700bda371720caca045c22914787af79b00adb4228d071e1b7bf8b064b",
+    "source_bytes": 16696,
+    "portable_sha256": "ba9b7d700bda371720caca045c22914787af79b00adb4228d071e1b7bf8b064b",
+    "portable_bytes": 16696,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/nioh-3/scripts/n3build/n3_physics.py",
+    "source": "Mods/Nioh3/tools/n3build/n3_physics.py",
+    "original_sha256": "fbec0afac1a972b9ac63131120e224b0bd424f51f7e6f69f19248f9ffd312527",
+    "source_bytes": 16876,
+    "portable_sha256": "1e088ef15c38a0aa6e24b9fe54f829c7c7eba73b28e263b9cace49d3bf23a42e",
+    "portable_bytes": 17555,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/nioh-3/scripts/n3build/n3_registry.py",
+    "source": "Mods/Nioh3/tools/n3build/n3_registry.py",
+    "original_sha256": "468151d65d5075619e30926b61f88dd525fd0e83b1a4b0bcd7a335ff4e89824e",
+    "source_bytes": 5432,
+    "portable_sha256": "484052794372d786cca8da45c306bf7b8d3c4de0544533cb031dbe8df4aaf433",
+    "portable_bytes": 5747,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/nioh-3/scripts/n3build/n3_textures.py",
+    "source": "Mods/Nioh3/tools/n3build/n3_textures.py",
+    "original_sha256": "140278dc258644d0cb74b1da3462d0d2033d5c22bbb6b47e25cda0d329140653",
+    "source_bytes": 5581,
+    "portable_sha256": "f4a1ed849bf5bfa4565bdf4e459b298798eca280070f64bd225b58dc175cdccc",
+    "portable_bytes": 5821,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/nioh-3/scripts/n3build/n3_validate_g1m.py",
+    "source": "Mods/Nioh3/tools/n3build/n3_validate_g1m.py",
+    "original_sha256": "292d3d4c4a296b4b2a9cc5792409c5be389a0653e3cb5533c27613be2b1f6d43",
+    "source_bytes": 4671,
+    "portable_sha256": "b3c721864d5c35a90f810288792389f03c09152055ae92ee3a19a4dc736bf25d",
+    "portable_bytes": 5055,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/nioh-3/scripts/blender/ko_extract_source.py",
+    "source": "Mods/Nioh3/tools/ko/ronin_original/ko_extract_source.py",
+    "original_sha256": "2efcd501ef02001b506ce02754b6d91b4a4d71de9a54f6acd173bbfd29f4911d",
+    "source_bytes": 4938,
+    "portable_sha256": "2efcd501ef02001b506ce02754b6d91b4a4d71de9a54f6acd173bbfd29f4911d",
+    "portable_bytes": 4938,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/nioh-3/scripts/karin_install.py",
+    "source": "Mods/Nioh3/release/Karin_Nioh3/karin_install.py",
+    "original_sha256": "efa919d8f47b61be5d057a417dbff7d2a03b66fa099e80c270cd06cbc49ce11d",
+    "source_bytes": 5871,
+    "portable_sha256": "15279aba04b7dff65040ecb88242ce1d04794532e043263227361a2926e3d879",
+    "portable_bytes": 7130,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/nioh-3/scripts/checks/swing.py",
+    "source": "Mods/Nioh3/(session scratchpad)/ana/swing.py",
+    "original_sha256": "d0bca2a4796199115b713f2724d112500d41b64f149fdb9040d396c49ba89765",
+    "source_bytes": 4702,
+    "portable_sha256": "59ddba57a38a241eeb1fe4cc30a8f0ed638a4c05b8a748374cbc014e9d8b314c",
+    "portable_bytes": 4923,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/nioh-3/scripts/checks/facecheck.py",
+    "source": "Mods/Nioh3/(session scratchpad)/ana/facecheck.py",
+    "original_sha256": "3e78a5ac05f587292ad02aaa20361be1ae6ba8bd17bc622755812459f2231de8",
+    "source_bytes": 4724,
+    "portable_sha256": "ead9b48e1ea437ca09e55b818f83350c80e541aa4f25749f741aee2835d082bd",
+    "portable_bytes": 5213,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/nioh-3/scripts/checks/blinkgap.py",
+    "source": "Mods/Nioh3/(session scratchpad)/ana/blinkgap.py",
+    "original_sha256": "619cf0924dce3f9cd9ece6eba0a9732225602ecc6415d3d54e66b6b8f1f7e82d",
+    "source_bytes": 1781,
+    "portable_sha256": "1ff6fa4339e05c2fea5473b9aad271d95861d7e86d27cb9452cb0451c0faf1b2",
+    "portable_bytes": 1999,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/nioh-3/scripts/checks/fit_butt3.py",
+    "source": "Mods/Nioh3/(session scratchpad)/ana/fit_butt3.py",
+    "original_sha256": "07ec2e584800a8087fd726c59b95dbb83102e4cb5e9a5d34a792c3b122f301dc",
+    "source_bytes": 3698,
+    "portable_sha256": "09559af9135e73a53b91d3700f34fc9f66f033170c9ad6f771a1dc64832d1dcc",
+    "portable_bytes": 4157,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/nioh-3/scripts/checks/coll_cover.py",
+    "source": "Mods/Nioh3/(session scratchpad)/ana/coll_cover.py",
+    "original_sha256": "ab5535f8f454217fba0d0ee2e7e68af93e08dad41f54f529ec18a7c6b36a575d",
+    "source_bytes": 2852,
+    "portable_sha256": "a5b8af7e8b43b4346e9fa7e192f2bdb708b263da042b4b0ad98fd3a133faccca",
+    "portable_bytes": 3012,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/nioh-3/scripts/checks/lloc_dump.py",
+    "source": "Mods/Nioh3/(session scratchpad)/ana/lloc_dump.py",
+    "original_sha256": "103ec3083a619a1bd10287ff792ee1d59a2f5a2480bd63c9b6bbf854717616d4",
+    "source_bytes": 1055,
+    "portable_sha256": "9cce6f61cdbfe42d4c08ecece9ac0c87fc68531da476beecc0f93a5526e65e30",
+    "portable_bytes": 1299,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/nioh-3/scripts/checks/diff24.py",
+    "source": "Mods/Nioh3/(session scratchpad)/ana/diff24.py",
+    "original_sha256": "b6652ec4a2a9ee5641be66315a92dcb61b8088c2497f0b97201e428e01d296b1",
+    "source_bytes": 2256,
+    "portable_sha256": "6f6eb5d062acad87fc98245a597c1e0e6f0d20561373057ec8d42890214380b9",
+    "portable_bytes": 2468,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/nioh-3/configs/collapse.txt",
+    "source": "Mods/Nioh3/release/Karin_Nioh3/collapse.txt",
+    "original_sha256": "21e8f5bef375629a96792471bc46f8daa8c00233b64c2f040ce2e4a480ccc129",
+    "source_bytes": 143,
+    "portable_sha256": "21e8f5bef375629a96792471bc46f8daa8c00233b64c2f040ce2e4a480ccc129",
+    "portable_bytes": 143,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/nioh-3/configs/vanilla.json",
+    "source": "Mods/Nioh3/release/Karin_Nioh3/vanilla.json",
+    "original_sha256": "47ae7e169edc405908b890e41f8325594907448173638ed195a3c71d7cb9b525",
+    "source_bytes": 2775,
+    "portable_sha256": "47ae7e169edc405908b890e41f8325594907448173638ed195a3c71d7cb9b525",
+    "portable_bytes": 2775,
+    "modified_for_portability": false
   }
 ]
