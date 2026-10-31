@@ -1,0 +1,13 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "PBZModTools",
+	"Description": "Editor helpers for the Phantom Blade Zero mod project: physics assets from JSON, mesh curve metadata, dumps. Port of SifuModTools to UE 5.7.",
+	"Category": "Editor",
+	"EnabledByDefault": true,
+	"CanContainContent": false,
+	"Modules": [
+		{ "Name": "PBZModTools", "Type": "Editor", "LoadingPhase": "Default" }
+	]
+}

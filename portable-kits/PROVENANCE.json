@@ -4210,5 +4210,338 @@
     "portable_sha256": "f6a4468b170add98537a96975fa881b4ada2e99676dc0a9cb0e98082ecda6807",
     "portable_bytes": 1427,
     "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/phantom-blade-zero/objscan/Program.cs",
+    "source": "ModTools/PBZ/objscan/Program.cs",
+    "original_sha256": "5e975426ec558c449ed706c1b85631b85808e12e81e96d0267ad146cb8d9a5b2",
+    "source_bytes": 6431,
+    "portable_sha256": "5e975426ec558c449ed706c1b85631b85808e12e81e96d0267ad146cb8d9a5b2",
+    "portable_bytes": 6431,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/phantom-blade-zero/objscan/objscan.csproj",
+    "source": "ModTools/PBZ/objscan/objscan.csproj",
+    "original_sha256": "83f8d7437c4bb30fa070c2a289ffedc20f2ee3c72768bee266a6125a8db04f39",
+    "source_bytes": 286,
+    "portable_sha256": "83f8d7437c4bb30fa070c2a289ffedc20f2ee3c72768bee266a6125a8db04f39",
+    "portable_bytes": 286,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/phantom-blade-zero/pbzexport/PbzExport.csproj",
+    "source": "ModTools/PBZ/pbzexport/PbzExport.csproj",
+    "original_sha256": "8cdf8af3642edb2e56e86c00ee2a2b40f11073055bd6e628156b2a176b86e7e2",
+    "source_bytes": 540,
+    "portable_sha256": "8cdf8af3642edb2e56e86c00ee2a2b40f11073055bd6e628156b2a176b86e7e2",
+    "portable_bytes": 540,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/phantom-blade-zero/pbzexport/Program.cs",
+    "source": "ModTools/PBZ/pbzexport/Program.cs",
+    "original_sha256": "bfe1206fad609da52c6e99dd6de71bbc96dd5352f94db0c80282a9ac62ac1e5f",
+    "source_bytes": 12187,
+    "portable_sha256": "bfe1206fad609da52c6e99dd6de71bbc96dd5352f94db0c80282a9ac62ac1e5f",
+    "portable_bytes": 12187,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/phantom-blade-zero/release/install.ps1",
+    "source": "PBZModding/release/KarinPBZ_20261031_v3/install.ps1",
+    "original_sha256": "ca27b4e0f911d33473d6ae9f48095b2847bd165533632ef4d837ea2b5e3053de",
+    "source_bytes": 5428,
+    "portable_sha256": "502cd56d2801dd91eb7685197901616edf43dd383e4a52a41daf622831df276d",
+    "portable_bytes": 5424,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/phantom-blade-zero/scripts/blender/build_pbz.py",
+    "source": "ModTools/PBZ/blender/build_pbz.py",
+    "original_sha256": "b6a8006ff24c49e3b976eea2b65cf16c4461ec284b46313afa710b079ce5ed07",
+    "source_bytes": 74271,
+    "portable_sha256": "70c1a679f245a69b095b8f7cce44e1020b783932c9ecc473494582e2c69df8cd",
+    "portable_bytes": 74380,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/phantom-blade-zero/scripts/blender/build_pt.py",
+    "source": "ModTools/PBZ/blender/build_pt.py",
+    "original_sha256": "efcd58ebcc611038e0223596441cc3547f3424ea7a42d9dcd9c2c8fa9a289a96",
+    "source_bytes": 66408,
+    "portable_sha256": "ce8ff8bf45dd7f354930d06458eedde9338efc27ac083b6ece48e917462555f8",
+    "portable_bytes": 66538,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/phantom-blade-zero/scripts/blender/render_pt.py",
+    "source": "ModTools/PBZ/blender/render_pt.py",
+    "original_sha256": "66f52eadeabdda31bb9fb32279132b6720951d15ccc818118a8ced06772f5bd3",
+    "source_bytes": 3866,
+    "portable_sha256": "66f52eadeabdda31bb9fb32279132b6720951d15ccc818118a8ced06772f5bd3",
+    "portable_bytes": 3866,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/phantom-blade-zero/scripts/ue/pt/ue_brightness.py",
+    "source": "ModTools/PBZ/pt/ue/ue_brightness.py",
+    "original_sha256": "e617f79ea314a4a51913d6f71dda3d26df54809447c8932ab8c590d3956a5221",
+    "source_bytes": 701,
+    "portable_sha256": "e617f79ea314a4a51913d6f71dda3d26df54809447c8932ab8c590d3956a5221",
+    "portable_bytes": 701,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/phantom-blade-zero/scripts/ue/pt/ue_cloth.py",
+    "source": "ModTools/PBZ/pt/ue/ue_cloth.py",
+    "original_sha256": "931f58ecaef5597d4a68b89de1be39c547fe6563a5e1c651a052f6be988b64b5",
+    "source_bytes": 5249,
+    "portable_sha256": "931f58ecaef5597d4a68b89de1be39c547fe6563a5e1c651a052f6be988b64b5",
+    "portable_bytes": 5249,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/phantom-blade-zero/scripts/ue/pt/ue_fixmats.py",
+    "source": "ModTools/PBZ/pt/ue/ue_fixmats.py",
+    "original_sha256": "64b1de8f1406b53a594f4a2032681f95e1b77f1beb8891aa93698797a4acc2ba",
+    "source_bytes": 6142,
+    "portable_sha256": "64b1de8f1406b53a594f4a2032681f95e1b77f1beb8891aa93698797a4acc2ba",
+    "portable_bytes": 6142,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/phantom-blade-zero/scripts/ue/pt/ue_import_pbz.py",
+    "source": "ModTools/PBZ/pt/ue/ue_import_pbz.py",
+    "original_sha256": "7af89130cbe18c0e8f69da47d42d962f81b1c7cd87c536ccf38a18d7a9da3a57",
+    "source_bytes": 17981,
+    "portable_sha256": "7af89130cbe18c0e8f69da47d42d962f81b1c7cd87c536ccf38a18d7a9da3a57",
+    "portable_bytes": 17981,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/phantom-blade-zero/scripts/ue/pt/ue_import_young.py",
+    "source": "ModTools/PBZ/pt/ue/ue_import_young.py",
+    "original_sha256": "dcaca5fa8f2448e7e2f08427ea588fb03bcce5a200d5a3d23713570195aacf6b",
+    "source_bytes": 6975,
+    "portable_sha256": "dcaca5fa8f2448e7e2f08427ea588fb03bcce5a200d5a3d23713570195aacf6b",
+    "portable_bytes": 6975,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/phantom-blade-zero/scripts/ue/ue_blink.py",
+    "source": "ModTools/PBZ/ue_scripts/ue_blink.py",
+    "original_sha256": "f1cbae41fcb6b6dbdae38ce35433dc7bbe8a590b4e2a98418f9c315f05d3a894",
+    "source_bytes": 4554,
+    "portable_sha256": "f1cbae41fcb6b6dbdae38ce35433dc7bbe8a590b4e2a98418f9c315f05d3a894",
+    "portable_bytes": 4554,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/phantom-blade-zero/scripts/ue/ue_brightness.py",
+    "source": "ModTools/PBZ/ue_scripts/ue_brightness.py",
+    "original_sha256": "dd125da0906b75fcb5492f6183ed56ee633f2e0070ef2f9c6b58ae639d9193e3",
+    "source_bytes": 560,
+    "portable_sha256": "dd125da0906b75fcb5492f6183ed56ee633f2e0070ef2f9c6b58ae639d9193e3",
+    "portable_bytes": 560,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/phantom-blade-zero/scripts/ue/ue_cloth.py",
+    "source": "ModTools/PBZ/ue_scripts/ue_cloth.py",
+    "original_sha256": "2e9aee15dbb64675ba412977a32a1975f854dc02387147f6d3c524652b3a6f46",
+    "source_bytes": 5352,
+    "portable_sha256": "2e9aee15dbb64675ba412977a32a1975f854dc02387147f6d3c524652b3a6f46",
+    "portable_bytes": 5352,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/phantom-blade-zero/scripts/ue/ue_fixmats.py",
+    "source": "ModTools/PBZ/ue_scripts/ue_fixmats.py",
+    "original_sha256": "7d1f2c99efd0c8d46adb7a7f504a7d06fc78b0180a3624b11f8b034565e3176d",
+    "source_bytes": 6449,
+    "portable_sha256": "7d1f2c99efd0c8d46adb7a7f504a7d06fc78b0180a3624b11f8b034565e3176d",
+    "portable_bytes": 6449,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/phantom-blade-zero/scripts/ue/ue_grooms.py",
+    "source": "ModTools/PBZ/ue_scripts/ue_grooms.py",
+    "original_sha256": "00b565d99f755e16d7a32fe5976972976fb0e7aefbe43a15c0823cc5a53b7183",
+    "source_bytes": 1326,
+    "portable_sha256": "00b565d99f755e16d7a32fe5976972976fb0e7aefbe43a15c0823cc5a53b7183",
+    "portable_bytes": 1326,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/phantom-blade-zero/scripts/ue/ue_import_pbz.py",
+    "source": "ModTools/PBZ/ue_scripts/ue_import_pbz.py",
+    "original_sha256": "6318286392ff3dd47d29c07fe47fca1abbc600557dd1a1e3c0f25a8887f32ef7",
+    "source_bytes": 17836,
+    "portable_sha256": "6318286392ff3dd47d29c07fe47fca1abbc600557dd1a1e3c0f25a8887f32ef7",
+    "portable_bytes": 17836,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/phantom-blade-zero/scripts/ue/ue_import_young.py",
+    "source": "ModTools/PBZ/ue_scripts/ue_import_young.py",
+    "original_sha256": "aebf14eebc68070e5ae5d8f59fea9fdb2db331849fd8dfc59e4828735c000409",
+    "source_bytes": 6229,
+    "portable_sha256": "aebf14eebc68070e5ae5d8f59fea9fdb2db331849fd8dfc59e4828735c000409",
+    "portable_bytes": 6229,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/phantom-blade-zero/scripts/ue/ue_morphdump.py",
+    "source": "ModTools/PBZ/ue_scripts/ue_morphdump.py",
+    "original_sha256": "86444541f8dbc95c1eff1793ebecdd285379b968b08de52c6b8898c32e49b536",
+    "source_bytes": 968,
+    "portable_sha256": "86444541f8dbc95c1eff1793ebecdd285379b968b08de52c6b8898c32e49b536",
+    "portable_bytes": 968,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/phantom-blade-zero/scripts/usmap_fix.py",
+    "source": "ModTools/PBZ/scripts/usmap_fix.py",
+    "original_sha256": "4a52c80b0ccbc57710fa929313e9bbf90b40548354fea6defec1be4a2d591a65",
+    "source_bytes": 6077,
+    "portable_sha256": "08665e861f7346960962bf25c13eedcbd55816e4a108bf7a021cfa43a1a16c13",
+    "portable_bytes": 6375,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/phantom-blade-zero/tools/build_plugin.ps1",
+    "source": "new file written for the portable kit (no project original); PowerShell port of the project's PBZModding/scripts/build_plugin.cmd",
+    "original_sha256": null,
+    "source_bytes": null,
+    "portable_sha256": "4939d508f691d2d80d1e1b5eeaa4bf1a1913f47215b8c2677170c0d1e2577b61",
+    "portable_bytes": 2058,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/phantom-blade-zero/tools/cook.ps1",
+    "source": "new file written for the portable kit (no project original); PowerShell port of the project's PBZModding/scripts/cook.cmd",
+    "original_sha256": null,
+    "source_bytes": null,
+    "portable_sha256": "4f2244ba44a05e27fc92f0cb12d1584aba2b5f93cab7e4156ee3fefe11335b8e",
+    "portable_bytes": 1985,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/phantom-blade-zero/tools/mkcontainer.ps1",
+    "source": "ModTools/PBZ/ue_scripts/mkcontainer.ps1",
+    "original_sha256": "70d9f446d22c2d75546e043b8d12724faed6f4d8c30400b6614db052e20be18d",
+    "source_bytes": 5201,
+    "portable_sha256": "74b8d13626ffbd1fc36ed626e8bcfe1aeb8a117d7ed6cad5c8c4c8164d33a7ef",
+    "portable_bytes": 5911,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/phantom-blade-zero/tools/mktest.ps1",
+    "source": "ModTools/PBZ/ue_scripts/mktest.ps1",
+    "original_sha256": "bd1a7bb0d7ad1ede32de8681ce7691b6c4c786f9144ed766cf87b6a5e07d9f0e",
+    "source_bytes": 2218,
+    "portable_sha256": "6f7760d9e068be8611baf6c4e3f410b8d79c1bc8cb5db3bbfa9c56e7d559dd0c",
+    "portable_bytes": 2913,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/phantom-blade-zero/tools/pbzx_run.ps1",
+    "source": "ModTools/PBZ/scripts/pbzx_run.ps1",
+    "original_sha256": "023751752af7ba7fc39d68b22ef43a9b14f4b9b4fd7295f4a99a4203538caed3",
+    "source_bytes": 1269,
+    "portable_sha256": "bcdde17e72a0b79b23edd3633866baaf4b48a3269342d22f90cdf0294a10fd7f",
+    "portable_bytes": 1361,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/phantom-blade-zero/tools/run_all.ps1",
+    "source": "new file written for the portable kit (no project original); PowerShell port of the project's ModTools/PBZ/ue_scripts/run_all.cmd and pt/ue/run_all.cmd",
+    "original_sha256": null,
+    "source_bytes": null,
+    "portable_sha256": "17efc43498b7bab424cc79c7c8321a2862ef563f0496df50481f0101bc6fe84b",
+    "portable_bytes": 3529,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/phantom-blade-zero/tools/ue_run.ps1",
+    "source": "new file written for the portable kit (no project original); PowerShell port of the project's ModTools/PBZ/ue_scripts/ue_run.cmd",
+    "original_sha256": null,
+    "source_bytes": null,
+    "portable_sha256": "636eb0b36105e2f793abd9539cdb948376d519cc03b86dfe3e4b1fd1cdbc3d98",
+    "portable_bytes": 2761,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/phantom-blade-zero/ue/PBZModTools/PBZModTools.uplugin",
+    "source": "ModTools/PBZ/ueproj/ProjectPBZ/Plugins/PBZModTools/PBZModTools.uplugin",
+    "original_sha256": "714469eb7577846d3c80182692f62cdcfc95fdf007ec2d102523c5f80c9e945d",
+    "source_bytes": 422,
+    "portable_sha256": "714469eb7577846d3c80182692f62cdcfc95fdf007ec2d102523c5f80c9e945d",
+    "portable_bytes": 422,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/phantom-blade-zero/ue/PBZModTools/Source/PBZModTools/PBZModTools.Build.cs",
+    "source": "ModTools/PBZ/ueproj/ProjectPBZ/Plugins/PBZModTools/Source/PBZModTools/PBZModTools.Build.cs",
+    "original_sha256": "78bec2fc91969d720cf2c2a0990ab4e759f4b700cd595e987b9494d2b4362faa",
+    "source_bytes": 665,
+    "portable_sha256": "78bec2fc91969d720cf2c2a0990ab4e759f4b700cd595e987b9494d2b4362faa",
+    "portable_bytes": 665,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/phantom-blade-zero/ue/PBZModTools/Source/PBZModTools/Private/PBZModToolsLibrary.cpp",
+    "source": "ModTools/PBZ/ueproj/ProjectPBZ/Plugins/PBZModTools/Source/PBZModTools/Private/PBZModToolsLibrary.cpp",
+    "original_sha256": "dbfc0a1c1db8c189c1da22e6c096970b03640825475a64efdbfa4482c06ec1cd",
+    "source_bytes": 44596,
+    "portable_sha256": "dbfc0a1c1db8c189c1da22e6c096970b03640825475a64efdbfa4482c06ec1cd",
+    "portable_bytes": 44596,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/phantom-blade-zero/ue/PBZModTools/Source/PBZModTools/Public/PBZModToolsLibrary.h",
+    "source": "ModTools/PBZ/ueproj/ProjectPBZ/Plugins/PBZModTools/Source/PBZModTools/Public/PBZModToolsLibrary.h",
+    "original_sha256": "620b66d9cc775a7ebc673b501e52ac264573dd4b15c77a049e439d4df0abe2c0",
+    "source_bytes": 8571,
+    "portable_sha256": "620b66d9cc775a7ebc673b501e52ac264573dd4b15c77a049e439d4df0abe2c0",
+    "portable_bytes": 8571,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/phantom-blade-zero/ue/ProjectPBZ/Config/DefaultEngine.ini",
+    "source": "ModTools/PBZ/ueproj/ProjectPBZ/Config/DefaultEngine.ini",
+    "original_sha256": "1c6775d89a0aeec21febc19581b2804b6da5bf86c5c4dd4bc61f4b3b9f7d1fa0",
+    "source_bytes": 4500,
+    "portable_sha256": "1c6775d89a0aeec21febc19581b2804b6da5bf86c5c4dd4bc61f4b3b9f7d1fa0",
+    "portable_bytes": 4500,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/phantom-blade-zero/ue/ProjectPBZ/Config/DefaultGame.ini",
+    "source": "ModTools/PBZ/ueproj/ProjectPBZ/Config/DefaultGame.ini",
+    "original_sha256": "1f0c22c74b8b6d2cc364f5da90e730f1dd3333161c3230e02ade68ba405cb5a2",
+    "source_bytes": 1126,
+    "portable_sha256": "1f0c22c74b8b6d2cc364f5da90e730f1dd3333161c3230e02ade68ba405cb5a2",
+    "portable_bytes": 1126,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/phantom-blade-zero/ue/ProjectPBZ/Plugins/HuaShira/HuaShira.uplugin",
+    "source": "ModTools/PBZ/ueproj/ProjectPBZ/Plugins/HuaShira/HuaShira.uplugin",
+    "original_sha256": "41dcdeebddde6e4a027ade4b359498ec840ea3f3670dadc82772cc93889ce839",
+    "source_bytes": 284,
+    "portable_sha256": "41dcdeebddde6e4a027ade4b359498ec840ea3f3670dadc82772cc93889ce839",
+    "portable_bytes": 284,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/phantom-blade-zero/ue/ProjectPBZ/ProjectPBZ.uproject",
+    "source": "ModTools/PBZ/ueproj/ProjectPBZ/ProjectPBZ.uproject",
+    "original_sha256": "d1f9420dabeb698a1f27189f19d2fc14e766e426856e8e8fbad8f2407e175bed",
+    "source_bytes": 652,
+    "portable_sha256": "d1f9420dabeb698a1f27189f19d2fc14e766e426856e8e8fbad8f2407e175bed",
+    "portable_bytes": 652,
+    "modified_for_portability": false
   }
 ]

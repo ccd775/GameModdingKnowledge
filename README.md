@@ -1,7 +1,7 @@
 如果你觉得内容有帮助，可以前往https://ifdian.net/a/ccd775 赞助我以获得贴贴！
 # Game Modding Shared Knowledge
 
-供人和 agent 接续长线 Mod 项目的知识库与便携工具包。它包含二十九款游戏的实际项目方法、成功与失败记录（其中二十二款附便携工具包）、19 个原项目迁移脚本、MK1 参数化工具、对马岛 / 西之绝境 / 战神5 构建器、浪人崛起的 KT 引擎格式工具、龙之信条2 的 DD2Tool 与 REFramework 注入脚本、师父的 UE 4.26 编辑器插件与 Blender 构建器、幻兽帕鲁的 UE 5.1 编辑器插件与 KawaiiPhysics 离线模拟器、漫威蜘蛛侠2 的 i30 格式读写与安装器、往日不再的 UE 4.11 烘焙动画蓝图插节点与面部权重求解工具、巫师3 次世代版的 bundle / metadata.store 读写与 dyng / mimic 生成器、刺客信条：奥德赛的 forge v28 原地安装器与 Reflex3 物理骨架生成器、刺客信条：大革命的内嵌副本扫描与附加骨架物理生成器、刺客信条：枭雄的双主角构建链与按内容比对、自带 Python 的安装包、霍格沃茨之遗的更新后网格补丁（HLMeshProbe）与动画蓝图生成插件、死亡搁浅2 的 Decima 流图 / 链接表读写与按组核对的发行安装器和公共运行工具；不需要注册 Skill。
+供人和 agent 接续长线 Mod 项目的知识库与便携工具包。它包含三十款游戏的实际项目方法、成功与失败记录（其中二十三款附便携工具包）、19 个原项目迁移脚本、MK1 参数化工具、对马岛 / 西之绝境 / 战神5 构建器、浪人崛起的 KT 引擎格式工具、龙之信条2 的 DD2Tool 与 REFramework 注入脚本、师父的 UE 4.26 编辑器插件与 Blender 构建器、幻兽帕鲁的 UE 5.1 编辑器插件与 KawaiiPhysics 离线模拟器、漫威蜘蛛侠2 的 i30 格式读写与安装器、往日不再的 UE 4.11 烘焙动画蓝图插节点与面部权重求解工具、巫师3 次世代版的 bundle / metadata.store 读写与 dyng / mimic 生成器、刺客信条：奥德赛的 forge v28 原地安装器与 Reflex3 物理骨架生成器、刺客信条：大革命的内嵌副本扫描与附加骨架物理生成器、刺客信条：枭雄的双主角构建链与按内容比对、自带 Python 的安装包、霍格沃茨之遗的更新后网格补丁（HLMeshProbe）与动画蓝图生成插件、死亡搁浅2 的 Decima 流图 / 链接表读写与按组核对的发行安装器、影之刃零的 UE 5.7 Chaos 布料 / CopyPose 动画蓝图插件与 usmap 修正和公共运行工具；不需要注册 Skill。
 
 ## 从这里开始
 
@@ -40,6 +40,7 @@
 | 刺客信条：枭雄 | [AC Syndicate](games/assassins-creed-syndicate/README.md) | Karin_Original→雅各布 + 伊薇 v5：不论装备的两主角整体替换（20 张装备 / 头部表去掉可视列，Karin 的 LOD0–3 原地顶替两人的头部 LOD，武器模板材质），表和头部 LOD 内嵌在 38 个数据文件的 318 份副本里、每一份按自己的版本改；骨没有名字，按 CRC32 还原；新的附加骨架挂在头部表的头发单元格上，双马尾隔节模拟加逐节分级（相邻链节都模拟会抖，`LocalOwnGravity` 做回弹被实机证伪）；源模型膝盖形态键失效和百褶裙卡通法线分别修正；替换、物理与表情经用户实机确认（「两个角色都被正确替换了，有物理有表情」），v5 的物理手感、膝盖与裙片经用户确认（「看起来可以」）；发行包自带嵌入式 Python、不依赖 PowerShell，自动找 Steam / Ubisoft Connect / Epic，按内容比对副本、不锁版本，但只在构建机的一份非商店版副本上实机过；过场是预渲染视频，开膛手杰克 DLC 的老年双胞胎未处理 |
 | 死亡搁浅2 | [Death Stranding 2](games/death-stranding-2/README.md) | Karin_Original→主角山姆（Porter 外观）v34 / v34f（DS2.exe 1.0.48.0）：id-daemon 工具写进 Porter 现有槽位（裙子和尾巴进长外套、耳朵刘海进山姆头发 LodMesh、有表情版的脸进脸皮 LOD2），核心补丁补导入工具不更新的字段，链接表原位重指外观表 6 套、山姆头发 / 面部部件与装备靴；借外套 / 背包带 / 头发的 PBD 粒子做物理，RigLogic 解码 + 眼睑杠杆做张嘴和眨眼，改名 CorrosionRate 去掉时间雨腐蚀的灰层；外观、去头发、裙子 / 尾巴 / 双马尾 / 耳朵物理、装备靴、不再发灰经用户或 agent 实机确认，张嘴经用户确认；淋浴时仍有山姆的湿发（未解决），过场替身未处理；发行安装器在用户自己的流图上按组核对后追加新包文件，追加的包在提交时未经实机 |
 | 霍格沃茨之遗 | [Hogwarts Legacy](games/hogwarts-legacy/README.md) | Karin_Original→黑魔法套装（游戏版本 1613387，2025-01 光追 / 序列化更新之后）：原版 UE 4.27 cook 后补上更新新增的 section 字段并按游戏写回参考姿势，借用游戏材质实例（女版克隆到空闲路径），部件数据资产注入动画类跑 CopyPose → AnimDynamics 次级物理，56 个同名形变接游戏面部驱动；拟合五轮、物理四轮后用户实机确认（「这次的挺好的了」「表情和物理效果都正常」）；女巫版 v1.0 玩几分钟后崩溃，经崩溃转储定位为网格带了骨架外的骨，v1.1 修复后用户实机未再崩溃；男版物理 / 表情、过场与战斗大动作未测 |
+| 影之刃零 | [Phantom Blade Zero](games/phantom-blade-zero/README.md) | Karin_Original→主角「魂」v3（Steam buildid 26266538，UE 5.7.4 改版，IoStore）：成年两套默认服装与序章少年魂从 VRM 完整构建，Chaos 骨骼网格布料（裙摆用平滑外壳模拟 + backstop、双马尾、尾巴、耳朵、刘海），MetaHuman 曲线名的形变；成年头槽 0 会被换成动态材质实例（脸放槽 1），平时眨眼放在睫毛片上、过场用头上缩进去的第二张脸；外观、裙摆五轮、刘海、耳朵、眨眼、过场有脸经用户实机确认（「这次看起来都好了」）；v3 身体补回原版的 4 根武器子骨（醉剑丢剑与判定），只读回、未实机复测；第二个模型 Karin_PicodraTech v1（7 段布料、合成尾巴贴图）构建并装进游戏，用户未反馈；其它服装、关闭 groom 时的过场未测 |
 | 生化危机 安魂曲 | [RE9 Requiem](games/resident-evil-requiem/README.md) | Karin_Original→里昂 / 格蕾丝 v1.2.0：从源模型完整构建（refskel 路线、全部部件与 mdf2 变体、chain2 物理与无 Chain2 身体 prefab 注入、CollisionTarget=Self 让 chain2 自带碰撞体生效）；仅在「游戏模型」展柜由 agent 截图与运行时探针验证，实际游玩未测、用户未验收；另修复用户自制 Leon Karin 的乳胶感材质（离线） |
 
 ## 独立交接与验证
@@ -51,7 +52,7 @@ python -B tools/check_repository.py
 python -B tools/export_kit.py --all --output ../Modding-Portable-Exports --zip
 ```
 
-输出二十二份不依赖父仓库的目录，以及对应 ZIP/文件哈希清单。每份包含该游戏文档、脚本、公共层和安装依赖说明。[验证记录](portable-kits/VALIDATION.md) 明确哪些进行了组件测试，哪些还需要专用工具和游戏实测。
+输出二十三份不依赖父仓库的目录，以及对应 ZIP/文件哈希清单。每份包含该游戏文档、脚本、公共层和安装依赖说明。[验证记录](portable-kits/VALIDATION.md) 明确哪些进行了组件测试，哪些还需要专用工具和游戏实测。
 
 ## 下载便携包
 
@@ -70,7 +71,7 @@ python -B tools/export_kit.py --all --output ../Modding-Portable-Exports --zip
 | 求生之路2 | [下载](https://github.com/ccd775/GameModdingKnowledge/releases/download/v0.2.0/left-4-dead-2.zip) |
 | 绝地潜兵2 | [下载](https://github.com/ccd775/GameModdingKnowledge/releases/download/v0.2.0/helldivers-2.zip) |
 
-浪人崛起、龙之信条2、师父、幻兽帕鲁、漫威蜘蛛侠2、往日不再、巫师3、奥德赛、大革命、霍格沃茨之遗、枭雄与死亡搁浅2的便携包是 v0.2.0 之后加入的，还不在 Release 里，请用下面的命令自行导出。
+浪人崛起、龙之信条2、师父、幻兽帕鲁、漫威蜘蛛侠2、往日不再、巫师3、奥德赛、大革命、霍格沃茨之遗、枭雄、死亡搁浅2与影之刃零的便携包是 v0.2.0 之后加入的，还不在 Release 里，请用下面的命令自行导出。
 
 单独导出某一款时运行（导出目录旁会生成同名 ZIP 和 `.files.json` 清单）：
 

@@ -145,6 +145,12 @@ class DetachedExports(unittest.TestCase):
                             self.assertIn(name, process.stderr)
                         self.assertFalse([l for l in process.stderr.splitlines() if 'test_ds2_' in l and 'skipped' in l
                                           and 'installer' not in l])
+                    if game == 'phantom-blade-zero':
+                        self.assertTrue((target/'portable-kits/phantom-blade-zero/requirements.txt').is_file())
+                        for name in ('test_pbz_usmap_fix_removes_inherited', 'test_pbz_builders_need_env_before_writing',
+                                     'test_pbz_powershell_names_and_installer', 'test_pbz_provenance_and_portability'):
+                            self.assertIn(name, process.stderr)
+                        self.assertFalse([l for l in process.stderr.splitlines() if 'test_pbz_' in l and 'skipped' in l])
                     print(f'{game}: detached tests passed (unselected games skipped)')
 
 

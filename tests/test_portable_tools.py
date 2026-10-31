@@ -5872,4 +5872,120 @@ class DeathStranding2Tools(unittest.TestCase):
         self.assertFalse([p for p in kit.rglob('*') if p.suffix in ('.sh', '.cmd', '.bat', '.exe', '.dll')])
         self.assertFalse([p for p in kit.rglob('*.json') if p.name.startswith(('types_', 'extensions_'))])
 
+PBZ_KIT = KITS / 'phantom-blade-zero'
+
+
+def pbz_kit():
+    if not PBZ_KIT.is_dir():
+        raise unittest.SkipTest('phantom-blade-zero is not included in this single-game export')
+    return PBZ_KIT
+
+
+def pbz_usmap(structs, names, ver=3):
+    """Synthetic uncompressed usmap (names, no enums, structs as (name, super, [(prop name, type byte)]))."""
+    body = bytearray(struct.pack('<I', len(names)))
+    for n in names:
+        e = n.encode(); body += struct.pack('<H', len(e)) + e
+    body += struct.pack('<I', 0) + struct.pack('<I', len(structs))
+    for sn, sup, props in structs:
+        body += struct.pack('<ii', names.index(sn), names.index(sup) if sup else -1) + struct.pack('<HH', len(props), len(props))
+        for i, (pn, ty) in enumerate(props):
+            body += struct.pack('<HBi', i, 1, names.index(pn)) + bytes([ty])
+    return struct.pack('<HB', 0x30C4, ver) + struct.pack('<i', 0) + struct.pack('<BII', 0, len(body), len(body)) + bytes(body)
+
+
+class PhantomBladeZeroTools(unittest.TestCase):
+    """Kit checks on synthetic data. Builds need Blender, UE 5.7 and the game; they are not run here."""
+
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(prefix='modding pbz ')
+        self.root = Path(self.temp.name)
+
+    def tearDown(self):
+        self.temp.cleanup()
+
+    def test_pbz_usmap_fix_removes_inherited(self):
+        pbz_kit()
+        names = ['Base', 'Child', 'GrandChild', 'A', 'B', 'C']
+        # Dumper-7 writes every struct with its whole PropertyLink chain: own properties plus all inherited ones
+        src = self.root / 'raw.usmap'
+        src.write_bytes(pbz_usmap([('Base', None, [('A', 2)]), ('Child', 'Base', [('B', 3), ('A', 2)]),
+                                   ('GrandChild', 'Child', [('C', 5), ('B', 3), ('A', 2)])], names))
+        out = self.root / 'fixed.usmap'
+        process = cli('phantom-blade-zero', 'usmap_fix', src, out, '--dump', '^(Child|GrandChild)$')
+        self.assertIn('removed 3 inherited entries', process.stdout)
+        self.assertIn('struct GrandChild : Child', process.stdout)
+        self.assertEqual(out.read_bytes(), pbz_usmap([('Base', None, [('A', 2)]), ('Child', 'Base', [('B', 3)]),
+                                                      ('GrandChild', 'Child', [('C', 5)])], names))
+        # a same-named property of another type is the struct's own, not an inherited one
+        src.write_bytes(pbz_usmap([('Base', None, [('A', 2)]), ('Child', 'Base', [('A', 3), ('A', 2)])], names))
+        self.assertIn('removed 1 inherited entries', cli('phantom-blade-zero', 'usmap_fix', src, out).stdout)
+        bad = self.root / 'bad.usmap'
+        bad.write_bytes(b'\0\0' + src.read_bytes()[2:])
+        cli('phantom-blade-zero', 'usmap_fix', bad, self.root / 'x.usmap', ok=False)
+        self.assertFalse((self.root / 'x.usmap').exists())
+
+    def test_pbz_builders_need_env_before_writing(self):
+        kit = pbz_kit()
+        for name, src_var in (('build_pbz.py', 'PBZ_SOURCE_VRM'), ('build_pt.py', 'PBZ_SOURCE_BLEND')):
+            text = (kit / 'scripts/blender' / name).read_text(encoding='utf-8')
+            ast.parse(text)
+            for var in ('PBZ_WORK', src_var):
+                self.assertIn(f'_need("{var}"', text, name)
+            # the run folder is created only after the variables were checked
+            self.assertLess(text.index(f'_need("{src_var}"'), text.index('os.makedirs(RUN'), name)
+            # the vanilla body's bones missing from the vanilla armature are added; the leader keeps the vanilla set
+            self.assertIn('REPORT["body_bones_added"] = EXTRA', text, name)
+            self.assertIn('make_armature("ArmatureLeader", [n for n in ORDER if n not in EXTRA])', text, name)
+        for path in (kit / 'scripts/ue').rglob('*.py'):
+            ast.parse(path.read_text(encoding='utf-8-sig'))
+
+    def test_pbz_powershell_names_and_installer(self):
+        import re
+        kit = pbz_kit()
+        auto = {'_', 'args', 'error', 'lastexitcode', 'psscriptroot', 'env', 'true', 'false', 'null'}
+        for path in list((kit / 'tools').glob('*.ps1')) + [kit / 'release/install.ps1']:
+            text = path.read_text(encoding='utf-8-sig')
+            spell = {}
+            for v in re.findall(r'\$(?:env:)?([A-Za-z_][A-Za-z0-9_]*)', text):
+                spell.setdefault(v.lower(), set()).add(v)
+            # PowerShell names are case-insensitive: two spellings would be one variable
+            # (install.ps1: $dir in Find-GameDir and the $Dir parameter of Get-GameBuild live in different functions)
+            ok = auto | ({'dir'} if path.name == 'install.ps1' else set())
+            clash = {k: v for k, v in spell.items() if len(v) > 1 and k not in ok}
+            self.assertFalse(clash, f'{path.name}: {clash}')
+        inst = (kit / 'release/install.ps1').read_text(encoding='utf-8-sig')
+        self.assertIn("$Names = 'z_KarinPBZ_P.pak', 'z_KarinPBZ_P.ucas', 'z_KarinPBZ_P.utoc'", inst)
+        self.assertIn("$OtherNames = 'z_KarinPT_P.pak', 'z_KarinPT_P.ucas', 'z_KarinPT_P.utoc'", inst)
+        self.assertIn("Get-Process PBZ", inst)
+        # the install removes the other Karin package only after the package's own files passed the hash check
+        self.assertLess(inst.index('包内文件缺失或损坏'), inst.index('foreach ($f in $found) { Remove-Item'))
+        mktest = (kit / 'tools/mktest.ps1').read_text(encoding='utf-8-sig')
+        self.assertNotIn('Remove-Item "$dst\\*"', mktest)   # other mods in ~mods stay
+
+    def test_pbz_provenance_and_portability(self):
+        import hashlib
+        import re
+        kit = pbz_kit()
+        rows = [r for r in json.loads((KITS / 'PROVENANCE.json').read_text(encoding='utf-8-sig'))
+                if r['path'].startswith('portable-kits/phantom-blade-zero/')]
+        files = sorted(p.relative_to(ROOT).as_posix() for p in kit.rglob('*') if p.is_file() and '__pycache__' not in p.parts)
+        own = {'portable-kits/phantom-blade-zero/' + n for n in ('README.md', 'toolchain.json', 'requirements.txt')}
+        self.assertEqual(sorted(r['path'] for r in rows), sorted(set(files) - own))
+        for r in rows:
+            data = (ROOT / r['path']).read_bytes()
+            self.assertEqual((hashlib.sha256(data).hexdigest(), len(data)), (r['portable_sha256'], r['portable_bytes']), r['path'])
+            self.assertTrue(r['source'].startswith(('ModTools/PBZ/', 'PBZModding/', 'new file written for the portable kit')), r['source'])
+            self.assertEqual(r['modified_for_portability'], r['portable_sha256'] != r['original_sha256'], r['path'])
+        bundled = json.loads((kit / 'toolchain.json').read_text(encoding='utf-8'))['bundled_scripts']
+        self.assertEqual(sorted('portable-kits/phantom-blade-zero/' + s for s in bundled), sorted(r['path'] for r in rows))
+        drive = re.compile(r'(?i)(?<![\w<])[a-z]:[\\/](?![\\/])|[\\/]users[\\/]')
+        for rel in files:
+            text = (ROOT / rel).read_bytes().decode('utf-8')
+            self.assertFalse(drive.search(text), f'{rel}: {drive.search(text)}')
+            self.assertNotRegex(text, r'sys\.path\.insert\(0, *r?[\'"]', rel)
+            self.assertNotRegex(text, r'(?i)PBZX_AES\s*=\s*["\']?[0-9a-f]{16}', rel)   # no key written in
+        self.assertFalse([p for p in kit.rglob('*') if p.suffix in ('.sh', '.cmd', '.bat', '.exe', '.dll', '.usmap', '.utoc', '.ucas', '.pak')])
+
+
 if __name__ == '__main__': unittest.main(verbosity=2)

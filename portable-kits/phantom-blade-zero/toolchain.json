@@ -1,0 +1,94 @@
+{
+  "game": "Phantom Blade Zero (PC, Steam App 4115450)",
+  "status": "runtime-confirmed-scoped",
+  "tools": [
+    {
+      "name": "Blender",
+      "version": "4.2 LTS with the UEFormat addon (io_scene_ueformat), run with --background --factory-startup",
+      "role": "body build: vanilla skeleton from Hun_Invs.uemodel plus the vanilla body's extra bones, joint placement by retarget mode, region re-pose, weights, Chaos cloth sections and cloth*.json, collision bodies, face morphs (CTRL_expressions_* + ARKit aliases, KarinFaceShow), FBX export (scripts/blender/)",
+      "required": true
+    },
+    {
+      "name": "Unreal Engine",
+      "version": "5.7 (Epic launcher build) with PythonScriptPlugin and EditorScriptingUtilities",
+      "role": "content project ProjectPBZ (ue/ProjectPBZ, empty HuaShira plugin): imports on the placeholder Hun_Skin_Skeleton, layered-material MIs (layer 0), VT textures, Chaos cloth, CopyPose blink anim blueprints (scripts/ue/ via tools/ue_run.ps1 / run_all.ps1); versioned cook (tools/cook.ps1) and UnrealPak IoStore container (tools/mkcontainer.ps1)",
+      "required": true
+    },
+    {
+      "name": "PBZModTools editor plugin (ue/PBZModTools, C++)",
+      "version": "kit source; built with tools/build_plugin.ps1 (Visual Studio 2022 C++ build tools, project used MSVC 14.44)",
+      "role": "physics assets from JSON, morph curve metadata, layered material parameters by association / index, cloth from a material slot (masks, backstop, sim_slot shell, normals), cloth solver, section shadows, curve-only sequences, CopyPose overlay anim blueprint builder and editor self-test",
+      "required": true
+    },
+    {
+      "name": "PbzExport (pbzexport/, C# on CUE4Parse)",
+      "version": "CUE4Parse / CUE4Parse-Conversion 1.2.2.202610 NuGet, net10.0 win-x64, built with the .NET 10 SDK",
+      "role": "list / json (blueprint bytecode with PBZX_SCRIPT=1) / export uemodel|gltf|psk / skel / raw / morphs over the game IoStore (AES from PBZX_AES, usmap, Oodle) and read-back of the mod container (PBZX_EXTRA)",
+      "required": true
+    },
+    {
+      "name": "objscan (objscan/, C#) and Dumper-7 (patched, not bundled)",
+      "version": "net10.0 win-x64; Dumper-7 from its repository with the three patches in DEV_TOOLING.md",
+      "role": "locate the reordered GUObjectArray in the running game and dump the usmap",
+      "required": false
+    },
+    {
+      "name": "usmap_fix.py",
+      "version": "kit",
+      "role": "drop the inherited property entries Dumper-7 writes into every struct (FField::Next read as PropertyLinkNext)",
+      "required": true
+    },
+    {
+      "name": "release/install.ps1",
+      "version": "kit",
+      "role": "release package installer: Steam library lookup, buildid warning, hash checks, refuses while the game runs, removes the other Karin package",
+      "required": false
+    }
+  ],
+  "entry_documents": [
+    "../../games/phantom-blade-zero/README.md",
+    "../../games/phantom-blade-zero/BUILD_PIPELINE.md"
+  ],
+  "runtime_boundary": "Game build 26266538 (engine 5.7.4-301524), container in ProjectPBZ/Content/Paks/~mods (utoc/ucas + companion pak, no .sig). The user confirmed Karin_Original v2 in game (adult both outfits, young prologue Hun, skirt after five rounds, bangs, ears, gameplay blinking, cutscene face); v3 adds the four weapon child bones for the 醉剑 (read back from the cooked container, not re-tested in game). Karin_PicodraTech v1 was built, read back and installed, with no user feedback. The portable copies: the Blender builders reproduce the project outputs (JSON byte-identical, FBX structurally identical, see VALIDATION.md); usmap_fix.py output is byte-identical to the project original; the PowerShell ports of the .cmd runners passed a control-flow run against fake UE executables; on the real UE the first port ran three steps and then hung (Start-Process -Wait, fixed since), the fixed ports were not re-run on the real engine; plugin, PbzExport and objscan were not rebuilt from the kit copies.",
+  "bundled_scripts": [
+    "objscan/Program.cs",
+    "objscan/objscan.csproj",
+    "pbzexport/PbzExport.csproj",
+    "pbzexport/Program.cs",
+    "release/install.ps1",
+    "scripts/blender/build_pbz.py",
+    "scripts/blender/build_pt.py",
+    "scripts/blender/render_pt.py",
+    "scripts/ue/pt/ue_brightness.py",
+    "scripts/ue/pt/ue_cloth.py",
+    "scripts/ue/pt/ue_fixmats.py",
+    "scripts/ue/pt/ue_import_pbz.py",
+    "scripts/ue/pt/ue_import_young.py",
+    "scripts/ue/ue_blink.py",
+    "scripts/ue/ue_brightness.py",
+    "scripts/ue/ue_cloth.py",
+    "scripts/ue/ue_fixmats.py",
+    "scripts/ue/ue_grooms.py",
+    "scripts/ue/ue_import_pbz.py",
+    "scripts/ue/ue_import_young.py",
+    "scripts/ue/ue_morphdump.py",
+    "scripts/usmap_fix.py",
+    "tools/build_plugin.ps1",
+    "tools/cook.ps1",
+    "tools/mkcontainer.ps1",
+    "tools/mktest.ps1",
+    "tools/pbzx_run.ps1",
+    "tools/run_all.ps1",
+    "tools/ue_run.ps1",
+    "ue/PBZModTools/PBZModTools.uplugin",
+    "ue/PBZModTools/Source/PBZModTools/PBZModTools.Build.cs",
+    "ue/PBZModTools/Source/PBZModTools/Private/PBZModToolsLibrary.cpp",
+    "ue/PBZModTools/Source/PBZModTools/Public/PBZModToolsLibrary.h",
+    "ue/ProjectPBZ/Config/DefaultEngine.ini",
+    "ue/ProjectPBZ/Config/DefaultGame.ini",
+    "ue/ProjectPBZ/Plugins/HuaShira/HuaShira.uplugin",
+    "ue/ProjectPBZ/ProjectPBZ.uproject"
+  ],
+  "python": "3.10+ for scripts/usmap_fix.py (zstandard only for zstd-compressed inputs); Blender scripts run in Blender's Python 3.11; UE scripts in UE 5.7's Python",
+  "dependency_install": "python -m pip install -r requirements.txt -r portable-kits/phantom-blade-zero/requirements.txt (from bundle root; only needed for zstd-compressed usmap inputs)"
+}

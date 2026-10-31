@@ -17,7 +17,7 @@ GAMES = ('hitman-world-of-assassination', 'watch-dogs', 'assassins-creed-black-f
          'horizon-forbidden-west', 'god-of-war-ragnarok', 'rise-of-the-ronin', 'dragons-dogma-2', 'sifu',
          'palworld', 'marvels-spider-man-2', 'days-gone', 'the-witcher-3', 'assassins-creed-odyssey',
          'assassins-creed-unity', 'hogwarts-legacy', 'assassins-creed-syndicate',
-         'death-stranding-2')
+         'death-stranding-2', 'phantom-blade-zero')
 
 
 def digest(path):

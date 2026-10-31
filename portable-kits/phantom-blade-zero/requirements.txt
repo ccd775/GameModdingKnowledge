@@ -1,0 +1,2 @@
+# Phantom Blade Zero kit: only scripts/usmap_fix.py has a third-party import, and only for zstd-compressed inputs.
+zstandard==0.25.0

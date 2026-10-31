@@ -1,5 +1,50 @@
 # 迁移验证记录
 
+## 2026-10-31：新增影之刃零便携包
+
+- **迁入内容：** 37 个文件，放在 `portable-kits/phantom-blade-zero/`。
+  - `scripts/blender/` 下 3 个 Blender 脚本（`build_pbz.py`、`build_pt.py`、`render_pt.py`），来自项目 `blender/`；
+  - `scripts/ue/` 下 8 个 UE 5.7 编辑器 Python（导入、少年导入、材质、亮度、布料、眨眼动画蓝图、形变检查、groom 占位），来自项目 `ue_scripts/`；
+    `scripts/ue/pt/` 下 5 个 PicodraTech 分支，来自项目 `pt/ue/`；
+  - `scripts/usmap_fix.py`，来自项目 `scripts/`；
+  - `tools/` 下 `mkcontainer.ps1`、`mktest.ps1`、`pbzx_run.ps1`（项目原件），以及项目 `.cmd` 的 PowerShell 版 `run_all.ps1`、`ue_run.ps1`、`cook.ps1`、`build_plugin.ps1`
+    （仓库不收 `.cmd`；这 4 个是新写的，PROVENANCE 里没有原件哈希）；
+  - `release/install.ps1`：Karin_Original v3 发行包里的安装脚本；
+  - `pbzexport/`、`objscan/` 的 C# 源码和项目文件，`ue/PBZModTools/` 的插件源码，`ue/ProjectPBZ/` 的内容工程模板（`.uproject`、两个 ini、空插件 `HuaShira`）；
+  - 新增 `README.md`、`toolchain.json`、`requirements.txt`（zstandard）。公共层 `modkit.py` 的游戏列表加上 `phantom-blade-zero`。
+- **没有迁入：** 远程机辅助脚本（`rpbzx.sh`、`rps.sh`、截图 / 裁剪 `.sh`、`gametest.sh`）、一次性的探针与补丁（`probe*.py`、`patch_plugin_cloth.py`、`cloth_impl.cpp.txt`、
+  `ue_mattest*.py`、`ue_materials.py`、`ue_labels.py`、`ue_tex_noalpha.py`、`smoke.py`、`package.cmd`）；打补丁的 Dumper-7（补丁内容写在 `games/phantom-blade-zero/DEV_TOOLING.md` §2）；
+  AES 密钥、usmap、Oodle DLL；全部工作数据（dump、FBX、贴图、blend、cook 输出、容器、发行包）。
+- **便携改动**在 11 个文件：
+  - 两个构建器：本机的原版 dump 目录、源模型路径、UEFormat 插件目录的默认值 → `PBZ_WORK`、`PBZ_SOURCE_VRM` / `PBZ_SOURCE_BLEND` 必须设置（缺了报变量名退出，
+    输出目录还没建）、`PBZ_BLENDER_ADDONS` 可选；
+  - `usmap_fix.py`：补上 argparse（原件 `--help` 以 `IndexError` 退出），`zstandard` 改成只在输入是 zstd 压缩时才导入，`main()` 放到 `__main__` 下；
+  - `mkcontainer.ps1`：工作根、UE 目录、输出目录、容器名改成 `-Root` / `PBZ_ROOT`、`-UE` / `UE_ROOT`、`-Out`、`-Mod original|pt`（原来两个模型各有一份只差路径和名字的副本）；
+  - `mktest.ps1`：同样的参数化，加上游戏目录 `-GameDir` / `PBZ_GAME_DIR` 和「游戏运行时拒绝」；原来会清空整个 `~mods`，改成只删测试包和两套 Karin 包；
+  - `pbzx_run.ps1`：去掉写死的游戏目录和工作根默认值；
+  - `install.ps1`：提示里的示例路径改成 `<Steam 库>`；
+  - 4 个 `.cmd` 的 PowerShell 版（见下面的验证）。
+  其余 26 个文件与项目原件逐字节相同。所有文件保留原来的换行。
+- **等价性验证（项目的两台机器，2026-10-31）：**
+  - Blender 4.2，同一份原版 dump 和源模型：原件和便携版各跑 Karin_Original（成年 1.30 / 少年 1.32）和 PicodraTech（成年 / 少年）四个构建。全部 JSON 输出
+    （`cloth*.json`、`cloth_collision*.json`、`materials*.json`、`report*.json`）逐字节相同；贴图逐字节大小相同；每个 FBX 在 Blender 里重新导入后网格、权重、
+    形状键、骨骼矩阵、材质的摘要相同（Karin_Original 的身体 FBX 字节数差 16，是 FBX 里记录的贴图路径含输出目录名）。缺 `PBZ_WORK` 时以 `set PBZ_WORK: …` 退出、没建输出目录。
+  - `usmap_fix.py`：原件和便携版处理同一个 Dumper-7 原始 usmap（79 701 个名字、17 326 个结构体，去掉 134 345 条），输出逐字节相同，也与项目在用的 usmap 相同。
+  - PowerShell 版的控制流：在构建机上用假的 `UnrealEditor-Cmd` / `UnrealPak` / `UnrealBuildTool`（C# 小程序，打印原始命令行、按脚本名写完成标记、并留下一个继承了
+    句柄的后台进程）跑 `run_all.ps1`：工作根带空格；全部步骤按顺序通过、cook 判断与容器步骤被调用；`-Mod pt` 用 `scripts/ue/pt/` 的分支、其余步骤用公共脚本；
+    让 `ue_fixmats.py` 不写标记时停在 `FAIL fixmats`；`build_plugin.ps1` 的命令行；缺变量时 `ue_run.ps1`、`run_all.ps1` 报出变量名。这一轮抓到并修掉了三个问题：
+    第一版用 `Start-Process -Wait`，会连编辑器留下的后台进程一起等（在真实引擎上卡在第三步之后）；后台进程拿着日志句柄时 `Add-Content` 写不进去（现在写不进时
+    改写到 `<日志>.exit.txt`）；没有脚本参数的步骤把 `$null` 带进了参数拼接。传给 UE 的原始命令行与项目 `.cmd` 的写法一致（`-script="脚本 参数"`）。
+  - 真实 UE 上的整套流程：第一版 PowerShell 端口在游戏机上跑过 imp、young、fixmats 三步（与项目原件同样的输入，标记都对），之后卡住——就是上面在假引擎上复现的
+    `Start-Process -Wait` 问题。修过的版本还没有在真实 UE 上重跑（这次游戏机的远程连接一直断着）。项目自己的构建一直用原来的 `.cmd`。
+  - **没有重跑的部分：** 插件、PbzExport、objscan 没有从便携副本重新编译（与项目原件逐字节相同）；`mktest.ps1` 没有运行；便携版重建的容器没有装进游戏。
+    实机结论来自项目用原脚本构建的版本。
+- **合成数据测试：** `PhantomBladeZeroTools` 4 项：`usmap_fix.py` 在合成 usmap 上去掉多级继承的属性、同名不同类型的属性保留、魔数不对时拒绝且不写输出；构建器先检查
+  环境变量再建目录、补骨与领导者骨集的写法；PowerShell 脚本里没有只差大小写的变量名（已知的跨函数例外单列）、安装脚本的包名 / 另一套包名 / 先校验后删除、
+  `mktest.ps1` 不清空 `~mods`；PROVENANCE / 便携性（每个文件一行，哈希、字节数、修改标记、`bundled_scripts` 一致；没有盘符路径、用户目录、写死的 `sys.path`、
+  写进去的密钥、`.cmd` / `.sh` / 二进制 / 游戏数据）。`--help` 测试覆盖 `scripts/usmap_fix.py`。
+- **未验证：** Blender / UE 脚本在测试套件里只做语法检查；非 Windows；其它游戏版本；新模型的案例常量。
+
 ## 2026-10-31：新增死亡搁浅2便携包
 
 - **迁入内容：** 36 个文件，放在 `portable-kits/death-stranding-2/scripts/`。

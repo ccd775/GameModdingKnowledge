@@ -295,6 +295,17 @@
       "topics": ["Decima 流图字段布局（GroupSize int64、locator 低 24 位文件序号、Files 的 CRC32C）", "链接表 varint 记录与原位重指（Ref 只能指本组 / 子组，StreamingRef 写组号）", "Decima_pack_ds2 只改 SpanTable / LocatorTable", "干净根目录：包文件硬链接、绝不原地写", "导入工具不更新的字段（SDS.Length、SkinInfo、包围盒、逐骨包围盒）", "隐藏标志无效、整个换覆盖模型会崩，只换部件网格", "外观表 VariantDefs 全部指向 Porter", "stream-only：补齐计数让核心逐字节不变", "借外套 Cloth_PBD 做裙子和尾巴", "Hair_PBD 关节带转动：耳朵用逆绑定矩阵缩放只取平移", "头发 PBD 体字段补丁（UseFluctuation、MaxDistance）", "头发图集空格放 Karin 的块，其余 alpha 置 0", "UV1 是贴花坐标，写原版中位数", "“粗糙度”通道是光滑度", "涂装图集角 UV", "时间雨腐蚀：材质变量 CorrosionRate 改名", "RigLogic 关节矩阵解码（float16、16 行块列主序）与 MetaHuman 控制号", "游戏普通眨眼只到约 0.52", "眼睑绑定偏移杠杆", "场景替身：DSPlayerTakeOverState、DSCoverToOtherEntityEvent", "UITexture 额外数据", "按组核对、追加新包文件的发行安装器"],
       "limits": ["私人房间淋浴时仍有山姆的湿发、没有耳朵刘海（排除了玩家组头发、12706、6744）", "过场里的山姆替身未处理", "待机姿势脖子歪未查", "对话口型和过场表情未检查", "眨眼（0.55 拟合）、鼻嘴阴影修正未经用户单独确认", "有表情版雨天脸变暗", "装备靴仍会腐蚀；手套等装备按山姆体型", "发行安装器追加的包文件在提交时未经实机；Steam 版未验证", "只验证了 1.0.48.0"],
       "portable_kit": "portable-kits/death-stranding-2"
+    },
+    {
+      "id": "phantom-blade-zero",
+      "path": "games/phantom-blade-zero",
+      "status": "runtime-confirmed-scoped",
+      "milestone": "Karin_Original 替换主角「魂」（成年两套默认服装 + 序章少年魂）：Chaos 骨骼网格布料（裙摆外壳 + backstop、双马尾、尾巴、耳朵、刘海）、MetaHuman 曲线名形变、睫毛片眨眼与过场第二张脸，用户实机确认；v3 补回原版身体的 4 根武器子骨（醉剑），只读回；Karin_PicodraTech v1 构建并装进游戏，用户未反馈",
+      "date": "2026-10-31",
+      "game_build": "26266538 (UE 5.7.4-301524)",
+      "topics": ["UE 5.7.4（S-GAME 改版）", "IoStore 加密索引 + Oodle", "~mods 的 utoc/ucas + 伴随 pak", "带版本号的 cook（无版本号会崩）", "objscan 定位重排的 GUObjectArray", "Dumper-7 补丁与 usmap 继承属性修正", "CUE4Parse 读蓝图字节码", "外观数据表 DT_PBZAppearanceTable", "身体网格就是领导者（CharacterMesh0）", "原版身体的武器子骨（weapon_*_child）", "AnimationScaled / Animation 重定向下的关节摆放", "错类型的隐藏占位", "分层材质只改第 0 层", "虚拟纹理", "雨水湿润参数", "Chaos 骨骼网格布料：从材质槽建、掩码、backstop、CCD、求解器", "布料焊点与法线抵消", "百褶裙的平滑外壳模拟网格", "每 LOD 一个 section 的绑定限制与合成贴图", "退化三角让布料段失败", "MetaHuman CTRL_expressions 曲线名形变与 ARKit 别名", "RefreshMaterialParamByHead 的动态材质实例", "CopyPose 叠加眨眼动画蓝图与类名门控", "过场的主头发模式与 groom 占位", "无界面 UE Python 的资产注册表扫描", "按材质合并的 blend 源模型分支"],
+      "limits": ["醉剑修复（v3）未进游戏复测，其它用到 *_child 骨的武器未逐一检查", "其它服装（各自的身体网格）未替换，换上后头部显示不正常", "关闭或调低 groom 头发时的过场只做了推断（两张脸可能闪）", "平时游玩没有受击 / 对话的面部反应（原版也没有）", "Karin_PicodraTech 没有用户反馈；法线图集未用、服装不加自发光", "游戏 AES 密钥、usmap、Oodle DLL 不随库发布"],
+      "portable_kit": "portable-kits/phantom-blade-zero"
     }
   ]
 }

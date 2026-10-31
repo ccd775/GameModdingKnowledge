@@ -1,0 +1,11 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "HuaShira",
+	"Description": "Placeholder content plugin so cooked assets land under /HuaShira like the game.",
+	"Category": "Other",
+	"CanContainContent": true,
+	"IsBetaVersion": false,
+	"Installed": false
+}
