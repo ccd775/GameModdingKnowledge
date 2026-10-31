@@ -1,0 +1,75 @@
+{
+  "game": "Assassin's Creed Syndicate (PC, ACS.exe linked 2016-08-16, labelled v1.51 in the project; non-store copy, forge v27)",
+  "status": "runtime-confirmed-scoped",
+  "tools": [
+    {
+      "name": "AnvilToolkit",
+      "version": "1.3.6 (third-party, user-supplied; not bundled)",
+      "role": "library behind AcuHarness: data-file unpack / pack, schema XML export / compile, glTF export / import, TextureMap read / write; GUI not used",
+      "required": true
+    },
+    {
+      "name": "AcuHarness (acuharness/)",
+      "version": "kit source (C#; Program.cs byte-identical to the harness the Syndicate project used and to the Unity kit, build.ps1 = the Unity kit's portable build script); compiled with the .NET SDK's Roslyn against AnvilToolkit 1.3.6 and a .NET 9 runtime (9.0.18); run with ACU_GAME=Syndicate",
+      "role": "headless AnvilToolkit driver: batch, scan-objs (embedded-copy search), unpack-data, export-xml-dir, compile-xml, pack-data, export-glb, import-glb (vertex format v2), tex-import",
+      "required": true
+    },
+    {
+      "name": "Syndicate.gfl",
+      "version": "AnvilToolkit file list for Syndicate (Kamzik123/AnvilToolkit-Resources); user-supplied",
+      "role": "names for AnvilToolkit; acuharness/build.ps1 copies the ACU_ATK_LISTS folder into the harness Lists folder",
+      "required": true
+    },
+    {
+      "name": "Blender",
+      "version": "5.0.1, background mode",
+      "role": "scripts/blender: prep_karin_original.py, fit_karin.py (fit, KP physics bones, --hide-band), face_rig.py, export_karin_lods.py (acs_weapon LOD GLBs, --split-normals), measure_glb.py, render_compare.py",
+      "required": true
+    },
+    {
+      "name": "DirectXTex texconv",
+      "version": "user-supplied (version not recorded in the project)",
+      "role": "BC7 sRGB diffuse / BC7 normal + gloss / BC7 sRGB specular for build_mod.py",
+      "required": true
+    },
+    {
+      "name": "Windows embeddable Python",
+      "version": "python.org python-x.y.z-embed-amd64.zip (3.14.10 in the project); user-supplied",
+      "role": "bundled by make_release.py as python/ so the release runs without an installed Python or PowerShell",
+      "required": false
+    },
+    {
+      "name": "forge, copy-scan, table, mesh, physics, install and release tools (scripts/)",
+      "version": "kit; Python 3.10+ (acs_install.py alone runs on 3.8+); numpy for acs_phys_skel / head_bones / glb_rotate / glb_info, Pillow for build_mod / make_meshes",
+      "role": "forge v27 index / extract, embedded-copy scan and table list, in-place install matched by ID and content with Steam / Ubisoft Connect / Epic discovery and a write-access check, BuildTable XML edits, payload builder for both twins with a vanilla recompile check, mesh pipeline for both twins, add-on physics skeleton, redeployable release zip with vanilla fingerprints and an embedded Python, CRC32 bone naming, GLB frame rotation and listing",
+      "required": true
+    }
+  ],
+  "entry_documents": [
+    "README.md"
+  ],
+  "runtime_boundary": "Only the build PC's copy (ACS.exe linked 2016-08-16, labelled v1.51, forge v27, 40 forges); Steam / Ubisoft Connect / Epic copies were not run. Project builds made with the original scripts ran in game on the build PC: stage 1 / stage 2 (agent screenshots: title screen and in-world, both twins), v2 to v5 judged by the user from in-world play. Confirmed by the user: both twins replaced with physics and face working (stage 2, 2026-10-27), and v5 (twin tails on links 0 / 2 / 4, softer ears, knee band, split skirt normals: \"looks OK\", 2026-10-30). Rejected and superseded: v2 LocalOwnGravity ears / tails, v3 loose tails, v4 five simulated tail links. The release package was round-tripped on the build PC from an extracted copy with PATH limited to System32 (status, uninstall, install, status); the content-matching installer was checked on synthetic forges and on the real game (290 / 290 copies identical, a dry run without the dlc folders). The portable copies were checked on the build PC on 2026-10-31 (VALIDATION.md). Cutscenes (pre-rendered Bink videos stay vanilla), Jack the Ripper's old Jacob / Evie, the face rig in dialogue and other stores' copies are untested or not handled.",
+  "bundled_scripts": [
+    "scripts/acs_forge.py",
+    "scripts/scan_objs.py",
+    "scripts/objs_to_tsv.py",
+    "scripts/acs_install.py",
+    "scripts/bt_tool.py",
+    "scripts/build_mod.py",
+    "scripts/make_meshes.py",
+    "scripts/acs_phys_skel.py",
+    "scripts/make_release.py",
+    "scripts/glb_names.py",
+    "scripts/head_bones.py",
+    "scripts/glb_rotate.py",
+    "scripts/glb_info.py",
+    "scripts/blender/prep_karin_original.py",
+    "scripts/blender/fit_karin.py",
+    "scripts/blender/face_rig.py",
+    "scripts/blender/export_karin_lods.py",
+    "scripts/blender/measure_glb.py",
+    "scripts/blender/render_compare.py",
+    "acuharness/Program.cs",
+    "acuharness/build.ps1"
+  ]
+}

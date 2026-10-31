@@ -264,6 +264,17 @@
       "portable_kit": "portable-kits/assassins-creed-unity"
     },
     {
+      "id": "assassins-creed-syndicate",
+      "path": "games/assassins-creed-syndicate",
+      "status": "runtime-confirmed-scoped",
+      "milestone": "Karin_Original 同时整体替换雅各布与伊薇·弗莱 v5：双胞胎（和用伊薇头部的莉迪亚）的 20 张装备 / 头部表去掉全部可视列、只留头部 LODSelector，Karin 的 LOD0–3 原地顶替两人的头部 LOD（同 ID），每人 4 个 CN_Weapon_NoAlphaTest 材质；表和头部 LOD 内嵌在 38 个数据文件、18 个 forge 的 318 份副本里，每一份按自己的版本改；Karin_Phys_<twin>（121 骨、55 个 BallJoint）挂在头部表的头发附加骨架单元格上，裙片经 BallJointCommonData → LiteRagdoll 与大腿胶囊碰撞；源模型的膝盖形态键失效（kisekae_Knee 不移动顶点）用拟合时的隐藏带补，百褶裙的卡通法线按 40° 切开；可重新部署包自带嵌入式 Python、ASCII .cmd，自动找 Steam / Ubisoft Connect / Epic，按内容比对副本、不锁版本。替换、物理与表情（2026-10-27「两个角色都被正确替换了，有物理有表情」）和 v5 的物理手感、膝盖与裙片（2026-10-30「看起来可以」）经用户实机确认",
+      "date": "2026-10-30",
+      "game_build": "PC, ACS.exe linked 2016-08-16 (labelled v1.51 in the project, not verified for PC), non-store copy, forge v27, 40 forges",
+      "topics": ["forge v27 与大革命相同，AcuHarness 原样复用（ACU_GAME=Syndicate）", "两个主角共用一次身体拟合：SHR_Male 与 SHR_Female 关节位置相同", "内嵌副本：38 个数据文件、318 份副本（玩家、独特 NPC、藏身处、菜单、任务数据块、DLC 服装包、一战记忆）", "骨没有名字：骨 ID = CRC32(名字)，工具的别名 JAW / EYE_LEFT 不是 ID", "物理宿主：头部表第 14 列（头发附加骨架），64 份", "枭雄骨的额外字段 MirroringTag / EnablePoseDrivenWrinkles；裙片碰撞用 GlobalGravity", "LocalOwnGravity 不在骨自己的坐标系里（两只耳朵同向歪）", "相邻链节都模拟会高频抖；隔节模拟 + 逐节分级锥角与摩擦", "耳朵的 upright rest-on-edge 偏移", "源模型 kisekae_Knee 不移动顶点：膝盖隐藏带", "百褶裙卡通法线造成污渍：40° 切开法线", "按 ID + 内容（大小 + SHA-1）匹配副本的安装器，缺 DLC 跳过、不锁版本", "发行包自带官方嵌入式 Python、ASCII .cmd，不依赖 PowerShell", "Steam / Ubisoft Connect / 已安装程序 / Epic 自动定位与写权限预检"],
+      "limits": ["只在构建机的一份非商店版副本上实机；Steam / Ubisoft Connect / Epic 版未测", "预渲染过场视频里仍是原版双胞胎", "开膛手杰克 DLC 的老年雅各布 / 伊薇未处理", "对话口型、眨眼幅度未单独评价", "骑马、驾车、绳索发射器、战斗大动作中的物理未专门检查", "莉迪亚·弗莱（一战记忆）的实机外观未测"],
+      "portable_kit": "portable-kits/assassins-creed-syndicate"
+    },
+    {
       "id": "hogwarts-legacy",
       "path": "games/hogwarts-legacy",
       "status": "runtime-confirmed-scoped",

@@ -250,6 +250,7 @@ class PortableTools(unittest.TestCase):
             if path.parents[1].name == 'assassins-creed-odyssey' and aco_missing(path.stem): continue
             if path.parents[1].name == 'assassins-creed-unity' and acu_missing(path.stem): continue
             if path.parents[1].name == 'hogwarts-legacy' and hl_missing(path.stem): continue
+            if path.parents[1].name == 'assassins-creed-syndicate' and acs_missing(path.stem): continue
             cli(path.parents[1].name,path.stem,'--help')
 
 
@@ -4662,6 +4663,256 @@ class AssassinsCreedUnityTools(unittest.TestCase):
             r = subprocess.run([sys.executable, '-B', str(ACU_KIT / 'scripts' / f'{script}.py'), *map(str, args)],
                                capture_output=True, text=True, env=env)
             self.assertNotEqual(r.returncode, 0)
+            self.assertIn(names, r.stdout + r.stderr)
+            self.assertFalse((self.root / 'out').exists() or (self.root / 'o.log').exists())
+
+
+ACS_KIT = KITS / 'assassins-creed-syndicate'
+# Syndicate kit scripts whose import (and --help) needs more than the standard library
+ACS_DEPS = {'acs_phys_skel': ('numpy',), 'head_bones': ('numpy',), 'glb_rotate': ('numpy',), 'glb_info': ('numpy',),
+            'build_mod': ('PIL',), 'make_meshes': ('PIL',)}
+
+
+def acs_missing(script):
+    return [m for m in ACS_DEPS.get(script, ()) if importlib.util.find_spec(m) is None]
+
+
+def acs_kit():
+    if not ACS_KIT.is_dir():
+        raise unittest.SkipTest('assassins-creed-syndicate is not included in this single-game export')
+    return ACS_KIT
+
+
+def acs_print(data):
+    import hashlib
+    return f'{len(data)}:{hashlib.sha1(data).hexdigest()}'
+
+
+class AssassinsCreedSyndicateTools(unittest.TestCase):
+    """Synthetic forges, payloads, GLBs and skeleton templates. Real work needs the game, AnvilToolkit 1.3.6 or Blender 5.0;
+    the equivalence of the changed scripts with the project originals was checked on the build PC (VALIDATION.md)."""
+
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(prefix='modding acs ')
+        self.root = Path(self.temp.name)
+
+    def tearDown(self):
+        self.temp.cleanup()
+
+    def run_kit(self, name, *args, env=None, cwd=None, ok=True):
+        full = {k: v for k, v in os.environ.items() if not k.startswith('ACS_')}
+        full.update(env or {})
+        r = subprocess.run([sys.executable, '-B', str(acs_kit() / 'scripts' / f'{name}.py'), *map(str, args)],
+                           capture_output=True, text=True, env=full, cwd=cwd)
+        if (r.returncode == 0) != ok:
+            raise AssertionError(f'{name}: exit {r.returncode}\n{r.stdout}\n{r.stderr}')
+        return r
+
+    def test_acs_provenance_and_portability(self):
+        import hashlib
+        import re
+        kit = acs_kit()
+        rows = [r for r in json.loads((KITS / 'PROVENANCE.json').read_text(encoding='utf-8-sig'))
+                if r['path'].startswith('portable-kits/assassins-creed-syndicate/')]
+        files = sorted(p.relative_to(ROOT).as_posix() for p in kit.rglob('*') if p.is_file() and '__pycache__' not in p.parts)
+        own = {'portable-kits/assassins-creed-syndicate/' + n for n in ('README.md', 'toolchain.json', 'requirements.txt')}
+        self.assertEqual(sorted(r['path'] for r in rows), sorted(set(files) - own))
+        for r in rows:
+            data = (ROOT / r['path']).read_bytes()
+            self.assertEqual((hashlib.sha256(data).hexdigest(), len(data)), (r['portable_sha256'], r['portable_bytes']), r['path'])
+            self.assertTrue(r['source'].startswith(('Mods/AC枭雄/scripts/', 'Mods/AC枭雄/tools/AcsyHarness/')), r['source'])
+            self.assertEqual(r['modified_for_portability'], r['portable_sha256'] != r['original_sha256'], r['path'])
+        bundled = json.loads((kit / 'toolchain.json').read_text(encoding='utf-8'))['bundled_scripts']
+        self.assertEqual(sorted('portable-kits/assassins-creed-syndicate/' + s for s in bundled), sorted(r['path'] for r in rows))
+        drive = re.compile(r'(?i)(?<![\w<])[a-z]:[\\/](?![\\/])|[\\/]users[\\/]')
+        for rel in files:
+            data = (ROOT / rel).read_bytes()
+            text = data.decode('utf-8')
+            self.assertFalse(drive.search(text), f'{rel}: {drive.search(text)}')
+            self.assertIn(data.count(b'\r\n'), (0, data.count(b'\n')), rel)
+            self.assertNotRegex(text, r'sys\.path\.insert\(0, *r?[\'"]', rel)
+        # the local game-window helpers, the save converter and .cmd wrappers are not bundled
+        for name in ('gsnap.py', 'game_input.ahk', 'convert_save.py'):
+            self.assertFalse(list(kit.rglob(name)), name)
+        self.assertFalse(list(kit.rglob('*.cmd')))
+
+    def acs_payload(self, build):
+        """payload built from `build`: variants for two forges, a skip line, vanilla.tsv of the build game's copies"""
+        A, B, C = 0x0FE84A8684, 0x14B2685216, 0x47C93F09B4
+        dlc = os.path.join('dlc_20', 'DataPC_ACVI_London_20_dlc.forge')
+        pay = self.root / 'payload'
+        for fg, oid, data in (('DataPC_ACVI_London.forge', A, b'NEW-A-london'), ('DataPC_ACVI_London.forge', B, b'NEW-B-london'),
+                              (dlc, A, b'NEW-A-dlc20'), (dlc, B, b'NEW-B-dlc20')):
+            d = pay / 'forge' / fg.replace(os.sep, '__')
+            d.mkdir(parents=True, exist_ok=True)
+            (d / f'{oid:016X}_obj.data').write_bytes(data)
+        (pay / 'skip.tsv').write_text(f'{C:016X}\tDataPC_ACVI_London.forge\n', encoding='utf-8')
+        return pay, (A, B, C), dlc
+
+    def acs_build_game(self):
+        A, B, C = 0x0FE84A8684, 0x14B2685216, 0x47C93F09B4
+        game = self.root / 'build game'
+        acu_forge_file(game / 'DataPC_ACVI_London.forge', [(A, 'Head', b'a1' * 40), (B, 'EvieHead', b'b' * 30), (C, 'FightClub', b'c' * 20),
+                                                           (7, 'Other', b'o' * 9)])
+        acu_forge_file(game / 'dlc_20' / 'DataPC_ACVI_London_20_dlc.forge', [(A, 'Head', b'a2' * 50), (B, 'EvieHead', b'b' * 30)], tables=1)
+        (game / 'ACS.exe').write_bytes(b'MZ')
+        return game
+
+    def test_acs_install_matches_copies_by_content(self):
+        acs_kit()
+        forge = module('assassins-creed-syndicate', 'acs_forge')
+        build = self.acs_build_game()
+        pay, (A, B, C), dlc = self.acs_payload(build)
+        rows = lambda g, f: {oid: (off, size) for _, oid, off, size, _ in forge.read_index(str(g / f))}
+        read = lambda g, f, oid: (g / f).read_bytes()[rows(g, f)[oid][0]:][:rows(g, f)[oid][1]]
+        prints = ''.join(f'{f}\t{oid:016X}\t{acs_print(read(build, f, oid))}\n'
+                         for f, oid in (('DataPC_ACVI_London.forge', A), ('DataPC_ACVI_London.forge', B), ('DataPC_ACVI_London.forge', C), (dlc, A), (dlc, B)))
+        (pay / 'vanilla.tsv').write_text(prints, encoding='utf-8')
+        # the build game itself: every copy identical, install / uninstall byte for byte
+        vanilla = {p: p.read_bytes() for p in build.rglob('*.forge')}
+        out = self.run_kit('acs_install', 'install', pay, '--game', build).stdout
+        self.assertIn('4 copies to replace, 4 identical to the build source', out)
+        self.assertEqual(read(build, dlc, A), b'NEW-A-dlc20')
+        self.assertEqual(read(build, 'DataPC_ACVI_London.forge', C), b'c' * 20)          # skip.tsv
+        self.run_kit('acs_install', 'install', pay, '--game', build, ok=False)          # state exists
+        self.run_kit('acs_install', 'uninstall', '--game', build)
+        self.assertEqual({p: p.read_bytes() for p in build.rglob('*.forge')}, vanilla)
+        # another version: other forge sizes, no dlc_20, a changed copy, a known copy in a new forge, an unknown copy
+        other = self.root / 'other game'
+        acu_forge_file(other / 'DataPC_ACVI_London.forge', [(1, 'Pad', b'p' * 99), (A, 'Head', b'a1' * 40), (B, 'EvieHead', b'b-mod' * 7),
+                                                           (C, 'FightClub', b'c' * 20)])
+        acu_forge_file(other / 'DataPC_New.forge', [(A, 'Head', b'a2' * 50), (B, 'EvieHead', b'b-unknown')], tables=1)
+        (other / 'ACS.exe').write_bytes(b'MZ')
+        vanilla = {p: p.read_bytes() for p in other.rglob('*.forge')}
+        out = self.run_kit('acs_install', 'install', pay, env={'ACS_GAME_DIR': str(other)}).stdout
+        self.assertEqual(read(other, 'DataPC_ACVI_London.forge', A), b'NEW-A-london')    # same bytes as the build source
+        self.assertEqual(read(other, 'DataPC_ACVI_London.forge', B), b'NEW-B-london')    # differs: replaced anyway, listed
+        self.assertEqual(read(other, 'DataPC_New.forge', A), b'NEW-A-dlc20')             # matched by content
+        self.assertEqual(read(other, 'DataPC_New.forge', B), b'b-unknown')               # no payload: vanilla, listed
+        for s in ('skipped: 2', "another forge's variant: 1", 'replaced anyway (uninstall restores them): 1', 'left vanilla: 1',
+                  '3 copies to replace, 1 identical'):
+            self.assertIn(s, out)
+        self.run_kit('acs_install', 'uninstall', env={'ACS_GAME_DIR': str(other)})
+        self.assertEqual({p: p.read_bytes() for p in other.rglob('*.forge')}, vanilla)
+        # nothing of the payload in the game, or a forge of another version: refused before anything is written
+        none = self.root / 'unrelated'
+        acu_forge_file(none / 'DataPC.forge', [(9, 'X', b'x')], tables=1)
+        r = self.run_kit('acs_install', 'install', pay, '--game', none, ok=False)
+        self.assertIn('nothing to install', r.stdout + r.stderr)
+        data = bytearray((none / 'DataPC.forge').read_bytes())
+        struct.pack_into('<I', data, 9, 30)
+        (none / 'DataPC_ACVI_London.forge').write_bytes(bytes(data))
+        r = self.run_kit('acs_install', 'install', pay, '--game', none, ok=False)
+        self.assertIn('forge version 30', r.stdout + r.stderr)
+        self.assertFalse((none / '.karin_acs_state.json').exists())
+
+    def test_acs_release_zip_prints_and_installs(self):
+        import tarfile
+        import zipfile
+        acs_kit()
+        forge = module('assassins-creed-syndicate', 'acs_forge')
+        build = self.acs_build_game()
+        pay, (A, B, C), dlc = self.acs_payload(build)
+        embed = self.root / 'python-0.0.0-embed-amd64.zip'
+        with zipfile.ZipFile(embed, 'w') as z:
+            z.writestr('python.exe', b'MZ')
+            z.writestr('python314._pth', 'python314.zip\n.\n')
+        rel = self.root / 'rel' / 'Karin_ACS_test.zip'
+        self.run_kit('make_release', rel, f's2={pay}', '--python', embed, env={'ACS_GAME_DIR': str(build)})
+        r = self.run_kit('make_release', rel, f's2={pay}', env={'ACS_GAME_DIR': str(build)}, ok=False)   # no embeddable Python
+        self.assertIn('ACS_PYTHON_EMBED', r.stdout + r.stderr)
+        with zipfile.ZipFile(rel) as z:
+            self.assertEqual(sorted(z.namelist()), ['README.txt', 'acs_install.py', 'install_s2.cmd', 'payload_s2.tar.xz',
+                                                    'python/python.exe', 'python/python314._pth', 'status.cmd', 'uninstall.cmd'])
+            cmd = z.read('install_s2.cmd')
+            self.assertTrue(cmd.isascii() and b'\r\n' in cmd)
+            self.assertIn(b'"python\\python.exe" -I -B acs_install.py install "payload_s2.tar.xz" %*', cmd)
+            z.extractall(self.root / 'pkg')
+        with tarfile.open(self.root / 'pkg' / 'payload_s2.tar.xz') as t:
+            prints = t.extractfile('payload/vanilla.tsv').read().decode()
+        rows = {oid: (off, size) for _, oid, off, size, _ in forge.read_index(str(build / dlc))}
+        copy = (build / dlc).read_bytes()[rows[A][0]:][:rows[A][1]]
+        self.assertIn(f'{dlc}\t{A:016X}\t{acs_print(copy)}', prints)
+        self.assertEqual(len(prints.splitlines()), 5)                                     # 4 variants + 1 skip line
+        before = {p: p.read_bytes() for p in build.rglob('*.forge')}
+        for c in (['install', 'payload_s2.tar.xz', '--game', str(build)], ['uninstall', '--game', str(build)]):
+            r = subprocess.run([sys.executable, '-B', 'acs_install.py', *c], cwd=self.root / 'pkg', capture_output=True, text=True)
+            self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+            if c[0] == 'install':
+                self.assertIn('4 identical to the build source', r.stdout)
+        self.assertEqual({p: p.read_bytes() for p in build.rglob('*.forge')}, before)
+
+    def test_acs_glb_names_crc32_and_alias(self):
+        import zlib
+        acs_kit()
+        nodes = [{'name': str(zlib.crc32(b'Hips')), 'children': [1, 2]}, {'name': str(zlib.crc32(b'Spine'))},
+                 {'name': 'JAW', 'extras': {'Name': str(zlib.crc32(b'Fx_Jaw'))}}, {'name': '12345'}]
+        doc = json.dumps({'asset': {'version': '2.0'}, 'nodes': nodes, 'skins': [{'joints': [0, 1, 2, 3]}]}).encode()
+        doc += b' ' * (-len(doc) % 4)
+        src = self.root / 'probe.glb'
+        src.write_bytes(b'glTF' + struct.pack('<II', 2, 20 + len(doc)) + struct.pack('<I', len(doc)) + b'JSON' + doc)
+        out = self.root / 'named.glb'
+        names = self.root / 'names.json'
+        r = self.run_kit('glb_names', src, out, '--dict', names)
+        self.assertIn('named 3 nodes (1 toolkit aliases replaced), 1 numeric joints left', r.stdout)
+        got = json.loads(out.read_bytes()[20:20 + struct.unpack_from('<I', out.read_bytes(), 12)[0]])
+        self.assertEqual([n['name'] for n in got['nodes']], ['Hips', 'Spine', 'Fx_Jaw', '12345'])
+        self.assertEqual(json.loads(names.read_text(encoding='utf-8'))[str(zlib.crc32(b'Fx_Jaw'))], 'Fx_Jaw')
+
+    def test_acs_phys_skeleton_syndicate_fields_and_grading(self):
+        import re
+        acs_kit()
+        if acs_missing('acs_phys_skel'):
+            raise unittest.SkipTest('numpy is not installed')
+        s = 0.70710678
+        nodes = [{'name': 'Reference', 'children': [1]},
+                 {'name': 'Hips', 'translation': [0, 0, 1.0], 'children': [2, 3, 4, 7, 13]},
+                 {'name': 'LeftUpLeg', 'translation': [0.1, 0, -0.05]},
+                 {'name': 'RightUpLeg', 'translation': [-0.1, 0, -0.05]},
+                 {'name': 'KP_Skirt_0', 'translation': [0, -0.1, 0], 'rotation': [0, s, 0, s], 'children': [5]},
+                 {'name': 'KP_Skirt_0_001', 'translation': [0.15, 0, 0], 'children': [6]},
+                 {'name': 'KP_Skirt_0_end', 'translation': [0.15, 0, 0]},
+                 {'name': 'KP_Hair_tail_L', 'translation': [0.1, 0.1, 0.6], 'rotation': [0, s, 0, s], 'children': [8]}]
+        for i in range(5):  # links 1..4, then the end
+            nodes.append({'name': f'KP_Hair_tail_L_00{i + 1}' if i < 4 else 'KP_Hair_tail_L_end', 'translation': [0.08, 0, 0]})
+            if i < 4:
+                nodes[-1]['children'] = [len(nodes)]
+        nodes += [{'name': 'KP_Ear_L', 'translation': [0.05, 0, 0.75], 'rotation': [0, -s, 0, s], 'children': [14]},
+                  {'name': 'KP_Ear_L_end', 'translation': [0.05, 0, 0.012]}]   # ~14 deg off vertical
+        doc = json.dumps({'asset': {'version': '2.0'}, 'nodes': nodes, 'skins': [{'joints': list(range(len(nodes)))}]}).encode()
+        doc += b' ' * (-len(doc) % 4)
+        glb = self.root / 'karin_lod0_acs.glb'
+        glb.write_bytes(b'glTF' + struct.pack('<II', 2, 20 + len(doc)) + struct.pack('<I', len(doc)) + b'JSON' + doc)
+        tpl = self.root / 'ACVI_CHR_P_JacobFrye_Hair.Skeleton.xml'
+        tpl.write_text('<?xml version="1.0" encoding="utf-8"?>\n<Object ID="77" Type="Skeleton">\n'
+                       '    <DynamicSmallArray Name="Bones" Type="ObjectPtr">\n    </DynamicSmallArray>\n'
+                       '    <ObjectPtr Name="RootBone" PointerType="Link">\n        <Link Name="RootBone" Path="1">1</Link>\n'
+                       '    </ObjectPtr>\n    <Unsigned32 Name="SkeletonKey">5</Unsigned32>\n'
+                       '    <Unsigned32 Name="SkeletonHierarchyKey">5</Unsigned32>\n</Object>', encoding='utf-8')
+        out = self.root / 'a' / 'Karin_Phys_jacob.Skeleton.xml'
+        out.parent.mkdir()
+        self.run_kit('acs_phys_skel', tpl, glb, out, '--id', 0xC04B410F00, '--report', self.root / 'a' / 'r.json')
+        x = out.read_text(encoding='utf-8')
+        nbones = len(re.findall(r'<Hash32 Name="BoneID"', x))
+        self.assertEqual(x.count('<String Name="MirroringTag"></String>'), nbones)          # Syndicate bone fields
+        self.assertEqual(x.count('<Bool Name="EnablePoseDrivenWrinkles">False</Bool>'), nbones)
+        self.assertNotIn('GlobalOwnGravity', x)                                              # skirt collides with GlobalGravity
+        self.assertEqual(x.count('Path="Karin\\Karin_Phys.BallJointCommonData">'), 2)                # both skirt links
+        joints = {j['bone']: j for j in json.loads((self.root / 'a' / 'r.json').read_text())['joints']}
+        tail = {j['chain_index']: j['angle'] for b, j in joints.items() if b.startswith('KP_Hair_tail')}
+        self.assertEqual(tail, {0: 6, 2: 10, 4: 14})                                          # links 0 / 2 / 4, graded cones
+        self.assertEqual(joints['KP_Ear_L']['angle'], 9)
+        self.assertNotEqual((joints['KP_Ear_L']['yaw'], joints['KP_Ear_L']['pitch']), (0, 0))  # upright: leans to vertical
+
+    def test_acs_missing_variables_stop_before_writing(self):
+        acs_kit()
+        for script, args, names in (('build_mod', [self.root / 'mesh', self.root / 'out'],
+                                     'ACS_DOTNET, ACS_HARNESS, ACS_TEXCONV, ACS_SRC_TEX, ACS_TEMPLATES, ACS_CACHE'),
+                                    ('scan_objs', [self.root / 'o.log', '0FE84A8684', 'London'], 'ACS_DOTNET, ACS_HARNESS, ACS_CACHE'),
+                                    ('make_meshes', [self.root / 'out'], 'ACS_BLENDER, ACS_SRC_BLEND, ACS_TEMPLATES')):
+            if acs_missing(script):
+                continue
+            r = self.run_kit(script, *args, ok=False)
             self.assertIn(names, r.stdout + r.stderr)
             self.assertFalse((self.root / 'out').exists() or (self.root / 'o.log').exists())
 

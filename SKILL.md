@@ -47,6 +47,7 @@ before authoring. Never use this root document as a live candidate state file.
 - The Witcher 3: Wild Hunt — Remastered (PC 5.x) -> `games/the-witcher-3/`
 - Assassin's Creed Odyssey (PC, Ubisoft Connect v1.5.6) -> `games/assassins-creed-odyssey/`
 - Assassin's Creed Unity (PC, Steam build 21970519, v1.5.1) -> `games/assassins-creed-unity/`
+- Assassin's Creed Syndicate (PC, ACS.exe 2016-08-16, forge v27) -> `games/assassins-creed-syndicate/`
 - Hogwarts Legacy (PC, game version 1613387) -> `games/hogwarts-legacy/`
 
 - Hitman: World of Assassination -> `games/hitman-world-of-assassination/`

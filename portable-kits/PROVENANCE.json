@@ -3697,5 +3697,194 @@
     "portable_sha256": "a13c5fe3591a51ae4a0420d014a8684cc19d2186ec2e602b5dcb4fc883a5e887",
     "portable_bytes": 41,
     "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/assassins-creed-syndicate/scripts/acs_forge.py",
+    "source": "Mods/AC枭雄/scripts/acs_forge.py",
+    "original_sha256": "9413e7c24b283f8c176deaf43aa58142181a9ef15b69c27d8afb212f1d9fbfe8",
+    "source_bytes": 3232,
+    "portable_sha256": "5b6efae3bfc0768e2aa5947df2316cce839b6bec315a8af42dae53524b7347fe",
+    "portable_bytes": 3720,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/assassins-creed-syndicate/scripts/scan_objs.py",
+    "source": "Mods/AC枭雄/scripts/scan_objs.py",
+    "original_sha256": "169ef004061d652e685a3194e814821d4119137ec4ead294a076aeba56fcf6ba",
+    "source_bytes": 2007,
+    "portable_sha256": "aacbbcbb63ce43d363346dccf5b68928ea49ac0f35be0195b922522472f5f200",
+    "portable_bytes": 3103,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/assassins-creed-syndicate/scripts/objs_to_tsv.py",
+    "source": "Mods/AC枭雄/scripts/objs_to_tsv.py",
+    "original_sha256": "673377246e084828510ee7dbb5b608c5a8b29fa8d6e8881ef65c140ba375bebd",
+    "source_bytes": 1111,
+    "portable_sha256": "fced68ec413d3cd1a0da4790e6539c91c87335a23e1800dd41400e55829abf13",
+    "portable_bytes": 1463,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/assassins-creed-syndicate/scripts/acs_install.py",
+    "source": "Mods/AC枭雄/scripts/acs_install.py",
+    "original_sha256": "a6d9c434ec768131e7c17f02eba05b9cfafc12e69229130f6833c96427170a23",
+    "source_bytes": 17609,
+    "portable_sha256": "aac9969ff17ff96b6fcae912547498b98f29d1a5f7f69dd121c033f28d0f19f3",
+    "portable_bytes": 17666,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/assassins-creed-syndicate/scripts/bt_tool.py",
+    "source": "Mods/AC枭雄/scripts/bt_tool.py",
+    "original_sha256": "f02417853e8555262147cc22b6c9bcb287354609a1efd6f3d2e8ab794ecbc053",
+    "source_bytes": 7141,
+    "portable_sha256": "026179464b2ea339c2a250ab47b112f19bedbe1c422caf5cb9ed67761bc950a0",
+    "portable_bytes": 7696,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/assassins-creed-syndicate/scripts/build_mod.py",
+    "source": "Mods/AC枭雄/scripts/build_mod.py",
+    "original_sha256": "f9edb40e5a8021bb867b845aaf8c8efd3afa43ba1d9b7058d3f077ab5863f8a4",
+    "source_bytes": 19569,
+    "portable_sha256": "483d70d6d786d8e72d8d5f9f8b0e903b4065ccb4df303961336ef78a8cba7ace",
+    "portable_bytes": 21169,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/assassins-creed-syndicate/scripts/make_meshes.py",
+    "source": "Mods/AC枭雄/scripts/make_meshes.py",
+    "original_sha256": "4a2ae00d61683db34cd63fb5723a69dbdbbd145713b1edd138bebfa524072fa6",
+    "source_bytes": 4979,
+    "portable_sha256": "c7dabaf883388bf606550d94e33360f5650b73de6ddd412f971c2bfe5fad8498",
+    "portable_bytes": 6240,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/assassins-creed-syndicate/scripts/acs_phys_skel.py",
+    "source": "Mods/AC枭雄/scripts/acs_phys_skel.py",
+    "original_sha256": "c524372ca1b148195736f59809f10a8829fcdfb695fb308ceaac2a0f515a0714",
+    "source_bytes": 25993,
+    "portable_sha256": "3edf1e7a6a65b44e1bf0636468df05cee7fc46b7b70fb6cdd53d8b29c453164a",
+    "portable_bytes": 26082,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/assassins-creed-syndicate/scripts/make_release.py",
+    "source": "Mods/AC枭雄/scripts/make_release.py",
+    "original_sha256": "68cc90a36266659de36016d011ba7686dca6228f6a4ef9481de89eb27f130543",
+    "source_bytes": 8987,
+    "portable_sha256": "b439012efb552050d4a5ab7e1af86e6292155fb4c8526b184a8c565832aaaeda",
+    "portable_bytes": 9013,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/assassins-creed-syndicate/scripts/glb_names.py",
+    "source": "Mods/AC枭雄/scripts/glb_names.py",
+    "original_sha256": "7d2b427ea9b72ad9531413a321c1e997683afb725871d522b4e4bb675584ee4b",
+    "source_bytes": 4010,
+    "portable_sha256": "0f579feeaf6e736e06397a6e12bc6b2331e4a066a65157c149c62476e92e7d73",
+    "portable_bytes": 4099,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/assassins-creed-syndicate/scripts/head_bones.py",
+    "source": "Mods/AC枭雄/scripts/head_bones.py",
+    "original_sha256": "3b588b4a3d092a03083a92bb3558e3277f58b98e661ff65e83f9b4d66202b30c",
+    "source_bytes": 3106,
+    "portable_sha256": "ec33bb9ee99a9ba959f782a7c1b4b3edb6c13c5774c628ee7e7d2e2f133c4a61",
+    "portable_bytes": 3317,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/assassins-creed-syndicate/scripts/glb_rotate.py",
+    "source": "Mods/AC枭雄/scripts/glb_rotate.py",
+    "original_sha256": "1b59ab9cc9f40c07a041d9b93eb49ae743ee95bfd7046caf43f5d73aeeed4288",
+    "source_bytes": 5486,
+    "portable_sha256": "afb12846a9674c0929786c642f390ace81a3e9eb66267c45c03e7b47f198eb0d",
+    "portable_bytes": 5788,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/assassins-creed-syndicate/scripts/glb_info.py",
+    "source": "Mods/AC枭雄/scripts/glb_info.py",
+    "original_sha256": "aa4de65f5b502234d620d15ecfdadd674d6106fb2667fb21b8a0b02d88cbc74c",
+    "source_bytes": 2090,
+    "portable_sha256": "0cec70206add925c057f446c1222b1299ce09b3debe2766a55fafd1b5a6aa37b",
+    "portable_bytes": 2363,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/assassins-creed-syndicate/scripts/blender/prep_karin_original.py",
+    "source": "Mods/AC枭雄/scripts/prep_karin_original.py",
+    "original_sha256": "16edfcadc7961df583a665ad9cc032f2efd4957b1e02784219e17c237ee343bb",
+    "source_bytes": 3338,
+    "portable_sha256": "16edfcadc7961df583a665ad9cc032f2efd4957b1e02784219e17c237ee343bb",
+    "portable_bytes": 3338,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/assassins-creed-syndicate/scripts/blender/fit_karin.py",
+    "source": "Mods/AC枭雄/scripts/fit_karin.py",
+    "original_sha256": "f9755bbb6d89cf09a0d36300b2f2e6b101ce0b69fdbbcbd8062088e21a352fed",
+    "source_bytes": 28465,
+    "portable_sha256": "f9755bbb6d89cf09a0d36300b2f2e6b101ce0b69fdbbcbd8062088e21a352fed",
+    "portable_bytes": 28465,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/assassins-creed-syndicate/scripts/blender/face_rig.py",
+    "source": "Mods/AC枭雄/scripts/face_rig.py",
+    "original_sha256": "34ce2fe142457b9709a174b3bf3f06b727d5f23e1b4d534d689d25d83420ccf5",
+    "source_bytes": 22630,
+    "portable_sha256": "34ce2fe142457b9709a174b3bf3f06b727d5f23e1b4d534d689d25d83420ccf5",
+    "portable_bytes": 22630,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/assassins-creed-syndicate/scripts/blender/export_karin_lods.py",
+    "source": "Mods/AC枭雄/scripts/export_karin_lods.py",
+    "original_sha256": "4da8288313509dcae2e1355d61b95e162bc434f0427b7c46678ecdc78e7f5fca",
+    "source_bytes": 11978,
+    "portable_sha256": "4da8288313509dcae2e1355d61b95e162bc434f0427b7c46678ecdc78e7f5fca",
+    "portable_bytes": 11978,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/assassins-creed-syndicate/scripts/blender/measure_glb.py",
+    "source": "Mods/AC枭雄/scripts/measure_glb.py",
+    "original_sha256": "51416107faaeb8352960e6d2f684f2f4af6a9c04b3b941fb3e75aa2355bf6077",
+    "source_bytes": 1377,
+    "portable_sha256": "51416107faaeb8352960e6d2f684f2f4af6a9c04b3b941fb3e75aa2355bf6077",
+    "portable_bytes": 1377,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/assassins-creed-syndicate/scripts/blender/render_compare.py",
+    "source": "Mods/AC枭雄/scripts/render_compare.py",
+    "original_sha256": "4d6296226fbdbd6e36c1e93638e05faa1e1b2e1f7a985178949c18eb3c246a2b",
+    "source_bytes": 2708,
+    "portable_sha256": "4d6296226fbdbd6e36c1e93638e05faa1e1b2e1f7a985178949c18eb3c246a2b",
+    "portable_bytes": 2708,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/assassins-creed-syndicate/acuharness/Program.cs",
+    "source": "Mods/AC枭雄/tools/AcsyHarness/Program.cs",
+    "original_sha256": "b6fea68f9cdbd1200c93a89a134d995422354857f8d84d463907792c0d279552",
+    "source_bytes": 47782,
+    "portable_sha256": "b6fea68f9cdbd1200c93a89a134d995422354857f8d84d463907792c0d279552",
+    "portable_bytes": 47782,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/assassins-creed-syndicate/acuharness/build.ps1",
+    "source": "Mods/AC枭雄/tools/AcsyHarness/build.ps1",
+    "original_sha256": "cd473659834dfed207434ac1143191df4edd4c0118356537f635c10cede847e2",
+    "source_bytes": 3140,
+    "portable_sha256": "a4f5464ad02833efaaaf757016f0b47966d839932c8beaa29ae2725052ebd87f",
+    "portable_bytes": 4063,
+    "modified_for_portability": true
   }
 ]

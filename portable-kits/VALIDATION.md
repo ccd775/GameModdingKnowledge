@@ -1,5 +1,58 @@
 # 迁移验证记录
 
+## 2026-10-31：新增刺客信条：枭雄便携包
+
+- **迁入内容：** 21 个文件，放在 `portable-kits/assassins-creed-syndicate/`。
+  - `scripts/` 下 13 个 Python，来自项目 `scripts/`：`acs_forge.py`、`scan_objs.py`、`objs_to_tsv.py`、`acs_install.py`、`bt_tool.py`、`build_mod.py`、`make_meshes.py`、
+    `acs_phys_skel.py`、`make_release.py`、`glb_names.py`、`head_bones.py`、`glb_rotate.py`、`glb_info.py`；
+  - `scripts/blender/` 下 6 个 Blender 脚本，来自项目 `scripts/`：`prep_karin_original.py`、`fit_karin.py`、`face_rig.py`、`export_karin_lods.py`、`measure_glb.py`、`render_compare.py`；
+  - `acuharness/` 下 AcuHarness 的 `Program.cs`、`build.ps1`，来自项目 `tools/AcsyHarness/`：`Program.cs` 与大革命包的同名文件逐字节相同（单游戏导出也要能编译，
+    所以再收一份），`build.ps1` 用大革命包的便携版；运行时 `ACU_GAME=Syndicate`、`Lists\` 放 `Syndicate.gfl`；
+  - PROVENANCE 每个文件一行（21 行），全部有项目原件；新增 `README.md`、`toolchain.json`、`requirements.txt`（numpy）。`modkit.py` 的游戏列表加上 `assassins-creed-syndicate`。
+- **没有迁入：** 本机实机测试的窗口 / 按键辅助脚本 `gsnap.py`、`game_input.ahk`；存档转换脚本 `convert_save.py`（只服务于构建机那份副本的存档格式）；
+  发行包的 `.cmd`（由 `make_release.py` 生成）；嵌入式 Python 的 zip；原版 BallJoint 统计、偏移约定复核、裙片法线分析等一次性分析脚本（结论写在
+  `games/assassins-creed-syndicate/PHYSICS.md`、`BUILD_PIPELINE.md`）；全部工作数据（索引、副本清单、提取的数据文件、XML、blend、GLB、payload、发行 zip、截图）。
+- **便携改动**在 14 个文件：
+  - 写死的本机路径改成环境变量或参数，缺了先报错并说出变量名，什么都不写：
+    - `acs_install.py`：模块级默认游戏目录（一个固定路径）删掉，自动查找里去掉这一项（Steam、Ubisoft Connect、已安装程序、Epic 保留）；Epic 清单目录原来在没有
+      `PROGRAMDATA` 时退回一个固定路径 → 跳过；一处注释里的示例盘符路径改成 `<drive>:`；
+    - `build_mod.py`：工程的 `work`、`cache`、harness，共享工具目录里的 dotnet、texconv → `ACS_DOTNET`、`ACS_HARNESS`、`ACS_TEXCONV`、`ACS_SRC_TEX`、`ACS_TEMPLATES`、
+      `ACS_CACHE`，在 `main()` 开头、删输出目录之前一起检查；游戏目录 → `--game` / `ACS_GAME_DIR` / 自动查找；
+    - `make_meshes.py`：Blender 路径（原来有固定默认值）、源 blend、链根文件、头发骨架模板 → `ACS_BLENDER`、`ACS_SRC_BLEND`、`ACS_PHYS_ROOTS`（或 `--phys-roots`）、
+      `ACS_TEMPLATES`；Blender 脚本的路径改成 `scripts/blender/`；
+    - `acuharness/build.ps1`：工程的共享工具目录、固定运行时版本和 `bin\` 输出 → 大革命包的便携版（`-AtkDir` / `ACU_ATK_DIR`、`-DotnetRoot` / `ACU_DOTNET_ROOT`、
+      `-ListsDir` / `ACU_ATK_LISTS`、`-OutDir` / `ACU_HARNESS` 所在目录）；
+    - `scan_objs.py`：dotnet、harness、`cache`、游戏目录 → `ACS_DOTNET`、`ACS_HARNESS`、`ACS_CACHE`、`--game` / `ACS_GAME_DIR`（取大革命包的同名脚本，换成 Syndicate 的名字）；
+    - `make_release.py`：嵌入式 Python 原来默认取工程 `tools/` 下最新的 zip → `--python` / `ACS_PYTHON_EMBED`；README 文字里去掉固定的默认游戏目录；
+  - 补上 `--help`：`acs_forge.py`、`objs_to_tsv.py`、`bt_tool.py`、`head_bones.py`、`glb_rotate.py`、`glb_info.py` 换成大革命包的 argparse 入口（处理函数不变；
+    这三个 GLB 脚本与大革命包的同名文件相同，项目原件也与大革命的原件相同）；`build_mod.py`、`make_meshes.py`、`scan_objs.py` 改用 argparse；`acs_install.py`、
+    `acs_phys_skel.py`、`glb_names.py`、`make_release.py` 只在入口加了 `-h` / `--help`（原来会以非 0 退出，`objs_to_tsv.py --help` 会把 `--help` 当输出文件名）；
+  - 换行：每个迁入文件保留原来的换行（`acs_forge.py`、`acs_install.py`、`scan_objs.py`、`make_release.py`、`fit_karin.py`、`face_rig.py` 是 CRLF，其余 LF）。
+
+  其余 7 个文件（全部 Blender 脚本和 `Program.cs`）与原文件逐字节相同。处理逻辑没有改。
+- **等价性验证（构建机，2026-10-31）：**
+  - **条件：** Windows 10；Python 3.14.0 + numpy 2.5.2、Pillow 12.3.0；游戏（`ACS.exe` 2016-08-16，装着 v5）、AnvilToolkit 1.3.6、.NET 9.0.18、texconv、Blender 5.0.1 在本机。
+  - 原脚本和便携脚本在同一份输入上运行，输出逐字节比较：
+    - 全部 40 个 forge 的 `acs_forge.py index`（357 161 行）两边相同；`extract`（`DataItems`）相同；
+    - `bt_tool.py` 的 `show` / `edit`（`--drop`、带路径的 `--set`、`--clear-dynres`；雅各布的原版头部表）相同；
+    - `glb_rotate.py +90`、`glb_names.py`（雅各布的探针 GLB）、`glb_info.py --joints`、`head_bones.py`（Karin 的 LOD0 GLB）、`objs_to_tsv.py`（合成日志）相同；
+    - `scan_objs.py` 在 `DataPC_ACVI_TitleScreen.forge` 上实际扫描（3 个命中），日志相同；
+    - 安装器：合成 forge 上的套件（构建游戏上的指纹与往返、另一版本的五种情况、没有 `vanilla.tsv` 的旧 payload、拒绝）在便携版上通过；
+    - `make_release.py` 打包 v5 payload：43 个成员同名，`payload_s2.tar.xz`、三个 `.cmd`、`python\` 全部相同，只有 `acs_install.py`（便携版）和 `README.txt`
+      （去掉固定游戏目录的一句）不同；
+  - **整条构建链重跑：** 便携的 `make_meshes.py --stage 2`（用全部环境变量，41 秒）重建两兄妹：8 个 `.Mesh` 和 6 个物理 XML（骨架、`BallJointCommonData`、`LiteRagdoll`）
+    与发行的 v5 逐字节相同（中间的 LOD GLB 二进制块有差异，JSON 相同，导入后的 `.Mesh` 相同）；便携的 `build_mod.py` 用它们重建 payload（246 秒，用已有的原版副本缓存）：
+    291 个文件与 v5 同名，`skip.tsv` 逐字节相同；数据文件容器每次打包字节不同，两边用 harness `unpack-data` 解开后，290 个数据文件里 26 362 个对象全部逐字节相同。
+  - 缺变量：`build_mod.py`（一次列出 6 个）、`scan_objs.py`（3 个）、`make_meshes.py` 都在动手之前报出变量名，没有创建输出。
+  - **没有重跑的部分：** 便携版 payload 没有装进游戏（与用户接受的 v5 内容相同）；`scan_objs.py` 只在标题画面的 forge 上实际扫描过；`render_compare.py`、`measure_glb.py`
+    没有用本包重跑（与原件逐字节相同）。实机结论来自项目用原脚本构建的 stage 1 – v5。
+- **合成数据测试：** `AssassinsCreedSyndicateTools` 6 项：PROVENANCE / 便携性（每个文件一行、哈希与字节数、修改标记、`bundled_scripts` 一致；没有盘符路径、用户目录、写死的
+  `sys.path`、窗口辅助脚本、存档转换脚本和 `.cmd`）；按内容匹配的安装（构建游戏上逐字节往返；另一版本上：forge 大小不同、缺 `dlc_20`、被改过的副本照样替换、
+  已知内容在新 forge 里按内容匹配、未知内容留原版，卸载逐字节还原；一份都对不上和 forge 版本不对时拒绝且不写状态）；发行 zip（成员、ASCII CRLF 的 `.cmd`、
+  `vanilla.tsv` 的指纹、缺嵌入式 Python 的报错、用包里的安装器往返）；`glb_names.py` 的 CRC32 命名与别名修正；附加骨架的枭雄字段、GlobalGravity 裙片碰撞、
+  双马尾隔节分级（0 / 2 / 4 节，6 / 10 / 14°）、耳朵的 `upright` 偏移；缺变量的报错。`--help` 测试覆盖 `scripts/` 下全部 13 个脚本；没装 numpy / Pillow 时，要它们的项跳过；`Program.cs` 没有在测试里编译（重建用的 harness 是同一份源码编译的）。
+- **未验证：** Steam / Ubisoft Connect / Epic 的真实副本；非 Windows 系统（安装器用 `tasklist`、注册表）；新模型的案例常量。
+
 ## 2026-10-24：新增刺客信条：大革命便携包
 
 - **迁入内容：** 18 个文件，放在 `portable-kits/assassins-creed-unity/`。
