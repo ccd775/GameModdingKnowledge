@@ -1,0 +1,97 @@
+{
+  "game": "DEATH STRANDING 2: ON THE BEACH (PC)",
+  "status": "runtime-confirmed-scoped",
+  "tools": [
+    {
+      "name": "Karin Porter-replacement builder (build_ds2.py and modules)",
+      "version": "project-pinned",
+      "role": "VRM fitting to the Porter skeleton, culling, region weight transfer, borrowed Cloth_PBD / Belt_PBD / Hair_PBD particle weights, hair-atlas packing into free cells, paint-atlas corner UVs, facial rig fit with eyelid levers, equipped-boot padding, collapse jobs, ascii writing",
+      "required": true
+    },
+    {
+      "name": "Decima readers and patchers (ds2rtti.py, graph.py, group.py, patch_core.py, relink.py, make_links.py)",
+      "version": "project-pinned",
+      "role": "streaming graph / link table / whole-group object reading, core field patches the importer leaves stale, in-place link record relinks",
+      "required": true
+    },
+    {
+      "name": "build_karin.ps1 / make_mod_ds2.ps1 / pack.ps1 / install.ps1",
+      "version": "project-pinned",
+      "role": "imports with success counts, stream-only core checks, core patches, packing from the vanilla graph, development install / restore",
+      "required": true
+    },
+    {
+      "name": "make_release.py / release/install.ps1",
+      "version": "project-pinned",
+      "role": "redistributable variant (archive + manifest) and the per-group-checked installer that patches the user's own graph and links",
+      "required": false
+    },
+    {
+      "name": "ds2_pc_mi_022 (id-daemon)",
+      "version": "0.22 (SHA-256 prefix bf28a9dc)",
+      "role": "export of vanilla meshes / skeletons / textures and import of ascii meshes and DDS into core / stream files",
+      "required": true
+    },
+    {
+      "name": "Decima_pack_ds2 (id-daemon)",
+      "version": "same tool package (SHA-256 prefix b9fecd87)",
+      "role": "packs the mod's core / stream files into one archive and redirects spans / locators in the graph",
+      "required": true
+    },
+    {
+      "name": "Odradek (ShadelessFox) DS2 build",
+      "version": "1.0.49.0",
+      "role": "types_1048.json / extensions_1048.json for the RTTI reader; resource browsing and texture export",
+      "required": true
+    },
+    {
+      "name": "DirectXTex texconv",
+      "version": "2026.5.8.1",
+      "role": "BC1 / BC4 / BC7 conversion for the fixed-size texture slots",
+      "required": true
+    }
+  ],
+  "entry_documents": [
+    "../../games/death-stranding-2/README.md",
+    "../../games/death-stranding-2/BUILD_PIPELINE.md"
+  ],
+  "runtime_boundary": "Karin_Original v34 / v34f (DS2.exe 1.0.48.0, 2026-10-31): outfit-table redirect, hair removal, skirt / tail / twin-tail sway, ear / bang physics, equipped boots and the CorrosionRate fix confirmed in game (user or agent per item); expressions: mouth open confirmed by the user, blink after the 0.55 refit not separately confirmed; the private-room shower still shows Sam's wet hair; cutscene Sam doubles, the idle neck tilt, dialogue lip sync and the release installer's appended archive were not confirmed in game; Steam builds untested.",
+  "bundled_scripts": [
+    "scripts/atlas.py",
+    "scripts/build_ds2.py",
+    "scripts/build_karin.ps1",
+    "scripts/collapse_mesh.py",
+    "scripts/ds2ascii.py",
+    "scripts/ds2rtti.py",
+    "scripts/export_group.ps1",
+    "scripts/face_motion.py",
+    "scripts/fit_ds2.py",
+    "scripts/gen_collapse.py",
+    "scripts/graph.py",
+    "scripts/group.py",
+    "scripts/group_keys.py",
+    "scripts/hair_used.py",
+    "scripts/install.ps1",
+    "scripts/jolt.py",
+    "scripts/make_dds.py",
+    "scripts/make_links.py",
+    "scripts/make_mod_ds2.ps1",
+    "scripts/make_release.py",
+    "scripts/pack.ps1",
+    "scripts/patch_core.py",
+    "scripts/prep_ref.py",
+    "scripts/preview.py",
+    "scripts/release/install.ps1",
+    "scripts/relink.py",
+    "scripts/rigdec.py",
+    "scripts/riglogic.py",
+    "scripts/roundtrip.py",
+    "scripts/scan_strings.py",
+    "scripts/setup_cleanroot.ps1",
+    "scripts/sharing.py",
+    "scripts/texsets.py",
+    "scripts/verify_pack.py",
+    "scripts/vrm.py",
+    "scripts/who_uses.py"
+  ]
+}

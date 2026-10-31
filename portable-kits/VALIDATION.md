@@ -1,5 +1,54 @@
 # 迁移验证记录
 
+## 2026-10-31：新增死亡搁浅2便携包
+
+- **迁入内容：** 36 个文件，放在 `portable-kits/death-stranding-2/scripts/`。
+  - 28 个 Python，来自项目 `.work/ds2py/`：读取器 `ds2rtti.py`、`jolt.py`、`riglogic.py`、`graph.py`、`group.py`、`ds2ascii.py`、`roundtrip.py`；补丁与链接 `patch_core.py`、`relink.py`；
+    构建 `prep_ref.py`、`build_ds2.py`、`fit_ds2.py`、`atlas.py`、`vrm.py`、`hair_used.py`、`rigdec.py`、`face_motion.py`、`make_dds.py`、`gen_collapse.py`、`collapse_mesh.py`、`preview.py`；
+    校验与发行 `verify_pack.py`、`make_release.py`；分析 `scan_strings.py`、`who_uses.py`、`sharing.py`、`group_keys.py`、`texsets.py`；
+  - `make_links.py`：项目 `.work/remote/make_links.sh` 的 Python 移植（`.sh` 不在公开文件类型里）；
+  - 6 个 PowerShell，来自项目 `.work/remote/`：`setup_cleanroot.ps1`、`export_group.ps1`、`build_karin.ps1`、`make_mod_ds2.ps1`、`pack.ps1`、`install.ps1`；
+  - `release/install.ps1`：发行安装器，来自项目 `.work/remote/release/`；
+  - PROVENANCE 每个文件一行（36 行），全部有项目原件；新增 `README.md`、`toolchain.json`、`requirements.txt`（numpy、scipy）。`modkit.py` 的游戏列表加上 `death-stranding-2`。
+- **没有迁入：** Odradek 的类型表 `types_1048.json` / `extensions_1048.json`（8.6 MB，用户从 Odradek 的 DS2 构建取，`DS2_TYPES_DIR` 指向）；远程桌面辅助（截图、按键、窗口、`gact.sh`）；
+  脱离 SSH 运行构建的 `run_build.cmd`；发行包的三个 `.bat`（内容写在便携包 README）；勘察用的一次性脚本（`st*.py`、`sh*.py`、`boot*.py` 等，结论写在游戏文档里）；
+  全部工作数据（导出、pristine 核心、贴图页、包、存档、截图）。
+- **便携改动**在 27 个文件：
+  - 写死的本机路径改成环境变量，缺了先报错并说出变量名，什么都不写：`graph.py` 的游戏目录 / 干净根目录 / 类型表目录 → `DS2_GAME_DIR`、`DS2_MODDING`（下的 `clean\`）、`DS2_TYPES_DIR`，
+    加 `game_root()` / `clean_root()` / `modding_dir()`；13 个脚本的 `Graph(<固定路径>)` 改成 `Graph(game_root())` / `Graph(clean_root())`；`make_release.py` 的原版流图 / 链接表改为
+    `--vanilla-graph` / `--vanilla-links`（默认取 `DS2_MODDING`）；`hair_used.py` 去掉写死的 `sys.path`，加 `--work` / `--out`；6 个 PowerShell 从 `DS2_MODDING` / `DS2_GAME_DIR` / `$PSScriptRoot`
+    取路径，`build_karin.ps1` 的源 VRM 改为 `-Vrm` / `DS2_VRM`；
+  - 原来手工解析 `sys.argv` 的 19 个脚本改用 argparse，位置参数和选项不变（`gen_collapse.py`、`preview.py` 用 `parse_intermixed_args`，选项和位置参数可以交错，和原来一样）；
+    原来 `--help` 会被当成参数；
+  - `make_links.py` 在本机直接调用 `relink.py`（原脚本经 ssh 在游戏机上调用）；
+  - 换行：保留原来的换行（`fit_ds2.py`、`install.ps1` 是 CRLF，其余 LF）。
+
+  其余 9 个文件与原文件逐字节相同：`ds2rtti.py`、`jolt.py`、`riglogic.py`、`ds2ascii.py`、`atlas.py`、`vrm.py`、`fit_ds2.py`、`build_ds2.py`、`release/install.ps1`。处理逻辑没有改。
+  `release/install.ps1` 的 SHA-256 计算在迁入时从 `Get-FileHash` 改成 .NET（从 PowerShell 7 里启动 Windows PowerShell 时，继承的模块路径加载不了 `Get-FileHash`，被下面的安装器测试抓到），项目原件同步改了，所以仍逐字节相同。
+- **等价性验证（游戏机，2026-10-31）：**
+  - **条件：** Windows（游戏机），Python 3.12.10 + numpy 2.5.1、scipy 1.18.1、Pillow 12.2.0、lz4 4.4.5；`DS2.exe` 1.0.48.0（原版流图在干净根目录），Odradek 1.0.49.0 的类型表。
+  - 原脚本和便携脚本在同一份输入上运行，输出逐字节比较，全部相同：
+    - `make_links.py v13` / `v13f` 写出的链接表与项目的 `streaming_links_v13(.f).stream` 相同（MD5 `507F8FCF…` / `92077595…`）；另把原 `make_links.sh`（`ssh` 换成回显）和 `make_links.py --print` 对 v10 / v10f / v11 / v11f / v12 / v12f / v13 / v13f 的重指参数逐个比较，全部相同；
+    - `hair_used.py` 的掩码 PNG 与项目的相同；
+    - `make_release.py` 对 v34 / v34f 生成的 manifest 和包文件与已发行的两个变体相同；
+    - `group_keys.py`、`sharing.py`、`who_uses.py`、`verify_pack.py` 的输出与原脚本相同；
+  - 缺变量：`group_keys.py`、`relink.py`（报 `DS2_GAME_DIR`）、`rigdec.py`、`hair_used.py`、`make_release.py`、`make_links.py`（报 `DS2_MODDING`）都在写任何文件之前退出。
+- **合成数据测试：** `DeathStranding2Tools` 7 项：
+  - 链接记录的编码 / 解码（本地、子组、StreamingRef、2 / 3 字节边界、补齐的记录、装不下时报错）和 `type_hash`；
+  - `UITexture` 额外数据（按长度断言）；
+  - stream-only 塌缩任务（计数不变、一点、单骨满权重、`stream_only` 标记）；
+  - `make_links.py` 各版本的重指差别和缺变量；
+  - 环境变量；
+  - 发行安装器：在合成流图上安装（span / locator / 链接改动、追加的文件条目和 CRC32C、`PackFileLengths [4]`、对象大小和尾部零字节）、重复安装、逐字节卸载，以及一个组不一致时拒绝且不写文件（需要 Windows PowerShell 或 pwsh）；
+  - PROVENANCE / 便携性。
+
+  `--help` 测试覆盖 `scripts/` 下全部 28 个 Python；没装 numpy / scipy / Pillow / lz4 时，要它们的项跳过。上面的等价性核对是游戏机上手工跑的，没有写进测试套件。
+- **未验证：**
+  - 用便携的 `build_karin.ps1` 完整重建两个变体（再与 v34 / v34f 的包、流图、链接表逐字节比较）已在游戏机上启动，提交时到游戏机的隧道不通，结果没有取回；
+  - 因此 `build_ds2.py`、`patch_core.py`、`prep_ref.py`、`face_motion.py`、`make_mod_ds2.ps1`、`pack.ps1` 等需要游戏数据的部分，便携版还没有和原件做输出比较（测试套件里也没有）；
+  - 发行安装器装的版本（追加的第 242 个文件）在提交时还没有实机；Steam 版和其它游戏版本；
+  - 非 Windows 系统。
+
 ## 2026-10-31：新增刺客信条：枭雄便携包
 
 - **迁入内容：** 21 个文件，放在 `portable-kits/assassins-creed-syndicate/`。

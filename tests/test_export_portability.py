@@ -132,6 +132,19 @@ class DetachedExports(unittest.TestCase):
                     if game == 'hogwarts-legacy' and importlib.util.find_spec('numpy'):
                         self.assertIn('test_hl_dyn_params_feel_and_swing', process.stderr)
                         self.assertFalse([l for l in process.stderr.splitlines() if 'test_hl_' in l and 'skipped' in l])
+                    if game == 'death-stranding-2':
+                        self.assertTrue((target/'portable-kits/death-stranding-2/requirements.txt').is_file())
+                        for name in ('test_ds2_make_links_versions', 'test_ds2_provenance_and_portability'):
+                            self.assertIn(name, process.stderr)
+                        self.assertFalse([l for l in process.stderr.splitlines() if 'test_ds2_' in l and 'skipped' in l
+                                          and not any(k in l for k in ('roundtrip', 'extra_data', 'collapse', 'variables',
+                                                                       'installer'))])
+                    if game == 'death-stranding-2' and all(importlib.util.find_spec(m) for m in ('numpy', 'scipy', 'PIL', 'lz4')):
+                        for name in ('test_ds2_link_records_roundtrip', 'test_ds2_ui_texture_extra_data',
+                                     'test_ds2_stream_only_collapse_jobs', 'test_ds2_machine_path_variables'):
+                            self.assertIn(name, process.stderr)
+                        self.assertFalse([l for l in process.stderr.splitlines() if 'test_ds2_' in l and 'skipped' in l
+                                          and 'installer' not in l])
                     print(f'{game}: detached tests passed (unselected games skipped)')
 
 

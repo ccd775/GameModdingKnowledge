@@ -284,6 +284,17 @@
       "topics": ["UE 4.27 Phoenix", "IoStore + retoc to-legacy / to-zen", "~mods zzz_*_P", "2025-01 更新：FSkelMeshRenderSection 多一个 uint32", "参考姿势按 JSON 写回", "UMaterialInterface 尾部 20 字节哈希：不新建材质实例", "材质实例按字节克隆到空闲路径", "原版 UE 4.27 占位工程 cook", "装备外观 / 角色部件数据资产", "袜子部件承载腿部皮肤", "发型 MeshOverrides 指回默认网格", "无 AnimClass 的部件不跑后处理蓝图", "数据资产注入 AnimClass", "编辑器插件生成 CopyPoseFromMesh → AnimDynamics 蓝图", "AnimDynamics 单骨节点与集中杆模型", "离线手感模型（峰值 / 过中心 / 收敛时间）", "面部姿势资产按名字驱动形变", "自定义法线随 TPS 迁移", "网格骨必须都在引用的骨架里", "崩溃转储分析（minidump + .pdata + 反汇编）", "捏脸预设表与发廊限制"],
       "limits": ["男版物理和表情无实机反馈，未按 v1.1 规则重建", "过场特写、战斗大动作、坐下、骑乘未专门测试", "裙片之间无碰撞，大动作下大腿可能穿出", "拉起兜帽时双马尾可能穿模", "崩溃的代码级原因（-1 索引）是推测", "脸型只能在创建角色时选"],
       "portable_kit": "portable-kits/hogwarts-legacy"
+    },
+    {
+      "id": "death-stranding-2",
+      "path": "games/death-stranding-2",
+      "status": "runtime-confirmed-scoped",
+      "milestone": "Karin_Original 替换玩家外观 Porter v34 / v34f（DS2.exe 1.0.48.0）：id-daemon 工具把 Karin 写进 Porter 现有槽位（头 → 身体网格手套图元、裙子和尾巴 → 长外套、耳朵 / 刘海 / 侧发 → 山姆头发 LodMesh、有表情版的脸 → 脸皮 LOD2），patch_core 补导入工具不更新的字段；链接表原位重指外观表 6 套、山姆头发 / 面部部件和装备靴；借 Cloth_PBD / Belt_PBD / Hair_PBD 粒子做裙子、尾巴、双马尾和耳朵物理（耳朵粒子的逆绑定矩阵缩放只取平移）；RigLogic 解码 + 形态键拟合 + 眼睑杠杆做张嘴和眨眼；改名材质变量 CorrosionRate 去掉时间雨腐蚀的灰层；玩家组 31123 只换 stream（核心逐字节不变）；发行安装器在用户自己的流图上按组核对后追加新包文件。外观表、去头发、裙子 / 尾巴 / 双马尾 / 耳朵刘海物理、装备靴、不再发灰经用户或 agent 实机确认；张嘴经用户确认，0.55 拟合后的眨眼未单独确认；淋浴时仍有山姆的湿发（未解决）",
+      "date": "2026-10-31",
+      "game_build": "DS2.exe 1.0.48.0 (streaming_graph.core SHA-256 2ECAB703…F380)",
+      "topics": ["Decima 流图字段布局（GroupSize int64、locator 低 24 位文件序号、Files 的 CRC32C）", "链接表 varint 记录与原位重指（Ref 只能指本组 / 子组，StreamingRef 写组号）", "Decima_pack_ds2 只改 SpanTable / LocatorTable", "干净根目录：包文件硬链接、绝不原地写", "导入工具不更新的字段（SDS.Length、SkinInfo、包围盒、逐骨包围盒）", "隐藏标志无效、整个换覆盖模型会崩，只换部件网格", "外观表 VariantDefs 全部指向 Porter", "stream-only：补齐计数让核心逐字节不变", "借外套 Cloth_PBD 做裙子和尾巴", "Hair_PBD 关节带转动：耳朵用逆绑定矩阵缩放只取平移", "头发 PBD 体字段补丁（UseFluctuation、MaxDistance）", "头发图集空格放 Karin 的块，其余 alpha 置 0", "UV1 是贴花坐标，写原版中位数", "“粗糙度”通道是光滑度", "涂装图集角 UV", "时间雨腐蚀：材质变量 CorrosionRate 改名", "RigLogic 关节矩阵解码（float16、16 行块列主序）与 MetaHuman 控制号", "游戏普通眨眼只到约 0.52", "眼睑绑定偏移杠杆", "场景替身：DSPlayerTakeOverState、DSCoverToOtherEntityEvent", "UITexture 额外数据", "按组核对、追加新包文件的发行安装器"],
+      "limits": ["私人房间淋浴时仍有山姆的湿发、没有耳朵刘海（排除了玩家组头发、12706、6744）", "过场里的山姆替身未处理", "待机姿势脖子歪未查", "对话口型和过场表情未检查", "眨眼（0.55 拟合）、鼻嘴阴影修正未经用户单独确认", "有表情版雨天脸变暗", "装备靴仍会腐蚀；手套等装备按山姆体型", "发行安装器追加的包文件在提交时未经实机；Steam 版未验证", "只验证了 1.0.48.0"],
+      "portable_kit": "portable-kits/death-stranding-2"
     }
   ]
 }

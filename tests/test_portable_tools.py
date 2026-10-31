@@ -251,6 +251,7 @@ class PortableTools(unittest.TestCase):
             if path.parents[1].name == 'assassins-creed-unity' and acu_missing(path.stem): continue
             if path.parents[1].name == 'hogwarts-legacy' and hl_missing(path.stem): continue
             if path.parents[1].name == 'assassins-creed-syndicate' and acs_missing(path.stem): continue
+            if path.parents[1].name == 'death-stranding-2' and ds2_missing(path.stem): continue
             cli(path.parents[1].name,path.stem,'--help')
 
 
@@ -5541,5 +5542,334 @@ class HogwartsLegacyTools(unittest.TestCase):
         # not bundled: the shell driver, the remote-machine helpers and the virtual pad tool
         self.assertFalse([p for p in kit.rglob('*') if p.suffix in ('.sh', '.exe', '.dll', '.patch') or 'remote' in p.parts or 'vpad' in p.name.lower()])
 
+
+DS2_KIT = KITS / 'death-stranding-2'
+DS2_DEPS = ('numpy', 'scipy', 'PIL', 'lz4')
+DS2_STDLIB_SCRIPTS = {'make_links'}
+
+
+def ds2_missing(script=None):
+    if script in DS2_STDLIB_SCRIPTS:
+        return []
+    return [m for m in DS2_DEPS if importlib.util.find_spec(m) is None]
+
+
+def ds2_kit():
+    if not DS2_KIT.is_dir():
+        raise unittest.SkipTest('death-stranding-2 is not included in this single-game export')
+    return DS2_KIT
+
+
+def ds2(name):
+    ds2_kit()
+    if ds2_missing():
+        raise unittest.SkipTest('pip install -r portable-kits/death-stranding-2/requirements.txt (missing '
+                                + ', '.join(ds2_missing()) + ')')
+    return module('death-stranding-2', name)
+
+
+def ds2_crc32c(data):
+    """Decima string checksum: CRC32C, initial value 0, no final xor"""
+    c = 0
+    for x in data:
+        c ^= x
+        for _ in range(8):
+            c = (c >> 1) ^ (0x82F63B78 if c & 1 else 0)
+    return c
+
+
+def ds2_graph(groups, files, locators, spans, type_hashes, type_index, subgroups, link_size, tail=b'\x07' * 12):
+    """synthetic streaming_graph.core with the release installer's layout: groups are dicts with GroupID, NumObjects,
+    GroupSize and the twelve uint32 starts / counts; files are names; locators / spans plain tuples"""
+    o = bytearray(16) + b'\x01'
+    o += struct.pack('<I', len(type_hashes)) + b''.join(struct.pack('<Q', h) for h in type_hashes)
+    tt = struct.pack('<5i', 0, 2, len(type_index), len(type_index), 1) + struct.pack(f'<{len(type_index)}H', *type_index)
+    o += struct.pack('<I', len(tt)) + tt
+    o += struct.pack('<Qi', len(files) - 1, link_size)
+    o += struct.pack('<I', len(locators)) + b''.join(struct.pack('<Q', (off << 24) | fi) for fi, off in locators)
+    o += struct.pack('<I', 2) + struct.pack('<2I', 5, 6)                                   # ArrayTable
+    o += struct.pack('<I', len(spans)) + b''.join(struct.pack('<Iii', *s) for s in spans)
+    keys = ('SubGroupStart', 'SubGroupCount', 'RootStart', 'RootCount', 'SpanStart', 'SpanCount', 'TypeStart',
+            'TypeCount', 'LinkStart', 'LinkSize', 'LocatorStart', 'LocatorCount')
+    o += struct.pack('<I', len(groups))
+    for g in groups:
+        o += struct.pack('<iiq', g['GroupID'], g['NumObjects'], g['GroupSize'])
+        o += struct.pack('<12I', *(g.get(k, 0) for k in keys)) + struct.pack('<I', 0)
+    o += struct.pack('<I', len(subgroups)) + b''.join(struct.pack('<I', s) for s in subgroups)
+    o += struct.pack('<I', 0) + struct.pack('<I', 0)                                       # RootUUIDs, RootIndices
+    o += struct.pack('<I', len(files))
+    for f in files:
+        b = f.encode()
+        o += struct.pack('<II', len(b), ds2_crc32c(b)) + b
+    o += struct.pack('<I', len(files)) + b''.join(struct.pack('<I', 0) for _ in files)    # PackFileOffsets
+    o += struct.pack('<I', len(files)) + b''.join(struct.pack('<II', 1, 4) if f.endswith('.core.stream')
+                                                  else struct.pack('<I', 0) for f in files)
+    o += tail
+    return struct.pack('<QI', 0x929D7AF6A30CD1C5, len(o)) + bytes(o) + bytes(4)
+
+
+def ds2_read_graph(data):
+    """the fields the installer touches, read back independently"""
+    p = 12 + 17
+    n = struct.unpack_from('<I', data, p)[0]; p += 4 + 8 * n
+    n = struct.unpack_from('<I', data, p)[0]; p += 4 + n
+    p += 12
+    n = struct.unpack_from('<I', data, p)[0]
+    locs = [struct.unpack_from('<Q', data, p + 4 + 8 * i)[0] for i in range(n)]; p += 4 + 8 * n
+    n = struct.unpack_from('<I', data, p)[0]; p += 4 + 4 * n
+    n = struct.unpack_from('<I', data, p)[0]
+    spans = [struct.unpack_from('<Iii', data, p + 4 + 12 * i) for i in range(n)]; p += 4 + 12 * n
+    n = struct.unpack_from('<I', data, p)[0]; p += 4 + 68 * n
+    n = struct.unpack_from('<I', data, p)[0]; p += 4 + 4 * n
+    p += 8
+    files = []
+    n = struct.unpack_from('<I', data, p)[0]; p += 4
+    for _ in range(n):
+        ln, crc = struct.unpack_from('<II', data, p)
+        files.append((data[p + 8:p + 8 + ln].decode(), crc)); p += 8 + ln
+    def arrays():
+        nonlocal p
+        out = []
+        n = struct.unpack_from('<I', data, p)[0]; p += 4
+        for _ in range(n):
+            m = struct.unpack_from('<I', data, p)[0]
+            out.append(list(struct.unpack_from(f'<{m}i', data, p + 4))); p += 4 + 4 * m
+        return out
+    pfo, pfl = arrays(), arrays()
+    return dict(size=struct.unpack_from('<I', data, 8)[0], locs=locs, spans=spans, files=files, pfo=pfo, pfl=pfl,
+                tail=data[p:])
+
+
+class DeathStranding2Tools(unittest.TestCase):
+    """Link records, the UITexture extra data, stream-only collapse jobs, the project's link-table versions, the
+    machine-path variables and the release installer (on a synthetic streaming graph) on synthetic data. The builder,
+    the core patcher and the importer / packer steps need the game, id-daemon's tools and Odradek's type tables."""
+
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(prefix='modding death stranding 2 ')
+        self.root = Path(self.temp.name)
+
+    def tearDown(self): self.temp.cleanup()
+
+    def env(self, **set_):
+        e = {k: v for k, v in os.environ.items() if not k.startswith('DS2_')}
+        e.update({k: str(v) for k, v in set_.items()})
+        return e
+
+    def test_ds2_link_records_roundtrip(self):
+        graph = ds2('graph')
+        recs = [((None, 5), 1), ((None, 8191), 2), ((None, 8192), 3), ((3, 82), 2), ((50107, 0), 4), ((40, 0), 2)]
+        buf = b''.join(graph.encode_link(*r) for r, _ in recs)
+        self.assertEqual([len(graph.encode_link(*r)) for r, _ in recs], [n for _, n in recs])
+        g = graph.Graph.__new__(graph.Graph)
+        g._links, g.groups = buf, [{'LinkStart': 0}]
+        self.assertEqual(list(g.links(0)), [r for r, _ in recs])
+        # padded records (relink keeps the byte length): zero-valued leading groups decode to the same value
+        padded = graph.encode_link(None, 82, length=3) + graph.encode_link(3, 82, length=4) + graph.encode_link(None, 5, length=2)
+        g._links = padded
+        self.assertEqual(list(g.links(0, with_pos=True)), [(None, 82, 0, 3), (3, 82, 3, 7), (None, 5, 7, 9)])
+        with self.assertRaises(ValueError):
+            graph.encode_link(None, 8192, length=2)                 # a 2-byte local record holds 13 bits only
+        self.assertEqual(ds2('ds2rtti').type_hash('StreamingGraphResource'), 0x929D7AF6A30CD1C5)
+
+    def test_ds2_ui_texture_extra_data(self):
+        rtti = ds2('ds2rtti')
+        def info(n):
+            body = struct.pack('<hHHHBBBBBBBB', 0, 1024, 32, 0, 1, 0x4B, 0, 1, 0, 0xA9, 0xFF, 0) + bytes(range(16))
+            return body + struct.pack('<4i', 12 + n, n, 0, 0) + bytes(n)
+        small = info(16)
+        buf = b'\x00' + struct.pack('<ii', len(small), 0) + small + b'NEXT'
+        r = rtti.Reader(buf); obj = {}
+        rtti.EXTRA['UITexture'](None, r, obj)
+        self.assertEqual((obj['Unk00'], obj['BigTexture'], r.pos), (0, None, len(buf) - 4))
+        self.assertEqual((obj['SmallTexture']['Header']['Width'], len(obj['SmallTexture']['Data']['EmbeddedData'])), (1024, 16))
+        self.assertNotIn('UITexture', rtti.UNSUPPORTED_EXTRA)
+        bad = b'\x00' + struct.pack('<ii', len(small) - 1, 0) + small
+        with self.assertRaises(AssertionError):
+            rtti.EXTRA['UITexture'](None, rtti.Reader(bad), {})
+
+    def test_ds2_stream_only_collapse_jobs(self):
+        H = ds2('ds2ascii')
+        exp, sk, out = self.root / 'export g', self.root / 'skeletons', self.root / 'collapse'
+        (exp / 'lod0').mkdir(parents=True); sk.mkdir()
+        bones = [dict(name='Root', parent=-1, pos=[0, 0, 0], quat=[0, 0, 0, 1]),
+                 dict(name='Head', parent=0, pos=[0, 0, 1.6], quat=[0, 0, 0, 1])]
+        (sk / 'ABCD_skel_0.ascii').write_text('2\nRoot\n-1\n0 0 0 0 0 0 1\nHead\n0\n0 0 1.6 0 0 0 1\n', encoding='utf-8')
+        def sub(name, n, z):
+            pos = [[0.1 * k, 0.02 * k, z + 0.01 * k] for k in range(n)]
+            return dict(name=name, nuv=2, textures=[('t', 0)], pos=pos, nrm=[[0, 0, 1]] * n, col=[[255] * 4] * n,
+                        uv=[[[0.1, 0.2]] * n, [[0.5, 0.5]] * n], bi=[[1, 0, 0, 0]] * n,
+                        bw=[[0.7, 0.3, 0, 0] if k % 2 else [1.0, 0, 0, 0] for k in range(n)],
+                        faces=[[k, k + 1, k + 2] for k in range(n - 2)])
+        H.write(exp / 'lod0' / 'ABCD_0.ascii', [sub('mesh_7_sm_0_material_a', 5, 1.5), sub('mesh_7_sm_1_material_b', 4, 1.7)])
+        (exp / 'lod0' / 'export.log').write_text('Mesh 7 with skeleton ABCD 0 bones 2\n', encoding='utf-8')
+        cli('death-stranding-2', 'gen_collapse', out, sk, f'{exp}:abcd:123', '--stream-only')
+        jobs = json.loads((out / 'jobs.json').read_text())
+        self.assertEqual(len(jobs), 1)
+        j = jobs[0]
+        self.assertEqual((j['gid'], j['group'], j['lod'], j['mesh'], j['skel'], j['verts'], j['stream_only']),
+                         (123, 'abcd', 0, 7, 'ABCD_skel_0.ascii', [5, 4], True))
+        self.assertEqual(sorted(j['prims']), ['0', '1'])
+        _, meshes = H.read_meshes(j['ascii'], has_skeleton=True)
+        for m, n, nf in zip(meshes, (5, 4), (3, 2)):
+            self.assertEqual((len(m['pos']), len(m['faces'])), (n, nf))                     # counts kept
+            self.assertEqual(len({tuple(p) for p in m['pos'].round(6)}), 1)                 # one point
+            self.assertEqual({tuple(w) for w in m['bw']}, {(1.0, 0.0, 0.0, 0.0)})            # one joint, full weight
+        # without --stream-only the jobs carry no flag
+        cli('death-stranding-2', 'gen_collapse', self.root / 'c2', sk, f'{exp}:abcd:123')
+        self.assertNotIn('stream_only', json.loads((self.root / 'c2' / 'jobs.json').read_text())[0])
+
+    def test_ds2_make_links_versions(self):
+        ds2_kit()
+        def triples(v):
+            words = cli('death-stranding-2', 'make_links', v, '--print').stdout.split()
+            self.assertEqual(len(words) % 3, 0)
+            return [tuple(words[i:i + 3]) for i in range(0, len(words), 3)]
+        v10, v13, v13f, v11, v12 = (triples(v) for v in ('v10', 'v13', 'v13f', 'v11', 'v12'))
+        self.assertEqual((len(v10), len(v13), len(v13f), len(v11), len(v12)), (121, 122, 123, 149, 180))
+        for n in (0, 2, 4, 5, 6, 7):
+            self.assertIn(('31123:279', f'VariantDefs.Variant#{n}', '50107:0'), v13)
+        self.assertNotIn(('31123:279', 'VariantDefs.Variant#8', '50107:0'), v13)        # the 3-byte DeadbodyBag record
+        self.assertIn(('50108:43', 'MeshResource', '50108:595'), v13)
+        self.assertNotIn(('50108:43', 'MeshResource', '50108:595'), v13f)
+        self.assertEqual(set(v13f) - set(v13), {('50120:1', 'RuntimeMeshes.Mesh#0', '50120:186'),
+                                                ('50120:1', 'RuntimeMeshes.Mesh#1', '50120:186')})
+        self.assertEqual(set(v13) - set(v10), {('31123:32822', 'TextureSet', '67704:0')})
+        self.assertIn(('50110:166', '@74406:0', '75978:0'), v11)
+        self.assertNotIn(('50110:166', '@74406:0', '75978:0'), v13)
+        self.assertIn(('31123:47608', '@79289:0', '75978:0'), v12)
+        process = subprocess.run([sys.executable, '-B', str(DS2_KIT / 'scripts' / 'make_links.py'), 'v13'],
+                                 capture_output=True, text=True, env=self.env())
+        self.assertNotEqual(process.returncode, 0)
+        self.assertIn('DS2_MODDING', process.stdout + process.stderr)
+
+    def test_ds2_machine_path_variables(self):
+        ds2('graph')
+        scripts = DS2_KIT / 'scripts'
+        def run(name, *args, **env):
+            return subprocess.run([sys.executable, '-B', str(scripts / f'{name}.py'), *map(str, args)],
+                                  capture_output=True, text=True, env=self.env(**env))
+        for name, args, var in (('group_keys', ('50108',), 'DS2_GAME_DIR'), ('relink', (self.root / 'l.stream',), 'DS2_GAME_DIR'),
+                                ('rigdec', (), 'DS2_MODDING'), ('hair_used', (), 'DS2_MODDING'),
+                                ('make_release', (self.root, self.root / 'r', 't'), 'DS2_MODDING')):
+            p = run(name, *args)
+            self.assertNotEqual(p.returncode, 0, name)
+            self.assertIn(var, p.stdout + p.stderr, name)
+        self.assertFalse((self.root / 'l.stream').exists())
+        self.assertFalse((self.root / 'r').exists())
+        # DS2_TYPES_DIR picks the type tables; the clean root redirect needs DS2_MODDING\clean to exist
+        probe = ('import graph, sys; print(graph.TYPES_DIR); print(graph.VANILLA_ROOT); print(graph.game_root())')
+        p = subprocess.run([sys.executable, '-B', '-c', probe], cwd=scripts, capture_output=True, text=True,
+                           env=self.env(DS2_TYPES_DIR=self.root / 'types', DS2_MODDING=self.root, DS2_GAME_DIR=self.root / 'game'))
+        self.assertEqual(p.stdout.split('\n')[:3], [str(self.root / 'types'), str(self.root / 'clean'), str(self.root / 'game')], p.stderr)
+
+    def test_ds2_release_installer_patch_uninstall_and_refusal(self):
+        import hashlib
+        import shutil
+        ds2_kit()
+        shell = shutil.which('powershell') or shutil.which('pwsh')
+        if not shell:
+            self.skipTest('needs Windows PowerShell or pwsh')
+        files = ['cache:package/package.00.00.core', 'cache:package/package.01.00.core.stream',
+                 'cache:package/package.18.00.core.stream', 'cache:package/streaming_links.stream']
+        hashes = [0x1111, 0x2222, 0x3333, 0x4444]
+        links = bytearray(range(64))
+        groups = [dict(GroupID=100, NumObjects=3, GroupSize=500, SpanStart=0, SpanCount=2, TypeStart=0, TypeCount=3,
+                       LinkStart=0, LinkSize=16, LocatorStart=0, LocatorCount=3, SubGroupStart=0, SubGroupCount=1),
+                  dict(GroupID=200, NumObjects=2, GroupSize=1 << 33, SpanStart=2, SpanCount=1, TypeStart=3, TypeCount=2,
+                       LinkStart=16, LinkSize=8, LocatorStart=3, LocatorCount=1, SubGroupStart=1, SubGroupCount=0),
+                  dict(GroupID=300, NumObjects=1, GroupSize=40, SpanStart=3, SpanCount=1, TypeStart=5, TypeCount=1,
+                       LinkStart=24, LinkSize=40, LocatorStart=4, LocatorCount=1, SubGroupStart=1, SubGroupCount=2)]
+        type_index = [0, 2, 3, 1, 1, 2]
+        subgroups = [300, 100, 200]
+        spans = [(0, 100, 0), (1, 120, 4096), (1, 60, 8192), (0, 40, 100)]
+        locs = [(1, 512), (1, 1024), (2, 77), (1, 2048), (1, 4096)]
+        graph = ds2_graph(groups, files, locs, spans, hashes, type_index, subgroups, len(links))
+        game = self.root / 'game dir'
+        pkg = game / 'LocalCacheWinGame' / 'package'
+        pkg.mkdir(parents=True)
+        (pkg / 'streaming_graph.core').write_bytes(graph)
+        (pkg / 'streaming_links.stream').write_bytes(bytes(links))
+        mod = self.root / 'release kit'
+        (mod / 'NoExpression').mkdir(parents=True)
+        shutil.copyfile(DS2_KIT / 'scripts' / 'release' / 'install.ps1', mod / 'install.ps1')
+        archive = bytes(range(256)) * 40
+        (mod / 'NoExpression' / 'karin.core.stream').write_bytes(archive)
+        def fingerprint(g, sub):
+            th = b''.join(struct.pack('<Q', hashes[type_index[g['TypeStart'] + i]]) for i in range(g['TypeCount']))
+            return dict(NumObjects=g['NumObjects'], GroupSize=g['GroupSize'], SubGroupCount=g['SubGroupCount'],
+                        SpanCount=g['SpanCount'], TypeCount=g['TypeCount'], LinkSize=g['LinkSize'],
+                        LocatorCount=g['LocatorCount'], types_sha1=hashlib.sha1(th).hexdigest(), subgroups=sub,
+                        links_sha1=hashlib.sha1(bytes(links[g['LinkStart']:g['LinkStart'] + g['LinkSize']])).hexdigest())
+        manifest = dict(format=1, title='synthetic', built_from_exe='1.0.48.0', graph_type_hash='929D7AF6A30CD1C5',
+                        archive=dict(file='karin.core.stream', size=len(archive), sha256=hashlib.sha256(archive).hexdigest().upper()),
+                        groups=[dict(gid=100, check=fingerprint(groups[0], [300]),
+                                     spans=[dict(k=1, vanilla_length=120, offset=262144, length=130)],
+                                     locators=[dict(k=0, offset=393216), dict(k=2, offset=400000)],
+                                     link_edits=[dict(rel=4, old=bytes(links[4:6]).hex(), new='8152')]),
+                                dict(gid=300, check=fingerprint(groups[2], [100, 200]), spans=[], locators=[],
+                                     link_edits=[dict(rel=10, old=bytes(links[34:35]).hex(), new='7f')])])
+        (mod / 'NoExpression' / 'manifest.json').write_text(json.dumps(manifest), encoding='utf-8')
+        def install(*args):
+            return subprocess.run([shell, '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', str(mod / 'install.ps1'),
+                                   *args, '-GameDir', str(game)], capture_output=True, text=True, errors='replace',
+                                  timeout=120)
+        p = install('-Variant', 'NoExpression')
+        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+        new = (pkg / 'streaming_graph.core').read_bytes()
+        r = ds2_read_graph(new)
+        self.assertEqual(r['size'], len(new) - 16)                                         # object, then 4 zero bytes
+        self.assertEqual(r['files'][:4], [(f, ds2_crc32c(f.encode())) for f in files])
+        self.assertEqual(r['files'][4], ('cache:package/package.99.00.core.stream', ds2_crc32c(b'cache:package/package.99.00.core.stream')))
+        self.assertEqual((r['pfo'][4], r['pfl'][4], r['pfl'][1], r['pfl'][0]), ([], [4], [4], []))
+        self.assertEqual(r['tail'], b'\x07' * 12 + bytes(4))
+        self.assertEqual(r['spans'], [spans[0], (4, 130, 262144), spans[2], spans[3]])
+        self.assertEqual(r['locs'], [(393216 << 24) | 4, (1024 << 24) | 1, (400000 << 24) | 4, (2048 << 24) | 1, (4096 << 24) | 1])
+        ln = (pkg / 'streaming_links.stream').read_bytes()
+        expect = bytearray(links); expect[4:6] = b'\x81\x52'; expect[34] = 0x7F
+        self.assertEqual(ln, bytes(expect))
+        self.assertEqual((pkg / 'package.99.00.core.stream').read_bytes(), archive)
+        state = json.loads((game / 'KarinMod_backup' / 'state.json').read_text(encoding='utf-8-sig'))
+        self.assertEqual(state['installed_graph'], hashlib.sha256(new).hexdigest().upper())
+        # installing again first uninstalls the old copy
+        self.assertEqual(install('-Variant', 'NoExpression').returncode, 0)
+        self.assertEqual((pkg / 'streaming_graph.core').read_bytes(), new)
+        p = install('-Uninstall')
+        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+        self.assertEqual(((pkg / 'streaming_graph.core').read_bytes(), (pkg / 'streaming_links.stream').read_bytes()), (graph, bytes(links)))
+        self.assertFalse((pkg / 'package.99.00.core.stream').exists() or (game / 'KarinMod_backup').exists())
+        # a copy whose touched group differs (one link byte of group 300): nothing is written
+        changed = bytearray(links); changed[40] ^= 1
+        (pkg / 'streaming_links.stream').write_bytes(bytes(changed))
+        p = install('-Variant', 'NoExpression')
+        self.assertEqual(p.returncode, 1, p.stdout + p.stderr)
+        self.assertIn('300', p.stdout)
+        self.assertEqual(((pkg / 'streaming_graph.core').read_bytes(), (pkg / 'streaming_links.stream').read_bytes()), (graph, bytes(changed)))
+        self.assertFalse((pkg / 'package.99.00.core.stream').exists() or (game / 'KarinMod_backup').exists())
+
+    def test_ds2_provenance_and_portability(self):
+        import hashlib
+        import re
+        kit = ds2_kit()
+        rows = [r for r in json.loads((KITS / 'PROVENANCE.json').read_text(encoding='utf-8-sig'))
+                if r['path'].startswith('portable-kits/death-stranding-2/')]
+        files = sorted(p.relative_to(ROOT).as_posix() for p in (kit / 'scripts').rglob('*') if p.is_file())
+        self.assertEqual(sorted(r['path'] for r in rows), files)
+        for r in rows:
+            data = (ROOT / r['path']).read_bytes()
+            self.assertEqual((hashlib.sha256(data).hexdigest(), len(data)), (r['portable_sha256'], r['portable_bytes']), r['path'])
+            self.assertTrue(r['source'].startswith('Mods/DeathStranding2/.work/'), r['source'])
+            self.assertEqual(r['modified_for_portability'], r['portable_sha256'] != r['original_sha256'], r['path'])
+        bundled = json.loads((kit / 'toolchain.json').read_text(encoding='utf-8'))['bundled_scripts']
+        self.assertEqual(sorted('portable-kits/death-stranding-2/' + s for s in bundled), files)
+        drive = re.compile(r'(?i)(?<![\w<])[a-z]:[\\/](?![\\/])|[\\/]users[\\/]')
+        for rel in files:
+            text = (ROOT / rel).read_bytes().decode('utf-8-sig')
+            self.assertFalse(drive.search(text), f'{rel}: {drive.search(text)}')
+            self.assertNotRegex(text, r'sys\.path\.insert\(0, *r?[\'"]', rel)
+            self.assertNotRegex(text.lower(), r'kln55mi|baidusync|droylouo', rel)
+        # not bundled: the remote-desktop helpers, the detached build launcher, shell scripts and binaries
+        self.assertFalse([p for p in kit.rglob('*') if p.suffix in ('.sh', '.cmd', '.bat', '.exe', '.dll')])
+        self.assertFalse([p for p in kit.rglob('*.json') if p.name.startswith(('types_', 'extensions_'))])
 
 if __name__ == '__main__': unittest.main(verbosity=2)

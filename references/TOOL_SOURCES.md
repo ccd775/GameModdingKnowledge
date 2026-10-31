@@ -30,7 +30,8 @@
 | GoT SPS Noesis 插件 | [SilverEzredes](https://github.com/SilverEzredes/fmt_GoT_SPS-Noesis-Plugin) | 对马岛 SPS（XTBS）贴图格式参考（本项目未直接使用） |
 | h2_pc_mi_091（HFW Export-Import Tool） | [id-daemon（Nexus）](https://www.nexusmods.com/horizonforbiddenwest/mods/1744) | 西之绝境 0.9.1：按流图组下标导出 / 导入 ascii 网格与 DDS 贴图；同页有 Johnny Dazzling 写的 Tutorial Edition 4（2026-03-21）。2026-10 起 Windows Defender 把它判为 `Trojan:Win32/Wacatac.B!ml`（机器学习泛化检测），是否放行由用户决定 |
 | HFW Mod Manager | [KingJulz（Nexus）](https://www.nexusmods.com/horizonforbiddenwest/mods/137) | 西之绝境 0.9.8：Pack Mods 与 Characters 角色切换（写 `mod_NPC.ini`）；mod 文件夹放 `modinfo.json` |
-| Odradek | [ShadelessFox](https://github.com/ShadelessFox/odradek) | Decima 资源查看与 json / cast 导出，CI 构建 1.0-SNAPSHOT；西之绝境只用于勘察，需指向原版流图 |
+| ds2_pc_mi_022 / Decima_pack_ds2（DS2 Export-Import Tool） | id-daemon（本项目的副本由用户从 ReSHax 论坛获取） | 死亡搁浅2 0.22：按组导出 / 导入 ascii 网格与 DDS（在干净根目录的 `LocalCacheWinGame` 里运行）；打包器把 `NN_OFFSET.*` 打成一个包并原地改写流图（span / locator 改指新文件）。SHA-256 前缀 `bf28a9dc` / `b9fecd87` |
+| Odradek | [ShadelessFox](https://github.com/ShadelessFox/odradek) | Decima 资源查看与 json / cast 导出，CI 构建 1.0-SNAPSHOT；西之绝境只用于勘察，需指向原版流图；死亡搁浅2 用 1.0.49.0 的 DS2 构建：它的 `types` / `extensions` JSON（`types_1048.json`、`extensions_1048.json`）是便携包 RTTI 读取器的类型表（不随包），CLI 导出贴图 |
 | GOWTool | [kainotoa](https://github.com/kainotoa/GOWTool)（`gowr-pc` 分支，commit `ef484028`，2024-11-01） | 战神5 wad 条目偏移解析与 MESH 布局的参考：便携包的 `wad.py` 移植了它的 `src/Wad.cpp` 偏移解析，`mesh.py` 按 `src/Formats.cpp` 读字段。该仓库未附许可证文件 |
 | libSceAgcTextureTool.dll | 游戏自带（战神：诸神黄昏 PC 安装目录） | 战神5 贴图的 PS5 tiling / detiling，脚本通过 ctypes 调用；不随包分发 |
 | RE-Engine-Lib（REE-Lib） | [kagenocookie/RE-Engine-Lib](https://github.com/kagenocookie/RE-Engine-Lib)（MIT） | 龙之信条2 DD2Tool 的读写核心，commit `bf0e5e5222700716516797613a54b9b61fedfc35`（2026-09-19），未修改。它支持 TU3.2 起的 PAK（feature 0x40 remap 表）、mesh `.260421070`（DD2_V3）和 tex `.251211553`。便携包只带 DD2Tool 的 C# 源码，REE-Lib 要自己取 |
