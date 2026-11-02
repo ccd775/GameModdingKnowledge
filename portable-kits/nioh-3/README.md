@@ -2,14 +2,14 @@
 
 先读 [游戏知识](../../games/nioh-3/README.md) 和 [构建流水线](../../games/nioh-3/BUILD_PIPELINE.md)。资源表注入、G1M、骨架、每材质计数和物理注册表的约定见 [技术合同](../../games/nioh-3/TECHNICAL_CONTRACTS.md)；贴图存储见 [G1T 格式](../../games/nioh-3/G1T_FORMAT.md) 和 [材质与贴图](../../games/nioh-3/MATERIALS_AND_TEXTURES.md)；骨链和碰撞体见 [物理](../../games/nioh-3/PHYSICS.md)；面部骨权重见 [表情](../../games/nioh-3/FACE.md)；崩溃和症状见 [排障手册](../../games/nioh-3/TROUBLESHOOTING.md)；离线 / 实机闸门和发行包见 [验证与发布](../../games/nioh-3/VALIDATION_AND_RELEASE.md)；版本轨迹见 [Karin_Original 案例](../../games/nioh-3/cases/KARIN_ORIGINAL.md)。
 
-这是 Karin_Original 替换仁王3 女性主角的 Mod（测试构建 build7–build24，发行包 build24）实际使用的工具：KT 引擎的格式库（`g1m_tool.py`、`g1t_tool.py`、`ktdata.py`，与浪人崛起便携包 `portable-kits/rise-of-the-ronin/` 的同名文件逐字节相同）、仁王3 的 G1T v0066 存储类型 3 编解码、NUNO type-4 骨链读取、`root.rdb` / `root.rdx` 注入安装器、资源定位和统计脚本、构建链 `scripts/n3build/`、Blender 导出脚本、发行包用的安装器 `karin_install.py`，以及会话里写的离线检查 `scripts/checks/`。
+这是 Karin_Original 替换仁王3 女性主角的 Mod（测试构建 build7–build24，发行包 build24）实际使用的工具：KT 引擎的格式库（`g1m_tool.py`、`g1t_tool.py`、`ktdata.py`，与浪人崛起便携包 `portable-kits/rise-of-the-ronin/` 的同名文件逐字节相同）、仁王3 的 G1T v0066 存储类型 3 编解码、NUNO type-4 骨链读取、`root.rdb` / `root.rdx` 注入安装器、资源定位和统计脚本、构建链 `scripts/n3build/`、Blender 导出脚本、发行包用的安装器 `karin_install.py`、改存档外观设置的换装器 `n3_miaomiao.py`（[存档与外观设置](../../games/nioh-3/SAVE_AND_APPEARANCE.md)），以及会话里写的离线检查 `scripts/checks/`。
 
 - **游戏版本：** 仁王3 v2.0.0.2（PC）。资源在游戏目录的 `package\`（`root.rdb`、`root.rdx`、`0x<哈希>.fdata`）。
 - **加载方式：** `n3inject.py` 改写 `root.rdb` / `root.rdx`：所有覆盖文件不压缩地放进新容器 `0x4b415249.fdata`（`KARI`），`root.rdx` 多一个容器槽，被覆盖的记录改指这个容器。第一次使用时把原表备份成 `root.rdb.original` / `root.rdx.original`。不用 DLL，不改 exe。
 - **Blender：** 项目用 4.0.2，后台运行，`--factory-startup`。两个 Blender 脚本（`scripts/blender/ko_extract_source.py`、`scripts/n3build/blender_shapekeys.py`）用 Blender 自带的 Python 和 numpy，参数写在 `--` 之后。
 - **texconv：** DirectXTex 的 `texconv.exe`，由用户自备。`n3_textures.py` 用 `<N3_BUILD>\toolchain\texconv.exe`；`find_variant.py`、`tex_stats.py` 用 `--texconv`（默认是脚本旁边的 `texconv.exe`）。
-- **Python：** 定位脚本、`n3inject.py`、`karin_install.py` 和三个格式库只用标准库（安装器单独在 Python 3.8+ 上也能跑）。构建链、`n3_g1t.py`、`n3_g1t_resize.py`、`fpose.py`、`g1a.py`、`g2a.py`、`face_bones.py` 和离线检查另需 numpy；`n3_conform.py`、`n3_physics.py`、`n3_face.py` 另需 scipy；`g1m_render.py`、`g1m_subs.py`、`checks/swing.py`、`checks/facecheck.py` 另需 matplotlib；`n3_textures.py`、`find_variant.py`、`tex_stats.py` 另需根目录的 Pillow。`requirements.txt` 钉的版本要 Python 3.12 或更高。本次在 3.14.0、numpy 2.5.2、scipy 1.18.0、matplotlib 3.11.2、Pillow 12.3.0 上测试。
-- **只在 Windows 上：** `karin_install.py` 用 `tasklist` 判断游戏是否在运行；texconv 只有 Windows 版。项目在 Windows 上构建，游戏在另一台测试机上。
+- **Python：** 定位脚本、`n3inject.py`、`karin_install.py` 和三个格式库只用标准库（安装器单独在 Python 3.8+ 上也能跑）。构建链、`n3_g1t.py`、`n3_g1t_resize.py`、`fpose.py`、`g1a.py`、`g2a.py`、`face_bones.py`、`n3_miaomiao.py` 和离线检查另需 numpy（`n3_miaomiao.py` 的图形界面用标准库 tkinter）；`n3_conform.py`、`n3_physics.py`、`n3_face.py` 另需 scipy；`g1m_render.py`、`g1m_subs.py`、`checks/swing.py`、`checks/facecheck.py` 另需 matplotlib；`n3_textures.py`、`find_variant.py`、`tex_stats.py` 另需根目录的 Pillow。`requirements.txt` 钉的版本要 Python 3.12 或更高。本次在 3.14.0、numpy 2.5.2、scipy 1.18.0、matplotlib 3.11.2、Pillow 12.3.0 上测试。
+- **只在 Windows 上：** `karin_install.py` 和 `n3_miaomiao.py` 写文件前用 `tasklist` 判断游戏是否在运行；texconv 只有 Windows 版。项目在 Windows 上构建，游戏在另一台测试机上。
 - **运行位置：** 以下命令都从交接包根目录执行。所有命令都有 `--help`；不带参数的构建步骤（`n3_conform.py`、`n3_textures.py`、`checks/coll_cover.py`）的 `--help` 只打印说明，不会开始处理。
 
 ## 环境变量与参数
@@ -154,6 +154,22 @@ python $S/karin_install.py uninstall "<游戏目录>" --data "<发行包目录>"
 
 `karin_install.py`：把 `files\`（两件上衣、注册表、计数、贴图、贴图表）和 `collapse.txt` 列的 13 个原版模型（从玩家自己的游戏数据读出后塌缩，包里不带原版副本）放进 `staging\`；要替换的每个原版资源必须与 `vanilla.json`（v2.0.0.2 原版的 sha256）一致，暂存的每个文件必须与 `package.json` 一致，然后调用 `n3inject.py install`。版本不符时在暂存之前停下（这时已经做了 `.original` 首次备份，内容与当前文件相同）。`configs/collapse.txt`、`configs/vanilla.json` 是本案例的这两份清单（只有资源哈希和 sha256）；`package.json` 和 `files\` 是构建产物，不在本包里。发行包布局（安装器旁边是 `tools\`、`files\`）不需要 `--data`，行为与原脚本相同。
 
+### 8. 存档外观（换装器）
+
+```powershell
+$Save = "$env:LOCALAPPDATA\KoeiTecmo\NIOH3\Savedata\<SteamID64>\SAVEDATA00\SAVEDATA.BIN"
+python -B $S/n3_miaomiao.py                                   # 图形界面：扫描默认存档目录，选中后改外观 / 改回 / 从备份恢复
+python -B $S/n3_miaomiao.py inspect $Save                     # 账号、等级、保存时间，两种流派五个部位的外观
+python -B $S/n3_miaomiao.py apply $Save --out new.bin         # 写到另一个文件；--in-place 直接改（先备份到旁边的 MiaomiaoBackups\）
+python -B $S/n3_miaomiao.py clear $Save --in-place            # 五个部位改回「显示身上的装备」
+python -B $S/n3_miaomiao.py restore $Save <MiaomiaoBackups\…json>
+```
+
+`n3_miaomiao.py`：解密 `SAVEDATA.BIN`（《仁王》1 代的自定义 S 盒 AES-128-CTR，存档体子密钥在解密后的头 0x49 起），核对头、校验和和外观设置记录 `0xCE1DB6CF` 的结构，
+把武士、忍者两条里下标 32–36（头、胸、手、腰、腿）写成 `KARIN_TARGETS`，重算校验和，只把改动字节的差量异或进原密文。写出前重新解密复查；改动超出这些字节就拒绝。
+`--in-place` / 图形界面：游戏在运行就拒绝；先写备份和 JSON 记录（前后 sha256），用同目录临时文件替换；`restore` 核对当前存档仍是那次修改的结果，否则拒绝。
+格式、实机证据和已否定的做法见 [存档与外观设置](../../games/nioh-3/SAVE_AND_APPEARANCE.md)。项目里用 PyInstaller 打成单文件 EXE 发给玩家（构建脚本不在本包里）。
+
 ## 定位与统计
 
 ```powershell
@@ -198,6 +214,7 @@ python -B $C/diff24.py <旧>.g1m <新>.g1m                              # 两个
 | `scripts/n3_g1t.py`、`n3_g1t_resize.py` | 仁王3 G1T v0066 存储类型 3 的解码、编码、常量填充；换尺寸重建 |
 | `scripts/n3inject.py` | 资源表注入的安装 / 校验 / 还原（见上） |
 | `scripts/karin_install.py` | 发行包安装器：原版 sha256 核对、从玩家数据生成塌缩模型、暂存核对、调用 `n3inject.py` |
+| `scripts/n3_miaomiao.py` | 换装器：存档加解密、校验和、外观设置记录的读写，图形界面和命令行，备份 / 回滚 |
 | `scripts/nuno4.py` | ONUN 读取，type-4 条目的完整布局（`n3_g1m_physics.py`、`n3_registry.py` 用它） |
 | `scripts/fpose.py` | g1fpose（面部姿势库）和 g1frani（姿势权重动画）读取（`n3_face.py` 用它） |
 | `scripts/g1a.py`、`g2a.py` | G1A（版本 0042）/ G2A（版本 0040）动画读取，Joschuka 的 Project-G1M 的移植 |
@@ -231,7 +248,8 @@ python -B $C/diff24.py <旧>.g1m <新>.g1m                              # 两个
 - `n3_physics.py`：`RIG`（Karin 的弹簧链前缀 → 模板和碰撞组）、`RIG_ANCHOR`，`--geometry` 的 `CHAINS`、`TWIN_MIN_Y`；
 - `n3_face.py`：`POSES` / `EXTRA`（游戏姿势 → Karin 的形态键名和量）、`DRIVERS`、`MAX_ROT`、`RIDGE`；
 - `n3_build_g1m.py`：`ATLAS`（Karin 的材质名 → 图集区域）、`DROP`、`ARM_ROOTS`；`n3_g1m_physics.py` 的 `KARIN_HIPS`（`checks/fit_butt3.py` 在 Karin 身上拟合的）；
-- `n3_textures.py` 的常量值，`configs/collapse.txt`、`configs/vanilla.json`；`checks/coll_cover.py`、`fit_butt3.py` 的高度范围。
+- `n3_textures.py` 的常量值，`configs/collapse.txt`、`configs/vanilla.json`；`checks/coll_cover.py`、`fit_butt3.py` 的高度范围；
+- `n3_miaomiao.py` 的 `KARIN_TARGETS`（测试存档的外观设置，换了 Mod 的目标模型就要换成对应装备的 ID）。
 
 以下随游戏版本变化（`build-sensitive`），游戏更新后要重新核对：
 
@@ -244,7 +262,9 @@ python -B $C/diff24.py <旧>.g1m <新>.g1m                              # 两个
 - **实机。** 结论来自项目用原脚本构建的 build7–build24（[验证与发布](../../games/nioh-3/VALIDATION_AND_RELEASE.md)、[Karin_Original 案例](../../games/nioh-3/cases/KARIN_ORIGINAL.md)）：build21 关卡内物理由用户确认，build23 由用户确认；build24（臀部碰撞椭球）由发行包装进测试机，`verify` 33/33，实机效果待用户确认。
 - **便携版本身只做了离线核对（2026-11-01）：** 在本机用原脚本和便携脚本在同一份输入上运行、逐字节比较：构建链 10 步（贴合 → 物理 → 表情 → 两件上衣 → 校验 → 注册表 → 贴图）的 22 个输出相同，并与发行包 build24 的 10 个对应文件逐字节相同；构建链的其余参数 10 步相同；7 个离线检查 8 次运行的输出（含 3 张渲染图）相同；27 个定位 / 报表脚本 32 次运行的输出和 17 个写出的文件相同；`karin_install.py` 在发行包布局下「拒绝 → 安装 → 校验 → 卸载」四步与原件相同。Blender、游戏和测试机都没有重跑。详见 [验证记录](../VALIDATION.md)。
 - **测试：** 运行 `python -B tests/test_portable_tools.py`。`Nioh3Tools` 不需要游戏、Blender、源模型或 texconv：合成的 `root.rdb` / `root.rdx` / fdata 上 `n3inject.py` 的安装 → 校验 → 还原（带空格的路径、参数块保留、过期备份的两条路径），`karin_install.py` 拒绝版本不符的原版并且不安装、从便携包和发行包两种布局安装 / 校验 / 卸载；合成 G1T v0066 存储类型 3 的解码、编码往返（逐字节）、常量填充和换尺寸；`n3_g1m_physics.lloc_entry_bytes` 追加椭球和 `new_lloc`；`n3_registry.py` 的注册表与计数；定位脚本、ETW 统计和阶段比较；`N3_BUILD` / `N3_VRM` 缺失时的报错；构建链和检查的 `--help`；PROVENANCE 与可移植性。没装 numpy / scipy 时要它们的项跳过；`karin_install.py` 那项只在 Windows 上跑。
-- **测试没覆盖的部分：** 两个 Blender 脚本只做语法检查；`n3_conform.py`、`n3_physics.py` 默认模式、`n3_face.py`、`n3_build_g1m.py`、`n3_textures.py` 只在本机真实数据上和原脚本比较过，测试里没有合成数据；`g1a.py`、`g2a.py` 只测了 `--help`（本机没有动画文件）；非 Windows 系统；其他游戏版本。
+- **换装器（2026-11-02）：** 项目里同一份源码在测试机上实测（agent，`runtime-load-pass`）：游戏里把外观换掉 → `apply --in-place` → 重进关卡，角色模型恢复显示。
+  `Nioh3Tools` 里有它的合成存档测试：已知的头密钥流、加解密往返、`apply` / `clear` 只改五个部位和校验和、结构异常拒绝、命令行 `--in-place` 的备份与 `restore`。
+- **测试没覆盖的部分：** 两个 Blender 脚本只做语法检查；换装器的图形界面只在项目里做过启动冒烟测试；`n3_conform.py`、`n3_physics.py` 默认模式、`n3_face.py`、`n3_build_g1m.py`、`n3_textures.py` 只在本机真实数据上和原脚本比较过，测试里没有合成数据；`g1a.py`、`g2a.py` 只测了 `--help`（本机没有动画文件）；非 Windows 系统；其他游戏版本。
 - **便携改动：**
   - `n3_common.py` 的 `BUILD` 原来默认是会话临时目录，改为只认 `N3_BUILD`，用到路径时才检查（`BUILD` / `ORIG` 是延迟求值的路径对象）；`n3_physics.py` 写死的 VRM 路径改为 `N3_VRM` / `--vrm`；
   - 没有 argparse 的命令补上了 argparse，位置参数和选项不变；`find_variant.py`、`tex_stats.py` 加 `--texconv`，`swing.py`、`facecheck.py` 加 `--png`；

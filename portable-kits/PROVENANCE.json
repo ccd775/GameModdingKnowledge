@@ -4968,6 +4968,15 @@
     "modified_for_portability": true
   },
   {
+    "path": "portable-kits/nioh-3/scripts/n3_miaomiao.py",
+    "source": "Mods/Nioh3/tools/n3miaomiao/n3_miaomiao.py",
+    "original_sha256": "4b8c8173dd3b2300f9eb9d95539f8a11d49d49953dd0aaa59837017b586ab75a",
+    "source_bytes": 30398,
+    "portable_sha256": "4b8c8173dd3b2300f9eb9d95539f8a11d49d49953dd0aaa59837017b586ab75a",
+    "portable_bytes": 30398,
+    "modified_for_portability": false
+  },
+  {
     "path": "portable-kits/nioh-3/scripts/checks/swing.py",
     "source": "Mods/Nioh3/(session scratchpad)/ana/swing.py",
     "original_sha256": "d0bca2a4796199115b713f2724d112500d41b64f149fdb9040d396c49ba89765",

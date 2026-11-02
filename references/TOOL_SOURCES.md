@@ -18,6 +18,9 @@
 | ROTR Mod Loader（RONPATCHER） | [Nexus Mods：Rise of the Ronin 第 9 号 mod](https://www.nexusmods.com/riseoftheronin/mods/9) | 1.0（2025-03 的文件）：`dinput8.dll` 代理；`RONPATCHER/root` 下按哈希命名的散装文件覆盖资源；mod 包不附带其 ini / Patches / system；同包附带的 g1ttools 与 qrdbtool 是独立工具 |
 | RDBExplorer | [MrIkso](https://github.com/MrIkso/RDBExplorer)（MIT，commit `22e72d8`） | 面向仁王 3 的 rdb / fdata 浏览器；浪人崛起便携包的 G1T 64 KB tile 布局按它的 G1TParser 核实；仁王3 的 G1T v0066 存储类型 3 也以它的 `G1TParser.cs` 为参照（`games/nioh-3/G1T_FORMAT.md`） |
 | yumia_fdata_tools | [eArmada8](https://github.com/eArmada8/yumia_fdata_tools)（GPL-3.0） | 写自定义 fdata 并注入 `root.rdb` / `root.rdx`，原为《优米雅的炼金工房》（Atelier Yumia）而写，仁王3 社区 mod 也用它安装。仁王3 便携包的 `n3inject.py` 是同一方案的独立实现（新容器 + rdx 新槽 + 重建被覆盖的记录），两者改的是同一张表，不能同时装 |
+| Nioh Savedata Decryption Tool | [pawREP](https://github.com/pawREP/Nioh-Savedata-Decryption-Tool)（MIT） | 《仁王》1 代 PC 存档的加解密：自定义 S 盒 AES-128-CTR、148 字节根密钥块。仁王3 沿用同一算法和密钥块，只是存档体子密钥在解密后的头 0x49 起；仁王3 便携包的 `n3_miaomiao.py` 移植了它的算法（`games/nioh-3/SAVE_AND_APPEARANCE.md`） |
+| Nioh-3-Save-Editor | [alfizari](https://github.com/alfizari/Nioh-3-Save-Editor)（Apache-2.0） | 仁王3 存档编辑器。它附带的解密程序（pawREP 工具的改版）静态反汇编得到子密钥偏移 0x49；校验和算法与它一致。它把偏移写死，换游戏版本就读错，本库不用它的代码 |
+| Nioh3-Plugins | [kassent](https://github.com/kassent/Nioh3-Plugins)（仓库未写许可证） | 仁王3 的 DLL 插件（含 UnlimitedTransmog）和 `GameType.h` 结构定义。只参考了背包物品结构的字段名；其中的 `transmogItemId` 不决定画面（`games/nioh-3/SAVE_AND_APPEARANCE.md` §3）。本库不带它的代码，也不用 DLL 加载 |
 | Project-G1M | [Joschuka](https://github.com/Joschuka/Project-G1M)（[浪人贴图格式 issue #42](https://github.com/Joschuka/Project-G1M/issues/42)） | 浪人崛起 G1T tile 存储的社区讨论；本项目未直接使用其插件。仁王3 便携包的 `g1a.py` / `g2a.py`（动画读取，v0042 / v0040）移植自它的 `G1A.h` / `G2A.h` |
 | dxc（Windows SDK） | [微软 Windows SDK](https://developer.microsoft.com/windows/downloads/windows-sdk/) | 10.0.26100.0 的 `dxc.exe -dumpbin` 反汇编浪人崛起的 DXIL 蒙皮着色器（`shader_dump.py --dxc`） |
 | RenderDoc | [官方](https://renderdoc.org/) | 1.46：在浪人崛起上抓不到帧（设备经 NVIDIA Streamline 创建），已放弃；只作记录 |

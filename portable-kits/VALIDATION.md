@@ -1,5 +1,11 @@
 # 迁移验证记录
 
+## 2026-11-02：仁王3便携包新增换装器
+
+- **迁入：** `scripts/n3_miaomiao.py`，来自项目 `tools/n3miaomiao/`，逐字节相同（PROVENANCE 里 nioh-3 的第 57 条）。存档加解密、外观设置记录的读写、图形界面和命令行在同一个文件里；只用 numpy 和标准库（图形界面用 tkinter）。
+- **没有迁入：** 构建脚本 `build.cmd`（`.cmd` 不是本库允许的类型）、`requirements-build.txt`、项目自带的 `test_tool.py`（同样的合成存档测试写进了 `tests/test_portable_tools.py` 的 `Nioh3Tools`）、打包好的 EXE 和发行 zip、任何存档。
+- **核对：** 便携副本在合成存档上跑 `inspect`、`apply --out`、`clear --out`、`apply --in-place`（带备份和回滚），结构异常一律拒绝；项目里同一份源码在测试存档的两种格式（2 月版游戏写的、2.0.0.2 写的）上解密、复算校验和都与存档一致。实机结论见 `games/nioh-3/SAVE_AND_APPEARANCE.md` §5（agent 实机，`runtime-load-pass`）。
+
 ## 2026-11-01：新增仁王3便携包
 
 - **迁入内容：** 56 个文件，放在 `portable-kits/nioh-3/`，按项目的相对布局（脚本里 `sys.path.insert(parent)` 的写法因此不用改）。

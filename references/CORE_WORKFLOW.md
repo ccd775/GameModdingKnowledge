@@ -182,3 +182,7 @@ The game workflows use different formats, but the same engineering loop.
 - Borrowed collision volumes fit the vanilla body. Measure the gap between them and the new body's skin, then fit extra
   volumes against the chain particles (collisions act on particles, and a skirt mesh at rest already touches the skin)
   (`games/nioh-3/PHYSICS.md` §4.3).
+- A field name from a community plugin or editor is a hypothesis. Nioh 3's inventory `transmogItemId` round-trips through the
+  game but does not decide the look; the real per-style appearance record turned up only after doing one transmog
+  in the game's own menu, saving, and diffing the save. The same diff showed that the models the mod replaced were
+  the save's appearance items, not the equipped ones (`games/nioh-3/SAVE_AND_APPEARANCE.md`).

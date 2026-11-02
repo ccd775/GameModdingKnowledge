@@ -5995,7 +5995,8 @@ N3_KIT = KITS / 'nioh-3'
 N3_DEPS = {'n3_g1t': ('numpy',), 'n3_g1t_resize': ('numpy',), 'fpose': ('numpy',), 'g1a': ('numpy',), 'g2a': ('numpy',),
            'face_bones': ('numpy',), 'g1m_render': ('numpy', 'matplotlib'), 'n3_conform': ('numpy', 'scipy'),
            'n3_physics': ('numpy', 'scipy'), 'n3_face': ('numpy', 'scipy'), 'n3_build_g1m': ('numpy',),
-           'n3_registry': ('numpy',), 'n3_validate_g1m': ('numpy',), 'n3_textures': ('numpy', 'PIL')}
+           'n3_registry': ('numpy',), 'n3_validate_g1m': ('numpy',), 'n3_textures': ('numpy', 'PIL'),
+           'n3_miaomiao': ('numpy',)}
 N3_NOT_COMMANDS = ('blender_shapekeys', 'n3_common', 'n3_g1m_physics')      # a Blender script and two libraries
 N3_SHARED_NAMES = ('g1m_tool', 'g1t_tool', 'ktdata')                       # same module names as the Ronin kit's
 # migrated files that keep the original's CRLF line endings; every other kit file is LF
@@ -6595,6 +6596,88 @@ class Nioh3Tools(unittest.TestCase):
         self.assertIn('g1m [1, 1] common 1', common)
         self.assertIn('1 only in 01_menu', n3_run('phase_only.py', self.root / 'reads.json', 'g1t', '01_menu', '02_level').stdout)
         self.assertIn('0 only in 02_level', n3_run('phase_only.py', self.root / 'reads.json', 'g1t', '02_level', '01_menu', '800').stdout)
+
+    def test_n3_miaomiao_save_appearance(self):
+        """Synthetic encrypted save: cipher round trip, apply / clear touch only the five armour slots and the checksum,
+        unknown layouts are refused, and the CLI's --in-place writes a backup that restore puts back."""
+        import random
+        n3_need('numpy')
+        import numpy as np
+        m = n3_module('n3_miaomiao')
+        # first keystream bytes of the fixed header key, checked against a real save ("RNNUSR" decrypts)
+        self.assertEqual(m.header_keystream(16).tobytes().hex(), '31d530acb6d67a46c87cc851f5d4c3ca')
+        rnd = random.Random(3)
+        p = bytearray(m.SAVE_SIZE)
+        p[:8] = m.MAGIC
+        struct.pack_into('<QIIII', p, 0x10, 76561199999999999, m.HEADER_SIZE, m.BODY_SIZE, 1767225600, 0)
+        struct.pack_into('<I', p, 0x28, 150)
+        p[m.BODY_KEY_OFFSET:m.BODY_KEY_OFFSET + 64] = bytes(rnd.randrange(256) for _ in range(64))
+        cur = m.RECORDS_START
+        struct.pack_into('<II', p, cur, 0x938A61DD, 0x100)                 # some other record first
+        cur += 8 + 0x100
+        entry = 12 + 2 * m.APPEARANCE_SLOTS
+        struct.pack_into('<III', p, cur, m.APPEARANCE_TAG, 4 + 2 * entry, 2)
+        rec, offs = cur, {}
+        for i, style in enumerate(m.STYLES):
+            q = cur + 12 + i * entry
+            struct.pack_into('<III', p, q, m.STYLE_ENTRY_TAG, 4 + 2 * m.APPEARANCE_SLOTS, m.APPEARANCE_SLOTS)
+            values = [0x1234 + k if k % 3 == 0 else 0 for k in range(m.APPEARANCE_SLOTS)]
+            values[32:37] = (0x1000 + i, 0, m.HIDDEN, 0x2000 + i, 0x3000 + i)
+            struct.pack_into(f'<{m.APPEARANCE_SLOTS}H', p, q + 12, *values)
+            offs[style] = q + 12
+        struct.pack_into('<I', p, m.SEED_OFFSET, 0x7F45)
+        struct.pack_into('<I', p, m.CHECKSUM_OFFSET, m.compute_checksum(bytes(p)))
+        plain = bytes(p)
+        cipher = m.encrypt(plain)
+        self.assertNotEqual(cipher[:8], plain[:8])
+        self.assertEqual(m.decrypt(cipher), plain)
+
+        out, changes, count = m.make_candidate(cipher, 'karin')
+        new = m.decrypt(out)
+        allowed = {m.CHECKSUM_OFFSET + k for k in range(4)}
+        for style in m.STYLES:
+            for slot in range(m.APPEARANCE_SLOTS):
+                o = offs[style] + 2 * slot
+                if slot in m.ARMOR_SLOTS:
+                    self.assertEqual(m.u16(new, o), m.KARIN_TARGETS[style][slot][0])
+                    allowed |= {o, o + 1}
+                else:                                                         # weapon looks untouched
+                    self.assertEqual(m.u16(new, o), m.u16(plain, o))
+        a, b, c = (np.frombuffer(x, np.uint8) for x in (plain, new, cipher))
+        diff = set(np.flatnonzero(a != b).tolist())
+        self.assertLessEqual(diff, allowed)
+        self.assertEqual(diff, set(np.flatnonzero(c != np.frombuffer(out, np.uint8)).tolist()))
+        self.assertEqual(count, len(diff))
+        self.assertEqual(m.make_candidate(out, 'karin')[1:], ([], 0))
+        cleared = m.make_candidate(out, 'clear')[0]
+        self.assertTrue(all(m.u16(m.decrypt(cleared), offs[s] + 2 * k) == m.SHOW_EQUIPPED for s in m.STYLES for k in m.ARMOR_SLOTS))
+        self.assertEqual(m.make_candidate(cleared, 'karin')[0], out)
+
+        def broken(mutate):
+            q = bytearray(plain); mutate(q)
+            struct.pack_into('<I', q, m.CHECKSUM_OFFSET, m.compute_checksum(bytes(q)))
+            return m.encrypt(bytes(q))
+        flipped = bytearray(cipher); flipped[offs['ninja'] + 3] ^= 1           # checksum no longer matches
+        for data in (bytes(flipped), cipher[:-1], broken(lambda q: struct.pack_into('<I', q, rec + 8, 3)),
+                     broken(lambda q: struct.pack_into('<I', q, offs['ninja'] - 4, 41)),
+                     broken(lambda q: struct.pack_into('<I', q, rec, 0x11111111))):
+            with self.assertRaises(ValueError):
+                m.make_candidate(data, 'karin')
+
+        # command line: inspect, --out, and on Windows --in-place with backup + restore
+        save = self.root / 'acc 1' / 'SAVEDATA00' / 'SAVEDATA.BIN'
+        save.parent.mkdir(parents=True)
+        save.write_bytes(cipher)
+        self.assertIn('等级 150', n3_run('n3_miaomiao.py', 'inspect', save).stdout)
+        n3_run('n3_miaomiao.py', 'apply', save, '--out', self.root / 'out.bin')
+        self.assertEqual((self.root / 'out.bin').read_bytes(), out)
+        self.assertEqual(save.read_bytes(), cipher)
+        if os.name == 'nt':
+            n3_run('n3_miaomiao.py', 'apply', save, '--in-place')
+            self.assertEqual(save.read_bytes(), out)
+            manifest, = (save.parent / 'MiaomiaoBackups').glob('*.json')
+            n3_run('n3_miaomiao.py', 'restore', save, manifest)
+            self.assertEqual(save.read_bytes(), cipher)
 
     def test_n3_provenance_and_portability(self):
         import hashlib

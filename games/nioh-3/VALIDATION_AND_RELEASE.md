@@ -47,10 +47,25 @@ Karin_Nioh3/
 - 卸载：备份放回，删除新容器。校验：通过资源表解出每个覆盖，与 `package.json` 比较。
 - 便携包里的 `karin_install.py` 就是这个安装器；`.cmd` 只是转调它，本库不收 `.cmd`。
 - 测试机实测：从包安装 → verify 33/33 → 卸载（`root.rdb` 与备份相同、容器已删）→ 重装 → verify 33/33。在测试机上从包装出的结果与构建目录逐字节相同。
-- README 要写清楚：适配的游戏版本、Python 3.8+（只用标准库）、必须穿哪两件上衣、隐藏了哪些模型（穿别的装备会叠在 Karin 身上，换上衣会看到不完整的角色）、
-  已知风险、和其它改 `root.rdb` 的 mod 冲突、游戏更新后怎么办、源模型的版权和使用条款。
+- README 要写清楚：适配的游戏版本、Python 3.8+（只用标准库）、外观设置要指向哪几件（胸甲外观不是 Karin 那两个模型就会看到不完整的角色；其余部位的外观不是被隐藏的那几件，就会叠在 Karin 身上，配套的换装器见 §4）、
+  隐藏了哪些模型、已知风险、和其它改 `root.rdb` 的 mod 冲突、游戏更新后怎么办、源模型的版权和使用条款。
 
-## 4. 证据分层与未测场景
+## 4. 换装器发行包
+
+```text
+Nioh3Miaomiao-0.1.0-preview/
+  Nioh3Miaomiao.exe       PyInstaller 单文件（Python 3.14 + NumPy + Tk），约 23 MB
+  README.md, LICENSE.txt  MIT
+  source/                 n3_miaomiao.py、test_tool.py、构建脚本
+  THIRD_PARTY_NOTICES/    Python、Tk、NumPy、PyInstaller、pawREP 存档加解密工具（MIT）的许可
+  TEST_RESULTS.json, SHA256SUMS.txt
+```
+
+- 构建在独立虚拟环境里做：先跑测试，再打包；打包后用 `--smoke-test` 启动界面，确认能找到存档。
+- 不带任何人的存档、Steam ID、模型或游戏文件。工具只改存档，不装 Mod。
+- 实机：在游戏镜子里把忍者胸甲外观换成别的衣服 → 存档、退出 → `apply` → 重进关卡，角色恢复显示（[存档与外观设置](SAVE_AND_APPEARANCE.md) §5）。测完把测试机存档换回测试前的备份，并核对哈希。
+
+## 5. 证据分层与未测场景
 
 | 项 | 证据 |
 | --- | --- |
@@ -61,6 +76,8 @@ Karin_Nioh3/
 | 袜子里的皮肤 | `runtime-confirmed`（build23） |
 | 裙摆臀部碰撞 | `offline-accepted`（build24，已装，待用户） |
 | 可再部署包 | 测试机安装 / 校验 / 卸载 / 重装通过；build23 包用户实机 |
+| 换装器（外观设置） | `runtime-load-pass`（agent 实机，2026-11-02，测试机装的是伊切尔包） |
 
 未测：过场动画、死亡、隐藏头盔 / 下身的选项、NPC 是否用到被隐藏的模型、穿兄弟模型的 NPC 是否被套上 Karin 的贴图、
-忍者上衣的其它染色、和 `0x5c3826bd` 共用计数资源的上衣 `0x1af713a6`、其它游戏版本。
+忍者上衣的其它染色、和 `0x5c3826bd` 共用计数资源的上衣 `0x1af713a6`、其它游戏版本；
+换装器在别人的存档、没拿到过目标装备的存档、Steam 云同步下的表现。

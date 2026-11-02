@@ -55,7 +55,7 @@
     "../../games/nioh-3/README.md",
     "../../games/nioh-3/BUILD_PIPELINE.md"
   ],
-  "runtime_boundary": "Game v2.0.0.2 (PC). Loading by root.rdb / root.rdx injection (n3inject.py). Project builds with the original scripts: build21 in-level physics and build23 confirmed by the user in game; build24 (hips collision ellipsoids) installed on the test machine from the release package (verify 33/33), in-game result pending. The portable copies were checked offline only: original and portable scripts on the same inputs gave byte-identical outputs (build chain on the local build copies, matching the build24 release files; offline checks; locators and reports on synthetic and local data), plus synthetic tests; Blender, the game and the test machine were not re-run (see VALIDATION.md).",
+  "runtime_boundary": "Game v2.0.0.2 (PC). Loading by root.rdb / root.rdx injection (n3inject.py). Project builds with the original scripts: build21 in-level physics and build23 confirmed by the user in game; build24 (hips collision ellipsoids) installed on the test machine from the release package (verify 33/33), in-game result pending. The portable copies were checked offline only: original and portable scripts on the same inputs gave byte-identical outputs (build chain on the local build copies, matching the build24 release files; offline checks; locators and reports on synthetic and local data), plus synthetic tests; Blender, the game and the test machine were not re-run (see VALIDATION.md). Save appearance tool n3_miaomiao.py (decrypts SAVEDATA.BIN, rewrites the per-style armour appearance record 0xCE1DB6CF): runtime-load-pass by the agent on the test machine (2026-11-02): appearance changed in game, tool applied, model shown again after reload.",
   "bundled_scripts": [
     "scripts/g1m_tool.py",
     "scripts/g1t_tool.py",
@@ -104,6 +104,7 @@
     "scripts/n3build/n3_validate_g1m.py",
     "scripts/blender/ko_extract_source.py",
     "scripts/karin_install.py",
+    "scripts/n3_miaomiao.py",
     "scripts/checks/swing.py",
     "scripts/checks/facecheck.py",
     "scripts/checks/blinkgap.py",
