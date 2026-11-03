@@ -13,7 +13,7 @@ result does not depend on which model's rest pose the game evaluates face bones 
 
 POSES: game pose -> {Karin shape key: amount}; DRIVERS bones per pose (largest translation, no control bones 718+).
 Output: BUILD/face.json {weights: {Body vertex: [[bone, w], ...]}, report}
-usage: n3_face.py [--extended]
+usage: n3_face.py [--extended] [--vanilla-lids]
 """
 import argparse
 import json
@@ -41,6 +41,13 @@ EXTRA = {     # --extended: channels the static expression presets (g1frani) use
     160: {'kuchi_A': 0.4},                                      # lower lip down (vanilla -0.8 cm)
 }
 EXTRA_PRIORITY = 0.3          # least-squares weight of EXTRA poses against the POSES ones (1)
+# --vanilla-lids: the other lid closures at the share of the full blink they close on the vanilla female head
+# (0xb24cac84's upper lid, mean drop vs pose 41/42 at 1), fitted at full priority, so whatever mix of closures the
+# game blinks with closes this face as far as it closes the vanilla one (Lenko, 2026-11-03: in level her lids stopped
+# half way while pose 41/42 alone closed them)
+VANILLA_LIDS = {27: {'blink_L': 0.82}, 28: {'blink_R': 0.82}, 39: {'blink_L': 0.85}, 40: {'blink_R': 0.85}}
+VANILLA_LIDS_PRIORITY = {27: 1.0, 28: 1.0, 39: 2.0, 40: 2.0}   # 39/40 at 1 fell short (0.74 of 0.85); 2 reaches 0.77
+# with 41/42 at 1.02 (4: 0.80 / 1.04 and a larger 41 residual)
 # not mapped: 5/6 brow knit (its drivers move sideways, Karin's angry brows turn down: residual ~60%),
 # 147/148 mouth corner down (the largest movers differ between the sides)
 DRIVERS = 6
@@ -122,11 +129,16 @@ def f16_grid(ws):
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('--extended', action='store_true', help='also fit the EXTRA poses at EXTRA_PRIORITY')
+    ap.add_argument('--vanilla-lids', action='store_true',
+                    help='also fit the VANILLA_LIDS closures (27/28, 39/40) at VANILLA_LIDS_PRIORITY')
     args = ap.parse_args()
     prio = {p: 1.0 for p in POSES}
     if args.extended:
         POSES.update(EXTRA)
         prio.update({p: EXTRA_PRIORITY for p in EXTRA})
+    if args.vanilla_lids:
+        POSES.update(VANILLA_LIDS)
+        prio.update(VANILLA_LIDS_PRIORITY)
     conf = np.load(BUILD / 'conformed.npz')
     head_scale = json.loads((BUILD / 'conform.json').read_text(encoding='utf-8'))['head_scale']
     P = conf['Body__pos'].astype(float)

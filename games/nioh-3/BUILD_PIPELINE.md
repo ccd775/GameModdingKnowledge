@@ -36,6 +36,18 @@ blender -b --factory-startup --python scripts/n3build/blender_shapekeys.py -- <K
 - `n3_common.EXTRA_SHAPE_KEYS` 在预制体的组合之上再加形态键，可按源模型高度遮罩：`(名字, z_keep, z_full)`，z ≥ z_keep 权重 0、z ≤ z_full 权重 1、中间线性。
   `[C]` `body_2` 的 `kisekae_UppeLeg 2`：`(0.515, 0.49)`，把袜子里的大腿皮肤收进去，袜口那一圈（z 0.523–0.525）不动（build23）。
 
+### 2.1 其它源格式（伊切尔、Lenko）
+
+源格式不同，后面的贴合、写入、注册表都一样：每个角色一个小目录（`scripts/n3ichel/`、`scripts/n3lenko/`），输出和 Blender 导出相同的 `source/source.json` / `source.npz`。
+
+- **由 PMX 转换来的 FBX**（伊切尔，`ichel_source.py`）：一个网格装全部内容，材质按贴图并过、贴图没连上，姿势从 A 字改成了 T 字。
+  按「同一贴图内的 UV 中心 + 弱位置」把每个 FBX 三角形对回 PMX 材质，再拆成部位网格。转换时可能丢掉网格（伊切尔的尾巴只剩骨骼）。见 [伊切尔](cases/ICHEL.md) §1。
+- **直接读 PMX**（Lenko，`lenko_pmx.py` + `lenko_source.py`）：(x, y, z)_blender = (x, z, y)_pmx 是一次镜像，三角形顶点顺序要反过来；v 翻转；单位保持 MMD 单位。
+  腿部皮肤可能刷在 D 骨上（`左足D` 等），映射人形骨时要用 D 骨。见 [Lenko](cases/LENKO.md) §1。
+- 两者的部位网格都按材质 + 三角形的主导骨族拆；脸那一块名字叫 `Body`，表情脚本认这个名字。MMD 表情键拆左右见 [表情](FACE.md) §2.1。
+- **改衣服形状**也在源模型这一步做（Lenko，`lenko_source.shorten_coat`）：腰带下沿以下、不是袖子（臂骨权重 < 0.5）的外套顶点 y' = Y_belt − k (Y_belt − y)，
+  物理骨同样处理，口袋上的挂件绕自己的中心等比缩小、不压扁。k 由「每个 15° 扇区外套下摆至少比裙摆低 0.1 单位」取最大值（用户要「统一比例，盖住短裙」）。
+
 ## 3. 贴合到游戏骨架
 
 `n3_conform.py`（方法来自浪人崛起的 `ko_conform.py`，换成本作的骨号）：
@@ -49,12 +61,20 @@ blender -b --factory-startup --python scripts/n3build/blender_shapekeys.py -- <K
   - 裙子从胯骨向最近的腿部皮肤过渡，越往下摆越跟腿。
 - 带跨侧检查：左边的顶点不能拿右边骨的权重（按骨架父子链判断左右，不按骨号奇偶）。
 - 输出 `conformed.npz` + `conform.json`。
+- 伊切尔、Lenko 用 `ichel_conform.py` / `lenko_conform.py`（复用同一套函数）：
+  - 缩放按颈高：源模型 Neck 到地面的高度 = 游戏颈骨高度（伊切尔是米制约 100.5 倍，Lenko 是 MMD 单位约 9.17 cm / 单位）；
+  - 皮肤按「手 / 手指权重 ≥ 0.3 保留自身映射」处理，Lenko 的衣服也这样（她的无指手套跟手）；袖子（伊切尔的泡泡袖和长袖套、Lenko 的外套）按袖子规则，手的权重转到前臂；
+  - 裙摆向腿过渡用腿的皮肤网格做参考，下摆外推量按上面有没有外层衣服调（Lenko 0.5 cm，伊切尔 1.5 cm）；
+  - Lenko 最后还把外套背面贴到短裙上（`drape_coat_back`，[物理](PHYSICS.md) §5.2）。
 
 ## 4. 物理与表情数据
 
 - `n3_physics.py`（默认用 Karin VRM 的弹簧链，需要 `N3_VRM` 指向 VRM 文件；`--geometry` 是早期按几何形状推的 11 条链）→ `physics.json`：
   每条链的挂接骨、模板、点、碰撞组和逐顶点权重。详见 [物理](PHYSICS.md) §3。
-- `n3_face.py [--extended]` → `face.json`：脸的逐顶点面部骨权重。详见 [表情](FACE.md)。
+- 伊切尔、Lenko：`ichel_physics.py <pmx>` / `lenko_physics.py <pmx>` 从 PMX 的动态刚体取链（[物理](PHYSICS.md) §3.4）。
+  Lenko 链点变了时再跑 `lenko_coll.py`，把它输出的碰撞体常量抄进 `lenko_build.py`（[物理](PHYSICS.md) §4.4）。
+- `n3_face.py [--extended] [--vanilla-lids]` → `face.json`：脸的逐顶点面部骨权重。`--vanilla-lids` 让 27/28、39/40 两组闭眼也按原版比例闭到位（Lenko 起用）。详见 [表情](FACE.md)。
+- 每个角色的构建入口（`ichel_build.py`、`lenko_build.py`）只是给共用的 `n3_textures.py`、`n3_build_g1m.py`、`n3_registry.py` 填上本角色的图集布局、碰撞组和模板，再调用它们。
 
 ## 5. 写 G1M 并读回
 

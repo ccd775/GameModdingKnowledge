@@ -24,6 +24,7 @@ import numpy as np
 from n3_common import BUILD, ORIG, gt
 
 TEMPLATES = {'hair': ('0xd5d385f9', 0), 'waist': ('0xfed6b90c', 0)}   # vanilla model, type-4 entry index
+TEMPLATE_BLOCKS = {}   # kind -> the 168-byte parameter block itself (entries of vanilla models not in ORIG)
 FIXED = (28, 196)
 # Karin's buttocks sit higher and further back than the body the 'legs' set was made for (bind pose: her back skin
 # reaches z -12.9 / -13.3 with underwear at y 100-104, vanilla -11.6; the legs set's hips and thigh ellipsoids leave
@@ -99,12 +100,16 @@ def template_entries():
         d = (ORIG / f'{h}.g1m').read_bytes(); m = gt.embedded_models(d)[-1]
         on = nuno4.parse_onun(d, m)
         out[kind] = [s for s in on['subs'] if s['type'] == 0x30004][0]['entries'][k]
+    for kind, block in TEMPLATE_BLOCKS.items():
+        assert len(block) == FIXED[1] - FIXED[0] and kind not in out, kind
+        out[kind] = {'fixed': bytes(block)}
     return out
 
 
-def lloc_entry_bytes(h, k, extra=()):
+def lloc_entry_bytes(h, k, extra=(), resize=None):
     """LLOC entry k of a vanilla model, plus `extra` ellipsoids (bone, semi-axes, centre; bone space, identity rotation)
-    cloned from the entry's first primitive. Primitive words: 0 shape (5 = ellipsoid), 1 bone id, 4-6 semi-axes,
+    cloned from the entry's first primitive; `resize` {primitive index: (semi-axes, centre)} replaces those words of
+    the entry's own primitives (rotation kept). Primitive words: 0 shape (5 = ellipsoid), 1 bone id, 4-6 semi-axes,
     8-10 / 12-14 / 16-18 rotation rows, 20-22 centre in bone space, 23 = 1.0."""
     d = (ORIG / f'{h}.g1m').read_bytes(); m = gt.embedded_models(d)[-1]
     c = m.chunks['LLOC']; q = c.offset + 28
@@ -112,6 +117,10 @@ def lloc_entry_bytes(h, k, extra=()):
         flags, n = struct.unpack_from('<2I', d, q)
         if i == k:
             b = bytearray(d[q:q + 8 + 112 * n])
+            for j, (size, centre) in (resize or {}).items():
+                assert j < n and struct.unpack_from('<I', b, 8 + 112 * j)[0] == 5
+                struct.pack_into('<3f', b, 8 + 112 * j + 16, *size)
+                struct.pack_into('<3f', b, 8 + 112 * j + 80, *centre)
             for bone, size, centre in extra:
                 p = bytearray(b[8:120])
                 assert struct.unpack_from('<I', p, 0)[0] == 5

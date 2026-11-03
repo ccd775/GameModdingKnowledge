@@ -5,14 +5,26 @@
     {
       "name": "Blender",
       "version": "4.0.2 in the project, run with --factory-startup --background",
-      "role": "scripts/blender/ko_extract_source.py: Karin_Original FBX -> source.json / source.npz / packed textures (build step 1); scripts/n3build/blender_shapekeys.py: every shape key as world-space deltas relative to Basis",
+      "role": "scripts/blender/ko_extract_source.py: Karin_Original FBX -> source.json / source.npz / packed textures (build step 1); scripts/n3build/blender_shapekeys.py: every shape key as world-space deltas relative to Basis; the same two scripts export the Ichel FBX (the Lenko pipeline reads its PMX directly, no Blender)",
       "required": true
     },
     {
       "name": "n3build (scripts/n3build)",
       "version": "kit",
-      "role": "n3_conform (affine-per-bone fit onto the player skeleton, vanilla-body weight transfer), n3_physics (VRM spring chains -> NUNO type-4 chains and chain weights), n3_face (per-vertex face-bone weights from the game's pose library), n3_build_g1m + n3_g1m_physics (Karin into the ninja / samurai chest G1M: appended meshes, u16 palettes, native binds, SM1G joints, ONUN type 4, LLOC collision sets, FM1G statistics), n3_validate_g1m (independent read-back), n3_registry (physics registry 0xB340861A, per-material counts 0x56EFE45C), n3_textures (4096 BC7 atlas + constants)",
+      "role": "n3_conform (affine-per-bone fit onto the player skeleton, vanilla-body weight transfer), n3_physics (VRM spring chains -> NUNO type-4 chains and chain weights), n3_face (per-vertex face-bone weights from the game's pose library), n3_build_g1m + n3_g1m_physics (Karin into the ninja / samurai chest G1M: appended meshes, u16 palettes, native binds, SM1G joints, ONUN type 4, LLOC collision sets, FM1G statistics), n3_validate_g1m (independent read-back), n3_registry (physics registry 0xB340861A, per-material counts 0x56EFE45C), n3_textures (4096 BC7 atlas + constants); shared by Karin, Ichel and Lenko: n3_face --vanilla-lids (lid closures 27/28, 39/40 at the vanilla head's share of the full blink), n3_g1m_physics TEMPLATE_BLOCKS (type-4 parameter blocks of vanilla models not in orig/) and lloc_entry_bytes resize (refit vanilla ellipsoids)",
       "required": true
+    },
+    {
+      "name": "Ichel pipeline (scripts/n3ichel)",
+      "version": "kit",
+      "role": "ichel_source (Blender exports of the PMX-converted FBX matched back to the PMX materials by UV, split into part meshes, humanoid renames, side-split face keys), ichel_conform (n3_conform adapted: mesh names, neck-height scale, no tail), ichel_physics (PMX dynamic rigid-body bone families -> type-4 chains), ichel_build (her atlas layout around n3_textures / n3_build_g1m / n3_registry), pmx_read (PMX 2.0 / 2.1 reader)",
+      "required": false
+    },
+    {
+      "name": "Lenko pipeline (scripts/n3lenko)",
+      "version": "kit",
+      "role": "lenko_pmx (full PMX reader), lenko_source (PMX -> source format without Blender: axis swap, coat shortening, mesh split, bone renames, face keys with a lowered blink closing line), lenko_conform (ichel_conform functions + coat back draped onto the skirt), lenko_physics (dynamic rigid-body chains, long hair subdivided, breast chains, coat follows the skirt), lenko_coll (refit borrowed collision sets to her body), lenko_build (atlas, collision sets, longhair template around the shared steps), lenko_view (textured three-view render)",
+      "required": false
     },
     {
       "name": "n3_g1t.py / n3_g1t_resize.py",
@@ -41,7 +53,7 @@
     {
       "name": "offline checks (scripts/checks)",
       "version": "kit",
-      "role": "swing (bind drift, per-chain rigid swing moves only its own vertices), facecheck (face submesh skinned with facial poses), blinkgap (fitted vs target blink displacement), fit_butt3 (hips ellipsoid fit for the skirt collision set), coll_cover, lloc_dump, diff24",
+      "role": "swing (bind drift, per-chain rigid swing moves only its own vertices), facecheck (face submesh skinned with facial poses), blinkgap (fitted vs target blink displacement), fit_butt3 (hips ellipsoid fit for the skirt collision set), coll_cover, lloc_dump, diff24; for Lenko: layer_swing (coat crossing the skirt under skirt-chain swings), coat_skirt_gap / radial_gap (rest gaps between coat and skirt), face_sim / face_render (game face poses on face.json: lid travel, textured render), readback_blink (blink simulated from the built G1M vs face.json), vanilla_blink (lid closure per pose and per animation blink frame on the vanilla female head)",
       "required": false
     },
     {
@@ -55,7 +67,7 @@
     "../../games/nioh-3/README.md",
     "../../games/nioh-3/BUILD_PIPELINE.md"
   ],
-  "runtime_boundary": "Game v2.0.0.2 (PC). Loading by root.rdb / root.rdx injection (n3inject.py). Project builds with the original scripts: build21 in-level physics and build23 confirmed by the user in game; build24 (hips collision ellipsoids) installed on the test machine from the release package (verify 33/33), in-game result pending. The portable copies were checked offline only: original and portable scripts on the same inputs gave byte-identical outputs (build chain on the local build copies, matching the build24 release files; offline checks; locators and reports on synthetic and local data), plus synthetic tests; Blender, the game and the test machine were not re-run (see VALIDATION.md). Save appearance tool n3_miaomiao.py (decrypts SAVEDATA.BIN, rewrites the per-style armour appearance record 0xCE1DB6CF): runtime-load-pass by the agent on the test machine (2026-11-02): appearance changed in game, tool applied, model shown again after reload.",
+  "runtime_boundary": "Game v2.0.0.2 (PC). Loading by root.rdb / root.rdx injection (n3inject.py). Project builds with the original scripts: build21 in-level physics and build23 confirmed by the user in game; build24 (hips collision ellipsoids) installed on the test machine from the release package (verify 33/33), in-game result pending. The portable copies were checked offline only: original and portable scripts on the same inputs gave byte-identical outputs (build chain on the local build copies, matching the build24 release files; offline checks; locators and reports on synthetic and local data), plus synthetic tests; Blender, the game and the test machine were not re-run (see VALIDATION.md). Save appearance tool n3_miaomiao.py (decrypts SAVEDATA.BIN, rewrites the per-style armour appearance record 0xCE1DB6CF): runtime-load-pass by the agent on the test machine (2026-11-02): appearance changed in game, tool applied, model shown again after reload. Ichel (ichel1: main-menu appearance confirmed by the user) and Lenko (lenko1-lenko4 installed on the test machine): see games/nioh-3/cases/ICHEL.md and LENKO.md. Their portable copies were checked offline (2026-11-03): the original and portable chains on copies of the project build directories gave identical exit codes, stdout and files, and the read-only steps and new checks gave identical outputs on the Lenko data.",
   "bundled_scripts": [
     "scripts/g1m_tool.py",
     "scripts/g1t_tool.py",
@@ -102,6 +114,18 @@
     "scripts/n3build/n3_registry.py",
     "scripts/n3build/n3_textures.py",
     "scripts/n3build/n3_validate_g1m.py",
+    "scripts/n3ichel/ichel_build.py",
+    "scripts/n3ichel/ichel_conform.py",
+    "scripts/n3ichel/ichel_physics.py",
+    "scripts/n3ichel/ichel_source.py",
+    "scripts/n3ichel/pmx_read.py",
+    "scripts/n3lenko/lenko_build.py",
+    "scripts/n3lenko/lenko_coll.py",
+    "scripts/n3lenko/lenko_conform.py",
+    "scripts/n3lenko/lenko_physics.py",
+    "scripts/n3lenko/lenko_pmx.py",
+    "scripts/n3lenko/lenko_source.py",
+    "scripts/n3lenko/lenko_view.py",
     "scripts/blender/ko_extract_source.py",
     "scripts/karin_install.py",
     "scripts/n3_miaomiao.py",
@@ -112,9 +136,16 @@
     "scripts/checks/coll_cover.py",
     "scripts/checks/lloc_dump.py",
     "scripts/checks/diff24.py",
+    "scripts/checks/layer_swing.py",
+    "scripts/checks/coat_skirt_gap.py",
+    "scripts/checks/radial_gap.py",
+    "scripts/checks/face_sim.py",
+    "scripts/checks/face_render.py",
+    "scripts/checks/readback_blink.py",
+    "scripts/checks/vanilla_blink.py",
     "configs/collapse.txt",
     "configs/vanilla.json"
   ],
-  "python": "3.10+ for the standard-library scripts (karin_install.py alone also runs on 3.8+); the build chain, n3_g1t, the face / animation readers and the checks need numpy 2.5 (3.12+), n3_conform / n3_physics / n3_face also scipy 1.18, the renders matplotlib 3.11, n3_textures / find_variant / tex_stats the bundle-root Pillow; Blender scripts run in Blender's Python; tested 3.14.0",
+  "python": "3.10+ for the standard-library scripts (karin_install.py alone also runs on 3.8+); the build chain, n3_g1t, the face / animation readers and the checks need numpy 2.5 (3.12+), n3_conform / n3_physics / n3_face also scipy 1.18, the renders matplotlib 3.11, n3_textures / find_variant / tex_stats the bundle-root Pillow; the Ichel / Lenko steps need numpy (source / conform / physics also scipy, the build steps and lenko_view Pillow, lenko_view matplotlib); Blender scripts run in Blender's Python; tested 3.14.0",
   "dependency_install": "python -m pip install -r requirements.txt -r portable-kits/nioh-3/requirements.txt (from bundle root)"
 }

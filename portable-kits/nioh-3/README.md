@@ -1,24 +1,33 @@
 # 仁王3（Nioh 3）便携包
 
-先读 [游戏知识](../../games/nioh-3/README.md) 和 [构建流水线](../../games/nioh-3/BUILD_PIPELINE.md)。资源表注入、G1M、骨架、每材质计数和物理注册表的约定见 [技术合同](../../games/nioh-3/TECHNICAL_CONTRACTS.md)；贴图存储见 [G1T 格式](../../games/nioh-3/G1T_FORMAT.md) 和 [材质与贴图](../../games/nioh-3/MATERIALS_AND_TEXTURES.md)；骨链和碰撞体见 [物理](../../games/nioh-3/PHYSICS.md)；面部骨权重见 [表情](../../games/nioh-3/FACE.md)；崩溃和症状见 [排障手册](../../games/nioh-3/TROUBLESHOOTING.md)；离线 / 实机闸门和发行包见 [验证与发布](../../games/nioh-3/VALIDATION_AND_RELEASE.md)；版本轨迹见 [Karin_Original 案例](../../games/nioh-3/cases/KARIN_ORIGINAL.md)。
+先读 [游戏知识](../../games/nioh-3/README.md) 和 [构建流水线](../../games/nioh-3/BUILD_PIPELINE.md)。资源表注入、G1M、骨架、每材质计数和物理注册表的约定见 [技术合同](../../games/nioh-3/TECHNICAL_CONTRACTS.md)；贴图存储见 [G1T 格式](../../games/nioh-3/G1T_FORMAT.md) 和 [材质与贴图](../../games/nioh-3/MATERIALS_AND_TEXTURES.md)；骨链和碰撞体见 [物理](../../games/nioh-3/PHYSICS.md)；面部骨权重见 [表情](../../games/nioh-3/FACE.md)；崩溃和症状见 [排障手册](../../games/nioh-3/TROUBLESHOOTING.md)；离线 / 实机闸门和发行包见 [验证与发布](../../games/nioh-3/VALIDATION_AND_RELEASE.md)；版本轨迹见 [Karin_Original 案例](../../games/nioh-3/cases/KARIN_ORIGINAL.md)、[伊切尔案例](../../games/nioh-3/cases/ICHEL.md)、[Lenko 案例](../../games/nioh-3/cases/LENKO.md)。
 
-这是 Karin_Original 替换仁王3 女性主角的 Mod（测试构建 build7–build24，发行包 build24）实际使用的工具：KT 引擎的格式库（`g1m_tool.py`、`g1t_tool.py`、`ktdata.py`，与浪人崛起便携包 `portable-kits/rise-of-the-ronin/` 的同名文件逐字节相同）、仁王3 的 G1T v0066 存储类型 3 编解码、NUNO type-4 骨链读取、`root.rdb` / `root.rdx` 注入安装器、资源定位和统计脚本、构建链 `scripts/n3build/`、Blender 导出脚本、发行包用的安装器 `karin_install.py`、改存档外观设置的换装器 `n3_miaomiao.py`（[存档与外观设置](../../games/nioh-3/SAVE_AND_APPEARANCE.md)），以及会话里写的离线检查 `scripts/checks/`。
+这是替换仁王3 女性主角（忍者 / 武士两件上衣）的三个 Mod 实际使用的工具，三个角色共用一条构建链，各自只多一层前处理和参数：
+
+- **Karin_Original**：FBX 经 Blender 导出（测试构建 build7–build24，发行包 build24）；
+- **伊切尔**（尘白禁区，`scripts/n3ichel/`）：由 PMX 转换来的 FBX 经 Blender 导出，再按原 PMX 的材质拆成部位网格（ichel1）；
+- **Lenko**（MMD `Lenko06.pmx`，`scripts/n3lenko/`）：不经 Blender，直接读 PMX（lenko1–lenko4）。
+
+包里有：KT 引擎的格式库（`g1m_tool.py`、`g1t_tool.py`、`ktdata.py`，与浪人崛起便携包 `portable-kits/rise-of-the-ronin/` 的同名文件逐字节相同）、仁王3 的 G1T v0066 存储类型 3 编解码、NUNO type-4 骨链读取、`root.rdb` / `root.rdx` 注入安装器、资源定位和统计脚本、共用构建链 `scripts/n3build/`、伊切尔和 Lenko 的前处理 `scripts/n3ichel/`、`scripts/n3lenko/`、Blender 导出脚本、发行包用的安装器 `karin_install.py`（伊切尔、Lenko 的发行包用同一个安装器，只改了文件名和说明里的角色名）、改存档外观设置的换装器 `n3_miaomiao.py`（[存档与外观设置](../../games/nioh-3/SAVE_AND_APPEARANCE.md)），以及会话里写的离线检查 `scripts/checks/`。
 
 - **游戏版本：** 仁王3 v2.0.0.2（PC）。资源在游戏目录的 `package\`（`root.rdb`、`root.rdx`、`0x<哈希>.fdata`）。
 - **加载方式：** `n3inject.py` 改写 `root.rdb` / `root.rdx`：所有覆盖文件不压缩地放进新容器 `0x4b415249.fdata`（`KARI`），`root.rdx` 多一个容器槽，被覆盖的记录改指这个容器。第一次使用时把原表备份成 `root.rdb.original` / `root.rdx.original`。不用 DLL，不改 exe。
-- **Blender：** 项目用 4.0.2，后台运行，`--factory-startup`。两个 Blender 脚本（`scripts/blender/ko_extract_source.py`、`scripts/n3build/blender_shapekeys.py`）用 Blender 自带的 Python 和 numpy，参数写在 `--` 之后。
+- **Blender：** 项目用 4.0.2，后台运行，`--factory-startup`。两个 Blender 脚本（`scripts/blender/ko_extract_source.py`、`scripts/n3build/blender_shapekeys.py`）用 Blender 自带的 Python 和 numpy，参数写在 `--` 之后。伊切尔的 FBX 也用这两个脚本导出；Lenko 不用 Blender。
 - **texconv：** DirectXTex 的 `texconv.exe`，由用户自备。`n3_textures.py` 用 `<N3_BUILD>\toolchain\texconv.exe`；`find_variant.py`、`tex_stats.py` 用 `--texconv`（默认是脚本旁边的 `texconv.exe`）。
-- **Python：** 定位脚本、`n3inject.py`、`karin_install.py` 和三个格式库只用标准库（安装器单独在 Python 3.8+ 上也能跑）。构建链、`n3_g1t.py`、`n3_g1t_resize.py`、`fpose.py`、`g1a.py`、`g2a.py`、`face_bones.py`、`n3_miaomiao.py` 和离线检查另需 numpy（`n3_miaomiao.py` 的图形界面用标准库 tkinter）；`n3_conform.py`、`n3_physics.py`、`n3_face.py` 另需 scipy；`g1m_render.py`、`g1m_subs.py`、`checks/swing.py`、`checks/facecheck.py` 另需 matplotlib；`n3_textures.py`、`find_variant.py`、`tex_stats.py` 另需根目录的 Pillow。`requirements.txt` 钉的版本要 Python 3.12 或更高。本次在 3.14.0、numpy 2.5.2、scipy 1.18.0、matplotlib 3.11.2、Pillow 12.3.0 上测试。
+- **Python：** 定位脚本、`n3inject.py`、`karin_install.py` 和三个格式库只用标准库（安装器单独在 Python 3.8+ 上也能跑）。构建链、`n3_g1t.py`、`n3_g1t_resize.py`、`fpose.py`、`g1a.py`、`g2a.py`、`face_bones.py`、`n3_miaomiao.py` 和离线检查另需 numpy（`n3_miaomiao.py` 的图形界面用标准库 tkinter）；`n3_conform.py`、`n3_physics.py`、`n3_face.py` 另需 scipy；`g1m_render.py`、`g1m_subs.py`、`checks/swing.py`、`checks/facecheck.py` 另需 matplotlib；`n3_textures.py`、`find_variant.py`、`tex_stats.py` 另需根目录的 Pillow。
+  `n3ichel/`、`n3lenko/` 下除 `pmx_read.py`（标准库；`geometry()` 要 numpy）以外都要 numpy；`ichel_source.py`、`ichel_conform.py`、`ichel_physics.py`、`lenko_conform.py`、`lenko_physics.py`、`lenko_source.py` 另需 scipy；`ichel_build.py`、`lenko_build.py`、`lenko_view.py` 另需 Pillow，`lenko_view.py` 还要 matplotlib。
+  新增的检查都要 numpy；`layer_swing.py`、`face_sim.py`、`face_render.py`、`readback_blink.py`、`vanilla_blink.py` 另需 scipy，`face_render.py`、`readback_blink.py` 另需 Pillow。`requirements.txt` 钉的版本要 Python 3.12 或更高。本次在 3.14.0、numpy 2.5.2、scipy 1.18.0、matplotlib 3.11.2、Pillow 12.3.0 上测试。
 - **只在 Windows 上：** `karin_install.py` 和 `n3_miaomiao.py` 写文件前用 `tasklist` 判断游戏是否在运行；texconv 只有 Windows 版。项目在 Windows 上构建，游戏在另一台测试机上。
-- **运行位置：** 以下命令都从交接包根目录执行。所有命令都有 `--help`；不带参数的构建步骤（`n3_conform.py`、`n3_textures.py`、`checks/coll_cover.py`）的 `--help` 只打印说明，不会开始处理。
+- **运行位置：** 以下命令都从交接包根目录执行。所有命令都有 `--help`；不带参数的构建步骤（`n3_conform.py`、`n3_textures.py`、`ichel_conform.py`、`lenko_conform.py`、`lenko_coll.py`、`checks/coll_cover.py` 等不带参数的检查）的 `--help` 只打印说明，不会开始处理。
 
 ## 环境变量与参数
 
 | 变量 / 参数 | 读的脚本 | 含义 |
 | --- | --- | --- |
-| `N3_BUILD` | `scripts/n3build/` 下全部构建步骤，`checks/` 下除 `diff24.py` 以外的检查 | 工作目录，布局见下一节。原项目默认用会话临时目录里的 `build\`；便携版没有默认值，用到路径时才检查，没设时报错并说出变量名（`--help` 不需要它） |
+| `N3_BUILD` | `scripts/n3build/`、`n3ichel/`、`n3lenko/` 下的构建步骤（`pmx_read.py`、`lenko_pmx.py` 除外），`checks/` 下除 `diff24.py`、`radial_gap.py` 以外的检查 | 工作目录，布局见下一节。原项目默认用会话临时目录里的 `build\`；便携版没有默认值，用到路径时才检查，没设时报错并说出变量名（`--help` 不需要它） |
 | `N3_VRM`（`--vrm`） | `n3_physics.py` 默认模式 | Karin 的 VRM 文件（带 `VRMC_springBone`，由 PhysBone 转换来的 39 条弹簧链）。原脚本写死了源模型目录里的 VRM。`--geometry` 模式不需要 |
-| `N3_HEAD_SCALE` | `n3_conform.py` | 源模型整体缩放，默认 150（Blender 米 → 游戏厘米，并让头和游戏的头一样大） |
+| `N3_HEAD_SCALE` | `n3_conform.py`、`ichel_conform.py`、`lenko_conform.py` | 源模型整体缩放。`n3_conform.py` 默认 150（Blender 米 → 游戏厘米，并让头和游戏的头一样大）；另两个默认按颈高取（源模型的 Neck 落在游戏颈骨的高度） |
+| `<模型目录>`（位置参数） | `ichel_source.py`、`lenko_source.py`、`checks/face_render.py`、`checks/readback_blink.py` | 源模型文件夹（PMX 和贴图）。`face_render.py` 按 `source/source.json` 里材质的 `texture_file` 相对它找贴图（原脚本写死了源模型目录），`readback_blink.py` 把它转给 `face_render.py` |
 | `--texconv` | `find_variant.py`、`tex_stats.py` | texconv 可执行文件，默认是脚本旁边的 `texconv.exe`（原脚本只认这个位置） |
 | `--data` | `karin_install.py` | 发行包的数据目录（`files\`、`collapse.txt`、`vanilla.json`、`package.json`；`staging\` 也建在这里），默认是脚本所在目录，即发行包的布局 |
 | `--png` | `checks/swing.py`、`checks/facecheck.py` | 渲染图的输出路径，默认当前目录下的 `swing.png` / `facecheck.png`（原脚本写进会话临时目录的根） |
@@ -47,7 +56,11 @@
 
 `extract_many.py` 按内容给扩展名（`.g1m`、`.g1t`、`.ktid`、`.kidsobjdb`，其余 `.bin`）。面部姿势库和表情预设取出来是 `.bin`，改名为 `.g1fpose` / `.g1frani`。
 
+伊切尔和 Lenko 各用一个工作目录，布局相同：`orig/`、`tex/`、`face/`、`toolchain/` 从 Karin 的工作目录复制（替换的是同一批资源）；`source/` 由 `ichel_source.py` / `lenko_source.py` 写（Lenko 另有 `source_report.json`）；`atlas_uv.json` 由 `ichel_build.py textures` / `lenko_build.py textures` 写。伊切尔的 Blender 导出要放在 `source/` 以外的目录（下面的 `<FBX 导出目录>`，项目里是工作目录下的 `raw/`），因为 `ichel_source.py` 要从它读、往 `source/` 写。
+
 ## 构建流程
+
+下面 0–8 是 Karin_Original 的流程。伊切尔、Lenko 的工作目录用同样的原版文件（第 0 步），自己做第 1–2 步的前处理和贴合 / 物理，表情、写 G1M、校验、注册表、贴图都调用同一批 `n3build/` 脚本，安装和换装与 Karin 相同；见后面的[伊切尔](#伊切尔由-pmx-转换的-fbx)和 [Lenko](#lenko直接读-pmx) 两节。
 
 ```powershell
 $Kit = "portable-kits/nioh-3"; $S = "$Kit/scripts"; $B = "$S/n3build"; $C = "$S/checks"
@@ -86,12 +99,12 @@ python -B $S/extract_many.py $Pkg "$W/tex" 0x8b541440 0x7f1eb597 0xe0739e0c 0x52
 ```powershell
 python -B $B/n3_conform.py            # → conformed.npz、conform.json；跨侧检查不过就停
 python -B $B/n3_physics.py            # → physics.json（Karin 自己的弹簧链；--geometry [--skirt] 是早期按几何推的链）
-python -B $B/n3_face.py               # → face.json（--extended 另加 27/28、39/40、59/60、160）
+python -B $B/n3_face.py               # → face.json（--extended 另加 27/28、39/40、59/60、160；--vanilla-lids 见下）
 ```
 
 - `n3_conform.py`：源模型按 `N3_HEAD_SCALE` 缩放并平移到 Karin 的 Neck 落在游戏骨 11 上；头颈刚性，其余人形骨各拟合一个仿射（骨段方向和长度，保持截面），按 Karin 的权重线性混合。权重：Karin 的骨映射到游戏骨（躯干按高度分到脊椎）；贴身网格从原版身体 `0x4ba258df` 最近点迁移（远了淡出，手指保留映射权重，袖子不用手和手指骨）；头、头发、耳朵 → 12，尾巴 → 2，裙子越往下摆越跟最近的腿部皮肤。左右两侧的顶点不能拿另一侧手臂链的权重（按骨架判断）。
 - `n3_physics.py`：VRM 的每条弹簧链成为一条 type-4 链，点 = 骨骼头加末端，用该骨骼自己的顶点做「源 → 贴合后」的拟合映射到游戏空间；第 i 个关节取第 i 根骨的源权重，其余权重按贴合后的游戏骨等比保留。`RIG` 定每类链的模板和碰撞组，`RIG_ANCHOR` 定挂接骨，脸颊两条跳过。
-- `n3_face.py`：脸（Body 网格）蒙到玩家面部骨上，让游戏的面部姿势按 Karin 自己的形态键动：每个映射姿势取 6 根平移最大、旋转不超过 0.25 rad、在基础身体 / 女性头 / 两件上衣里绑定姿势相同的驱动骨，逐顶点非负岭回归；面部骨权重可以大于 1，头骨吃负的剩余，量化到同一个 f16 网格使总和精确为 1。
+- `n3_face.py`：脸（Body 网格）蒙到玩家面部骨上，让游戏的面部姿势按 Karin 自己的形态键动：每个映射姿势取 6 根平移最大、旋转不超过 0.25 rad、在基础身体 / 女性头 / 两件上衣里绑定姿势相同的驱动骨，逐顶点非负岭回归；面部骨权重可以大于 1，头骨吃负的剩余，量化到同一个 f16 网格使总和精确为 1。`--vanilla-lids`（Lenko 的 lenko3 起；不加时结果与以前相同）另拟合 27/28、39/40 两组闭眼姿势：目标是 `blink_L` / `blink_R` 乘以它们在原版女性头 `0xb24cac84` 上相对 41/42 的闭合比例（0.82 / 0.85，`checks/vanilla_blink.py` 量的），优先级 1 / 2（`VANILLA_LIDS`、`VANILLA_LIDS_PRIORITY`），这样游戏用哪组姿势眨眼，这张脸都闭到原版脸闭到的程度。
 
 ### 3. 写 G1M 并读回
 
@@ -103,6 +116,7 @@ python -B $B/n3_validate_g1m.py "$W/g1m/0xed9b4309.g1m" "$W/orig/0xed9b4309.g1m"
 ```
 
 - `n3_build_g1m.py [ninja|samurai] [--physics [--collide] [--face]]`：Karin 的主体写进上衣的 rest 子网格；其余原版子网格保留缓冲、材质和 MESH_LOD 组，三角形塌缩；手臂、裙子 / 脸、每个 type-4 条目一个网格插在最后一个材质 0 子网格之后（各自的顶点缓冲、属性集、调色板、索引缓冲、子网格，MESH_LOD 类型 2 组 NUN id 0x2710 + k）。调色板超过 85 改 u16 骨索引（上限 128，再多就把权重最小的骨合并到保留的祖先，物理关节和面部骨不合并）；每个调色板条目用原生逆绑定（没有就追加到 MM1G）；FM1G 的计数和 GM1G 包围盒随之更新。`--physics` 用 `n3_g1m_physics.py` 写 SM1G 关节、ONUN type-4 子块和 FM1G 统计；`--collide` 追加各链的 LLOC 碰撞组（否则都用模型的第 0 组）；`--face` 把 `face.json` 的权重写给脸并放进裙子的子网格。输出 `g1m/<模型>.g1m`、`build_report[_samurai].json`、`atlas_uv.json`。
+  `n3_g1m_physics.py` 的 `COLLISION_SETS` 条目是（原版模型，LLOC 条目号，追加的椭球[，`resize`]）：`resize` 是 `lloc_entry_bytes` 的参数，按图元号改原版椭球的半轴和中心（旋转不变）；`TEMPLATE_BLOCKS` 放 `orig/` 里没有的原版模型的 type-4 参数块（168 字节），按模板名直接用。两者都是 Lenko 加的；`TEMPLATE_BLOCKS` 默认为空、不给 `resize` 时，Karin / 伊切尔的输出不变。
 - `n3_validate_g1m.py <built> <template> [--layout-changed] [--physics]`：用 `g1m_tool.py` 独立读回：文件大小字段、每个子网格的索引范围、调色板大小（u8 85 / u16 128）、调色板条目是原生绑定、权重和为 1、骨索引是 3 的倍数且在调色板内、FM1G 计数；预期之外的节和块必须逐字节不变。打印 `PASS` / `FAIL`，失败时退出码 1。
 
 ### 4. 贴图
@@ -170,6 +184,67 @@ python -B $S/n3_miaomiao.py restore $Save <MiaomiaoBackups\…json>
 `--in-place` / 图形界面：游戏在运行就拒绝；先写备份和 JSON 记录（前后 sha256），用同目录临时文件替换；`restore` 核对当前存档仍是那次修改的结果，否则拒绝。
 格式、实机证据和已否定的做法见 [存档与外观设置](../../games/nioh-3/SAVE_AND_APPEARANCE.md)。项目里用 PyInstaller 打成单文件 EXE 发给玩家（构建脚本不在本包里）。
 
+## 伊切尔（由 PMX 转换的 FBX）
+
+源是尘白禁区伊切尔的 MMD 模型转成的 FBX（`尘白.fbx`），同目录有原 PMX 和贴图 PNG。FBX 只有一个网格，24 个 PMX 材质按贴图并成了 7 个，姿势改成了 T 字，没有尾巴网格。案例、实机结果见 [伊切尔案例](../../games/nioh-3/cases/ICHEL.md)。
+
+```powershell
+$env:N3_BUILD = "<伊切尔的工作目录>"; $W = $env:N3_BUILD; $I = "$S/n3ichel"
+$Raw = "<FBX 导出目录>"; $Model = "<PMX 和贴图所在目录>"
+& $Blender --factory-startup --background --python $S/blender/ko_extract_source.py -- "<尘白.fbx>" $Raw
+& $Blender --factory-startup --background --python $B/blender_shapekeys.py -- "<尘白.fbx>" $Raw
+python -B $I/ichel_source.py $Raw $Model            # → source/：13 个部位网格、改名的人形骨、拆左右的表情键
+python -B $I/ichel_conform.py                       # → conformed.npz、conform.json
+python -B $I/ichel_physics.py "<伊切尔的 PMX>"        # → physics.json
+python -B $B/n3_face.py                             # → face.json
+python -B $I/ichel_build.py textures                # → atlas_uv.json、g1t/
+python -B $I/ichel_build.py g1m ninja               # 默认 --physics --collide --face；samurai 同样
+python -B $I/ichel_build.py registry ninja          # samurai 同样
+python -B $B/n3_validate_g1m.py "$W/g1m/0x5548953f.g1m" "$W/orig/0x5548953f.g1m" --layout-changed --physics   # 武士同样
+python -B $C/swing.py "$W/g1m/0x5548953f.g1m" 30 --png swing.png; python -B $C/facecheck.py 0x5548953f <脸的子网格>
+```
+
+- `ichel_source.py <FBX 导出目录> <模型目录>`：每个 FBX 三角形在同一张贴图内按 UV 中心（位置只作弱的平局判据，FBX 改成了 T 字姿势，只有躯干对得上）对回原 PMX 的三角形，按 PMX 材质拆成 `MESHES`：脸（仍叫 `Body`，`n3_face.py` 认这个名字）、头发、皮肤、衣服、颈饰、两种袖子、裙子、内裤、腿环、靴子、兽耳、头饰。半透明叠加层（`眼睛1`、`表情`）和碰撞代理 `Cylinder` 不放。人形骨改成 `n3_conform` 认的名字，补指尖骨（`<手指>Distal_end`）；胸口饰件 u 在 (1, 1.23] 的整三角形减 1，其余越界角夹到 [0, 1]。表情键：脸的 MMD 表情，加上按 x 正负拆左右、按 `n3_face.py` 的键名命名的 `blink_L/R`、`mayu_up_L/R`、`mayu_down_L/R`、`kuchi_A`、`kuchi_smile_1_L/R`。
+- `ichel_conform.py`：`n3_conform.py` 的改写，区别是网格名、缩放（默认让她的 Neck 落在游戏颈骨的高度，约 100：模型是真人比例的米）和没有尾巴。仿射把 T 字的手臂转成游戏的 A 字；物理骨先归到最近的人形祖先，链权重由 `ichel_physics.py` 给。裙子没有骨，按 Karin 的做法越往下摆越跟腿，下摆外推一点。
+- `ichel_physics.py <pmx>`：PMX 里刚体模式 1 / 2 的骨骼族（`FAMILIES`：后发、侧后发、前侧发、胸前发束、呆毛、小辫、兽耳、泡泡袖、裙侧丝带、背后蝴蝶结）各成链，点 = 骨骼头加一段延长的尖端，用该骨顶点的拟合映射到游戏空间（`n3_physics.point_fit`）；模板、挂接骨、碰撞组见脚本的说明。尾巴骨和胸部骨不用。
+- `ichel_build.py textures | g1m <ninja|samurai> [flags] | registry <ninja|samurai>`：换上她的图集布局（`ATLAS`）后调用共用的 `n3_textures.py`、`n3_build_g1m.py`（`DROP` 为空）、`n3_registry.py`，其余与 Karin 相同。
+- `pmx_read.py <file.pmx> [out.json]`：最小的 PMX 2.0 / 2.1 读取（头、材质、骨骼、表情名、刚体、关节；`geometry()` 给位置、UV、面和每面材质），`ichel_source.py`、`ichel_physics.py`、`lenko_*` 都用它。
+
+## Lenko（直接读 PMX）
+
+源是 MMD 模型 `Lenko06.pmx`（Kinsama）和 `tex/` 下的 10 张颜色贴图，不经 Blender。用户的要求和每一版的取舍见 [Lenko 案例](../../games/nioh-3/cases/LENKO.md)。
+
+```powershell
+$env:N3_BUILD = "<Lenko 的工作目录>"; $W = $env:N3_BUILD; $L = "$S/n3lenko"
+$Model = "<模型目录>"                                 # Lenko06.pmx 和 tex/
+python -B $L/lenko_source.py $Model                 # → source/（source.json / .npz、shapekeys.json / .npz、source_report.json）
+python -B $L/lenko_conform.py                       # → conformed.npz、conform.json
+python -B $L/lenko_physics.py "<Lenko06.pmx>"       # → physics.json
+python -B $L/lenko_coll.py                          # 链点变了才需要：打印碰撞组常量，抄进 lenko_build.py
+python -B $B/n3_face.py --vanilla-lids              # → face.json
+python -B $L/lenko_build.py textures                # → atlas_uv.json、g1t/
+python -B $L/lenko_build.py g1m ninja               # 默认 --physics --collide --face；samurai 同样
+python -B $L/lenko_build.py registry ninja          # samurai 同样
+python -B $B/n3_validate_g1m.py "$W/g1m/0x5548953f.g1m" "$W/orig/0x5548953f.g1m" --layout-changed --physics   # 武士同样
+python -B $C/swing.py "$W/g1m/0x5548953f.g1m" 30 --png swing.png; python -B $C/blinkgap.py "$W/face.json"
+python -B $L/lenko_view.py view.png [--conformed] [--ylim 80 120] [--hide hair,Body]   # 正 / 侧 / 背三视图
+python -B $L/lenko_pmx.py "<Lenko06.pmx>"            # 读一遍：顶点、面、权重和的范围、表情数
+```
+
+外套、短裙和眨眼的检查（`layer_swing.py`、`coat_skirt_gap.py`、`radial_gap.py`、`face_render.py`、`readback_blink.py`、`vanilla_blink.py`）见[离线检查](#离线检查)。
+
+- `lenko_pmx.py`：完整的 PMX 2.0 读取：几何、蒙皮权重、每面材质、顶点表情的位移，加上 `pmx_read.parse` 的元数据。
+- `lenko_source.py <模型目录>`：PMX → 构建读的源格式。坐标 (x, y, z)_Blender = (x, z, y)_PMX 是镜像，所以三角形顶点顺序反过来；v 翻转；单位保持 MMD 单位，贴合按颈高缩放。外套版（PMX 默认），`Lenko_coat_Pig_l` 不放。
+  - 外套缩短（`shorten_coat`）：腰带下沿 `Y_BELT` 以下、手臂权重 < 0.5 的外套顶点 y' = `Y_BELT` − k (`Y_BELT` − y)，外套物理骨同样处理；k 取「每个 15° 扇区外套下摆至少比裙摆低 `HEM_COVER`」的最小值（最大 1），偏离中位数超过 `HEM_OUTLIER` 的裙摆扇区不算。两只口袋小猪绕自己的中心按 k 缩小。
+  - 网格按材质和三角形的主导骨族拆成 `MESH_ORDER` 的 12 个；腰带上那条长丝带按连通块整块分到 `ribbon`。
+  - 骨：人形骨改名（腿部皮肤刷在 D 骨上，D 骨用腿的名字，FK 腿骨的权重并过去），补指尖骨，胸部物理骨 `Chest*` 改叫 `Bust*`。
+  - 表情键：Body 上的每个顶点表情，加上拆左右的键；`blink_L/R` 来自 `bone_blink` 处理过的まばたき：游戏的眨眼姿势抬不动下眼睑，于是把闭合线按下缘的抬升量往下移（`CLOSE_*`）。
+- `lenko_conform.py`：用 `ichel_conform` 的函数。网格分工：头上的、身体权重迁移的（skin、clothes、legwear、belt）、保留自身权重的（skirt、ribbon、tie、coat）；皮肤和衣服用手的规则（手套跟手），外套用袖子的规则；裙摆向腿过渡用 legwear，外推 `SKIRT_PUSH`。`drape_coat_back`：外套背面腰带以下按（方位 2°，高 0.5 cm）的格子往里收，直到最内层离短裙 / 丝带 `DRAPE_GAP`，不小于腰带处外套的半径，方位 100°–130° 渐入（`BACK_AZ`），纵向 `DRAPE_RAMP` 内渐入；袖子和口袋小猪不动。
+- `lenko_physics.py <pmx>`：动态刚体骨从根沿唯一的动态子骨成链（`KINDS`：头发、长发、头顶饰物、裙子、领带、胸部）。超过 `LONG_HAIR` 的头发链细分到每节 ≤ `SEG_MAX`，用 `longhair` 模板；胸部链只带作者权重的 `BUST_SHARE`。外套骨不用：腰带以下的外套顶点取最近短裙表面点的权重（`coat_follows_skirt`），两层一起摆。
+- `lenko_coll.py`：把借来的原版碰撞组按她的身体重拟合（绑定姿势）：保留原版图元的骨和旋转，只改中心和半轴；固定种子的随机搜索，约束是该组所有链的非根点都在外 `CLEAR`；短裙组再加两个臀部椭球。打印 `lenko_build.py` 的常量（`LENKO_*_RESIZE`、`LENKO_BUTT`），要 40 秒左右。
+- `lenko_build.py textures | g1m <ninja|samurai> [flags] | registry <ninja|samurai>`：她的图集布局（`REGIONS`，按贴图文件分区，共用贴图的材质合并覆盖再 push-pull），往 `n3_g1m_physics.COLLISION_SETS` 登记 `lenko_skirt` / `lenko_tie` / `lenko_hair`（带 `resize`），往 `TEMPLATE_BLOCKS` 放 `longhair` 参数块（原版 50 cm 长发 `0x6da3fe6e` type-4 条目 0，不在 `orig/` 里），然后调用共用的步骤。
+- `lenko_view.py <out.png> [--conformed] [--ylim lo hi] [--hide mesh,…]`：源模型（`source/`）或 `conformed.npz` 的贴图平涂三视图，每个三角形取 UV 中心处的颜色。
+
 ## 定位与统计
 
 ```powershell
@@ -206,6 +281,23 @@ python -B $C/diff24.py <旧>.g1m <新>.g1m                              # 两个
 
 `swing.py` 的链表从 `<N3_BUILD>\g1m\build_report[_samurai].json` 读（文件名含 `5548953f` 时用忍者的）。`facecheck.py` 的模型从 `<N3_BUILD>\g1m\` 读，第二个参数是脸所在的子网格（build24：忍者 25、武士 27，见 `build_report[_samurai].json` 的 `skirt`）。`fit_butt3.py` 的网格搜索要几分钟。
 
+Lenko 的外套 / 短裙和眨眼用的检查（lenko1–lenko4）：
+
+```powershell
+python -B $C/coat_skirt_gap.py                                         # 静止时每个（方位, 高度）格里短裙最外的半径和外套最内的半径
+python -B $C/radial_gap.py "$W/conformed.npz" [<另一个>.npz …]          # 背后（|方位| ≥ 100°、y < 108）外套顶点离附近短裙 / 丝带的径向间隙分布
+python -B $C/layer_swing.py                                            # 裙链绕根转动（整体甩、抬腿、后推、独立乱甩）时外套是否穿到短裙里
+python -B $C/face_sim.py                                               # 按 face.json 摆游戏面部姿势：眼睑沿 blink 目标的行程、眉毛位移
+python -B $C/face_render.py face.png "<模型目录>"                       # 脸的贴图渲染：静止、41+42、MMD 目标、27+28、39+40
+python -B $C/readback_blink.py rb.png "$W/g1m/0x5548953f.g1m" "<模型目录>"   # 从成品 g1m 解出脸的权重再模拟眨眼，与 face.json 比较
+python -B $C/vanilla_blink.py                                          # 原版女性头在各姿势、各表情动画眨眼帧下的上眼睑闭合比例
+```
+
+- `coat_skirt_gap.py`、`layer_swing.py`、`radial_gap.py` 读贴合后的 `skirt`、`coat`（`radial_gap.py` 还有 `ribbon`）网格，是 Lenko 的网格名；`layer_swing.py` 的链权重从 `physics.json` 读，`Skirt` 开头的链才转。`layer_swing.py` 的两个可选参数 `[trials] [max deg]` 原脚本读了但没用，场景是固定的。
+- `layer_swing.py` 判穿过的办法：带链权重、|x| < 24 的外套顶点里，静止时在最近短裙采样点外 0.3 cm 以上、离它不到 4 cm 的那些，转动后沿该点法线的有向距离变成负的就算穿过；最后几行是后推 30° 时穿过的点和它们的权重来源（原脚本的调试输出）。
+- `face_sim.py` 是 `face_render.py`、`readback_blink.py` 的公共部分，被导入时也打印它的表。`readback_blink.py` 导入 `face_render.py` 时，后者先把自己的 5 栏图写进同一个输出文件，再被 2 栏图（face.json 模拟 | g1m 读回）覆盖，与原脚本相同。
+- `vanilla_blink.py` 读 `orig/0xb24cac84.g1m` 和 `face/` 下的姿势库、`*.g1frani`：本机的输出是 27/28 → 0.82、39/40 → 0.85（相对 41/42），即 `n3_face.py --vanilla-lids` 用的比例；待机脸 `0x5ca044ef` 的眨眼帧在原版脸上闭到 1.02。
+
 ## 文件
 
 | 文件 | 职责 |
@@ -228,9 +320,14 @@ python -B $C/diff24.py <旧>.g1m <新>.g1m                              # 两个
 | `scripts/n3build/blender_shapekeys.py` | Blender：形态键位移 → `shapekeys.npz` / `shapekeys.json` |
 | `scripts/n3build/n3_common.py` | 构建公共层：`N3_BUILD`、读原版模型和源模型（含 `EXTRA_SHAPE_KEYS` 按高度遮罩的形态键）、骨架、坐标轴转换、权重量化 |
 | `scripts/n3build/n3_conform.py`、`n3_physics.py`、`n3_face.py` | 贴合与权重、骨链与链权重、面部骨权重 |
-| `scripts/n3build/n3_build_g1m.py`、`n3_g1m_physics.py` | 写 G1M；SM1G 关节、ONUN type-4、LLOC 碰撞组（含 `KARIN_HIPS` 臀部椭球）、FM1G 统计 |
+| `scripts/n3build/n3_build_g1m.py`、`n3_g1m_physics.py` | 写 G1M；SM1G 关节、ONUN type-4（`TEMPLATE_BLOCKS` 补 `orig/` 里没有的模板）、LLOC 碰撞组（含 `KARIN_HIPS` 臀部椭球，`resize` 重拟合原版椭球）、FM1G 统计 |
 | `scripts/n3build/n3_validate_g1m.py` | 构建结果的独立读回校验 |
 | `scripts/n3build/n3_registry.py`、`n3_textures.py` | 物理注册表与每材质计数；图集与常量贴图 |
+| `scripts/n3ichel/ichel_source.py`、`ichel_conform.py`、`ichel_physics.py`、`ichel_build.py` | 伊切尔：FBX 导出按原 PMX 拆网格 → 源格式；贴合；PMX 刚体骨链；她的图集布局下的共用构建步骤 |
+| `scripts/n3ichel/pmx_read.py` | PMX 2.0 / 2.1 的元数据和几何读取（伊切尔、Lenko 共用） |
+| `scripts/n3lenko/lenko_pmx.py`、`lenko_source.py` | Lenko：完整的 PMX 读取；PMX → 源格式（外套缩短、网格拆分、骨改名、表情键与眨眼闭合线） |
+| `scripts/n3lenko/lenko_conform.py`、`lenko_physics.py`、`lenko_coll.py` | 贴合（含背面外套贴向短裙）；骨链（长发细分、胸部、外套跟随短裙）；碰撞组重拟合 |
+| `scripts/n3lenko/lenko_build.py`、`lenko_view.py` | 图集布局、碰撞组和 `longhair` 模板登记后的共用构建步骤；源模型 / 贴合结果的三视图 |
 | `scripts/checks/*.py` | 离线检查（见上） |
 | `configs/collapse.txt`、`configs/vanilla.json` | 本案例的塌缩清单和 33 个被替换资源的 v2.0.0.2 原版 sha256 |
 
@@ -251,27 +348,43 @@ python -B $C/diff24.py <旧>.g1m <新>.g1m                              # 两个
 - `n3_textures.py` 的常量值，`configs/collapse.txt`、`configs/vanilla.json`；`checks/coll_cover.py`、`fit_butt3.py` 的高度范围；
 - `n3_miaomiao.py` 的 `KARIN_TARGETS`（测试存档的外观设置，换了 Mod 的目标模型就要换成对应装备的 ID）。
 
+伊切尔、Lenko 的值同样只对各自的模型有效：
+
+- `ichel_source.py`：`PMX`（文件名）、`MESHES`、`LEFT_OUT`、`FBX_TEXTURE`、`PMX_TEX_INDEX`、骨名映射、`SIDE_RAMP`；`ichel_conform.py`：网格名、`TRANSFER_DIST`、`SKIRT_FMAX` / `SKIRT_PUSH`；`ichel_physics.py`：`FAMILIES`、`ANCHOR`；`ichel_build.py`：`ATLAS`；
+- `lenko_source.py`：`PMX`、`Y_BELT`、`HEM_COVER`、`HEM_OUTLIER`、`SIDE_RAMP`、`CLOSE_*`、`DROP_MATERIALS`、`FIXED`、`MESH_ORDER`、`LONG_RIBBON`；`lenko_conform.py`：网格分工、`SKIRT_PUSH`、`DRAPE_GAP`、`BACK_AZ`、`DRAPE_RAMP`、`CELL`；
+- `lenko_physics.py`：`KINDS`、`LONG_HAIR`、`SEG_MAX`、`BUST_SHARE`、`COAT_RAMP`、`COAT_KEEP`、`CROSS_MAX`；`lenko_coll.py`：`SETS` 的搜索范围、`MARGIN`、`BUTT_*`；`lenko_build.py`：`REGIONS`、`LENKO_*` 碰撞常量；
+- `n3_face.py` 的 `VANILLA_LIDS` / `VANILLA_LIDS_PRIORITY`（比例本身是原版头量出来的，优先级是在 Lenko 上试出来的）；`checks/layer_swing.py`、`coat_skirt_gap.py`、`radial_gap.py` 的网格名、轴心和高度 / 方位范围（`layer_swing.py` 的轴心 z = −1.48 是写死的）。
+
 以下随游戏版本变化（`build-sensitive`），游戏更新后要重新核对：
 
 - 资源哈希：两件上衣、注册表、计数、贴图、KTID、要塌缩的模型（`n3_build_g1m.TARGETS`、`n3_registry.REGISTRY`、`n3_textures.CONSTANTS`、`n3_common.CHEST` / `BODY`、`n3_face.SAME_BIND` / `POSE_LIB`、`n3_g1m_physics.TEMPLATES` / `COLLISION_SETS`）；
+- `lenko_build.py` 的 `longhair` 参数块（原版 `0x6da3fe6e` 的 type-4 条目 0）和三个碰撞组的原版底（`0x6a0d18db` 条目 1、`0x5548953f` 条目 0、`0xd5d385f9` 条目 0）；`VANILLA_LIDS` 的 0.82 / 0.85 是在 v2.0.0.2 的原版女性头和姿势库上量的；
 - 两件上衣的子网格布局（`TARGETS` 的 rest 子网格）、玩家骨号、面部骨号 400–737、type-4 / type-5 id 的命名空间、FM1G 的统计偏移、G1T v0066 的头字段；
 - `vanilla.json`：v2.0.0.2 原版的 sha256，版本一变安装器就拒绝。
 
 ## 已验证与边界
 
-- **实机。** 结论来自项目用原脚本构建的 build7–build24（[验证与发布](../../games/nioh-3/VALIDATION_AND_RELEASE.md)、[Karin_Original 案例](../../games/nioh-3/cases/KARIN_ORIGINAL.md)）：build21 关卡内物理由用户确认，build23 由用户确认；build24（臀部碰撞椭球）由发行包装进测试机，`verify` 33/33，实机效果待用户确认。
+- **实机。** 结论来自项目用原脚本构建的 build7–build24（[验证与发布](../../games/nioh-3/VALIDATION_AND_RELEASE.md)、[Karin_Original 案例](../../games/nioh-3/cases/KARIN_ORIGINAL.md)）：build21 关卡内物理由用户确认，build23 由用户确认；build24（臀部碰撞椭球）由发行包装进测试机，`verify` 33/33，实机效果待用户确认。伊切尔（ichel1 主菜单外观由用户确认，关卡内没测）和 Lenko（lenko1–lenko4 依次装进测试机，各版的实机反馈和修改）见 [伊切尔案例](../../games/nioh-3/cases/ICHEL.md)、[Lenko 案例](../../games/nioh-3/cases/LENKO.md)。
+- **伊切尔 / Lenko 的便携副本（2026-11-03，离线）：** 原脚本和便携脚本各在项目构建目录的一份副本上跑完整条链，Lenko：`lenko_source` → `lenko_conform` → `lenko_physics` → `n3_face --vanilla-lids` → `lenko_build` textures / g1m ×2 / registry ×2 → `n3_validate_g1m` ×2；伊切尔：`ichel_source`（用项目里已有的 Blender 导出）→ `ichel_conform` → `ichel_physics` → `n3_face` → `ichel_build` 同样 5 步 → `n3_validate_g1m` ×2。两条链各 11 步的退出码、标准输出和工作目录的 104 个文件都相同（npz 按数组比较），重新写出的文件也与项目构建目录里 lenko4 / ichel1 的现有文件逐字节相同。`lenko_coll.py`、`lenko_view.py`、`lenko_pmx.py`、`pmx_read.py` 和 7 个新检查在 Lenko 的数据上各跑一次，标准输出和写出的 4 个文件（3 张图、1 个 json）相同。Blender、游戏和测试机都没有重跑。
 - **便携版本身只做了离线核对（2026-11-01）：** 在本机用原脚本和便携脚本在同一份输入上运行、逐字节比较：构建链 10 步（贴合 → 物理 → 表情 → 两件上衣 → 校验 → 注册表 → 贴图）的 22 个输出相同，并与发行包 build24 的 10 个对应文件逐字节相同；构建链的其余参数 10 步相同；7 个离线检查 8 次运行的输出（含 3 张渲染图）相同；27 个定位 / 报表脚本 32 次运行的输出和 17 个写出的文件相同；`karin_install.py` 在发行包布局下「拒绝 → 安装 → 校验 → 卸载」四步与原件相同。Blender、游戏和测试机都没有重跑。详见 [验证记录](../VALIDATION.md)。
-- **测试：** 运行 `python -B tests/test_portable_tools.py`。`Nioh3Tools` 不需要游戏、Blender、源模型或 texconv：合成的 `root.rdb` / `root.rdx` / fdata 上 `n3inject.py` 的安装 → 校验 → 还原（带空格的路径、参数块保留、过期备份的两条路径），`karin_install.py` 拒绝版本不符的原版并且不安装、从便携包和发行包两种布局安装 / 校验 / 卸载；合成 G1T v0066 存储类型 3 的解码、编码往返（逐字节）、常量填充和换尺寸；`n3_g1m_physics.lloc_entry_bytes` 追加椭球和 `new_lloc`；`n3_registry.py` 的注册表与计数；定位脚本、ETW 统计和阶段比较；`N3_BUILD` / `N3_VRM` 缺失时的报错；构建链和检查的 `--help`；PROVENANCE 与可移植性。没装 numpy / scipy 时要它们的项跳过；`karin_install.py` 那项只在 Windows 上跑。
+- **测试：** 运行 `python -B tests/test_portable_tools.py`。`Nioh3Tools` 不需要游戏、Blender、源模型或 texconv：合成的 `root.rdb` / `root.rdx` / fdata 上 `n3inject.py` 的安装 → 校验 → 还原（带空格的路径、参数块保留、过期备份的两条路径），`karin_install.py` 拒绝版本不符的原版并且不安装、从便携包和发行包两种布局安装 / 校验 / 卸载；合成 G1T v0066 存储类型 3 的解码、编码往返（逐字节）、常量填充和换尺寸；`n3_g1m_physics.lloc_entry_bytes` 追加椭球和 `new_lloc`；`n3_registry.py` 的注册表与计数；定位脚本、ETW 统计和阶段比较；`N3_BUILD` / `N3_VRM` 缺失时的报错；构建链（含 `n3ichel/`、`n3lenko/`）和检查的 `--help`；PROVENANCE 与可移植性。没装 numpy / scipy 时要它们的项跳过；`karin_install.py` 那项只在 Windows 上跑。
 - **换装器（2026-11-02）：** 项目里同一份源码在测试机上实测（agent，`runtime-load-pass`）：游戏里把外观换掉 → `apply --in-place` → 重进关卡，角色模型恢复显示。
   `Nioh3Tools` 里有它的合成存档测试：已知的头密钥流、加解密往返、`apply` / `clear` 只改五个部位和校验和、结构异常拒绝、命令行 `--in-place` 的备份与 `restore`。
-- **测试没覆盖的部分：** 两个 Blender 脚本只做语法检查；换装器的图形界面只在项目里做过启动冒烟测试；`n3_conform.py`、`n3_physics.py` 默认模式、`n3_face.py`、`n3_build_g1m.py`、`n3_textures.py` 只在本机真实数据上和原脚本比较过，测试里没有合成数据；`g1a.py`、`g2a.py` 只测了 `--help`（本机没有动画文件）；非 Windows 系统；其他游戏版本。
+- **测试没覆盖的部分：** 两个 Blender 脚本只做语法检查；换装器的图形界面只在项目里做过启动冒烟测试；`n3_conform.py`、`n3_physics.py` 默认模式、`n3_face.py`、`n3_build_g1m.py`、`n3_textures.py` 以及伊切尔 / Lenko 的步骤和新检查只在本机真实数据上和原脚本比较过，测试里没有合成数据（`n3_face.py --vanilla-lids`、`TEMPLATE_BLOCKS`、`lloc_entry_bytes` 的 `resize` 也一样）；`g1a.py`、`g2a.py` 只测了 `--help`（本机没有动画文件）；非 Windows 系统；其他游戏版本。
 - **便携改动：**
   - `n3_common.py` 的 `BUILD` 原来默认是会话临时目录，改为只认 `N3_BUILD`，用到路径时才检查（`BUILD` / `ORIG` 是延迟求值的路径对象）；`n3_physics.py` 写死的 VRM 路径改为 `N3_VRM` / `--vrm`；
   - 没有 argparse 的命令补上了 argparse，位置参数和选项不变；`find_variant.py`、`tex_stats.py` 加 `--texconv`，`swing.py`、`facecheck.py` 加 `--png`；
   - `karin_install.py` 的工具目录在发行包布局下是 `tools\`，否则是脚本所在目录；数据目录加 `--data`；
   - 离线检查里写死的项目和会话目录改为相对脚本的路径和 `N3_BUILD`；
-  - 每个文件保留原来的换行（11 个 CRLF，其余 LF）。
+  - 伊切尔 / Lenko（2026-11-03）：
+    - `n3ichel/`、`n3lenko/` 的 12 个命令和 7 个新检查补上 argparse，位置参数和选项不变。`ichel_build.py` / `lenko_build.py` 的步骤只接受 `g1m` / `registry` / `textures`，`g1m` / `registry` 缺目标时报用法错误（原来是 IndexError）；`radial_gap.py` 不给文件时报用法错误（原来什么也不做）。`n3_face.py` 新的 `--vanilla-lids` 也进了 argparse；
+    - 两个 `*_build.py` 的 `textures` 步骤调用便携版 `n3_textures.py`（它有 argparse）之前把命令行清空；原版 `n3_textures.py` 不读命令行；
+    - `ichel_conform.py` 原来没有 `sys.path` 条目（在项目里要用 `PYTHONPATH` 指向 `n3build`），加了相对脚本的 `n3build`；
+    - `lenko_coll.py` 在模块级读原版身体之前解析参数；`face_sim.py` 只在直接运行时解析（`face_render.py`、`readback_blink.py` 导入它）；
+    - 写死的路径：`face_render.py` 的源模型目录 → `<模型目录>` 参数；`readback_blink.py` 原来从会话目录导入 `face_render.py`，现在从脚本所在目录导入，多一个 `<模型目录>` 参数转给它；`face_sim.py`、`vanilla_blink.py` 的项目 `tools` 路径 → 相对脚本；`layer_swing.py`、`coat_skirt_gap.py`、`vanilla_blink.py` 的 `os.environ['N3_BUILD']` → `n3_common.BUILD`；
+    - `layer_swing.py` 原件混用 CRLF 和 LF，便携版统一为 LF；
+  - 每个文件保留原来的换行（15 个 CRLF，其余 LF）。
 
   处理逻辑没有变。哪些文件改了，见 [验证记录](../VALIDATION.md) 和 [PROVENANCE.json](../PROVENANCE.json)。
-- **没有收进本包：** 测试机远程辅助脚本（`tools/remote/*.sh`）；浪人崛起项目的其他构建脚本（`tools/ko/ronin_original/` 下除 `ko_extract_source.py` 以外）；会话里的一次性脚本和文本转储；源模型、游戏数据、构建产物、发行包（`files\`、`package.json`、`.cmd`、zip）。
+- **没有收进本包：** 测试机远程辅助脚本（`tools/remote/*.sh`，以及伊切尔 / Lenko 会话里的上传、暂存、安装脚本）；浪人崛起项目的其他构建脚本（`tools/ko/ronin_original/` 下除 `ko_extract_source.py` 以外）；伊切尔 / Lenko 发行包的 `ichel_install.py` / `lenko_install.py`（与 `karin_install.py` 只差说明里的名字）和打包脚本；会话里的一次性脚本和文本转储（Lenko 会话里还有 `true_gap.py`、`cull_render.py` 等没有收）；源模型、游戏数据、构建产物、发行包（`files\`、`package.json`、`.cmd`、zip）。
 - **署名：** G1A / G2A 读取移植自 Joschuka 的 Project-G1M；G1T 存储类型 3 的参照解析器是 MrIkso 的 RDBExplorer；注入方式与 eArmada8 的 yumia_fdata_tools 相同（本包不带它们的代码）。

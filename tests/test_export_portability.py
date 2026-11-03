@@ -25,7 +25,8 @@ class DetachedExports(unittest.TestCase):
                     for script in config['bundled_scripts']:
                         self.assertTrue((target/f'portable-kits/{game}'/script).is_file())
                     process = subprocess.run([sys.executable,'-B','tests/test_portable_tools.py'],
-                                             cwd=target, capture_output=True, text=True, timeout=60)
+                                             cwd=target, capture_output=True, text=True,
+                                             timeout=180)   # a hang guard: nioh-3's suite alone takes ~70 s
                     self.assertEqual(process.returncode,0,process.stdout+'\n'+process.stderr)
                     if game == 'mortal-kombat-1':
                         self.assertIn('test_mk1_synthetic_suite_and_cli', process.stderr)

@@ -6017,18 +6017,25 @@ class PhantomBladeZeroTools(unittest.TestCase):
 
 N3_KIT = KITS / 'nioh-3'
 # Nioh 3 kit scripts whose import (and --help) needs more than the standard library. The locators, n3inject.py,
-# karin_install.py, g1m_tool / g1t_tool / ktdata and the offline checks' --help use the standard library.
+# karin_install.py, g1m_tool / g1t_tool / ktdata, n3ichel/pmx_read.py and the offline checks' --help use the standard
+# library.
 N3_DEPS = {'n3_g1t': ('numpy',), 'n3_g1t_resize': ('numpy',), 'fpose': ('numpy',), 'g1a': ('numpy',), 'g2a': ('numpy',),
            'face_bones': ('numpy',), 'g1m_render': ('numpy', 'matplotlib'), 'n3_conform': ('numpy', 'scipy'),
            'n3_physics': ('numpy', 'scipy'), 'n3_face': ('numpy', 'scipy'), 'n3_build_g1m': ('numpy',),
            'n3_registry': ('numpy',), 'n3_validate_g1m': ('numpy',), 'n3_textures': ('numpy', 'PIL'),
-           'n3_miaomiao': ('numpy',)}
+           'n3_miaomiao': ('numpy',),
+           'ichel_build': ('numpy', 'PIL'), 'ichel_conform': ('numpy', 'scipy'), 'ichel_physics': ('numpy', 'scipy'),
+           'ichel_source': ('numpy', 'scipy'), 'lenko_build': ('numpy', 'PIL'), 'lenko_coll': ('numpy',),
+           'lenko_conform': ('numpy', 'scipy'), 'lenko_physics': ('numpy', 'scipy'), 'lenko_pmx': ('numpy',),
+           'lenko_source': ('numpy',), 'lenko_view': ('numpy', 'matplotlib', 'PIL')}
 N3_NOT_COMMANDS = ('blender_shapekeys', 'n3_common', 'n3_g1m_physics')      # a Blender script and two libraries
 N3_SHARED_NAMES = ('g1m_tool', 'g1t_tool', 'ktdata')                       # same module names as the Ronin kit's
 # migrated files that keep the original's CRLF line endings; every other kit file is LF
-N3_CRLF = {'scripts/n3inject.py', 'scripts/extract_many.py', 'scripts/face_bones.py', 'configs/vanilla.json'} | {
+N3_CRLF = {'scripts/n3inject.py', 'scripts/extract_many.py', 'scripts/face_bones.py', 'configs/vanilla.json',
+           'scripts/checks/vanilla_blink.py'} | {
     f'scripts/n3build/{n}.py' for n in ('n3_build_g1m', 'n3_common', 'n3_face', 'n3_g1m_physics', 'n3_physics',
-                                       'n3_registry', 'n3_validate_g1m')}
+                                       'n3_registry', 'n3_validate_g1m')} | {
+    f'scripts/n3lenko/{n}.py' for n in ('lenko_conform', 'lenko_physics', 'lenko_source')}
 N3_G1M, N3_G1T, N3_KTID, N3_NAMES = 0x563BDEF1, 0xAFBEC60C, 0x8E39AA37, 0xBF6B52C7
 N3_IDENTITY = [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
 
@@ -6244,12 +6251,14 @@ class Nioh3Tools(unittest.TestCase):
 
     def test_n3_help_build_chain_and_checks(self):
         kit = n3_kit()
-        scripts = sorted(p for d in ('n3build', 'checks') for p in (kit / 'scripts' / d).glob('*.py')
+        scripts = sorted(p for d in ('n3build', 'checks', 'n3ichel', 'n3lenko') for p in (kit / 'scripts' / d).glob('*.py')
                          if p.stem not in N3_NOT_COMMANDS)
-        self.assertEqual(len(scripts), 14)
-        for p in scripts:              # the top-level scripts are in test_all_cli_help
-            if not n3_missing(p.stem):
-                self.assertIn('usage:', n3_run(p.relative_to(kit / 'scripts').as_posix(), '--help').stdout)
+        self.assertEqual(len(scripts), 33)
+        from concurrent.futures import ThreadPoolExecutor
+        runnable = [p.relative_to(kit / 'scripts').as_posix() for p in scripts if not n3_missing(p.stem)]
+        with ThreadPoolExecutor(8) as pool:          # the top-level scripts are in test_all_cli_help
+            for rel, process in zip(runnable, pool.map(lambda rel: n3_run(rel, '--help'), runnable)):
+                self.assertIn('usage:', process.stdout, rel)
         # without N3_BUILD the build steps stop as soon as they need a path, naming the variable
         if importlib.util.find_spec('numpy'):
             for rel, args in (('n3build/n3_registry.py', ['ninja']), ('checks/lloc_dump.py', ['0x6a0d18db'])):
@@ -6718,7 +6727,7 @@ class Nioh3Tools(unittest.TestCase):
             data = (ROOT / r['path']).read_bytes()
             self.assertEqual((hashlib.sha256(data).hexdigest(), len(data)), (r['portable_sha256'], r['portable_bytes']), r['path'])
             self.assertTrue(r['source'].startswith(('Mods/Nioh3/tools/', 'Mods/Nioh3/release/Karin_Nioh3/',
-                                                    'Mods/Nioh3/(session scratchpad)/ana/')), r['source'])
+                                                    'Mods/Nioh3/(session scratchpad)/')), r['source'])
             self.assertEqual(r['modified_for_portability'], r['portable_sha256'] != r['original_sha256'], r['path'])
         bundled = json.loads((kit / 'toolchain.json').read_text(encoding='utf-8'))['bundled_scripts']
         self.assertEqual(sorted('portable-kits/nioh-3/' + s for s in bundled), sorted(r['path'] for r in rows))

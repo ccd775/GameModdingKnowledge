@@ -1,5 +1,29 @@
 # 迁移验证记录
 
+## 2026-11-03：仁王3便携包新增伊切尔、Lenko 流水线
+
+- **更新：** `scripts/n3build/n3_face.py`（源码新加 `--vanilla-lids`：`VANILLA_LIDS` / `VANILLA_LIDS_PRIORITY`）在当前源码上重做原来的便携改动（argparse），`--vanilla-lids` 也进 argparse；`scripts/n3build/n3_g1m_physics.py`（新加 `TEMPLATE_BLOCKS`、`lloc_entry_bytes` 的 `resize` 参数）仍与源码逐字节相同。PROVENANCE 里两条的 `original_sha256` / `source_bytes` 改为当前源码的值。
+- **迁入：** 19 个文件。
+  - `scripts/n3ichel/` 5 个，来自项目 `tools/n3ichel/`：`ichel_source.py`、`ichel_conform.py`、`ichel_physics.py`、`ichel_build.py`、`pmx_read.py`；
+  - `scripts/n3lenko/` 7 个，来自 `tools/n3lenko/`：`lenko_pmx.py`、`lenko_source.py`、`lenko_conform.py`、`lenko_physics.py`、`lenko_coll.py`、`lenko_build.py`、`lenko_view.py`。按项目的相对布局放（`HERE.parent / 'n3build'`、`'n3ichel'` 的写法因此不用改）；
+  - `scripts/checks/` 7 个，来自 Lenko 会话的两个临时目录：`layer_swing.py`、`coat_skirt_gap.py`、`readback_blink.py`、`vanilla_blink.py`（来源记为 `Mods/Nioh3/(session scratchpad)/<名字>`，原件在临时目录的根），`radial_gap.py`、`face_render.py`、`face_sim.py`（记为 `(session scratchpad)/lenko/<名字>`）。`face_sim.py` 不在候选里，是 `face_render.py`、`readback_blink.py` 导入的公共部分，一起收进来它们才能独立运行。
+  - `tests/test_portable_tools.py` 的仁王3部分跟着改：`--help` 的检查覆盖 `n3ichel/`、`n3lenko/`（脚本数 14 → 33），依赖表、CRLF 文件表加上新文件，会话来源的前缀不再限定 `ana/`。没有新增测试项。
+- **没有迁入：** 伊切尔 / Lenko 发行包的 `ichel_install.py`、`lenko_install.py`（与 `karin_install.py` 只差说明里的名字）、打包脚本、测试机上传 / 暂存 / 安装脚本；会话里的其余一次性脚本（`true_gap.py`、`cull_render.py`、`ls_where.py`、`vanilla_eye.py` 等）、渲染图、日志、npz / json 数据；源模型、游戏数据、构建产物。
+- **便携改动**在 20 个文件（`n3_g1m_physics.py` 以外全部）：
+  - 没有 argparse 的 12 个命令和 7 个检查补上 argparse，位置参数和选项不变；细节上的差别：两个 `*_build.py` 的步骤只接受 `g1m` / `registry` / `textures`，缺目标时报用法错误（原来是 IndexError）；`radial_gap.py` 不给文件时报用法错误（原来什么也不做）；`layer_swing.py` 的 `[trials] [max deg]` 原来读了没用，现在照旧。
+    检查在解析参数之后才导入 numpy / scipy / Pillow；`lenko_coll.py` 在模块级读原版身体之前解析；`face_sim.py` 只在直接运行时解析。
+  - 两个 `*_build.py` 的 `textures` 步骤在调用便携版 `n3_textures.py`（2026-11-01 起有 argparse）之前把 `sys.argv` 清空，原版 `n3_textures.py` 不读命令行，结果相同。
+  - `ichel_conform.py` 原来没有 `sys.path` 条目（项目里靠 `PYTHONPATH`），加了相对脚本的 `n3build`。
+  - 写死的路径：`face_render.py` 的源模型目录 → `<模型目录>` 参数；`readback_blink.py` 从会话目录导入 `face_render.py` → 从脚本所在目录导入，多一个 `<模型目录>` 参数，导入前把 `face_render.py` 要的两个参数放进 `sys.argv`；`face_sim.py`、`vanilla_blink.py` 的 `sys.path.insert(0, r'<项目>\tools…')` → 相对 `__file__`；`layer_swing.py`、`coat_skirt_gap.py`、`vanilla_blink.py` 的 `Path(os.environ['N3_BUILD'])` → `n3_common.BUILD`。
+  - 换行：`lenko_conform.py`、`lenko_physics.py`、`lenko_source.py`、`vanilla_blink.py` 是 CRLF，其余 LF；`layer_swing.py` 原件混用（146 行里 123 行 CRLF），统一为 LF。
+  处理逻辑没有改。
+- **离线核对（本机，2026-11-03）：** Windows 10 19044，Python 3.14.0 + numpy 2.5.2、scipy 1.18.0、matplotlib 3.11.2、Pillow 12.3.0。原脚本从项目目录原地运行（`python -B`，不写进项目），项目的构建目录只读。
+  - 完整的链：Lenko 的构建目录、伊切尔的构建目录各复制两份，原脚本和便携脚本各用一份跑：Lenko `lenko_source` → `lenko_conform` → `lenko_physics` → `n3_face --vanilla-lids` → `lenko_build textures` → `g1m ninja` / `samurai` → `registry ninja` / `samurai` → 两次 `n3_validate_g1m`（PASS）；
+    伊切尔 `ichel_source`（输入是项目里已有的 Blender 导出 `raw/`）→ `ichel_conform`（原脚本用 `PYTHONPATH` 指向 `n3build`）→ `ichel_physics` → `n3_face` → 同样的 5 个 `ichel_build` 步骤 → 两次 `n3_validate_g1m`（PASS）。
+    两条链各 11 步的退出码和标准输出（只替换各自的工作目录）相同，两份目录的 104 个文件相同（npz 按数组比较，其余逐字节）；重新写出的文件也与项目构建目录里现有的 lenko4 / ichel1 文件逐字节相同。
+  - 只读的步骤和检查在 Lenko 的数据上各跑一次：`lenko_coll.py`、`lenko_view.py --conformed --ylim 80 120 --hide hair,Body`、`lenko_pmx.py`、`pmx_read.py`（带 json 输出）、`coat_skirt_gap.py`、`radial_gap.py`、`layer_swing.py`、`face_sim.py`、`face_render.py`、`readback_blink.py`（忍者上衣）、`vanilla_blink.py`：11 次运行的退出码、标准输出和写出的 4 个文件（3 张图、1 个 json）相同。
+  - 20 个新 / 改的脚本在没有 `N3_BUILD` 时 `--help` 都只打印说明、退出码 0。Blender、游戏和测试机都没有重跑。
+
 ## 2026-11-03：影之刃零便携包加入 Lenko
 
 - **迁入：** 7 个新文件，4 个更新。
