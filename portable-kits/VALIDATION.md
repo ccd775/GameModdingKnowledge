@@ -1,5 +1,23 @@
 # 迁移验证记录
 
+## 2026-11-03：影之刃零便携包加入 Lenko
+
+- **迁入：** 7 个新文件，4 个更新。
+  - `scripts/blender/build_lenko.py`（项目 `lk/blender/`，PMX 构建器，便携改动见下）；`render_lk.py`、`render_coll.py`、`probe_lean.py`（逐字节相同）；
+  - `scripts/ue/lk/` 的 `ue_cloth.py`、`ue_brightness.py`、`ue_import_pbz.py`（项目 `lk/ue/`，逐字节相同）；
+  - 更新：插件 `PBZModToolsLibrary.cpp` / `.h`（一骨多形状、逐粒子 backstop；与项目原件逐字节相同，PROVENANCE 的原件哈希随之更新）；`tools/run_all.ps1`、`tools/mkcontainer.ps1` 加 `-Mod lk`。
+- **没有迁入：** 项目里 vendored 的 mmd_tools 4.5.14 和 opencc（第三方，用户自备，`PBZ_MMD_TOOLS`）；远程机脚本（`go_remote.sh`、`up_lk.sh`、`inst_lk.ps1`、各个 `.cmd`）；
+  Lenko 的安装脚本（与 `release/install.ps1` 只差包名，写在文档里）；源模型、构建输出、容器。
+- **便携改动**（`build_lenko.py`）：本机的原版 dump 目录、PMX 路径、UEFormat 目录、vendored mmd_tools 目录、Karin_Original 构建的辅助贴图目录 →
+  `PBZ_WORK`、`PBZ_SOURCE_PMX`、`PBZ_MMD_TOOLS`、`PBZ_HELPER_TEXTURES` 必须设置（缺了报变量名退出，输出目录还没建），`PBZ_BLENDER_ADDONS` 可选。
+- **等价性验证（2026-11-03，项目机）：** 便携版 `build_lenko.py` 用同一份原版 dump 和 PMX 跑成年构建，`cloth.json`、`cloth_collision_hair.json`、`cloth_collision_jacket.json`、
+  `materials.json` 与项目 lk4 的输出逐项相同；少年版和 FBX 没有逐一比较。`probe_lean.py` 在 lk4 的 `build.blend` 上跑通。插件源码就是 lk4 在游戏机上编译（UBTEXIT 0）并用来构建的那一份
+  （头文件之后只加了两行注释）。`run_all.ps1` / `mkcontainer.ps1` 的 `-Mod lk` 没有运行，项目用的是 `.cmd`。
+- **合成数据测试：** `PhantomBladeZeroTools` 现在 5 项：构建器检查加上 `build_lenko.py`（四个必需变量都在建目录之前检查）；新增 `test_pbz_lenko_cloth_contracts`
+  （插件只清新建的刚体、`per_vertex` 读取和结果计数、长发整体跟 `spine_05`、逐粒子 backstop、按 `collision` 标签选碰撞资产、`-Mod lk` 的脚本查找顺序和容器名）；
+  PROVENANCE / 便携性检查覆盖新文件。
+- **实机：** lk4 由用户确认（「这次的可以了」），见 `games/phantom-blade-zero/cases/LENKO.md`。
+
 ## 2026-11-02：仁王3便携包新增换装器
 
 - **迁入：** `scripts/n3_miaomiao.py`，来自项目 `tools/n3miaomiao/`，逐字节相同（PROVENANCE 里 nioh-3 的第 57 条）。存档加解密、外观设置记录的读写、图形界面和命令行在同一个文件里；只用 numpy 和标准库（图形界面用 tkinter）。

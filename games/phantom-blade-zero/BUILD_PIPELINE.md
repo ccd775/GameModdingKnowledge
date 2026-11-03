@@ -23,6 +23,8 @@
 
 `blender --background --factory-startup --python build_pbz.py -- <run> --scale 1.30 --variant adult`，再跑一次 `--variant young`（比例 1.32）。
 PicodraTech 用 `build_pt.py`（默认比例 1.37 = 1.30 × 眼高比 1.0994 / 1.0415）。
+Lenko 用 `build_lenko.py`（PMX；比例按眼高与 Karin_Original 对齐）。它需要 mmd_tools 4.5.x（`PBZ_MMD_TOOLS`），还要一个 Karin_Original 构建的 `textures/`
+（`PBZ_HELPER_TEXTURES`，用里面的 `Karin_FlatN`、`Karin_ARM`、`Karin_ARMMatte`、`Karin_Gray`、`Karin_SCMT` 辅助贴图）。另外写 `cloth_collision_hair.json` 和 `cloth_collision_jacket.json`。
 
 做的事：
 
@@ -35,6 +37,7 @@ PicodraTech 用 `build_pt.py`（默认比例 1.37 = 1.30 × 眼高比 1.0994 / 1
   `Empty.fbx` / `Hat_Empty.fbx`（隐藏占位），少年魂的 `*_Young.fbx`，`textures/`，`report.json`，`build.blend`。
 
 核对：`report.json` 的 `missing_face_keys` 为空、`slots_unmapped` 为空、`bones.body` 等于原版身体骨数（264）、布料段的面数和固定点数合理。
+Lenko 另核对：`jacket_shorten` 每个扇区的余量、`shoulder`、`hair_collision.hair_particles_inside_at_rest` 为 0、`hair_follow`、`hair_backstop`。
 
 ## 3. UE 内容工程（UE 5.7）
 
@@ -55,6 +58,10 @@ PicodraTech 用 `build_pt.py`（默认比例 1.37 = 1.30 × 眼高比 1.0994 / 1
 
 PicodraTech 用 `-Mod pt`：导入、少年导入、材质、亮度、布料五步换成 `scripts/ue/pt/` 里的分支（读 `materials.json`），容器名 `z_KarinPT_P`；
 项目给它单独复制了一份 UE 工程（`-Root` 指向那份）。
+
+Lenko 用 `-Mod lk`：先找 `scripts/ue/lk/` 的三个分支，其余步骤先找 `scripts/ue/pt/`、再找 `scripts/ue/`，容器名 `z_LenkoPBZ_P`（资产仍在 `/HuaShira/Mods/KarinPBZ` 下）。
+三个分支是：导入（母材质占位的 Albedo 用 `Karin_Gray`）、亮度（系数从 `materials.json` 读）、布料（按 `collision` 标签建多个碰撞资产，不投影的槽从 `materials.json` 读）。
+插件要用 2026-11-03 之后的源码（一骨多形状、逐粒子 backstop）。项目给 Lenko 又复制了一份 UE 工程。
 
 ## 4. 读回
 

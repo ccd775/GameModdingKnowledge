@@ -132,9 +132,15 @@ FString UPBZModToolsLibrary::BuildPhysicsAsset(UPhysicsAsset* PA, USkeletalMesh*
 			{
 				return FString::Printf(TEXT("ERROR: bone %s not in mesh"), *Bone.ToString());
 			}
+			// CreateNewBody returns the bone's existing body: shapes for the same bone accumulate on it (2026-11-03;
+			// before, every entry emptied the body, so only the last shape per bone survived)
+			const bool bNewBody = PA->FindBodyIndex(Bone) == INDEX_NONE;
 			const int32 Index = FPhysicsAssetUtils::CreateNewBody(PA, Bone, CreateParams);
 			USkeletalBodySetup* Setup = PA->SkeletalBodySetups[Index];
-			Setup->AggGeom.EmptyElements();
+			if (bNewBody)
+			{
+				Setup->AggGeom.EmptyElements();
+			}
 			const FString Type = B->GetStringField(TEXT("type"));
 			const FVector Center = ReadVec(B, TEXT("center"), FVector::ZeroVector);
 			const FVector Rot = ReadVec(B, TEXT("rotation"), FVector::ZeroVector);
@@ -257,7 +263,7 @@ FString UPBZModToolsLibrary::BuildPhysicsAsset(UPhysicsAsset* PA, USkeletalMesh*
 	PA->SetPreviewMesh(Mesh);
 	PA->PostEditChange();
 	PA->MarkPackageDirty();
-	return FString::Printf(TEXT("ok bodies=%d constraints=%d"), Made, Joints);
+	return FString::Printf(TEXT("ok bodies=%d shapes=%d constraints=%d"), PA->SkeletalBodySetups.Num(), Made, Joints);
 }
 
 FString UPBZModToolsLibrary::SetMorphCurveMetaData(USkeletalMesh* Mesh, const TArray<FString>& CurveNames)
@@ -557,7 +563,7 @@ FString UPBZModToolsLibrary::CreateClothFromSlot(USkeletalMesh* Mesh, const FStr
 		// each free particle (against its skinned normal) that the particle may not enter, so the cloth cannot sink inward of
 		// its skinned surface. Only where the import normal points away from the vertical axis through "axis" by more than
 		// min_dot (an inward-facing pleat wall would be pushed into the body).
-		int32 NumBackstop = 0;
+		int32 NumBackstop = 0, NumMatched = 0;
 		const TSharedPtr<FJsonObject>* Backstop = nullptr;
 		if (Mask->TryGetObjectField(TEXT("backstop"), Backstop))
 		{
@@ -599,12 +605,42 @@ FString UPBZModToolsLibrary::CreateClothFromSlot(USkeletalMesh* Mesh, const FStr
 			RadiusMap.Name = TEXT("BackstopRadius");
 			RadiusMap.CurrentTarget = (uint8)EWeightMapTargetCommon::BackstopRadius;
 			RadiusMap.bEnabled = true;
+			// Optional "per_vertex": [[x, y, z, d], ...] (component space, cm): a particle takes the distance d of the nearest
+			// listed point within 0.5 cm (the gap to the body under it, computed by the build script) instead of "distance";
+			// d < 0 switches its backstop off.
+			TArray<FVector4> PerVertex;
+			const TArray<TSharedPtr<FJsonValue>>* PV = nullptr;
+			if ((*Backstop)->TryGetArrayField(TEXT("per_vertex"), PV))
+			{
+				for (const TSharedPtr<FJsonValue>& V : *PV)
+				{
+					const TArray<TSharedPtr<FJsonValue>>& Q = V->AsArray();
+					PerVertex.Add(FVector4(Q[0]->AsNumber(), Q[1]->AsNumber(), Q[2]->AsNumber(), Q[3]->AsNumber()));
+				}
+			}
 			for (int32 i = 0; i < NumVerts; ++i)
 			{
 				const FVector P = (FVector)Phys.Vertices[i];
 				const FVector Out = FVector(P.X - Axis.X, P.Y - Axis.Y, 0.0).GetSafeNormal();
-				const bool bOn = MaxMask.Values[i] > 0.1f && FVector::DotProduct((FVector)Phys.Normals[i], Out) > MinDot;
-				DistMap.Values[i] = bOn ? BDist : 0.f;
+				bool bOn = MaxMask.Values[i] > 0.1f && FVector::DotProduct((FVector)Phys.Normals[i], Out) > MinDot;
+				float D = BDist;
+				if (bOn && PerVertex.Num() > 0)
+				{
+					double Best = 0.25;
+					int32 BestJ = INDEX_NONE;
+					for (int32 j = 0; j < PerVertex.Num(); ++j)
+					{
+						const double D2 = FVector::DistSquared(P, FVector(PerVertex[j].X, PerVertex[j].Y, PerVertex[j].Z));
+						if (D2 < Best) { Best = D2; BestJ = j; }
+					}
+					if (BestJ != INDEX_NONE)
+					{
+						++NumMatched;
+						D = (float)PerVertex[BestJ].W;
+						bOn = D >= 0.f;
+					}
+				}
+				DistMap.Values[i] = bOn ? D : 0.f;
 				RadiusMap.Values[i] = bOn ? BRadius : 0.f;
 				NumBackstop += bOn ? 1 : 0;
 			}
@@ -622,8 +658,8 @@ FString UPBZModToolsLibrary::CreateClothFromSlot(USkeletalMesh* Mesh, const FStr
 		UserData.ClothingData.AssetGuid = Asset->GetAssetGuid();
 		UserData.ClothingData.AssetLodIndex = 0;
 		Asset->CalculateReferenceBoneIndex();
-		Result = FString::Printf(TEXT("ok %s section=%d sim_section=%d verts=%d fixed=%d maxdist=%.2f backstop=%d asset_index=%d bones=%d"),
-			*Asset->GetName(), Section, SimSection, NumVerts, NumFixed, MaxSeen, NumBackstop, AssetIndex, Asset->UsedBoneNames.Num());
+		Result = FString::Printf(TEXT("ok %s section=%d sim_section=%d verts=%d fixed=%d maxdist=%.2f backstop=%d per_vertex=%d asset_index=%d bones=%d"),
+			*Asset->GetName(), Section, SimSection, NumVerts, NumFixed, MaxSeen, NumBackstop, NumMatched, AssetIndex, Asset->UsedBoneNames.Num());
 	}
 	Mesh->MarkPackageDirty();
 	return Result;

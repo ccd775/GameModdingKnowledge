@@ -31,12 +31,12 @@ PBZX_SCRIPT=1（把蓝图字节码读进 json）
 
 | 函数 | 用途 |
 | --- | --- |
-| `CreatePhysicsAsset` / `BuildPhysicsAsset` | 从 JSON 建物理资产（布料碰撞体） |
+| `CreatePhysicsAsset` / `BuildPhysicsAsset` | 从 JSON 建物理资产（布料碰撞体）；同一根骨的多个形状合进一个刚体（2026-11-03 之前只剩最后一个） |
 | `SetMorphCurveMetaData` / `GetMorphTargetNames` / `DumpMorphTargets` / `CopyMorphTangents` | 形变的曲线元数据、名单、增量统计；`CopyMorphTangents` 的改动到不了 cook（GPU 形变从源重建） |
 | `DumpRefSkeleton` / `DumpSections` | 参考骨架与 section 核对 |
 | `SetPostProcessAnimBlueprint` / `SetMeshPhysicsAsset` | 网格的后处理动画蓝图与物理资产 |
 | `ClearMaterialInstanceParameters` / `SetMaterial{Texture,Scalar,Vector}Parameter` / `DumpMaterialInstanceParameters` | 分层材质的按关联 / 索引覆盖 |
-| `CreateClothFromSlot` | 从材质槽建布料：掩码（径向、锚点、backstop、`sim_slot` 外壳）、配置、绑定、法线替换 |
+| `CreateClothFromSlot` | 从材质槽建布料：掩码（径向、锚点、backstop、`sim_slot` 外壳）、配置、绑定、法线替换；`backstop.per_vertex` 逐粒子 backstop 距离（2026-11-03） |
 | `SetClothSolver` / `RemoveAllClothing` / `SetSectionCastShadow` | 求解器迭代与子步、清布料、段的投影 |
 | `SetCurveSequence` | 写只有曲线的动画序列（眨眼、FaceShow） |
 | `BuildCopyPoseOverlayAnimBP` / `TestCopyPoseAnim` | 重建 CopyPose 动画蓝图（叠加、槽、门控）并在编辑器世界里自测 |
@@ -44,6 +44,7 @@ PBZX_SCRIPT=1（把蓝图字节码读进 json）
 - 无界面运行：`tools/ue_run.ps1 <脚本> <日志名> [参数]`（`UnrealEditor-Cmd -run=pythonscript -script="..."`）。脚本路径要用正斜杠：
   这个 commandlet 的 `-script=` 会吃掉 `\u` / `\U`。日志里出现 `LogExit: Exiting` 才算跑完；每个脚本最后写自己的完成标记。
 - 无界面的编辑器在资产注册表扫描完之前就开始跑脚本：先 `search_all_assets(True)`。
+- 插件源码改了要在每一份 UE 工程里重编（项目有 Karin_Original、PicodraTech、Lenko 三份）；编辑器开着时 UBT 写不了插件 DLL，先确认没有 UnrealEditor 进程。
 
 ## 4. 远程构建机与实机
 

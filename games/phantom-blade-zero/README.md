@@ -3,12 +3,13 @@
 ## 范围
 
 这里整理 Steam《影之刃零》（App `4115450`，S-GAME 改过的 UE 5.7.4，IoStore）主角「魂」（资产名 `Hun`）替换的可复用合同，
-来自 2026-10-29 → 10-31 的两个交付：
+来自 2026-10-29 → 11-03 的三个交付：
 
 | 交付 | 内容 | 最高证据级 |
 | --- | --- | --- |
 | Karin_Original v3 | 从 VRM 完整构建的成年魂（普通服装、十年前服装）和序章少年魂；Chaos 骨骼网格布料（裙摆、双马尾、尾巴、耳朵、刘海与侧发）；MetaHuman 表情曲线名的 43 个形变 + 34 个 ARKit 别名；平时游玩靠自带的眨眼动画蓝图、过场靠游戏自己的面部动画；身体补回原版的 4 根武器子骨（醉剑） | `runtime-confirmed`（用户本机实机：外观、裙摆五轮、刘海、耳朵、眨眼、过场有脸，「这次看起来都好了」）；v3 的醉剑修复只做了烘焙后读回，未进游戏 |
 | Karin_PicodraTech v1 | 同一套脚本的分支：按材质合并的 blend 源模型、10 个网格角色、7 段布料（双马尾、刘海、耳朵、带蝴蝶结的尾巴、外套下摆、耳机线、腰带），合成的尾巴贴图 | `offline-accepted`（构建、烘焙读回、装进游戏）；用户没有反馈 |
+| Lenko lk4 | 从 PMX（mmd_tools）构建的成年两套服装、Climax 身体和序章少年魂；腰带以下的外套按方位扇区缩短到比裙摆高 0.5–2 cm；按 AnimationScaled 骨长重解肩宽；7 段 Chaos 布料（裙子外壳、外套下摆开口外壳、飘带、后发、双马尾、刘海、胸部），每段可以有自己的碰撞资产；长发跟随躯干的蒙皮和逐粒子 backstop | `runtime-confirmed`（四轮实机反馈，lk4「这次的可以了」）；少年魂和十年前服装没有单独反馈 |
 
 快照只对 Steam buildid `26266538`（引擎版本串 `5.7.4-301524+42ecbfa37f78`）有效。**IoStore 容器格式、资产路径、骨数、
 材质参数名是 `build-sensitive`**；布料参数、比例 1.30 / 1.37 是 `case-derived`。
@@ -28,6 +29,8 @@
   记录了 `ClothingAssetFactory` 的焊点 / 退化三角 / 每 LOD 一段的硬限制和百褶裙法线摇摆的解法（[物理](PHYSICS.md)）；
 - **MetaHuman 头上的表情**：形变按 `CTRL_expressions_*` 曲线命名就会被游戏驱动；成年头的槽 0 在运行时被换成动态材质实例
   （「66 天」效果），脸要放到槽 1；平时游玩的头不跑自己的动画蓝图，眨眼放在睫毛片组件上（[面部](FACE.md)）。
+- **布料参数的真实含义和长发方案**：UE 5.7 Chaos 的驱动刚度 / 阻尼是指数映射，驱动阻尼 0.6 每帧去掉约 12% 的速度差，布料看起来「没有物理」；
+  长发只绑头骨时，躯干一前倾它的目标位置就在衣服里。解法是颈以下跟随上胸、逐粒子 backstop、每段布料自己的碰撞资产（[物理](PHYSICS.md) §6–§9）。
 
 ## 核心方法
 
@@ -48,7 +51,7 @@
 - [Agent 入口](AGENTS.md)：接手前核对项与硬性规矩
 - [技术合同](TECHNICAL_CONTRACTS.md)：容器与加载、加密与 usmap、目标资产与外观表、骨架与重定向、领导者网格与武器骨、占位与隐藏、材质
 - [构建流水线](BUILD_PIPELINE.md)：提取 → Blender 构建 → UE 导入 → 材质 → 布料 → 动画蓝图 → cook → 容器 → 读回 → 安装
-- [物理](PHYSICS.md)：Chaos 骨骼网格布料的分段、参数、碰撞体、百褶裙外壳、backstop、硬限制；被放弃的 RigidBody 骨链
+- [物理](PHYSICS.md)：Chaos 骨骼网格布料的分段、参数、碰撞体、百褶裙外壳、backstop、硬限制；被放弃的 RigidBody 骨链；参数的指数映射、每段的碰撞资产、长发的跟随蒙皮与逐粒子 backstop
 - [面部](FACE.md)：曲线命名、ARKit 别名、成年头发暗的原因、两张脸的方案、眨眼叠加动画蓝图、过场里的 groom 开关
 - [材质与贴图](MATERIALS_AND_TEXTURES.md)：分层材质只改第 0 层、虚拟纹理、湿润参数、亮度系数、PicodraTech 图集与合成贴图
 - [开发工具](DEV_TOOLING.md)：PbzExport、objscan、Dumper-7 补丁、usmap_fix、UE 5.7 内容工程与插件 PBZModTools、远程构建机
@@ -56,9 +59,10 @@
 - [验证与发布](VALIDATION_AND_RELEASE.md)：闸门、读回、发行包与安装脚本、证据分层、未测场景
 - [案例：Karin_Original](cases/KARIN_ORIGINAL.md)：r1 → v3 的每一轮反馈
 - [案例：Karin_PicodraTech](cases/KARIN_PICODRATECH.md)：blend 源模型的分支与第一版
+- [案例：Lenko](cases/LENKO.md)：PMX 源模型、外套按扇区缩短、肩宽、四轮布料反馈
 - [便携工具包](../../portable-kits/phantom-blade-zero/README.md)：Blender 构建器、UE Python、编辑器插件源码、PbzExport / objscan 源码、PowerShell 流水线、安装脚本
 
 ## 公开边界
 
 不含源模型、游戏资源、提取出的 JSON / uemodel、usmap、发行容器、游戏 AES 密钥或 UE 引擎源码。便携包里的脚本是项目脚本去掉本机路径后的副本，
-Karin 专属的骨名、网格角色和参数是案例值，换模型时要按当前资源重新测量。
+Karin / Lenko 专属的骨名、网格角色和参数是案例值，换模型时要按当前资源重新测量。

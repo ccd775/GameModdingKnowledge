@@ -5928,7 +5928,7 @@ class PhantomBladeZeroTools(unittest.TestCase):
 
     def test_pbz_builders_need_env_before_writing(self):
         kit = pbz_kit()
-        for name, src_var in (('build_pbz.py', 'PBZ_SOURCE_VRM'), ('build_pt.py', 'PBZ_SOURCE_BLEND')):
+        for name, src_var in (('build_pbz.py', 'PBZ_SOURCE_VRM'), ('build_pt.py', 'PBZ_SOURCE_BLEND'), ('build_lenko.py', 'PBZ_SOURCE_PMX')):
             text = (kit / 'scripts/blender' / name).read_text(encoding='utf-8')
             ast.parse(text)
             for var in ('PBZ_WORK', src_var):
@@ -5940,6 +5940,32 @@ class PhantomBladeZeroTools(unittest.TestCase):
             self.assertIn('make_armature("ArmatureLeader", [n for n in ORDER if n not in EXTRA])', text, name)
         for path in (kit / 'scripts/ue').rglob('*.py'):
             ast.parse(path.read_text(encoding='utf-8-sig'))
+
+    def test_pbz_lenko_cloth_contracts(self):
+        kit = pbz_kit()
+        lenko = (kit / 'scripts/blender/build_lenko.py').read_text(encoding='utf-8')
+        for var in ('PBZ_MMD_TOOLS', 'PBZ_HELPER_TEXTURES'):
+            self.assertLess(lenko.index(f'_need("{var}"'), lenko.index('os.makedirs(RUN'), var)
+        # long hair follows the upper chest below the nape as one bone (split over the spine bones it kinked at each joint)
+        self.assertIn('acc[V("spine_05")] += 1.0 - h', lenko)
+        self.assertIn('REPORT["hair_follow"] = hair_follow("bhair")', lenko)
+        # per-particle backstop distances for the back hair and the twin tails
+        self.assertIn('"per_vertex": [', lenko)
+        self.assertIn('hair_backstop("MI_Lenko_HairBackSim", 0.2)', lenko)
+        self.assertIn('hair_backstop("MI_Lenko_HairTailSim", 0.2)', lenko)
+        cpp = (kit / 'ue/PBZModTools/Source/PBZModTools/Private/PBZModToolsLibrary.cpp').read_text(encoding='utf-8')
+        # CreateNewBody returns the bone's existing body: only a new body is emptied, so shapes on one bone accumulate
+        self.assertIn('const bool bNewBody = PA->FindBodyIndex(Bone) == INDEX_NONE;', cpp)
+        self.assertEqual(cpp.count('Setup->AggGeom.EmptyElements();'), 1)
+        self.assertLess(cpp.index('if (bNewBody)'), cpp.index('Setup->AggGeom.EmptyElements();'))
+        self.assertIn('TryGetArrayField(TEXT("per_vertex"), PV)', cpp)
+        self.assertIn('per_vertex=%d', cpp)
+        ue = (kit / 'scripts/ue/lk/ue_cloth.py').read_text(encoding='utf-8')
+        self.assertIn('PAS[c.get("collision")]', ue)
+        run_all = (kit / 'tools/run_all.ps1').read_text(encoding='utf-8-sig')
+        self.assertIn("lk = @('lk', 'pt')", run_all)          # Lenko forks first, then PicodraTech's, then the shared scripts
+        self.assertIn("lk = 'z_LenkoPBZ_P'", run_all)
+        self.assertIn("lk = 'LenkoPBZ'", (kit / 'tools/mkcontainer.ps1').read_text(encoding='utf-8-sig'))
 
     def test_pbz_powershell_names_and_installer(self):
         import re

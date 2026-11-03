@@ -26,6 +26,7 @@ public:
 	 * "lin_damp":d,"ang_damp":d}], "joints":[{"child":"a","parent":"b","swing1":deg,"swing2":deg,"twist":deg,
 	 * "drive_stiffness":s,"drive_damping":d}], "disable_pairs":[["a","b"]]}. Shapes are in bone local space (cm).
 	 * Joint frames come from the mesh reference pose (child bone origin), so a joint may connect any two bodies.
+	 * Several shapes on one bone go into that bone's one body (before 2026-11-03 only the last one survived).
 	 */
 	UFUNCTION(BlueprintCallable, Category = "PBZModTools")
 	static FString BuildPhysicsAsset(UPhysicsAsset* PhysicsAsset, USkeletalMesh* Mesh, const FString& Json);
@@ -77,7 +78,8 @@ public:
 	 * simulation mesh. MaskJson: {"type":"plane"|"radial","anchors":[[x,y,z],..],"dir":[x,y,z],"d0":cm,"d1":cm} gives
 	 * MaxDistance = clamp((t - d0) / (d1 - d0)) * MaxDistance with t = dot(p - anchor, dir) (plane) or the distance to
 	 * the nearest anchor (radial), in mesh component space. Optional "backstop": {"distance":cm,"radius":cm,"axis":[x,y,z],
-	 * "min_dot":d} adds backstop maps on the free particles whose normal points away from the vertical axis through "axis".
+	 * "min_dot":d} adds backstop maps on the free particles whose normal points away from the vertical axis through "axis";
+	 * with "per_vertex":[[x,y,z,d],..] a particle takes the distance d of the nearest listed point within 0.5 cm (d < 0: off).
 	 * Optional "sim_slot":"Name" simulates on that slot's section instead (disabled for rendering) and binds Slot's section to it.
 	 * ConfigJson is applied onto the UChaosClothConfig.
 	 */

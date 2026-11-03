@@ -1,16 +1,17 @@
 # mkcontainer.ps1: IoStore container (+ companion pak) holding only the mod's real packages from the last cook.
 # Dummies (skeletons, physics assets, ABP, parent materials) are cooked too but never listed here.
-# Usage: pwsh -File mkcontainer.ps1 [-Mod original|pt] [-Root <work root>] [-UE <UE 5.7 root>] [-Out <dir>] [-Name <container>]
+# Usage: pwsh -File mkcontainer.ps1 [-Mod original|pt|lk] [-Root <work root>] [-UE <UE 5.7 root>] [-Out <dir>] [-Name <container>]
 #        [-Exclude 'NameA+NameB'] (bisect variants)
 # -Root (or PBZ_ROOT) holds UE\ProjectPBZ (cooked); -UE (or UE_ROOT) is the engine folder that holds Engine\. Defaults by
-# -Mod: original -> z_KarinPBZ_P + Mods/KarinPBZ/KarinPBZ.txt, pt -> z_KarinPT_P + Mods/KarinPT/KarinPT.txt; -Out <Root>\out.
-param([ValidateSet('original', 'pt')][string]$Mod = 'original', [string]$Root = $env:PBZ_ROOT, [string]$UE = $env:UE_ROOT,
+# -Mod: original -> z_KarinPBZ_P + Mods/KarinPBZ/KarinPBZ.txt, pt -> z_KarinPT_P + Mods/KarinPT/KarinPT.txt,
+# lk -> z_LenkoPBZ_P + Mods/LenkoPBZ/LenkoPBZ.txt (its assets still live under /HuaShira/Mods/KarinPBZ); -Out <Root>\out.
+param([ValidateSet('original', 'pt', 'lk')][string]$Mod = 'original', [string]$Root = $env:PBZ_ROOT, [string]$UE = $env:UE_ROOT,
       [string]$Out, [string]$Name, [string]$Exclude = '')
 $ErrorActionPreference = 'Stop'
 [Console]::OutputEncoding = [Text.Encoding]::UTF8
 if (-not $Root -or -not $UE) { throw 'set -Root / PBZ_ROOT (work root with UE\ProjectPBZ) and -UE / UE_ROOT (UE 5.7 install)' }
-$tag = @{ original = 'KarinPBZ'; pt = 'KarinPT' }[$Mod]
-$model = @{ original = 'Karin_Original'; pt = 'Karin_PicodraTech' }[$Mod]
+$tag = @{ original = 'KarinPBZ'; pt = 'KarinPT'; lk = 'LenkoPBZ' }[$Mod]
+$model = @{ original = 'Karin_Original'; pt = 'Karin_PicodraTech'; lk = 'Lenko' }[$Mod]
 if (-not $Name) { $Name = "z_${tag}_P" }
 if (-not $Out) { $Out = Join-Path $Root 'out' }
 $pak = Join-Path $UE 'Engine\Binaries\Win64\UnrealPak.exe'

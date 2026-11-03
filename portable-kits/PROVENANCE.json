@@ -4257,6 +4257,15 @@
     "modified_for_portability": true
   },
   {
+    "path": "portable-kits/phantom-blade-zero/scripts/blender/build_lenko.py",
+    "source": "ModTools/PBZ/lk/blender/build_lenko.py",
+    "original_sha256": "50ad9e5acbe0c4106ca76dcff7d46c34ab1d6c627604cceec96be00c3fae1e4a",
+    "source_bytes": 118495,
+    "portable_sha256": "1d9d45731b4dc88aaf9d2b00d1a42b2d40388fd162c97408e49c96115bed2ce8",
+    "portable_bytes": 118857,
+    "modified_for_portability": true
+  },
+  {
     "path": "portable-kits/phantom-blade-zero/scripts/blender/build_pbz.py",
     "source": "ModTools/PBZ/blender/build_pbz.py",
     "original_sha256": "b6a8006ff24c49e3b976eea2b65cf16c4461ec284b46313afa710b079ce5ed07",
@@ -4275,12 +4284,66 @@
     "modified_for_portability": true
   },
   {
+    "path": "portable-kits/phantom-blade-zero/scripts/blender/probe_lean.py",
+    "source": "ModTools/PBZ/lk/blender/probe_lean.py",
+    "original_sha256": "1ddf9be305b5204b58a51f0e80a4305b22ac855aabe93c743f386d0ab864332a",
+    "source_bytes": 4260,
+    "portable_sha256": "1ddf9be305b5204b58a51f0e80a4305b22ac855aabe93c743f386d0ab864332a",
+    "portable_bytes": 4260,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/phantom-blade-zero/scripts/blender/render_coll.py",
+    "source": "ModTools/PBZ/lk/blender/render_coll.py",
+    "original_sha256": "71025bd4c613d3f7056e4caa150c547be42d95e4644ec94775ac5a2506b52c24",
+    "source_bytes": 4088,
+    "portable_sha256": "71025bd4c613d3f7056e4caa150c547be42d95e4644ec94775ac5a2506b52c24",
+    "portable_bytes": 4088,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/phantom-blade-zero/scripts/blender/render_lk.py",
+    "source": "ModTools/PBZ/lk/blender/render_lk.py",
+    "original_sha256": "1792b0def35f27b019fe3b5f8f39fffaa5fb286fadf404257e0e58fd6820570e",
+    "source_bytes": 4924,
+    "portable_sha256": "1792b0def35f27b019fe3b5f8f39fffaa5fb286fadf404257e0e58fd6820570e",
+    "portable_bytes": 4924,
+    "modified_for_portability": false
+  },
+  {
     "path": "portable-kits/phantom-blade-zero/scripts/blender/render_pt.py",
     "source": "ModTools/PBZ/blender/render_pt.py",
     "original_sha256": "66f52eadeabdda31bb9fb32279132b6720951d15ccc818118a8ced06772f5bd3",
     "source_bytes": 3866,
     "portable_sha256": "66f52eadeabdda31bb9fb32279132b6720951d15ccc818118a8ced06772f5bd3",
     "portable_bytes": 3866,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/phantom-blade-zero/scripts/ue/lk/ue_brightness.py",
+    "source": "ModTools/PBZ/lk/ue/ue_brightness.py",
+    "original_sha256": "d35721ef7a3762f1aee60819801752bf13ba1a363f36f0931636313a359d1afb",
+    "source_bytes": 961,
+    "portable_sha256": "d35721ef7a3762f1aee60819801752bf13ba1a363f36f0931636313a359d1afb",
+    "portable_bytes": 961,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/phantom-blade-zero/scripts/ue/lk/ue_cloth.py",
+    "source": "ModTools/PBZ/lk/ue/ue_cloth.py",
+    "original_sha256": "9d3230687b145dd4f3f437540ea74bcddb6cdb493e0b7464ef51a6cd85afd129",
+    "source_bytes": 6077,
+    "portable_sha256": "9d3230687b145dd4f3f437540ea74bcddb6cdb493e0b7464ef51a6cd85afd129",
+    "portable_bytes": 6077,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/phantom-blade-zero/scripts/ue/lk/ue_import_pbz.py",
+    "source": "ModTools/PBZ/lk/ue/ue_import_pbz.py",
+    "original_sha256": "3e7af93909732260a9330229b0a848baa3dfde98b50aec3b73d2a4bd5107fb6d",
+    "source_bytes": 18071,
+    "portable_sha256": "3e7af93909732260a9330229b0a848baa3dfde98b50aec3b73d2a4bd5107fb6d",
+    "portable_bytes": 18071,
     "modified_for_portability": false
   },
   {
@@ -4432,8 +4495,8 @@
     "source": "ModTools/PBZ/ue_scripts/mkcontainer.ps1",
     "original_sha256": "70d9f446d22c2d75546e043b8d12724faed6f4d8c30400b6614db052e20be18d",
     "source_bytes": 5201,
-    "portable_sha256": "74b8d13626ffbd1fc36ed626e8bcfe1aeb8a117d7ed6cad5c8c4c8164d33a7ef",
-    "portable_bytes": 5911,
+    "portable_sha256": "30ee23f350922307c9e0c92ac3327053d45b2ad000da8968428bb5e5e5f37219",
+    "portable_bytes": 6057,
     "modified_for_portability": true
   },
   {
@@ -4456,11 +4519,11 @@
   },
   {
     "path": "portable-kits/phantom-blade-zero/tools/run_all.ps1",
-    "source": "new file written for the portable kit (no project original); PowerShell port of the project's ModTools/PBZ/ue_scripts/run_all.cmd and pt/ue/run_all.cmd",
+    "source": "new file written for the portable kit (no project original); PowerShell port of the project's ModTools/PBZ/ue_scripts/run_all.cmd, pt/ue/run_all.cmd and lk/ue/run_all.cmd",
     "original_sha256": null,
     "source_bytes": null,
-    "portable_sha256": "17efc43498b7bab424cc79c7c8321a2862ef563f0496df50481f0101bc6fe84b",
-    "portable_bytes": 3529,
+    "portable_sha256": "2192805e70e7eff101ccca3cf535b9583246ef834a6c8a5c241fe19237d59c51",
+    "portable_bytes": 3950,
     "modified_for_portability": true
   },
   {
@@ -4493,19 +4556,19 @@
   {
     "path": "portable-kits/phantom-blade-zero/ue/PBZModTools/Source/PBZModTools/Private/PBZModToolsLibrary.cpp",
     "source": "ModTools/PBZ/ueproj/ProjectPBZ/Plugins/PBZModTools/Source/PBZModTools/Private/PBZModToolsLibrary.cpp",
-    "original_sha256": "dbfc0a1c1db8c189c1da22e6c096970b03640825475a64efdbfa4482c06ec1cd",
-    "source_bytes": 44596,
-    "portable_sha256": "dbfc0a1c1db8c189c1da22e6c096970b03640825475a64efdbfa4482c06ec1cd",
-    "portable_bytes": 44596,
+    "original_sha256": "b45a46eb117600faf261af2761ce3dc1778d9dc14526dcc1c16d3e4998369fa8",
+    "source_bytes": 46111,
+    "portable_sha256": "b45a46eb117600faf261af2761ce3dc1778d9dc14526dcc1c16d3e4998369fa8",
+    "portable_bytes": 46111,
     "modified_for_portability": false
   },
   {
     "path": "portable-kits/phantom-blade-zero/ue/PBZModTools/Source/PBZModTools/Public/PBZModToolsLibrary.h",
     "source": "ModTools/PBZ/ueproj/ProjectPBZ/Plugins/PBZModTools/Source/PBZModTools/Public/PBZModToolsLibrary.h",
-    "original_sha256": "620b66d9cc775a7ebc673b501e52ac264573dd4b15c77a049e439d4df0abe2c0",
-    "source_bytes": 8571,
-    "portable_sha256": "620b66d9cc775a7ebc673b501e52ac264573dd4b15c77a049e439d4df0abe2c0",
-    "portable_bytes": 8571,
+    "original_sha256": "4822d6cc071b3e1aed757ad65836d9b64a0fe471339e5298b3eaecf10c1c431f",
+    "source_bytes": 8806,
+    "portable_sha256": "4822d6cc071b3e1aed757ad65836d9b64a0fe471339e5298b3eaecf10c1c431f",
+    "portable_bytes": 8806,
     "modified_for_portability": false
   },
   {
