@@ -186,3 +186,12 @@ The game workflows use different formats, but the same engineering loop.
   game but does not decide the look; the real per-style appearance record turned up only after doing one transmog
   in the game's own menu, saving, and diffing the save. The same diff showed that the models the mod replaced were
   the save's appearance items, not the equipped ones (`games/nioh-3/SAVE_AND_APPEARANCE.md`).
+- A borrowed physics bone moves the way its driver moves. TotK armor cloth drives each bone from one particle
+  triangle: one fixed particle makes a ball joint that can spin with no restoring force (bangs on it stayed flipped
+  up), two fixed particles make a hinge. Read the drivers before choosing a bone, and put upright parts on negative
+  weights only where the swing angle stays small: linear blend skinning stretches them by |1 + g(e^{i theta} - 1)|,
+  so fox ears on the back hair stretched every time the player ran (`games/zelda-tears-of-the-kingdom/PHYSICS.md` §2, §4).
+- Size the head from the body's effective scale, not the uniform one. Per-segment stretching to TotK's long torso and
+  neck made Karin's body 1.405x from feet to head joint while the head stayed at 1.30x, and the user saw a small head;
+  the skeleton's fixed arm pivots also cap how narrow the shoulders can get, so only the shoulder silhouette can be
+  reshaped (`games/zelda-tears-of-the-kingdom/RETARGET_AND_PROPORTIONS.md` §2, §4).

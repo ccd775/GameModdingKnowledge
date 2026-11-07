@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- portable kit: dotnet build -c Release -p:LibHacDll=<LibHac 0.19 nuget lib/net7.0/LibHac.dll> -o <out> -->
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <OutputType>Library</OutputType>
+    <Nullable>disable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="LibHac"><HintPath>$(LibHacDll)</HintPath></Reference>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,8 @@
+# TotK kit (Python 3.10+). byml7.py and assemble_package.py use the standard library only.
+numpy==2.5.2
+scipy==1.18.0
+zstandard==0.25.0
+Pillow==12.3.0
+astc-encoder-py==0.1.12
+etcpak==0.9.15
+texture2ddecoder==1.0.6

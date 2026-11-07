@@ -253,6 +253,7 @@ class PortableTools(unittest.TestCase):
             if path.parents[1].name == 'nioh-3' and n3_missing(path.stem): continue
             if path.parents[1].name == 'assassins-creed-syndicate' and acs_missing(path.stem): continue
             if path.parents[1].name == 'death-stranding-2' and ds2_missing(path.stem): continue
+            if path.parents[1].name == 'zelda-tears-of-the-kingdom' and totk_missing(path.stem): continue
             cli(path.parents[1].name,path.stem,'--help')
 
 
@@ -6752,5 +6753,345 @@ class Nioh3Tools(unittest.TestCase):
         self.assertFalse([p for p in kit.rglob('*') if p.suffix in ('.sh', '.cmd', '.bat', '.exe', '.dll', '.g1m', '.g1t',
                                                                        '.fdata', '.zip') or 'remote' in p.parts])
 
+
+
+TOTK_KIT = KITS / 'zelda-tears-of-the-kingdom'
+# TotK kit scripts whose import (and --help) needs more than the standard library; byml7.py and assemble_package.py
+# use the standard library only.
+TOTK_DEPS = {'build_karin': ('numpy',), 'retarget': ('numpy',), 'tk': ('numpy',), 'fska': ('numpy',),
+             'face_anim': ('numpy',), 'face_rig': ('numpy', 'scipy'), 'pose_test': ('numpy',), 'face_preview': ('numpy',),
+             'swing_test': ('numpy',), 'mc': ('zstandard',), 'totkfs': ('zstandard',), 'package': ('zstandard',),
+             'txtg': ('numpy', 'zstandard'), 'make_textures': ('numpy', 'PIL', 'zstandard'),
+             'make_icons': ('numpy', 'PIL', 'zstandard')}
+TOTK_SCRIPTS = ('build_karin', 'retarget', 'tk', 'mc', 'totkfs', 'txtg', 'byml7', 'fska', 'face_anim', 'face_rig',
+                'make_textures', 'make_icons', 'package', 'pose_test', 'face_preview', 'swing_test', 'assemble_package')
+TOTK_ARMOR_HASH = 0x754E8549          # String64Array of the armor pouch in progress.sav
+
+
+def totk_missing(script):
+    return [m for m in TOTK_DEPS.get(script, ()) if importlib.util.find_spec(m) is None]
+
+
+def totk_kit():
+    if not TOTK_KIT.is_dir():
+        raise unittest.SkipTest('zelda-tears-of-the-kingdom is not included in this single-game export')
+    return TOTK_KIT
+
+
+def totk(name):
+    """Import a TotK kit script; its sibling imports (retarget, tk, ...) must not resolve to another kit's module."""
+    totk_kit()
+    if totk_missing(name):
+        raise unittest.SkipTest(f'{name} needs ' + ', '.join(totk_missing(name)))
+    for n in TOTK_SCRIPTS:
+        sys.modules.pop(n, None)
+    return module('zelda-tears-of-the-kingdom', name)
+
+
+def totk_murmur3(data, seed=0):
+    """Reference MurmurHash3 x86_32 (the GameData flag-name hash)."""
+    M = 0xFFFFFFFF
+    c1, c2, h, n = 0xCC9E2D51, 0x1B873593, seed, len(data) // 4
+
+    def mix(k):
+        k = (k * c1) & M
+        k = ((k << 15) | (k >> 17)) & M
+        return (k * c2) & M
+    for i in range(n):
+        h ^= mix(int.from_bytes(data[4 * i:4 * i + 4], 'little'))
+        h = ((h << 13) | (h >> 19)) & M
+        h = (h * 5 + 0xE6546B64) & M
+    tail = data[4 * n:]
+    if tail:
+        h ^= mix(int.from_bytes(tail, 'little'))
+    h ^= len(data)
+    h ^= h >> 16
+    h = (h * 0x85EBCA6B) & M
+    h ^= h >> 13
+    h = (h * 0xC2B2AE35) & M
+    return h ^ (h >> 16)
+
+
+def totk_save(bools, arrays):
+    """Synthetic progress.sav: magic, hash-table end at 8, (hash, value) entries from 0x20 with section markers
+    (hash 0, value = type: 0 Bool, 17 String64Array); each String64Array value is the offset of u32 count + 64-byte names."""
+    entries = [(0, 0)] + [(totk_murmur3(k.encode()), v) for k, v in bools.items()] + [(0, 17)]
+    end = 0x20 + 8 * (len(entries) + len(arrays))
+    blobs, offset = [], end
+    for h, names in arrays:
+        entries.append((h, offset))
+        blob = struct.pack('<I', len(names)) + b''.join(n.encode().ljust(64, b'\0') for n in names)
+        blobs.append(blob)
+        offset += len(blob)
+    head = struct.pack('<III', 0x01020304, 0, end).ljust(0x20, b'\0')
+    return head + b''.join(struct.pack('<II', h, v) for h, v in entries) + b''.join(blobs)
+
+
+def totk_names(data, offset):
+    count = struct.unpack_from('<I', data, offset)[0]
+    return [data[offset + 4 + 64 * i:offset + 68 + 64 * i].split(b'\0')[0].decode() for i in range(count)]
+
+
+def totk_bool(data, name):
+    h = totk_murmur3(name.encode())
+    end = struct.unpack_from('<I', data, 8)[0]
+    for o in range(0x20, end, 8):
+        if struct.unpack_from('<I', data, o)[0] == h:
+            return struct.unpack_from('<I', data, o + 4)[0]
+    return None
+
+
+class ZeldaTotkTools(unittest.TestCase):
+    """Kit checks on synthetic data. Builds need TotkMdl (Switch Toolbox), Blender and a romfs dump; not run here."""
+
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(prefix='modding totk ')
+        self.root = Path(self.temp.name)
+
+    def tearDown(self):
+        self.temp.cleanup()
+
+    def test_totk_mc_sarc_and_restbl_roundtrip(self):
+        mc, fs = totk('mc'), totk('totkfs')
+        raw = bytes(range(256)) * 50 + b'tail'
+        packed = mc.mc_compress(raw)
+        self.assertEqual(packed[:8], b'MCPK\x01\x01\x00\x00')
+        flags = struct.unpack_from('<I', packed, 8)[0]
+        self.assertEqual((flags >> 5) << (flags & 0xF), 0x4000)   # decompressed size rounded up to 4 KB
+        self.assertEqual(mc.mc_decompress(packed), raw)
+        src = self.root / 'raw.bfres'
+        src.write_bytes(raw)
+        cli('zelda-tears-of-the-kingdom', 'mc', 'c', src, self.root / 'x.bfres.mc')
+        cli('zelda-tears-of-the-kingdom', 'mc', 'd', self.root / 'x.bfres.mc', self.root / 'y.bfres')
+        self.assertEqual((self.root / 'y.bfres').read_bytes(), raw)
+        cli('zelda-tears-of-the-kingdom', 'mc', 'x', src, self.root / 'z', ok=False)
+        # SARC: names sorted by hash, FRES data aligned to 4 KB, exact read-back
+        files = {'Model/a.bfres': b'FRES' + bytes(60), 'Actor/b.byml': b'YB\x07\x00' + bytes(12), 'c.txt': b'hello'}
+        sarc = fs.sarc_write(files)
+        self.assertEqual(fs.sarc_read(sarc), files)
+        self.assertEqual(sarc.index(b'FRES' + bytes(60)) % 0x1000, 0)
+        self.assertEqual(struct.unpack_from('<I', sarc, 8)[0], len(sarc))
+        self.assertEqual(fs.zs_decompress(fs.zs_compress(sarc)), sarc)
+        # RESTBL: crc32 entries sorted, name entries for collisions; unchanged table round-trips byte for byte
+        crc = {zlib.crc32(p.encode()): s for p, s in (('Model/a.bfres', 0x1000), ('TexToGo/b.txtg', 0x2000))}
+        table = b'RESTBL' + struct.pack('<IIII', 1, 0xA0, len(crc), 1)
+        table += b''.join(struct.pack('<II', c, crc[c]) for c in sorted(crc))
+        table += b'Pack/Actor/x.pack'.ljust(0xA0, b'\0') + struct.pack('<I', 0x300)
+        rt = fs.Restbl(table)
+        self.assertEqual(rt.to_bytes(), table)
+        self.assertEqual((rt.get('Model/a.bfres'), rt.get('Pack/Actor/x.pack'), rt.get('nope')), (0x1000, 0x300, None))
+        rt.set('Model/new.bfres', 0x5000)
+        rt.set('Pack/Actor/x.pack', 0x400)
+        again = fs.Restbl(rt.to_bytes())
+        self.assertEqual((again.get('Model/new.bfres'), again.get('Pack/Actor/x.pack'), len(again.crc)), (0x5000, 0x400, 3))
+
+    def test_totk_retarget_stretch_and_radial(self):
+        import numpy as np
+        rt = totk('retarget')
+        ps, pd = np.array([0.0, 0.5, 0.0]), np.array([0.1, 0.7, 0.0])
+        d = np.array([0.0, -1.0, 0.0])
+        T = rt.similarity(ps, pd, np.eye(3), 1.4, d, stretch=1.2, radial=1.1)
+        apply = lambda x: (T @ np.append(x, 1.0))[:3]
+        np.testing.assert_allclose(apply(ps), pd)
+        # along the segment: s * stretch; across it: s * radial (v7c legs)
+        np.testing.assert_allclose(apply(ps + [0, -0.1, 0]) - pd, [0, -0.1 * 1.4 * 1.2, 0])
+        np.testing.assert_allclose(apply(ps + [0.1, 0, 0.05]) - pd, [0.1 * 1.4 * 1.1, 0, 0.05 * 1.4 * 1.1])
+        # stretch 1 and radial 1: plain similarity, the direction is ignored
+        np.testing.assert_allclose(rt.similarity(ps, pd, np.eye(3), 2.0, d)[:3, :3], 2 * np.eye(3))
+        R = rt.rot_between(np.array([0, 1.0, 0]), np.array([1.0, 0, 0]))
+        np.testing.assert_allclose(R @ [0, 1, 0], [1, 0, 0], atol=1e-12)
+        self.assertAlmostEqual(float(np.linalg.det(R)), 1.0)
+
+    def test_totk_swing_test_on_a_synthetic_head(self):
+        totk_kit()
+        if totk_missing('swing_test'):
+            self.skipTest('swing_test needs numpy')
+        import numpy as np
+        # ear verts: negative weight on Momi_A_2_L above y 1.70 (Head takes the rest); one centre-bang vertex
+        ear = [(0.07, 1.72, 0.0), (0.08, 1.80, 0.02), (0.087, 1.877, 0.046)]
+        bang = (0.0, 1.58, 0.09)
+        hair = {'name': 'KarinOri_Hair', 'pos': [list(p) for p in ear] + [list(bang)],
+                'boneNames': [['Momi_A_2_L', 'Head']] * 4, 'boneWeights': [[-0.3, 1.3]] * 3 + [[0.3, 0.7]]}
+        face = {'name': 'KarinOri_Face', 'pos': [[0, 1.6, 0.1]], 'boneNames': [['Head']], 'boneWeights': [[1.0]]}
+        src = self.root / 'head.json'
+        src.write_text(json.dumps({'models': [{'shapes': [hair, face]}]}))
+        out = self.root / 'sw'
+        out.mkdir()
+        p = cli('zelda-tears-of-the-kingdom', 'swing_test', out, src, 'x')
+        self.assertIn('L ear verts 3', p.stdout)
+        self.assertIn('centre-bang verts 1', p.stdout)
+
+        def hinge(deg):   # Momi_A_2_L: hinge about z through (0.100, 1.6055, 0.046)
+            a = np.radians(deg)
+            Rz = np.array([[np.cos(a), -np.sin(a), 0], [np.sin(a), np.cos(a), 0], [0, 0, 1]])
+            c = np.array([0.100, 1.6055, 0.046])
+            return lambda x: Rz @ (np.asarray(x) - c) + c
+        posed = json.loads((out / 'sw_side30.json').read_text())['models'][0]['shapes']
+        self.assertEqual([s['name'] for s in posed], ['KarinOri_Hair', 'KarinOri_Face'])
+        got = np.array(posed[0]['pos'])
+        m = hinge(30)
+        want = [np.asarray(x) - 0.3 * (m(x) - np.asarray(x)) for x in ear] + [np.asarray(bang) + 0.3 * (m(bang) - np.asarray(bang))]
+        np.testing.assert_allclose(got, want, atol=1e-9)
+        # running (back hair) does not move ears that only borrow Momi_A_2 (v6d)
+        np.testing.assert_allclose(json.loads((out / 'sw_run45.json').read_text())['models'][0]['shapes'][0]['pos'],
+                                   hair['pos'], atol=1e-12)
+
+    def test_totk_save_tool_on_a_synthetic_save(self):
+        import shutil
+        kit = totk_kit()
+        exe = shutil.which('powershell') or shutil.which('pwsh')
+        if not exe:
+            self.skipTest('needs Windows PowerShell or pwsh')
+        self.assertEqual(totk_murmur3(b'hello'), 0x248BFA47)       # public MurmurHash3 x86_32 test vector
+        script = kit / 'release/tools/Give-KarinArmor.ps1'
+        # the tool refuses to write while an emulator runs; its messages are in the console code page, so check here
+        busy = subprocess.run([exe, '-NoProfile', '-NonInteractive', '-Command',
+                               "@(Get-Process | Where-Object { $_.ProcessName -match "
+                               "'^(yuzu|suyu|sudachi|citron|eden|torzu|Ryujinx)' }).Count"], capture_output=True, text=True)
+        if busy.stdout.strip() != '0':
+            self.skipTest(f'an emulator is running on this machine ({busy.stdout.strip()})')
+
+        def run(path, *extra, ok=True):
+            p = subprocess.run([exe, '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File', str(script),
+                                '-SavePath', str(path), '-BackupDir', str(self.root / 'bk'), *extra],
+                               capture_output=True, text=True, errors='replace')
+            self.assertEqual(p.returncode == 0, ok, p.stdout + p.stderr)
+            return p
+        pouch = ['Armor_001_Head', 'Armor_1061_Upper', '', 'Armor_002_Lower'] + [''] * 296
+        bools = {'IsGet.Armor_1061_Head': 0, 'IsGetAnyway.Armor_1061_Head': 0, 'IsGet.Armor_1061_Lower': 0,
+                 'IsGet.Armor_1061_Upper': 1, 'IsGet.Weapon_Sword_001': 0}
+        other = (0x11111111, ['Weapon_Sword_001', 'Weapon_Sword_002'])
+        for armor_hash in (TOTK_ARMOR_HASH, 0x22222222):   # by hash, and the fallback by content
+            slot = self.root / f'case_{armor_hash:08x}' / 'slot_00'
+            slot.mkdir(parents=True)
+            save = slot / 'progress.sav'
+            before = totk_save(bools, [other, (armor_hash, pouch)])
+            save.write_bytes(before)
+            (slot / 'caption.jpg').write_bytes(b'jpg')
+            run(save, '-DryRun')
+            self.assertEqual(save.read_bytes(), before)
+            self.assertFalse((self.root / 'bk').exists())
+            run(save)
+            after = save.read_bytes()
+            self.assertEqual(len(after), len(before))
+            offset = struct.unpack_from('<I', before, struct.unpack_from('<I', before, 8)[0] - 4)[0]
+            names = totk_names(after, offset)
+            # empty slots only, in order; the Upper the save already has is skipped
+            self.assertEqual(names[:6], ['Armor_001_Head', 'Armor_1061_Upper', 'Armor_1061_Head', 'Armor_002_Lower',
+                                         'Armor_1061_Lower', ''])
+            self.assertEqual(totk_names(after, struct.unpack_from('<I', before, struct.unpack_from('<I', before, 8)[0] - 12)[0]),
+                             other[1])
+            self.assertEqual([totk_bool(after, k) for k in bools], [1, 1, 1, 1, 0])
+            changed = [i for i in range(len(before)) if before[i] != after[i]]
+            allowed = set()
+            for i in (2, 4):
+                allowed |= set(range(offset + 4 + 64 * i, offset + 68 + 64 * i))
+            for k in ('IsGet.Armor_1061_Head', 'IsGetAnyway.Armor_1061_Head', 'IsGet.Armor_1061_Lower'):
+                o = before.index(struct.pack('<I', totk_murmur3(k.encode())))
+                allowed |= set(range(o + 4, o + 8))
+            self.assertTrue(changed and set(changed) <= allowed)
+            backups = list((self.root / 'bk').iterdir())
+            self.assertEqual(len(backups), 1)
+            self.assertTrue(backups[0].name.startswith('slot_00_'))
+            self.assertEqual((backups[0] / 'progress.sav').read_bytes(), before)
+            self.assertEqual((backups[0] / 'caption.jpg').read_bytes(), b'jpg')
+            run(save)                                       # a second run changes nothing and makes no backup
+            self.assertEqual(save.read_bytes(), after)
+            self.assertEqual(len(list((self.root / 'bk').iterdir())), 1)
+            shutil.rmtree(self.root / 'bk')
+        bad = self.root / 'bad.sav'
+        bad.write_bytes(bytes(64))
+        run(bad, ok=False)
+
+    def test_totk_assemble_package_full_and_lite(self):
+        import zipfile
+        kit = totk_kit()
+        mod = self.root / 'build' / '00_Karin_Original'
+        (mod / 'romfs/Model').mkdir(parents=True)
+        (mod / 'romfs/Model/a.bfres.mc').write_bytes(b'MCPK')
+        related = self.root / 'related.zip'
+        with zipfile.ZipFile(related, 'w') as z:
+            z.writestr('load/01_Kalin_Base/romfs/Model/b.bfres.mc', b'base')
+            z.writestr('load/02_Visuals_UltraCam/exefs/main.npdm', b'cam')
+            z.writestr('sdmc/UltraCam/TOTK/settings.ini', b'ini')
+        out = self.root / 'pkg'
+        args = ('--mod', mod, '--related', related, '--version', 'vT', '--out', out)
+        p = cli('zelda-tears-of-the-kingdom', 'assemble_package', *args)
+        self.assertIn('Full: 9 files', p.stdout)
+        self.assertIn('Lite: 8 files', p.stdout)
+        title = 'load/0100F2C0115B6000'
+        for edition in ('Full', 'Lite'):
+            d = out / f'Karin_Original_{edition}_vT'
+            self.assertEqual((d / f'{title}/00_Karin_Original/romfs/Model/a.bfres.mc').read_bytes(), b'MCPK')
+            self.assertEqual((d / f'{title}/01_Kalin_Base').is_dir(), edition == 'Full')
+            self.assertEqual((d / 'sdmc/UltraCam/TOTK/settings.ini').read_bytes(), b'ini')
+            self.assertEqual((d / 'README.md').read_bytes(), (kit / 'release/README.md').read_bytes())
+            for ps1 in ('Install.ps1', 'Give-KarinArmor.ps1'):
+                self.assertEqual((d / 'tools' / ps1).read_bytes(), (kit / 'release/tools' / ps1).read_bytes())
+            self.assertEqual((d / 'install.bat').read_bytes(),
+                             b'@echo off\r\nchcp 65001 >nul\r\npowershell -NoProfile -ExecutionPolicy Bypass -File '
+                             b'"%~dp0tools\\Install.ps1" %*\r\npause\r\n')
+            self.assertIn(b'tools\\Give-KarinArmor.ps1', (d / 'give_armor.bat').read_bytes())
+            files = sorted(f'{d.name}/' + q.relative_to(d).as_posix() for q in d.rglob('*') if q.is_file())
+            self.assertEqual(sorted(zipfile.ZipFile(d.with_name(d.name + '.zip')).namelist()), files)
+        # nothing is overwritten, and missing inputs are refused before anything is written
+        cli('zelda-tears-of-the-kingdom', 'assemble_package', *args, ok=False)
+        with zipfile.ZipFile(self.root / 'partial.zip', 'w') as z:
+            z.writestr('load/02_Visuals_UltraCam/exefs/main.npdm', b'cam')
+        p = cli('zelda-tears-of-the-kingdom', 'assemble_package', '--mod', mod, '--related', self.root / 'partial.zip',
+                '--version', 'vT', '--out', self.root / 'pkg2', ok=False)
+        self.assertIn('load/01_Kalin_Base', p.stderr)
+        self.assertFalse((self.root / 'pkg2').exists())
+
+    def test_totk_builders_need_the_work_tree(self):
+        kit = totk_kit()
+        text = (kit / 'scripts/build_karin.py').read_text(encoding='utf-8')
+        # --help and the TOTK_WORK check come before the build folder is created
+        self.assertLess(text.index('tk.need_work()'), text.index('os.makedirs(WORK'))
+        self.assertIn("os.environ.get('TOTK_WORK')", (kit / 'scripts/tk.py').read_text(encoding='utf-8'))
+        for name in ('face_anim', 'make_textures', 'make_icons', 'package', 'txtg'):
+            self.assertIn("os.environ.get('TOTK_WORK')", (kit / f'scripts/{name}.py').read_text(encoding='utf-8'), name)
+        for path in (kit / 'scripts').rglob('*.py'):
+            ast.parse(path.read_text(encoding='utf-8'))
+        if not totk_missing('build_karin'):
+            env = dict(os.environ, TOTK_WORK=str(self.root / 'missing'))
+            p = subprocess.run([sys.executable, '-B', str(kit / 'scripts/build_karin.py')], env=env,
+                               capture_output=True, text=True)
+            self.assertNotEqual(p.returncode, 0)
+            self.assertIn('Set TOTK_WORK', p.stderr)
+            self.assertFalse((self.root / 'missing').exists())
+        # the C# projects take their dependency folders as MSBuild properties / an environment variable
+        projects = {'tools/TotkMdl/TotkMdl.csproj': '$(SwitchToolboxDir)', 'tools/NxExtract/NxExtract.csproj': '$(LibHacDll)',
+                    'tools/bphcl_probe/ptprobe.csproj': '$(PhysicsToolDir)'}
+        for rel, prop in projects.items():
+            self.assertIn(prop, (kit / rel).read_text(encoding='utf-8'), rel)
+        self.assertIn('PHYSICSTOOL_DIR', (kit / 'tools/bphcl_probe/Program.cs').read_text(encoding='utf-8'))
+
+    def test_totk_provenance_and_portability(self):
+        import hashlib
+        import re
+        kit = totk_kit()
+        rows = [r for r in json.loads((KITS / 'PROVENANCE.json').read_text(encoding='utf-8-sig'))
+                if r['path'].startswith('portable-kits/zelda-tears-of-the-kingdom/')]
+        files = sorted(p.relative_to(ROOT).as_posix() for p in kit.rglob('*') if p.is_file() and '__pycache__' not in p.parts)
+        own = {'portable-kits/zelda-tears-of-the-kingdom/' + n for n in ('README.md', 'toolchain.json', 'requirements.txt')}
+        self.assertEqual(sorted(r['path'] for r in rows), sorted(set(files) - own))
+        for r in rows:
+            data = (ROOT / r['path']).read_bytes()
+            self.assertEqual((hashlib.sha256(data).hexdigest(), len(data)), (r['portable_sha256'], r['portable_bytes']), r['path'])
+            self.assertTrue(r['source'].startswith(('TotKWork/', 'Mods/王国之泪/Karin_Original/kit/',
+                                                    'new file written for the portable kit')), r['source'])
+            self.assertEqual(r['modified_for_portability'], r['portable_sha256'] != r['original_sha256'], r['path'])
+        bundled = json.loads((kit / 'toolchain.json').read_text(encoding='utf-8'))['bundled_scripts']
+        self.assertEqual(sorted('portable-kits/zelda-tears-of-the-kingdom/' + s for s in bundled), sorted(r['path'] for r in rows))
+        drive = re.compile(r'(?i)(?<![\w<])[a-z]:[\\/](?![\\/])|[\\/]users[\\/]')
+        for rel in files:
+            text = (ROOT / rel).read_bytes().decode('utf-8-sig')
+            self.assertFalse(drive.search(text), f'{rel}: {drive.search(text)}')
+            self.assertNotRegex(text.lower(), r'kln55mi|desktop-|baidusync|droylouo|uuremote|totkwork', rel)
+            self.assertNotRegex(text, r'sys\.path\.insert\(0, *r?[\'"]', rel)
+        # not bundled: shell / batch wrappers (assemble_package.py writes the .bat files), binaries, game data
+        self.assertFalse([p for p in kit.rglob('*') if p.suffix in ('.sh', '.cmd', '.bat', '.exe', '.dll', '.zip', '.mc',
+                                                                       '.bfres', '.txtg', '.zs', '.sav', '.npz')])
 
 if __name__ == '__main__': unittest.main(verbosity=2)

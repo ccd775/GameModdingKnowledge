@@ -1,0 +1,89 @@
+{
+  "game": "The Legend of Zelda: Tears of the Kingdom 1.2.0 (title 0100F2C0115B6000), yuzu-family emulator LayeredFS mods",
+  "status": "runtime-confirmed-scoped",
+  "tools": [
+    {
+      "name": "Switch Toolbox",
+      "version": "2026-10-31 build (KillzXGaming/Switch-Toolbox), not bundled",
+      "role": "BFRES load / save behind tools/TotkMdl (headless, net48); its tegra_swizzle_x64.dll does the block-linear swizzle for txtg.py and make_icons.py",
+      "required": true
+    },
+    {
+      "name": "TotkMdl (tools/TotkMdl)",
+      "version": "kit source",
+      "role": "info / export / replace / anims: skeleton, smooth-matrix list, shapes with vertices and weights as JSON; replace with delete, copyMaterials, samplerTextures, smoothBones, newShapes, shapeMaterial, renameMaterials and per-shape weightFormat (float / signed skin weights)",
+      "required": true
+    },
+    {
+      "name": "Blender",
+      "version": "5.0, run with -b --factory-startup",
+      "role": "scripts/blender: Karin_Original FBX -> karin_dump.npz (game space, unique vertices), shape-key deltas, packed textures to PNG, object inventory, three-view preview renders of TotkMdl JSON",
+      "required": true
+    },
+    {
+      "name": "Python build chain (scripts/)",
+      "version": "kit",
+      "role": "build_karin (per-segment similarity retarget, head scale / drop, shoulder squash, leg radial scale, skirt and borrowed cloth bones, face and blink fit, material renames), make_textures / make_icons (TexToGo and BNTX), package (mod folder + merged RESTBL), assemble_package (Full / Lite release); libraries retarget, tk, mc, totkfs, byml7, txtg, fska, face_anim, face_rig",
+      "required": true
+    },
+    {
+      "name": "NxExtract (tools/NxExtract) + LibHac",
+      "version": "LibHac 0.19.0 (nuget, MIT), net8.0, driven from pwsh 7.4 by nxx.ps1",
+      "role": "base XCI program NCA + update NCA -> romfs listing / glob extraction (replaces yuzu's Dump RomFS, which hung in Banc/)",
+      "required": false
+    },
+    {
+      "name": "PhysicsTool + bphcl probe (tools/bphcl_probe)",
+      "version": "PhysicsTool 2.2.0 (KB0MB/PhysicsTool), net10.0; run through the dotnet host with DOTNET_EnableCETCompat=0",
+      "role": "read Armor_*.bphcl Havok cloth: driven bones per cloth and the particle triangle behind each bone (fixed particles decide hinge / ball-joint behaviour)",
+      "required": false
+    },
+    {
+      "name": "PowerShell release tools (release/tools)",
+      "version": "kit; Windows PowerShell 5.1 and PowerShell 7",
+      "role": "Install.ps1 (yuzu-family install with backups, mod-order warning) and Give-KarinArmor.ps1 (progress.sav armor pouch + IsGet flags, backup first, refuses while an emulator runs)",
+      "required": false
+    }
+  ],
+  "entry_documents": [
+    "../../games/zelda-tears-of-the-kingdom/README.md",
+    "../../games/zelda-tears-of-the-kingdom/BUILD_PIPELINE.md"
+  ],
+  "runtime_boundary": "Game 1.2.0 on yuzu EA 4176 (the user's machine). v1-v6d were installed and played by the user: textures (v2), skirt (v3), blinking with signed float weights (v5), ear stretch fix (v6b), bangs and ear behaviour (v6c / v6d) confirmed or reported in game. v7 / v7b / v7c (head scale, neck, shoulders, legs) and the Full / Lite release packages were checked offline only; the v7c remote install was pending at the snapshot. The portable copies were checked offline (2026-11-07): build_karin.py, make_textures.py, make_icons.py and package.py with TOTK_WORK on the project work tree rebuilt the v7c models, textures, icons and RESTBL byte for byte; mc / txtg / pose_test / face_preview / swing_test gave the same output as the originals; assemble_package.py rebuilt the v7c Full / Lite trees (only README.md differs: the two example paths); Give-KarinArmor.ps1 is byte-identical to the shipped copy and is tested on synthetic saves. TotkMdl, NxExtract and the probe are the project sources; only their project files were changed to take dependency paths as properties.",
+  "bundled_scripts": [
+    "release/README.md",
+    "release/tools/Give-KarinArmor.ps1",
+    "release/tools/Install.ps1",
+    "scripts/assemble_package.py",
+    "scripts/blender/blender_dump_karin.py",
+    "scripts/blender/blender_dump_shapekeys.py",
+    "scripts/blender/blender_preview.py",
+    "scripts/blender/extract_tex.py",
+    "scripts/blender/inv_karin.py",
+    "scripts/build_karin.py",
+    "scripts/byml7.py",
+    "scripts/face_anim.py",
+    "scripts/face_preview.py",
+    "scripts/face_rig.py",
+    "scripts/fska.py",
+    "scripts/make_icons.py",
+    "scripts/make_textures.py",
+    "scripts/mc.py",
+    "scripts/package.py",
+    "scripts/pose_test.py",
+    "scripts/retarget.py",
+    "scripts/swing_test.py",
+    "scripts/tk.py",
+    "scripts/totkfs.py",
+    "scripts/txtg.py",
+    "tools/NxExtract/Extract.cs",
+    "tools/NxExtract/NxExtract.csproj",
+    "tools/NxExtract/nxx.ps1",
+    "tools/TotkMdl/Program.cs",
+    "tools/TotkMdl/TotkMdl.csproj",
+    "tools/bphcl_probe/Program.cs",
+    "tools/bphcl_probe/ptprobe.csproj"
+  ],
+  "python": "3.10+ (tested with 3.14.0); Blender scripts run in Blender 5.0's Python",
+  "dependency_install": "python -m pip install -r requirements.txt -r portable-kits/zelda-tears-of-the-kingdom/requirements.txt (from bundle root)"
+}

@@ -1,5 +1,60 @@
 # 迁移验证记录
 
+## 2026-11-07：新增王国之泪便携包
+
+- **迁入：** 31 个文件，另有 1 个新写的文件，放在 `portable-kits/zelda-tears-of-the-kingdom/`。
+  - `scripts/` 16 个 Python：
+    - 15 个来自项目工作目录 `TotKWork/scripts/`：`build_karin.py`、`retarget.py`、`tk.py`、`mc.py`、`totkfs.py`、`txtg.py`、`byml7.py`、`fska.py`、`face_anim.py`、`face_rig.py`、`make_textures.py`、`make_icons.py`、`package.py`、`pose_test.py`、`face_preview.py`；
+    - `swing_test.py` 来自项目存档 `Mods/王国之泪/Karin_Original/kit/scripts/`。
+    - 按项目的平铺布局放，脚本里 `sys.path.insert(0, os.path.dirname(__file__))` 的写法不用改。
+  - `scripts/blender/` 5 个 Blender 脚本（同一来源）：`blender_dump_karin.py`、`blender_dump_shapekeys.py`、`blender_preview.py`、`extract_tex.py`、`inv_karin.py`。放进子目录，因为它们只在 Blender 里运行，不参加 `--help` 检查。
+  - `tools/` 7 个：
+    - TotkMdl 的 `Program.cs` / `TotkMdl.csproj`、NxExtract 的 `Extract.cs` / `NxExtract.csproj`，来自 `TotKWork/tools/`；
+    - bphcl 探针的 `Program.cs` / `ptprobe.csproj`，来自项目存档 `kit/tools/bphcl_probe/`；
+    - `tools/NxExtract/nxx.ps1`，来自 `TotKWork/nxx.ps1`。
+  - `release/` 3 个：安装包的 `README.md`、`tools/Install.ps1`、`tools/Give-KarinArmor.ps1`，来自 `TotKWork/package/`。
+  - 新写：`scripts/assemble_package.py`，是项目 `TotKWork/package/assemble.sh` 的 Python 版。本库不收 `.sh` / `.bat`，两个 `.bat` 由它写出。
+  - 项目存档 `kit/` 里的同名文件与工作目录逐字节相同（迁移脚本逐个比较过）。
+- **没有迁入：**
+  - 远程测试机的传输脚本（`rput_chunked.sh`、`rget_chunked.sh`、`get_anims.sh`）和两个 `.bat`；
+  - Switch Toolbox、PhysicsTool、LibHac 的二进制，密钥、romfs、源模型、`03_kalin` 的基础模型、构建产物、发行 ZIP、存档；
+  - 会话里的一次性脚本（渲染批处理、比例测量）。
+- **便携改动**（17 个文件，处理逻辑没有改）：
+  - **写死的路径改成环境变量**：`build_karin.py`、`tk.py`、`face_anim.py`、`make_textures.py`、`make_icons.py`、`package.py`、`txtg.py` 里的工作目录 → `TOTK_WORK`（没设时值是 `<set TOTK_WORK>`）；Switch Toolbox 目录 → `TOTK_ST_DIR`（默认 `$TOTK_WORK/tools/st_headless`）。
+    - `build_karin.py` 在建 `work/build` 之前先解析参数、检查 `TOTK_WORK`（`tk.need_work()`）。
+  - **`sys.argv` 改成 argparse**：`mc.py`、`txtg.py`、`make_textures.py`、`make_icons.py`、`package.py`、`pose_test.py`、`face_preview.py`、`swing_test.py`、`build_karin.py`（无参数）。位置参数不变，细节上的差别：
+    - `mc.py` 的操作只接受 `d` / `c`（原来非 `d` 一律当压缩）；
+    - `package.py` 的 `--vanilla` 变成必填，`--merge` / `--extra` 可重复；
+    - `swing_test.py` 的第三个参数可省。
+  - **C# 工程的依赖路径改成 MSBuild 属性**：`SwitchToolboxDir`、`LibHacDll`、`PhysicsToolDir`，去掉写死的 `OutputPath`。探针的 PhysicsTool 目录 → `PHYSICSTOOL_DIR`。
+  - **`nxx.ps1` 改写成带参数的脚本**：`-Work`、`-Keys`、`-Base`、`-Patch`（原来写死了测试机的路径）。
+  - **安装包 README**：两处示例路径改成 `<yuzu 目录>\user`。
+  - **换行**：保持原样，`retarget.py`、`txtg.py`、`pose_test.py`、`blender_preview.py`、`Extract.cs`、`Give-KarinArmor.ps1` 是 CRLF，其余 LF。
+- **离线核对**（本机，2026-11-07）：Windows 10 19044，Python 3.14.0 + numpy 2.5.2、scipy 1.18.0、zstandard 0.25.0、Pillow 12.3.0、astc-encoder-py 0.1.12、etcpak 0.9.15，Switch Toolbox 2026-10-31 + 项目编译的 TotkMdl。
+  - **构建链**：`TOTK_WORK` 指向项目工作目录，跑便携版 `build_karin.py`（44 s）：
+    - 三个模型与 v7c 逐字节相同（头 `04e074eb…`、上衣 `31304250…`、下装 `9c712ec1…`）；
+    - 没设 `TOTK_WORK` 时退出码 1，什么都不写。
+  - **贴图、图标、打包**：
+    - `make_textures.py` 的 6 张 txtg、`make_icons.py` 的 12 个图标与 v7c 逐字节相同；
+    - `package.py`（原版 RESTBL + `03_kalin` 的 RESTBL + packs + icons）写出的 26 个文件与已安装的 v7c mod 文件夹逐字节相同，含 RESTBL。
+  - **检查脚本**：原脚本和便携脚本在 v7c 的 TotkMdl 导出上各跑一次，标准输出和写出的 JSON 相同：
+    - `swing_test.py`（6 个姿势）；
+    - `pose_test.py`；
+    - `face_preview.py`（`Face_Default_Blink:0`、`Voice_Default_A:3`）。
+  - **其他工具**：
+    - `mc.py d` 解压出的 BFRES 与 TotkMdl 写出的未压缩文件相同，`txtg.py` 能读出头信息；
+    - `assemble_package.py` 用同一份相关 mod 的 ZIP 重建 v7c 的 Full（1933 个文件）/ Lite（41 个），只有 `README.md` 不同（两处示例路径），ZIP 成员列表相同。
+  - Blender、TotkMdl / NxExtract / 探针的编译、模拟器和游戏都没有重跑。
+- **合成数据测试**（`ZeldaTotkTools`，7 项）：
+  - MCPK / SARC / RESTBL 往返；
+  - `similarity` 的沿段拉伸和 `radial`；
+  - `swing_test.py` 在合成头部上的铰链转动与「跑动不动耳朵」；
+  - 存档工具：用 Windows PowerShell 5.1 或 pwsh 跑合成的 progress.sav，覆盖按哈希、按内容回退、DryRun、只写空格子、标记、备份、二次运行不改、坏文件拒绝；
+  - 发行包组装：Full / Lite、`.bat` 内容、ZIP 成员、拒绝覆盖、缺输入时什么都不写；
+  - 构建器先查 `TOTK_WORK`；
+  - PROVENANCE 与便携性。
+- **实机：** 见 `games/zelda-tears-of-the-kingdom/cases/KARIN_ORIGINAL.md`。v6d 之前的各版由用户实机反馈；v7–v7c 和安装包未实机。
+
 ## 2026-11-03：仁王3便携包新增伊切尔、Lenko 流水线
 
 - **更新：** `scripts/n3build/n3_face.py`（源码新加 `--vanilla-lids`：`VANILLA_LIDS` / `VANILLA_LIDS_PRIORITY`）在当前源码上重做原来的便携改动（argparse），`--vanilla-lids` 也进 argparse；`scripts/n3build/n3_g1m_physics.py`（新加 `TEMPLATE_BLOCKS`、`lloc_entry_bytes` 的 `resize` 参数）仍与源码逐字节相同。PROVENANCE 里两条的 `original_sha256` / `source_bytes` 改为当前源码的值。

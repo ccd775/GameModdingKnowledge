@@ -317,6 +317,17 @@
       "topics": ["KT 引擎（与浪人崛起 / 真三国无双 起源同构的 rdb / fdata / KTID / G1M / G1T）", "root.rdb / root.rdx 注入：新 fdata 容器 + rdx 新槽 + 重建记录，识别过期备份", "ETW 文件读取追踪按阶段定位资源", "TextureAlias 染色变体 KTID（静态 KTID 会被盖掉）", "G1T v0066 存储类型 3（逐 tile zlib + 线性尾部）", "调色板存骨架存储序号（与浪人相反）", "SUBMESH +12 运行时材质组", "u16 BLENDINDICES 突破 85 骨（上限 128）", "三角形塌缩隐藏原版部件，安装器从玩家数据现场生成", "每材质计数资源（按子网格下标分段、不能多不能少）", "物理注册表（kidsobjdb prop 0x7F0DE9A3）", "NUNO type-4 骨链格式、SM1G 物理关节与组表、FM1G type-4 统计", "MESH_LOD 类型 2 网格组（NUN id 0x2710 + k）", "VRM 弹簧链 → type-4 骨链（仿射拟合映射点、逐骨源权重）", "参数模板：头发保形 vs 腰带垂饰纯摆锤", "LLOC 碰撞体 28 字布局与自定义椭球", "面部骨 400–737、g1fpose / g1frani、逐顶点面部骨权重拟合", "换装形态键按高度遮罩（开口那圈不动）", "可再部署安装包（原版 sha256 核对）", "存档：仁王1 的自定义 S 盒 AES-CTR（存档体子密钥在头 0x49）、校验和、只异或差量写回", "外观设置记录 0xCE1DB6CF 决定画面上的护甲（不是身上的装备，也不是背包物品的 transmogItemId）", "PMX 直接读取（镜像轴、三角形反序、D 骨）与由 PMX 转换的 FBX（按 UV 对回 PMX 材质）", "PMX 动态刚体 → type-4 骨链", "借来的原版碰撞组按角色重拟合（保留骨和旋转，改中心和半轴）", "长发加密（≤ 4.5 cm 一节）与原版长发参数模板（从转储还原）", "游戏不算布和布的碰撞：外层取内层最近表面点的权重", "布料鼓包先看静止形状：外套背面径向贴到内层", "MMD 表情键拆左右；眨眼只动上眼睑：闭合线下移", "三组闭眼姿势 41/42、27/28、39/40 按原版比例（0.82 / 0.85）拟合"],
       "limits": ["build24 臀部碰撞待用户实机", "武士流派裙摆发橙红未查清（build20 起未再被提及）", "关卡内喊声 / 受伤 / 过场表情与眼神未做或未测", "物理手感未专门调", "过场、死亡、隐藏头盔 / 下身、NPC 与被隐藏模型、其它染色未测", "共用计数资源的上衣 0x1af713a6 未测", "只对 v2.0.0.2 有效", "换装器未在别人的存档 / 没拿到目标装备的存档上实测，用户自己还没用过", "伊切尔关卡内物理 / 表情 / 武士流派未测，没有尾巴", "Lenko 关卡里实际用哪组闭眼姿势未直接确认；左侧连着蝴蝶结 / 长丝带的长裙链在相邻裙片甩开时仍可能让外套被穿过"],
       "portable_kit": "portable-kits/nioh-3"
+    },
+    {
+      "id": "zelda-tears-of-the-kingdom",
+      "path": "games/zelda-tears-of-the-kingdom",
+      "status": "runtime-confirmed-scoped",
+      "milestone": "Karin_Original 替换 Link 的火焰套装 Armor_1061 v7c（yuzu LayeredFS）：Switch Toolbox 另存的模型当基础、TotkMdl 无界面写 BFRES；借用 Havok cloth 驱动的骨骼做物理（双马尾、裙骨、兽尾、面颊发、刘海、负权重的狐耳），嘴型 NNLS 拟合到 Link 面部骨，带符号浮点权重眨眼；贴图、裙摆、眨眼、狐耳、刘海经用户实机确认；v7–v7c 比例修正与安装包、存档工具离线",
+      "date": "2026-11-03",
+      "game_build": "1.2.0 (title 0100F2C0115B6000, RESTBL Product.120), yuzu EA 4176",
+      "topics": ["yuzu LayeredFS 排序靠前生效", "RESTBL 合并与大小估算", ".bfres.mc（MCPK + 无 magic zstd）与零售版 mesh codec", "Switch Toolbox 另存模型当基础", "平滑矩阵表（Node_Array）重建", "染色动画按材质名换 _a0", "TexToGo 逐字节写出与 BNTX 图标原地替换", "ZsDic 字典 zstd 与 SARC", "FSKA v10 自写读取器", "按段相似变换与实际高度倍率", "头部缩放与下沉、肩部压扁、腿部 radial 加粗", "裙摆权重按 Link 裙骨段分配", "bphcl SimpleMeshBoneDeformer 驱动三角形：铰链与万向节", "借用布料骨骼与负权重的拉伸公式", "面部 NNLS 拟合与带符号、可大于 1 的眨眼权重", "逐形状浮点权重格式与 Switch Toolbox 的 8 位截断", "NxExtract（LibHac）叠加基础版与更新 NCA", "progress.sav 哈希表、防具包 String64Array 与 IsGet 标记"],
+      "limits": ["v7–v7c（头身比例、脖子、肩膀、腿）只做了离线检查", "安装包和存档工具未在游戏里实测（用户存档本来就有这套）", "染色对 Karin 无效（刻意）", "狐耳只有左右摆，双马尾末端只跟随 3 节", "侧向大摆时面颊发陷进脸颊", "过场、骑乘、游泳、滑翔、攀爬未逐项测", "只覆盖 1061 套装与 1.2.0", "Ryujinx 只能手动安装"],
+      "portable_kit": "portable-kits/zelda-tears-of-the-kingdom"
     }
   ]
 }

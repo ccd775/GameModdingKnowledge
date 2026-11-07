@@ -167,6 +167,19 @@ class DetachedExports(unittest.TestCase):
                             self.assertIn(name, process.stderr)
                         self.assertFalse([l for l in process.stderr.splitlines() if 'test_n3_' in l and 'skipped' in l
                                           and 'karin_install' not in l])
+                    if game == 'zelda-tears-of-the-kingdom':
+                        self.assertTrue((target/'portable-kits/zelda-tears-of-the-kingdom/requirements.txt').is_file())
+                        for name in ('test_totk_assemble_package_full_and_lite', 'test_totk_builders_need_the_work_tree',
+                                     'test_totk_provenance_and_portability'):
+                            self.assertIn(name, process.stderr)
+                        self.assertFalse([l for l in process.stderr.splitlines() if 'test_totk_' in l and 'skipped' in l
+                                          and not any(k in l for k in ('roundtrip', 'retarget', 'swing', 'save_tool'))])
+                    if game == 'zelda-tears-of-the-kingdom' and all(importlib.util.find_spec(m) for m in ('numpy', 'zstandard')):
+                        for name in ('test_totk_mc_sarc_and_restbl_roundtrip', 'test_totk_retarget_stretch_and_radial',
+                                     'test_totk_swing_test_on_a_synthetic_head'):
+                            self.assertIn(name, process.stderr)
+                        self.assertFalse([l for l in process.stderr.splitlines() if 'test_totk_' in l and 'skipped' in l
+                                          and 'save_tool' not in l])
                     print(f'{game}: detached tests passed (unselected games skipped)')
 
 

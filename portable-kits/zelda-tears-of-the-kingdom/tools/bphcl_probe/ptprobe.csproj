@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- portable kit: dotnet build -c Release -p:PhysicsToolDir=<PhysicsTool-2.2.0-win-x64 folder> -->
+  <PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework><Nullable>disable</Nullable><ImplicitUsings>enable</ImplicitUsings></PropertyGroup>
+  <ItemGroup>
+    <Reference Include="PhysicsTool.Core"><HintPath>$(PhysicsToolDir)\PhysicsTool.Core.dll</HintPath></Reference>
+    <Reference Include="HKX2"><HintPath>$(PhysicsToolDir)\HKX2.dll</HintPath></Reference>
+    <Reference Include="Newtonsoft.Json"><HintPath>$(PhysicsToolDir)\Newtonsoft.Json.dll</HintPath></Reference>
+  </ItemGroup>
+</Project>

@@ -56,6 +56,9 @@
 | UnPSARC | [rm-NoobInCoding](https://github.com/rm-NoobInCoding/UnPSARC/releases) | 对马岛 DSAR / PSARC 解包参考（本项目未直接使用；mod 包用自写的不压缩 PSARC 写入器） |
 | Witcher3-Blender-Tools | [dingdio/Witcher3-Blender-Tools](https://github.com/dingdio/Witcher3-Blender-Tools/releases) | 巫师3 次世代版用 v1.1.0（2026-09-29，`witcher3_tools.zip` SHA-256 `cc422fb00a9e6ae78ea8f9a3e10e0a61a95d5739b3effa833ea943fba76700ac`），装在 Blender 5.0 里作为扩展（模块 `bl_ext.user_default.witcher3_tools`）：读 w2rig / w2mesh / w2anims（原版动画经 `CR2W.dc_anims.load_bin_anims_single`），原生写 w2mesh（导出器补偿骨的 Rz 90°），写 xbm（调用 texconv，Blender 后台模式要先初始化 COM）。导出的顶点顺序每次运行可能不同；xbm 里写着源 PNG 的绝对路径 |
 | WolvenKit 7 nightly | [WolvenKit/WolvenKit-7-nightly](https://github.com/WolvenKit/WolvenKit-7-nightly/releases) | 巫师3 次世代版用 `7.2.0-nightly.2026-10-14`（zip SHA-256 `97f99d9cb27491e3419fdf42e53409a56ea9804d4561262b20cacecab5018734`）的 CLI 做 CR2W ↔ JSON。它把 `SSkeletonBone.name` 读丢、写成 `StringAnsi`，写出的 dyng / w3fac 必须过便携包的 `fix_cr2w_skeleton_names.py`；`.exe.config` 要 .NET 4.8.1，只有 4.8 的机器把 sku 改成 4.8 可用。bundle 和 metadata.store 用便携包自己的工具，不用 WolvenKit |
+| Switch Toolbox | [KillzXGaming](https://github.com/KillzXGaming/Switch-Toolbox) | 2026-10-31 版。王国之泪便携包的 TotkMdl 无界面调用它的 BFRES 读写（`Toolbox.Library`、`FirstPlugin.Plg`、Syroot.NintenTools），它的 `tegra_swizzle_x64.dll` 做 TexToGo / BNTX 的块线性重排。读不了零售版 `.bfres.mc` 的 mesh codec 顶点数据，要用另存过的模型（`games/zelda-tears-of-the-kingdom/TECHNICAL_CONTRACTS.md` §2） |
+| PhysicsTool | [KB0MB](https://github.com/KB0MB/PhysicsTool) | 2.2.0。王国之泪的 bphcl 探针引用它的 `PhysicsTool.Core.dll`（`HKCLTool.NativeBphclDocument`）读 Havok cloth 的骨骼驱动三角形；本机 Windows 版本上要用 `dotnet` 宿主运行并设 `DOTNET_EnableCETCompat=0` |
+| LibHac | [Thealexbarney](https://github.com/Thealexbarney/LibHac)（MIT） | NuGet 0.19.0。王国之泪的 NxExtract 用它叠加基础版 XCI 的程序 NCA 和更新 NCA，按 glob 解出 romfs |
 
 黑旗使用的 AnvilToolkit 1.3.6 与 Forge Injector 只是格式比较来源；实测表明它们不是此项目 BFR 的最终编译器。最终 field-4 Forge 实现已在便携包中提供。Oodle 是按需外部依赖，必须由用户合法取得原 DLL，保持脚本中的 SHA 验证。
 

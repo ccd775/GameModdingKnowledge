@@ -5290,5 +5290,293 @@
     "portable_sha256": "47ae7e169edc405908b890e41f8325594907448173638ed195a3c71d7cb9b525",
     "portable_bytes": 2775,
     "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/zelda-tears-of-the-kingdom/release/README.md",
+    "source": "TotKWork/package/README.md",
+    "original_sha256": "eb018c4082d46b5b57661cfe24ebd7cf97375281c4841158b74477dc13eccfa2",
+    "source_bytes": 3833,
+    "portable_sha256": "d5362bde9a2971d096c2e177a1dadc17db14098152ece2c8ea18b3ddec48037e",
+    "portable_bytes": 3845,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/zelda-tears-of-the-kingdom/release/tools/Give-KarinArmor.ps1",
+    "source": "TotKWork/package/tools/Give-KarinArmor.ps1",
+    "original_sha256": "6b98b1c6c58006f09aad532082871d51c2b15b2f517c29123c1a07894dce3bb1",
+    "source_bytes": 8142,
+    "portable_sha256": "6b98b1c6c58006f09aad532082871d51c2b15b2f517c29123c1a07894dce3bb1",
+    "portable_bytes": 8142,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/zelda-tears-of-the-kingdom/release/tools/Install.ps1",
+    "source": "TotKWork/package/tools/Install.ps1",
+    "original_sha256": "beb626c05c44dd99e66c4759da7b6f9a272d1e02920973105bfad8dd7f415cbd",
+    "source_bytes": 4156,
+    "portable_sha256": "beb626c05c44dd99e66c4759da7b6f9a272d1e02920973105bfad8dd7f415cbd",
+    "portable_bytes": 4156,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/zelda-tears-of-the-kingdom/scripts/assemble_package.py",
+    "source": "new file written for the portable kit (no project original); Python port of the project's TotKWork/package/assemble.sh (the repository carries no .sh / .bat files)",
+    "original_sha256": null,
+    "source_bytes": null,
+    "portable_sha256": "0313034a51f5b09fc59469e574b7ff6f2f3c01fe1d882d1e1c8ddf309f6b7ad0",
+    "portable_bytes": 4311,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/zelda-tears-of-the-kingdom/scripts/blender/blender_dump_karin.py",
+    "source": "TotKWork/scripts/blender_dump_karin.py",
+    "original_sha256": "05d1b1be983644ba1773b57d3d9f7224c45974dac079703d8753d10400590804",
+    "source_bytes": 4238,
+    "portable_sha256": "05d1b1be983644ba1773b57d3d9f7224c45974dac079703d8753d10400590804",
+    "portable_bytes": 4238,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/zelda-tears-of-the-kingdom/scripts/blender/blender_dump_shapekeys.py",
+    "source": "TotKWork/scripts/blender_dump_shapekeys.py",
+    "original_sha256": "61f8ee8fe6a05046c5ec9fe57c60bee55570ba1a30131925e4786e6278025ef7",
+    "source_bytes": 2687,
+    "portable_sha256": "61f8ee8fe6a05046c5ec9fe57c60bee55570ba1a30131925e4786e6278025ef7",
+    "portable_bytes": 2687,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/zelda-tears-of-the-kingdom/scripts/blender/blender_preview.py",
+    "source": "TotKWork/scripts/blender_preview.py",
+    "original_sha256": "0c10617171414de6490c9d9129ab54fb5751d674ab0de5e0f2ba08e3433b55e9",
+    "source_bytes": 4912,
+    "portable_sha256": "0c10617171414de6490c9d9129ab54fb5751d674ab0de5e0f2ba08e3433b55e9",
+    "portable_bytes": 4912,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/zelda-tears-of-the-kingdom/scripts/blender/extract_tex.py",
+    "source": "TotKWork/scripts/extract_tex.py",
+    "original_sha256": "c0b7772e22d78b4a4ae10e29c6c6c8a67122182670d33aa73a74c5f7fd24006f",
+    "source_bytes": 589,
+    "portable_sha256": "c0b7772e22d78b4a4ae10e29c6c6c8a67122182670d33aa73a74c5f7fd24006f",
+    "portable_bytes": 589,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/zelda-tears-of-the-kingdom/scripts/blender/inv_karin.py",
+    "source": "TotKWork/scripts/inv_karin.py",
+    "original_sha256": "58373f039cc41e9c18cb922795261437b96288ba77b7a42867ff3763d3112a25",
+    "source_bytes": 1912,
+    "portable_sha256": "58373f039cc41e9c18cb922795261437b96288ba77b7a42867ff3763d3112a25",
+    "portable_bytes": 1912,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/zelda-tears-of-the-kingdom/scripts/build_karin.py",
+    "source": "TotKWork/scripts/build_karin.py",
+    "original_sha256": "aff1b5d6e06f607e441e604a9986765525e7848f47d9fb248962fa7919f31178",
+    "source_bytes": 34238,
+    "portable_sha256": "b11e3afdca55491b2ae749bddcd22a34e7932188a501040de17610b76bb22817",
+    "portable_bytes": 34618,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/zelda-tears-of-the-kingdom/scripts/byml7.py",
+    "source": "TotKWork/scripts/byml7.py",
+    "original_sha256": "f84656b55d5ce9f08397135424b44ec990a6e08da1cff0ca8784b6b82b9163d7",
+    "source_bytes": 2952,
+    "portable_sha256": "f84656b55d5ce9f08397135424b44ec990a6e08da1cff0ca8784b6b82b9163d7",
+    "portable_bytes": 2952,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/zelda-tears-of-the-kingdom/scripts/face_anim.py",
+    "source": "TotKWork/scripts/face_anim.py",
+    "original_sha256": "cea99044b5ba2b93e8569b527e0aa232a281d1894ef84de3c6deb375b81717d6",
+    "source_bytes": 3328,
+    "portable_sha256": "c873d69a1ff12e75c55e5b8e76392ffac38e8f1708b27bf7eb841dd21aa345b4",
+    "portable_bytes": 3545,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/zelda-tears-of-the-kingdom/scripts/face_preview.py",
+    "source": "TotKWork/scripts/face_preview.py",
+    "original_sha256": "39a603c34a79a21b29e5561616e5200f85c3dbec30e382b62f5da28a851a6409",
+    "source_bytes": 1551,
+    "portable_sha256": "e67b9878cdba10a3f94c38064f90833312a49e36cbad22878ab3bd8a9c4c4a4c",
+    "portable_bytes": 1831,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/zelda-tears-of-the-kingdom/scripts/face_rig.py",
+    "source": "TotKWork/scripts/face_rig.py",
+    "original_sha256": "d5cd3eb8fd5d841d473c4cb7080f35519d88e4686744a93813a324a99488154a",
+    "source_bytes": 13333,
+    "portable_sha256": "d5cd3eb8fd5d841d473c4cb7080f35519d88e4686744a93813a324a99488154a",
+    "portable_bytes": 13333,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/zelda-tears-of-the-kingdom/scripts/fska.py",
+    "source": "TotKWork/scripts/fska.py",
+    "original_sha256": "e771ba4da6d5303385d376aabc7be70cbd6953ce5d1ccf5b68ea0c10654e1dcb",
+    "source_bytes": 4451,
+    "portable_sha256": "e771ba4da6d5303385d376aabc7be70cbd6953ce5d1ccf5b68ea0c10654e1dcb",
+    "portable_bytes": 4451,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/zelda-tears-of-the-kingdom/scripts/make_icons.py",
+    "source": "TotKWork/scripts/make_icons.py",
+    "original_sha256": "50d659bed434cff1b4466505253640f0fcfe9d3b3549380ae9d917f50110e77d",
+    "source_bytes": 2173,
+    "portable_sha256": "cf8e65a538381ef273e6040925ade6784f2af1ba6c37493ba8dd28e4123520f7",
+    "portable_bytes": 2482,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/zelda-tears-of-the-kingdom/scripts/make_textures.py",
+    "source": "TotKWork/scripts/make_textures.py",
+    "original_sha256": "2264661a23e9b9b7ed59699aea3de69ca95cfd17b42cdf6cf1b4d3b83fbe597b",
+    "source_bytes": 2380,
+    "portable_sha256": "9ab0141587e3759f70d12ec191ccc966dc0874f95e17a717098b00815b7732a0",
+    "portable_bytes": 2726,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/zelda-tears-of-the-kingdom/scripts/mc.py",
+    "source": "TotKWork/scripts/mc.py",
+    "original_sha256": "8e96c52f413bf4feb7d2ad4e99ac90b5d2820c0edc355a441800c76a147a6c52",
+    "source_bytes": 1177,
+    "portable_sha256": "f2c621cb1298fa384a84bdf014dfa6148420226726d8a35ee1116dc1ef900608",
+    "portable_bytes": 1418,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/zelda-tears-of-the-kingdom/scripts/package.py",
+    "source": "TotKWork/scripts/package.py",
+    "original_sha256": "c3d10ee10b3af836a0684488b551aa0b0ccef3111022186f4ae5d62134be68fb",
+    "source_bytes": 3916,
+    "portable_sha256": "c85f31a8ce7d7692b7488dac331b0dc1add2169e5177a9f4dca6a72d1d38e1d1",
+    "portable_bytes": 4120,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/zelda-tears-of-the-kingdom/scripts/pose_test.py",
+    "source": "TotKWork/scripts/pose_test.py",
+    "original_sha256": "23bb86cbf5bc5be71fac31f77544f4809301a1e4d0c9782f28c79521e79e7fc9",
+    "source_bytes": 3678,
+    "portable_sha256": "aaa20154b8226633ef5e2f0941998bdd2ce5d6e20d019653ad561259f6e45cae",
+    "portable_bytes": 3932,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/zelda-tears-of-the-kingdom/scripts/retarget.py",
+    "source": "TotKWork/scripts/retarget.py",
+    "original_sha256": "d327165042e98950bc8647bfebc752c9a9a369ae93410e25ada2f76048bc71ef",
+    "source_bytes": 4347,
+    "portable_sha256": "d327165042e98950bc8647bfebc752c9a9a369ae93410e25ada2f76048bc71ef",
+    "portable_bytes": 4347,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/zelda-tears-of-the-kingdom/scripts/swing_test.py",
+    "source": "Mods/王国之泪/Karin_Original/kit/scripts/swing_test.py",
+    "original_sha256": "12002e961ae807ebc7146b324dd27fb9482e702f74e2b6bc22d6afb11fa0e834",
+    "source_bytes": 3308,
+    "portable_sha256": "c93d42b85350d12f1229127b41bcd6325ba841398f0a677ece77ce5d45477648",
+    "portable_bytes": 3688,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/zelda-tears-of-the-kingdom/scripts/tk.py",
+    "source": "TotKWork/scripts/tk.py",
+    "original_sha256": "fd90534e751cd9faa34856da6e711ae24fc39f8adc639a285755b5288e0bb33b",
+    "source_bytes": 1461,
+    "portable_sha256": "ebc0fec51aa6abc2a3c1c675735b6e581a9d34cf4dbee1f58321f81ae1bcad74",
+    "portable_bytes": 1986,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/zelda-tears-of-the-kingdom/scripts/totkfs.py",
+    "source": "TotKWork/scripts/totkfs.py",
+    "original_sha256": "30ba9fa59fcaa6c4d5a8d4cdc145aa9ab98a7895d2e673316185c7b007997b83",
+    "source_bytes": 5543,
+    "portable_sha256": "30ba9fa59fcaa6c4d5a8d4cdc145aa9ab98a7895d2e673316185c7b007997b83",
+    "portable_bytes": 5543,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/zelda-tears-of-the-kingdom/scripts/txtg.py",
+    "source": "TotKWork/scripts/txtg.py",
+    "original_sha256": "0c4b717f6737dd05bfef5ed83995d9df8580fc74a42b674822ae2f53f2513ea5",
+    "source_bytes": 8910,
+    "portable_sha256": "519ace1be6b6322b9cdef523f4b7032832d00c8da69a1d36f14b4a4dc12c23eb",
+    "portable_bytes": 9271,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/zelda-tears-of-the-kingdom/tools/NxExtract/Extract.cs",
+    "source": "TotKWork/tools/NxExtract/Extract.cs",
+    "original_sha256": "d23dc896fd141d1b0f5d7c9e7eed189bce7ad523d49c65ea1d0c45792d2a9623",
+    "source_bytes": 4888,
+    "portable_sha256": "d23dc896fd141d1b0f5d7c9e7eed189bce7ad523d49c65ea1d0c45792d2a9623",
+    "portable_bytes": 4888,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/zelda-tears-of-the-kingdom/tools/NxExtract/NxExtract.csproj",
+    "source": "TotKWork/tools/NxExtract/NxExtract.csproj",
+    "original_sha256": "090cf88344f066a701322c5df5378f3d6dfa8325de0cee281f8161ffa9ae6173",
+    "source_bytes": 521,
+    "portable_sha256": "823e7aa0b0f793c62a0ff18cbecc744627ba8f8156c476e3741042e43b3b3542",
+    "portable_bytes": 537,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/zelda-tears-of-the-kingdom/tools/NxExtract/nxx.ps1",
+    "source": "TotKWork/nxx.ps1",
+    "original_sha256": "b924bf022a0e4b3df5b904d528e490fd0aa9b30f272ae0f84144eb87de4dc1c1",
+    "source_bytes": 694,
+    "portable_sha256": "fba071ad22193456a4940820f7d3d55783eb59d95c5bef9e10909685e8014bcc",
+    "portable_bytes": 993,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/zelda-tears-of-the-kingdom/tools/TotkMdl/Program.cs",
+    "source": "TotKWork/tools/TotkMdl/Program.cs",
+    "original_sha256": "8e1ecd64298d3aa88be92539cf3b249a6e0db53aea1b4a9df6d8839e19bc1169",
+    "source_bytes": 26560,
+    "portable_sha256": "8e1ecd64298d3aa88be92539cf3b249a6e0db53aea1b4a9df6d8839e19bc1169",
+    "portable_bytes": 26560,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/zelda-tears-of-the-kingdom/tools/TotkMdl/TotkMdl.csproj",
+    "source": "TotKWork/tools/TotkMdl/TotkMdl.csproj",
+    "original_sha256": "59274b49a27f4e00b4cdc65555841055d3751be9850a38bd45f5a3c271beb136",
+    "source_bytes": 1880,
+    "portable_sha256": "dd91fa400d00d6a8329b029e9eb0818a4b5de414b5c7d4ffbac86ec7c3483407",
+    "portable_bytes": 1834,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/zelda-tears-of-the-kingdom/tools/bphcl_probe/Program.cs",
+    "source": "Mods/王国之泪/Karin_Original/kit/tools/bphcl_probe/Program.cs",
+    "original_sha256": "6ac2d2800c556a8249fbab0a3dbdc3779ec7c4b2bd67ca5686ee072ba0f2cc4c",
+    "source_bytes": 1771,
+    "portable_sha256": "e8d0fcb5bc363490d50691229bc5f76968db245966bba7340409bde6b5e798fd",
+    "portable_bytes": 1891,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/zelda-tears-of-the-kingdom/tools/bphcl_probe/ptprobe.csproj",
+    "source": "Mods/王国之泪/Karin_Original/kit/tools/bphcl_probe/ptprobe.csproj",
+    "original_sha256": "9fec30723f64391c38509659ae086b6427bd1cbca0b198ef45a96613fd55b0ff",
+    "source_bytes": 675,
+    "portable_sha256": "3350829253d8311f282248beaf7603c1b87eb0da93b125f0f27117921728bce5",
+    "portable_bytes": 663,
+    "modified_for_portability": true
   }
 ]
