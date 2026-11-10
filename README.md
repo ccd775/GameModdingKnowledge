@@ -1,7 +1,7 @@
 如果你觉得内容有帮助，可以前往https://ifdian.net/a/ccd775 赞助我以获得贴贴！
 # Game Modding Shared Knowledge
 
-供人和 agent 接续长线 Mod 项目的知识库与便携工具包。它包含三十二款游戏的实际项目方法、成功与失败记录（其中二十五款附便携工具包）、19 个原项目迁移脚本、MK1 参数化工具、对马岛 / 西之绝境 / 战神5 构建器、浪人崛起的 KT 引擎格式工具、龙之信条2 的 DD2Tool 与 REFramework 注入脚本、师父的 UE 4.26 编辑器插件与 Blender 构建器、幻兽帕鲁的 UE 5.1 编辑器插件与 KawaiiPhysics 离线模拟器、漫威蜘蛛侠2 的 i30 格式读写与安装器、往日不再的 UE 4.11 烘焙动画蓝图插节点与面部权重求解工具、巫师3 次世代版的 bundle / metadata.store 读写与 dyng / mimic 生成器、刺客信条：奥德赛的 forge v28 原地安装器与 Reflex3 物理骨架生成器、刺客信条：大革命的内嵌副本扫描与附加骨架物理生成器、刺客信条：枭雄的双主角构建链与按内容比对、自带 Python 的安装包、霍格沃茨之遗的更新后网格补丁（HLMeshProbe）与动画蓝图生成插件、死亡搁浅2 的 Decima 流图 / 链接表读写与按组核对的发行安装器、影之刃零的 UE 5.7 Chaos 布料 / CopyPose 动画蓝图插件与 usmap 修正、仁王3 的资源表注入器、NUNO type-4 骨链写入与 G1T v0066 编解码、王国之泪的 TotkMdl（无界面驱动 Switch Toolbox）构建链与存档发装备工具和公共运行工具；不需要注册 Skill。
+供人和 agent 接续长线 Mod 项目的知识库与便携工具包。它包含三十三款游戏的实际项目方法、成功与失败记录（其中二十六款附便携工具包）、19 个原项目迁移脚本、MK1 参数化工具、对马岛 / 西之绝境 / 战神5 构建器、浪人崛起的 KT 引擎格式工具、龙之信条2 的 DD2Tool 与 REFramework 注入脚本、师父的 UE 4.26 编辑器插件与 Blender 构建器、幻兽帕鲁的 UE 5.1 编辑器插件与 KawaiiPhysics 离线模拟器、漫威蜘蛛侠2 的 i30 格式读写与安装器、往日不再的 UE 4.11 烘焙动画蓝图插节点与面部权重求解工具、巫师3 次世代版的 bundle / metadata.store 读写与 dyng / mimic 生成器、刺客信条：奥德赛的 forge v28 原地安装器与 Reflex3 物理骨架生成器、刺客信条：大革命的内嵌副本扫描与附加骨架物理生成器、刺客信条：枭雄的双主角构建链与按内容比对、自带 Python 的安装包、霍格沃茨之遗的更新后网格补丁（HLMeshProbe）与动画蓝图生成插件、死亡搁浅2 的 Decima 流图 / 链接表读写与按组核对的发行安装器、影之刃零的 UE 5.7 Chaos 布料 / CopyPose 动画蓝图插件与 usmap 修正、仁王3 的资源表注入器、NUNO type-4 骨链写入与 G1T v0066 编解码、仁王2 的 3DMigoto 绘制替换构建器（合并骨骼调色板、弹簧链计算着色器）与存档换装器、王国之泪的 TotkMdl（无界面驱动 Switch Toolbox）构建链与存档发装备工具和公共运行工具；不需要注册 Skill。
 
 ## 从这里开始
 
@@ -42,6 +42,7 @@
 | 霍格沃茨之遗 | [Hogwarts Legacy](games/hogwarts-legacy/README.md) | Karin_Original→黑魔法套装（游戏版本 1613387，2025-01 光追 / 序列化更新之后）：原版 UE 4.27 cook 后补上更新新增的 section 字段并按游戏写回参考姿势，借用游戏材质实例（女版克隆到空闲路径），部件数据资产注入动画类跑 CopyPose → AnimDynamics 次级物理，56 个同名形变接游戏面部驱动；拟合五轮、物理四轮后用户实机确认（「这次的挺好的了」「表情和物理效果都正常」）；女巫版 v1.0 玩几分钟后崩溃，经崩溃转储定位为网格带了骨架外的骨，v1.1 修复后用户实机未再崩溃；男版物理 / 表情、过场与战斗大动作未测 |
 | 影之刃零 | [Phantom Blade Zero](games/phantom-blade-zero/README.md) | Karin_Original→主角「魂」v3（Steam buildid 26266538，UE 5.7.4 改版，IoStore）：成年两套默认服装与序章少年魂从 VRM 完整构建，Chaos 骨骼网格布料（裙摆用平滑外壳模拟 + backstop、双马尾、尾巴、耳朵、刘海），MetaHuman 曲线名的形变；成年头槽 0 会被换成动态材质实例（脸放槽 1），平时眨眼放在睫毛片上、过场用头上缩进去的第二张脸；外观、裙摆五轮、刘海、耳朵、眨眼、过场有脸经用户实机确认（「这次看起来都好了」）；v3 身体补回原版的 4 根武器子骨（醉剑丢剑与判定），只读回、未实机复测；第二个模型 Karin_PicodraTech v1（7 段布料、合成尾巴贴图）构建并装进游戏，用户未反馈；第三个模型 Lenko lk4（PMX 源，外套按方位扇区缩短、肩宽重解、长发跟随躯干 + 逐粒子 backstop、每段布料自己的碰撞资产）经四轮实机反馈后用户确认；其它服装、关闭 groom 时的过场未测 |
 | 仁王3 | [Nioh 3](games/nioh-3/README.md) | Karin_Original→女性主角（v2.0.0.2，忍者 / 武士两种流派）：不用 DLL，改写 `root.rdb` / `root.rdx` 指向新容器；Karin 写进两件上衣，其余 13 个模型三角形塌缩，贴图走 TextureAlias 染色变体的贴图表；脸蒙到游戏共享的面部骨（权重 > 1、负的头骨权重）；Karin VRM 的 37 条弹簧链改成 NUNO type-4 骨链，需要 MESH_LOD 类型 2 组 + 独立缓冲 + 物理注册表 + 精确的每材质计数才在关卡里模拟；模型与材质、表情、物理（build21）、袜子里的皮肤（build23）经用户实机确认，裙摆臀部碰撞 build24 待实机；可再部署包从玩家自己的数据生成塌缩模型；同一工具链又做了伊切尔（由 PMX 转换的 FBX，主菜单外观确认）和 Lenko（直接读 PMX；按角色重拟合碰撞组、外套跟着短裙的链、三组闭眼姿势按原版比例，lenko4 用户实机确认）；过场、死亡、NPC、其它染色未测 |
+| 仁王2 | [Nioh 2](games/nioh-2/README.md) | Karin_Original→女性主角 build5（1.25 首发版；隼套装外观 + 长马尾 + 测试存档的脸）：不改游戏文件，3DMigoto（Nioh 2 Mod Enabler 1.1）按 IB 跳过原版角色的全部绘制，Karin 由右护手和原版脸两次绘制代画，每帧用计算着色器按全局骨号把 8 件护甲的调色板拼成两个合并调色板（u8 骨号上限 85），帧戳 + 匀速外推解决关卡里的绘制顺序错位；眨眼由眼睑骨下落量驱动 Karin 自己的闭眼形态键（用户实机确认）；Mod 自己的弹簧链计算着色器模拟双马尾、狐尾、狐耳、鬓发和 16 条裙摆链，裙子权重从身体抄并渐变到大腿；刘海、双马尾、裙子不穿模、狐耳回弹由 agent 实机确认，build5（隐藏没挂钩的布料着色器画的裆前布条、调软狐尾）用户看后「不错」；换装器改存档五件护甲的外观字段（agent 实机 runtime-load-pass）；Steam 当前版本（1.27 / 1.28.x）、过场、其它表情未测 |
 | 生化危机 安魂曲 | [RE9 Requiem](games/resident-evil-requiem/README.md) | Karin_Original→里昂 / 格蕾丝 v1.2.0：从源模型完整构建（refskel 路线、全部部件与 mdf2 变体、chain2 物理与无 Chain2 身体 prefab 注入、CollisionTarget=Self 让 chain2 自带碰撞体生效）；仅在「游戏模型」展柜由 agent 截图与运行时探针验证，实际游玩未测、用户未验收；另修复用户自制 Leon Karin 的乳胶感材质（离线） |
 | 塞尔达传说：王国之泪 | [TotK](games/zelda-tears-of-the-kingdom/README.md) | Karin_Original→Link 的火焰套装 Armor_1061 v7c（1.2.0，yuzu 系模拟器 LayeredFS）：Switch Toolbox 另存的模型当基础，TotkMdl 无界面写 BFRES（重建平滑矩阵表、材质改名避开染色动画、逐形状浮点权重）；不改 Havok cloth，借用布料驱动的骨骼做物理（双马尾、24 根裙骨、兽尾、面颊发、刘海、负权重的狐耳；按驱动三角形区分铰链和万向节），嘴型 NNLS 拟合到 Link 的面部骨，带符号、可大于 1 的权重做眨眼；贴图、裙摆、眨眼、狐耳与刘海经用户实机确认（v6d「可以了」）；v7–v7c 的头身比例、脖子、肩膀、腿只做了离线检查；可再部署包带安装器和按哈希表定位防具包的存档工具，未实机 |
 
@@ -54,7 +55,7 @@ python -B tools/check_repository.py
 python -B tools/export_kit.py --all --output ../Modding-Portable-Exports --zip
 ```
 
-输出二十五份不依赖父仓库的目录，以及对应 ZIP/文件哈希清单。每份包含该游戏文档、脚本、公共层和安装依赖说明。[验证记录](portable-kits/VALIDATION.md) 明确哪些进行了组件测试，哪些还需要专用工具和游戏实测。
+输出二十六份不依赖父仓库的目录，以及对应 ZIP/文件哈希清单。每份包含该游戏文档、脚本、公共层和安装依赖说明。[验证记录](portable-kits/VALIDATION.md) 明确哪些进行了组件测试，哪些还需要专用工具和游戏实测。
 
 ## 下载便携包
 
@@ -73,7 +74,7 @@ python -B tools/export_kit.py --all --output ../Modding-Portable-Exports --zip
 | 求生之路2 | [下载](https://github.com/ccd775/GameModdingKnowledge/releases/download/v0.2.0/left-4-dead-2.zip) |
 | 绝地潜兵2 | [下载](https://github.com/ccd775/GameModdingKnowledge/releases/download/v0.2.0/helldivers-2.zip) |
 
-浪人崛起、龙之信条2、师父、幻兽帕鲁、漫威蜘蛛侠2、往日不再、巫师3、奥德赛、大革命、霍格沃茨之遗、枭雄、死亡搁浅2、影之刃零、仁王3与王国之泪的便携包是 v0.2.0 之后加入的，还不在 Release 里，请用下面的命令自行导出。
+浪人崛起、龙之信条2、师父、幻兽帕鲁、漫威蜘蛛侠2、往日不再、巫师3、奥德赛、大革命、霍格沃茨之遗、枭雄、死亡搁浅2、影之刃零、仁王3、王国之泪与仁王2的便携包是 v0.2.0 之后加入的，还不在 Release 里，请用下面的命令自行导出。
 
 单独导出某一款时运行（导出目录旁会生成同名 ZIP 和 `.files.json` 清单）：
 

@@ -1,0 +1,98 @@
+{
+  "game": "Nioh 2 Complete Edition (PC, v1.25 launch build 2021-02-05; KT engine, K300 archive_XX.lnk; modded at draw time through 3DMigoto, no game file changes)",
+  "status": "runtime-confirmed-scoped",
+  "tools": [
+    {
+      "name": "Nioh 2 Mod Enabler",
+      "version": "1.1 (3DMigoto 1.3.16: d3d11.dll, d3dcompiler_46.dll, d3dx.ini, Mods folder)",
+      "role": "loads the KarinN2 mod folder; TextureOverrides match index buffers only on shaders hooked through its CommandListN2General (shadows: CommandListN2Shadows); its d3dcompiler_46.dll compiles the mod's compute shaders at runtime, so c46.py uses the same DLL offline; user-supplied",
+      "required": true
+    },
+    {
+      "name": "builder (n2_build.py)",
+      "version": "kit",
+      "role": "the whole mod folder from the frame dump, the global bone table, the joints, the source export and the conformed Karin: host A (right gauntlet draw, IB 0814c08f) vertex buffer and index buffers on two merged 85-bone palettes, host B (face draw, IB 834bff26) buffers on the 128-entry face palette with face weights transferred from the vanilla face and per-vertex blink shape-key deltas, skirt weight field, BC7 albedo and constant textures, compute shaders merge_a / merge_s1 / merge_s2 (palette merge with one-frame extrapolation), sim_a (23 spring chains, 58 simulated bones, colliders), blink_b (shape-key blink from the lid bones), tick / stamp (frame stamps), and karin.ini (hooks, hides, resources, custom shaders); writes build1/build_report.json",
+      "required": true
+    },
+    {
+      "name": "skeleton and conform (fa_parse, fa_mesh, fa_list, bones, gamemesh, n2_skel, n2_conform)",
+      "version": "kit",
+      "role": "3DMigoto frame analysis -> per-draw records and numpy vertex / index arrays; vs-cb0 palettes matched across draws into global bone ids; joints solved from parent / child skin matrices; Karin_Original fitted per bone (affine) onto those joints with weight tokens g<n>",
+      "required": true
+    },
+    {
+      "name": "c46.py",
+      "version": "kit",
+      "role": "compile every generated .hlsl as cs_5_0 with the Mod Enabler's d3dcompiler_46.dll through ctypes (stricter than fxc: typed multi-component UAV loads fail with X3676)",
+      "required": true
+    },
+    {
+      "name": "offline checks (check_skin, checks/, simcheck/)",
+      "version": "kit",
+      "role": "check_skin (built host buffers skinned with the dump's real matrices over the vanilla character); checks/simtest, checks/eartest (twin tail, fox tail and ear tunings on synthetic run / stop / turn / dodge / lunge); simcheck (skirt weight field experiments, rest skinning on synthetic poses, Python port of sim_a.hlsl driven by eased runs, stops, turns and dodges, fox tail tuning)",
+      "required": false
+    },
+    {
+      "name": "archive tools (n2lnk, ktpack, n2verify, g1m_index, fa_match, findmodel, g1m_tool)",
+      "version": "kit (g1m_tool byte-identical to the Rise of the Ronin and Nioh 3 kits)",
+      "role": "read-only K300 archive reader (index, extract, many, locate), KT packs (MDLTEXPK / G1M_PACK / EXARG000), integrity scan (zlib chunks, declared sizes, zero pages), G1M vertex-buffer fingerprints, dumped draws matched to archive models by fingerprint or decoded positions; the rejected archive route: the player armour models were not found in the archives",
+      "required": false
+    },
+    {
+      "name": "n2_miaomiao.py / n2_armor.py",
+      "version": "kit (0.1.0-preview)",
+      "role": "save appearance tool: decrypts SAVEDATA.BIN (Nioh 1 custom S-box AES-128-CTR, body sub-keys at header 0x40), rewrites the look IDs of the five worn armour pieces to the Hayabusa set the mod needs and clears the four integrity flags, XOR-delta write-back, backups and restore, window and command line; armour item ID table from alfizari/Nioh-2-Save-Editor (Apache-2.0), cipher tables from pawREP's Nioh Savedata Decryption Tool (MIT)",
+      "required": false
+    },
+    {
+      "name": "DirectXTex texconv",
+      "version": "user-supplied (Windows)",
+      "role": "BC7_UNORM_SRGB 2048 DDS of the four albedo textures and PNG of the face draw's texture slots 1 / 7 (n2_build.py: --texconv, else N2_TEXCONV, else <work dir>/texconv/texconv.exe)",
+      "required": true
+    }
+  ],
+  "entry_documents": [
+    "../../games/nioh-2/README.md",
+    "../../games/nioh-2/BUILD_PIPELINE.md"
+  ],
+  "runtime_boundary": "Game v1.25 (PC launch build) only; Steam 1.27 / 1.28.x untested. Loading through Nioh 2 Mod Enabler 1.1 (3DMigoto 1.3.16). Project builds with the original scripts: build1d self-tested by the agent on the equipment screen and in a level (runtime-load-pass); the build2b blink confirmed by the user; build4 (side hair, skirt physics) and build5 (softer tail, hidden crotch flaps) tested offline, build5 seen in game by the user. Save tool: runtime-load-pass by the agent on the test machine (2026-11-10): clearing the feet look showed the vanilla greaves, applying it again restored Karin, the game's next save set the integrity flags back to 1. The portable copies were checked offline only (2026-11-10): fa_parse -> bones -> n2_skel -> n2_conform on a copy of the project frame dump reproduced the project's fa3.json, bones3.json, joints.json, conform.json (byte for byte) and conformed.npz (array for array); the ported n2_build.py on a copy of the project build inputs wrote 26 files byte-identical to the build5 release folder (README.md is hand-written) and the same build_report.json; the 7 shaders compile with c46.py and the Mod Enabler's d3dcompiler_46.dll; five offline checks print the same output as the originals; plus synthetic tests. The game, 3DMigoto, frame dumps and the test machine were not re-run (see VALIDATION.md).",
+  "bundled_scripts": [
+    "scripts/n2lnk.py",
+    "scripts/ktpack.py",
+    "scripts/n2verify.py",
+    "scripts/g1m_tool.py",
+    "scripts/g1m_index.py",
+    "scripts/findmodel.py",
+    "scripts/fa_match.py",
+    "scripts/fa_parse.py",
+    "scripts/fa_list.py",
+    "scripts/fa_mesh.py",
+    "scripts/bones.py",
+    "scripts/gamemesh.py",
+    "scripts/n2_skel.py",
+    "scripts/check_skin.py",
+    "scripts/n2_conform.py",
+    "scripts/n2_build.py",
+    "scripts/c46.py",
+    "scripts/n2_miaomiao.py",
+    "scripts/n2_armor.py",
+    "scripts/checks/simtest.py",
+    "scripts/checks/eartest.py",
+    "scripts/simcheck/README.md",
+    "scripts/simcheck/adapt.py",
+    "scripts/simcheck/anim.py",
+    "scripts/simcheck/anim2.py",
+    "scripts/simcheck/anim5.py",
+    "scripts/simcheck/common.py",
+    "scripts/simcheck/harm.py",
+    "scripts/simcheck/rest_check.py",
+    "scripts/simcheck/simpy.py",
+    "scripts/simcheck/tailtune.py",
+    "scripts/simcheck/test2.py",
+    "scripts/simcheck/v2.py",
+    "scripts/simcheck/v3.py",
+    "scripts/simcheck/xfer.py"
+  ],
+  "python": "3.10+ for the standard-library scripts (n2lnk, ktpack, n2verify, g1m_index, fa_match, fa_parse, g1m_tool, n2_armor, c46); the frame-dump readers, n2_skel, the checks and n2_miaomiao need numpy 2.5 (3.12+), n2_conform / n2_build / simcheck also scipy 1.18, n2_build the bundle-root Pillow, check_skin matplotlib 3.11; tested 3.14.0",
+  "dependency_install": "python -m pip install -r requirements.txt -r portable-kits/nioh-2/requirements.txt (from bundle root)"
+}

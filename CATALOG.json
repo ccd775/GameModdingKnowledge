@@ -328,6 +328,17 @@
       "topics": ["yuzu LayeredFS 排序靠前生效", "RESTBL 合并与大小估算", ".bfres.mc（MCPK + 无 magic zstd）与零售版 mesh codec", "Switch Toolbox 另存模型当基础", "平滑矩阵表（Node_Array）重建", "染色动画按材质名换 _a0", "TexToGo 逐字节写出与 BNTX 图标原地替换", "ZsDic 字典 zstd 与 SARC", "FSKA v10 自写读取器", "按段相似变换与实际高度倍率", "头部缩放与下沉、肩部压扁、腿部 radial 加粗", "裙摆权重按 Link 裙骨段分配", "bphcl SimpleMeshBoneDeformer 驱动三角形：铰链与万向节", "借用布料骨骼与负权重的拉伸公式", "面部 NNLS 拟合与带符号、可大于 1 的眨眼权重", "逐形状浮点权重格式与 Switch Toolbox 的 8 位截断", "NxExtract（LibHac）叠加基础版与更新 NCA", "progress.sav 哈希表、防具包 String64Array 与 IsGet 标记"],
       "limits": ["v7–v7c（头身比例、脖子、肩膀、腿）只做了离线检查", "安装包和存档工具未在游戏里实测（用户存档本来就有这套）", "染色对 Karin 无效（刻意）", "狐耳只有左右摆，双马尾末端只跟随 3 节", "侧向大摆时面颊发陷进脸颊", "过场、骑乘、游泳、滑翔、攀爬未逐项测", "只覆盖 1061 套装与 1.2.0", "Ryujinx 只能手动安装"],
       "portable_kit": "portable-kits/zelda-tears-of-the-kingdom"
+    },
+    {
+      "id": "nioh-2",
+      "path": "games/nioh-2",
+      "status": "runtime-confirmed-scoped",
+      "milestone": "Karin_Original 替换女性主角（隼套装外观 + 长马尾 + 测试存档的脸）：不改游戏文件，3DMigoto（Nioh 2 Mod Enabler 1.1）按 IB 跳过原版角色的全部绘制，Karin 由右护手和原版脸两次绘制代画；每帧用计算着色器按全局骨号把 8 件护甲的调色板拼成两个合并调色板（60 + 66 根，u8 骨号上限 85），帧计数 + 帧戳 + 匀速外推解决关卡里的绘制顺序错位；脸按 5 个特征点对齐后迁移原版面部权重，眨眼用眼睑骨（条目 24/25）下落量驱动 Karin 自己的闭眼形态键；Mod 自己的弹簧链计算着色器模拟双马尾、狐尾、狐耳、鬓发和 16 条裙摆链（定长、惯性、限幅、球 / 胶囊碰撞），裙子权重从身体抄并渐变到大腿；眨眼经用户实机确认，刘海 / 双马尾 / 裙子不穿模 / 狐耳回弹由 agent 实机确认，build5（隐藏没挂钩的布料着色器画的裆前布条、调软狐尾）用户看后「不错」；换装器把存档五件护甲的外观字段改成隼套装（仁王1 加密、子密钥 0x40、固定布局、清 4 个完整性标志），agent 实机 runtime-load-pass",
+      "date": "2026-11-10",
+      "game_build": "Nioh 2 Complete Edition 1.25 (PC launch build, 2021-02-05); Steam 1.27 / 1.28.x untested",
+      "topics": ["3DMigoto 绘制替换（K300 归档里没找到玩家装备模型）", "Mod Enabler 只在运行 CommandListN2General 的着色器上匹配 TextureOverride：每个画隐藏部件的着色器都要挂钩", "不挂全屏后处理 PS（沿用旧 IB，整屏黑）", "蒙皮 VS 73278b6e cb0 布局：5 行头、每条目 3 行、上一帧调色板、长度行 780", "u8 BLENDINDICES × 3：一个调色板 ≤ 85 根，两个合并调色板在 drawindexed 之间切 vs-cb0", "宿主绘制（右护手 / 原版脸）+ 按全局骨号拼合并调色板", "关卡绘制顺序：帧计数（max_executions_per_frame = 1）+ 帧戳 + 匀速外推 M = C·P⁻¹·C", "影子 VS 的两种 cb0 布局", "d3dcompiler_46 拒绝多分量类型 UAV 读（X3676）：结构化缓冲 + 同 DLL 编译检查", "帧分析跳过 Mod 覆盖（$dump_modded_meshes）", "跨绘制矩阵相等认骨、父子矩阵解关节", "按特征点逐轴缩放平移对齐后迁移面部权重", "形态键眨眼：计算着色器读眼睑骨下落量写动态顶点缓冲", "Mod 自己的弹簧链（Verlet、惯性、滞后上限、偏角限幅、定长、胶囊碰撞）", "裙子权重场：抄身体 + 往裙摆渐变到大腿；裙摆链锚到权重场", "离线测试台：sim_a.hlsl 的 Python 移植 + 减速跑 / 停步 / 转身 / 侧闪 / 扭胯", "存档：仁王1 加密（子密钥 0x40）、固定布局、外观字段 +2、装备表、4 个完整性标志", "版本依赖：着色器 / IB 哈希只对 1.25 验证"],
+      "limits": ["只在 1.25 首发版上测过，Steam 当前版本（1.27 / 1.28.x）未测；哈希变了 Mod 不生效", "只认女性、长马尾、测试存档的脸和五件隼套装外观；角色编辑器里各项选的是哪一个未记录", "鬓发 / 裙摆物理（build4）和调软的狐尾（build5）没有 agent 录像，只有用户看后的「不错」", "张嘴等眨眼以外的表情、过场、多人、高于 60 fps 未测", "半透明时显示原版角色的现象出现过一次，未复现", "换装器未在别人的存档、没拿到过隼套装的存档和 Steam 云同步下实测"],
+      "portable_kit": "portable-kits/nioh-2"
     }
   ]
 }

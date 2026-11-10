@@ -1,0 +1,8 @@
+# Nioh 2: the frame-dump readers (fa_mesh, fa_list, bones, gamemesh, findmodel), n2_skel, the offline checks
+# (checks/, simcheck/) and n2_miaomiao need numpy; n2_conform, n2_build and simcheck/ also scipy; n2_build also the
+# bundle-root Pillow; check_skin also matplotlib. n2lnk, ktpack, n2verify, g1m_index, fa_match, fa_parse, g1m_tool,
+# n2_armor and c46 (Windows: ctypes + the Mod Enabler's d3dcompiler_46.dll) use the standard library; n2_miaomiao's
+# window uses tkinter. These pins need Python 3.12+; tested on Python 3.14.0.
+numpy==2.5.2
+scipy==1.18.0
+matplotlib==3.11.2

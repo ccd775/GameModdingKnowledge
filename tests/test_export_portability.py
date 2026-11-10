@@ -180,6 +180,18 @@ class DetachedExports(unittest.TestCase):
                             self.assertIn(name, process.stderr)
                         self.assertFalse([l for l in process.stderr.splitlines() if 'test_totk_' in l and 'skipped' in l
                                           and 'save_tool' not in l])
+                    if game == 'nioh-2':
+                        self.assertTrue((target/'portable-kits/nioh-2/requirements.txt').is_file())
+                        for name in ('test_n2_help_subfolders_and_build_dir', 'test_n2_k300_archive_ktpack_and_verify',
+                                     'test_n2_provenance_and_portability'):
+                            self.assertIn(name, process.stderr)
+                        self.assertFalse([l for l in process.stderr.splitlines() if 'test_n2_' in l and 'skipped' in l
+                                          and not any(k in l for k in ('frame_dump', 'texconv', 'miaomiao'))])
+                    if game == 'nioh-2' and all(importlib.util.find_spec(m) for m in ('numpy', 'scipy')):
+                        for name in ('test_n2_frame_dump_match_and_skeleton', 'test_n2_build_texconv_and_weights',
+                                     'test_n2_miaomiao_save_appearance'):
+                            self.assertIn(name, process.stderr)
+                        self.assertFalse([l for l in process.stderr.splitlines() if 'test_n2_' in l and 'skipped' in l])
                     print(f'{game}: detached tests passed (unselected games skipped)')
 
 

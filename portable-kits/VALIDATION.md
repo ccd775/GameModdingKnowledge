@@ -1,5 +1,63 @@
 # 迁移验证记录
 
+## 2026-11-10：新增仁王2便携包
+
+- **迁入内容：** 35 个文件，放在 `portable-kits/nioh-2/`，按项目的相对布局（`simcheck/` 仍在 `n2_build.py` 旁边，`simcheck/README.md` 里的 `../n2_build.py` 因此不用改）。
+  - `scripts/` 下 17 个，来自项目构建包 `_build/tools/`：构建器 `n2_build.py`、贴合 `n2_conform.py`、帧分析 `fa_parse.py`、`fa_mesh.py`、`fa_list.py`，骨号与关节 `bones.py`、`gamemesh.py`、`n2_skel.py`，
+    编译检查 `c46.py`、蒙皮叠图 `check_skin.py`，归档 `n2lnk.py`、`ktpack.py`、`n2verify.py`、`g1m_index.py`、`fa_match.py`、`findmodel.py`，以及 `g1m_tool.py`（与浪人崛起、仁王3 便携包的同名文件逐字节相同）；
+  - `scripts/n2_miaomiao.py`、`n2_armor.py`，来自项目 `tools/n2miaomiao/`（换装器）；
+  - `scripts/checks/simtest.py`、`eartest.py`，来自 `_build/tools/` 根下；
+  - `scripts/simcheck/` 下 14 个（13 个 Python 和 `README.md`），来自 `_build/tools/simcheck/`；
+  - PROVENANCE 每个文件一行（35 行，追加在末尾），来源记为 `Mods/Nioh2/_build/tools/<名字>`、`Mods/Nioh2/tools/n2miaomiao/<名字>`；
+  - 新增 `README.md`、`toolchain.json`、`requirements.txt`（numpy、scipy、matplotlib，按实际导入核对；Pillow 在根目录的 `requirements.txt` 里）。公共层 `modkit.py` 的游戏列表加上 `nioh-2`，导出器和导出测试因此覆盖它。
+- **没有迁入：** 构建包 `tools/` 里的一次性探针 `cmpvb.py`、`mwheads.py`、`mwheads2.py`、`survey.py`、`findcount.py`、`lidscan.py`（写死了本机的缓存 / 索引目录，各自只回答过一个问题）和 4 个 `run_*.cmd`；`BUILD.md`（内容并进了便携包说明和 `games/nioh-2/BUILD_PIPELINE.md`）；
+  换装器的 `build.cmd`、`requirements-build.txt`、`test_tool.py`（13 个合成存档测试改写进 `tests/test_portable_tools.py` 的 `Nioh2Tools`）、`LICENSE.txt`、`THIRD_PARTY_NOTICES.txt`、EXE 和 ZIP；`__pycache__`；
+  构建包的 `source/`、`build1/`、`data/`、`fa3/`（帧分析，几百 MB 游戏网格和贴图）、`asm/`、`texconv/`、`texview/`，发行包，测试机脚本，任何存档。
+- **便携改动**在 27 个文件：
+  - 写死的本机路径：
+    - `findmodel.py`：游戏的 `archive` 目录 → `--game-dir` / `N2_GAME_DIR`（只在要从归档读条目时检查，没设时报错并说出变量名）；缓存目录 → `--cache`（不给就不缓存，结果相同）；
+    - `check_skin.py`：原来要从构建包根目录运行（相对路径读 `fa3/`、`build1/build_report.json`、`out/KarinN2/meshes/`，写 `build1/skin_check.png`），现在解析参数后检查 `N2_BUILD` 并切过去；Mod 目录（位置参数）和输出图（`--png`）的默认值就是原来的两个位置；
+    - `checks/simtest.py`、`checks/eartest.py`：`build1/conform.json` 原来相对当前目录，现在在 `N2_BUILD` 下；
+    - `simcheck/common.py`：原来切到 `tools/` 的上一级（构建包）并从 `tools/` 导入 `n2_build.py`，现在切到 `N2_BUILD`（没设时报错），从上一级 `scripts/` 导入；
+    - `n2_build.py`：texconv 原来是 `TEXCONV` 变量，否则是构建包里的 `texconv/texconv.exe`（相对 `tools/` 的上一级）；现在 `--texconv` → `N2_TEXCONV` → `<工作目录>/texconv/texconv.exe`，在 `main()` 里解析（`simcheck/` 导入它时不需要）；
+    - `sys.path.insert(0, 'tools')`（`fa_list.py`、`check_skin.py`、`simtest.py`）→ 相对 `__file__` 的目录；
+  - 没有 argparse 的命令补上 argparse，位置参数和选项不变：`n2lnk.py`（`index` / `extract` / `many` / `locate` 子命令）、`n2verify.py`、`g1m_index.py`（`--from`、`--zip-only`；`main()` 照旧从命令行读 `--zip-only`）、`findmodel.py`、`fa_match.py`、`fa_parse.py`、`fa_list.py`、`bones.py`、
+    `n2_skel.py`、`check_skin.py`、`n2_conform.py`、`n2_build.py`、`c46.py`、`checks/` 的 2 个、`simcheck/` 的 10 个命令（`adapt`、`anim`、`anim2`、`anim5`、`harm`、`rest_check`、`tailtune`、`v2`、`v3`、`xfer`）。
+    原来 `--help` 会被当成路径或被忽略：`n2_build.py`、`n2_conform.py`、`n2_skel.py`、`bones.py` 报 IndexError 或找不到文件，`c46.py` 把它当 DLL 加载，`simcheck/` 的命令和 `simtest.py`、`eartest.py` 直接开始跑。
+    `c46.py` 在解析之后才加载 DLL；`fa_list.py`、`check_skin.py`、`checks/` 在解析之后才导入 numpy / matplotlib；`simcheck/` 的命令只在直接运行时解析，而且在导入数据链（`common.py` 读数据）之前。
+    细节上的差别：`n2lnk.py` 不带参数时报用法错误（原来打印说明、退出码 1），未知子命令是用法错误（原来是 KeyError）；`findmodel.py`、`bones.py` 至少要一个绘制号（用法行本来就这么写）；未知选项被拒绝（原来忽略）。
+    没有说明的命令（`fa_list.py`、`checks/` 的 2 个、`simcheck/` 除 `tailtune.py` 以外的 9 个）加了一段说明，`n2_build.py`、`check_skin.py` 的说明里补了用法行；`simcheck/README.md` 改了「切到哪个目录」那一句。
+  - 换行：每个文件保留原来的换行：`n2lnk.py`、`n2_build.py`、`simcheck/` 的 `anim.py`、`anim2.py`、`common.py`、`simpy.py`、`README.md` 是 CRLF（原件都是整份 CRLF），其余 LF。
+
+  其余 8 个文件与原文件逐字节相同：`g1m_tool.py`、`ktpack.py`、`fa_mesh.py`、`gamemesh.py`、`n2_miaomiao.py`、`n2_armor.py`、`simcheck/simpy.py`、`simcheck/test2.py`。处理逻辑、常量和输出没有改。
+- **离线核对（本机，2026-11-10）：**
+  - **条件：** Windows 10 19044；Python 3.14.0 + numpy 2.5.2、scipy 1.18.0、matplotlib 3.11.2、Pillow 12.3.0、markdown-it-py 4.0.0；构建包里的 texconv。项目构建包 `_build/` 复制两份到会话临时目录（不带 `fa3/FrameAnalysisDeduped/`，没有脚本读它）：
+    一份带原来的 `tools/`，原脚本按 `BUILD.md` 的方式在它里面运行（`python -B`，当前目录 = 副本）；另一份去掉 `tools/`，便携脚本从别的当前目录运行，`N2_BUILD` / 工作目录参数指向它。项目目录没有写入任何东西。
+  - **帧分析 → 贴合：** `fa_parse.py <帧分析> --json` → `bones.py`（32 次绘制）→ `n2_skel.py` → `n2_conform.py`，原脚本和便携脚本两边 4 步的退出码、标准输出和写出的文件相同，`fa_list.py` 的输出相同（39 行）；
+    写出的 `fa3.json`、`bones3.json`、`joints.json`、`conform.json` 与项目里现有的文件逐字节相同，`conformed.npz` 按数组相同。`bones.py` 的绘制号必须按项目 `bones3.json` 的顺序给（`21 19 15 29 16 31 17 32 22 24 23 25 42 47 43 45 44 46 38 39 40 41 35 36 48 49 50 51 52 56 59 60`）：
+    全局骨号按第一次出现编号，第一次按升序传时两边仍然相同，但骨号全变、`n2_skel.LABEL` 对不上，关节最多偏 1 米。顺序是从 `bones3.json` 里 `draws` 的键序读出来的，写进了便携包说明。
+  - **`check_skin.py`：** 原脚本和便携脚本在 build5 的输出上都报同一个 `IndexError`（`index 62 is out of bounds for axis 0 with size 60`）：它只按 `palette_A`（60 根）拼调色板，`karinA.vb` 里调色板 B 的顶点骨号到 65。这是原脚本的状态，便携版没有改逻辑，便携包说明里写了怎么补。
+  - **构建器：** 原 `n2_build.py` 在第一份副本上写出的 26 个文件与发行包 `release/KarinN2/` 逐字节相同（`README.md` 是手写的，不比较），`build1/build_report.json` 与项目里的现有文件逐字节相同——先确认基线；
+    便携版 `n2_build.py`（没设 `N2_TEXCONV`，用默认的 `<工作目录>/texconv/texconv.exe`）在第二份副本上写出的 26 个文件同样与发行包、与原脚本的输出逐字节相同，`build_report.json` 相同，标准输出相同，`texview/` 的 2 张 PNG 相同。
+    第一次跑便携版时 `main()` 新加的参数名 `texconv` 遮住了同名函数（`TypeError`），改名为 `texconv_exe` 后重跑得到上面的结果；测试里加了默认路径和 `--texconv` 的检查。
+  - **编译检查：** 生成的 7 个着色器用便携版 `c46.py` + Mod Enabler 1.1 的 `d3dcompiler_46.dll`（sha256 `8b1034bd…2f96`，从测试机取回的那一份）全部 `OK`，`merge_a.hlsl` 第 32 行一条 X4000 警告；输出与原 `c46.py` 逐字节相同。
+  - **离线检查：** `simcheck/tailtune.py`、`simcheck/rest_check.py`、`simcheck/anim5.py`、`checks/simtest.py`、`checks/eartest.py` 原脚本与便携脚本各跑一次，退出码、标准输出（5、8、5、7、7 行）和标准错误相同。
+  - 全部 27 个命令（`scripts/` 15 个、`checks/` 2 个、`simcheck/` 10 个）在没有任何 `N2_*` 变量时 `--help` 以 0 退出并打印用法；顶层的 4 个库（`fa_mesh.py`、`gamemesh.py`、`ktpack.py`、`n2_armor.py`）没有命令行，以 0 退出、不输出；
+    `simcheck/` 的 3 个库（`common.py`、`simpy.py`、`test2.py`）没有命令行，直接运行时报 `N2_BUILD is not set`。
+  - **没有重跑的部分：** 游戏、3DMigoto / Mod Enabler 和测试机（没有部署便携版的构建结果，它与已部署的 build5 逐字节相同）；在测试机上抓帧分析；归档工具没有在真实归档上跑（本机没有装游戏），只在合成数据上测；换装器没有对真实存档运行。
+    实机结论来自项目用原脚本构建的 build1–build5 和换装器（`games/nioh-2/VALIDATION_AND_RELEASE.md`、`SAVE_AND_APPEARANCE.md`）。
+- **合成数据测试：** `Nioh2Tools` 共 6 项，不需要游戏、帧分析、源模型或 texconv：
+  - `n2lnk.py` / `ktpack.py` / `g1m_index.py` / `n2verify.py`：合成的 K300 归档（带空格的路径；zlib 块、不可压缩的原样块、存储条目）里放 MDLTEXPK（G1M_PACK + EXARG000）、裸 G1M、随机数据和带整页零的条目：`index` 的大小和前 8 字节，`extract` / `many` 逐字节，`locate`，
+    `ktpack.models` / `textures`，`g1m_index.py` 的指纹（含 `--zip-only`），`n2verify.py` 的零页标记、松散文件和坏 zlib 块；
+  - 帧分析：合成的 3DMigoto 转储（两次绘制共用 vb / ib，`vs-cb0` 调色板不同，`log.txt`）上 `fa_parse.py` 的记录和打印、`fa_mesh.load_draw`、`fa_list.py`、`fa_match.py`、`findmodel.py`（缺 `N2_GAME_DIR` 时报错，`--cache` 之后不需要游戏目录）、
+    `bones.py`（跨绘制按矩阵归并全局骨号、质量）、`gamemesh.load`、`n2_skel.py`（父子矩阵求出的颈关节、两个单位矩阵时取种子点）；
+  - `n2_build.py`：texconv 默认路径和 `--texconv`、`pack_weights` 的 f16 量化（总和精确为 1）、`dds_const` 的头；
+  - 换装器：固定头密钥的密钥流（与仁王3 相同）、加解密往返、`apply` / `clear` 只改五个外观字段和 4 个标志、幂等、各种拒绝、命令行 `inspect` / `--out` / `BACKUP.BIN` 被拒、Windows 上 `--in-place` 的备份与 `restore`；
+  - `checks/`、`simcheck/` 12 个命令的 `--help`，缺 `N2_BUILD` 时的报错；PROVENANCE 与可移植性（每个文件一行、哈希、来源前缀、修改标记、`bundled_scripts`、`g1m_tool.py` 与其他包相同、没有盘符 / 用户目录 / 机器名 / 写死的 `sys.path`、CRLF 正好是上面 7 个、没有二进制和一次性探针）。
+
+  没装 numpy / scipy 时要它们的项和命令的 `--help` 跳过。上面的等价性核对是本机手工跑的，没有写进测试套件。
+- **未验证：** 便携版没有在游戏、测试机上重跑；归档工具的真实数据；非 Windows 系统；1.25 以外的游戏版本；新模型的案例常量。
+
 ## 2026-11-07：新增王国之泪便携包
 
 - **迁入：** 31 个文件，另有 1 个新写的文件，放在 `portable-kits/zelda-tears-of-the-kingdom/`。

@@ -53,6 +53,7 @@ before authoring. Never use this root document as a live candidate state file.
 - Phantom Blade Zero (PC, Steam buildid 26266538) -> `games/phantom-blade-zero/`
 - Nioh 3 (PC, Nioh3.exe v2.0.0.2) -> `games/nioh-3/`
 - The Legend of Zelda: Tears of the Kingdom (1.2.0, yuzu-family emulators) -> `games/zelda-tears-of-the-kingdom/`
+- Nioh 2 Complete Edition (PC 1.25, 3DMigoto / Nioh 2 Mod Enabler) -> `games/nioh-2/`
 
 - Hitman: World of Assassination -> `games/hitman-world-of-assassination/`
 - Watch Dogs -> `games/watch-dogs/`

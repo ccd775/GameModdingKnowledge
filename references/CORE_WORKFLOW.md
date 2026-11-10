@@ -195,3 +195,17 @@ The game workflows use different formats, but the same engineering loop.
   neck made Karin's body 1.405x from feet to head joint while the head stayed at 1.30x, and the user saw a small head;
   the skeleton's fixed arm pivots also cap how narrow the shoulders can get, so only the shoulder silhouette can be
   reshaped (`games/zelda-tears-of-the-kingdom/RETARGET_AND_PROPORTIONS.md` §2, §4).
+- A 3DMigoto mesh override only fires where the loader looks. Nioh 2's Mod Enabler matches `TextureOverride` IB
+  hashes only on draws whose shader runs its `CommandListN2General` (shadows have their own list), so a part drawn by
+  an unhooked shader stays visible however its IB is listed: two cloth flaps drawn by a cloth VS survived until that
+  VS was hooked. Never hook full-screen passes; they reuse a stale IB and get skipped, blacking out the frame
+  (`games/nioh-2/TECHNICAL_CONTRACTS.md` §2).
+- Draw order differs between menus and gameplay. Nioh 2 draws the right gauntlet first in levels but last on the
+  equipment screen, so a palette merged from other draws was one frame stale only in levels (bangs sank into the head
+  while running). A once-per-frame counter, per-draw stamps and constant-velocity extrapolation fixed it; check
+  alignment in gameplay, not on menus (`games/nioh-2/TECHNICAL_CONTRACTS.md` §4).
+- When the loader cannot author physics and borrowed bones misbehave (Nioh 2 twin tails riding scarf chains
+  stretched on turns), simulate your own chains in a compute shader and write the bone matrices into the palette:
+  fixed segment lengths, inertia, a per-frame lag cap and a swing limit. Give every chain its own offline number on
+  eased, harsher-than-game motion with hip sway; a harness that held the pelvis still hid a rigid tail
+  (`games/nioh-2/PHYSICS.md`).

@@ -251,6 +251,7 @@ class PortableTools(unittest.TestCase):
             if path.parents[1].name == 'assassins-creed-unity' and acu_missing(path.stem): continue
             if path.parents[1].name == 'hogwarts-legacy' and hl_missing(path.stem): continue
             if path.parents[1].name == 'nioh-3' and n3_missing(path.stem): continue
+            if path.parents[1].name == 'nioh-2' and n2_missing(path.stem): continue
             if path.parents[1].name == 'assassins-creed-syndicate' and acs_missing(path.stem): continue
             if path.parents[1].name == 'death-stranding-2' and ds2_missing(path.stem): continue
             if path.parents[1].name == 'zelda-tears-of-the-kingdom' and totk_missing(path.stem): continue
@@ -7093,5 +7094,469 @@ class ZeldaTotkTools(unittest.TestCase):
         # not bundled: shell / batch wrappers (assemble_package.py writes the .bat files), binaries, game data
         self.assertFalse([p for p in kit.rglob('*') if p.suffix in ('.sh', '.cmd', '.bat', '.exe', '.dll', '.zip', '.mc',
                                                                        '.bfres', '.txtg', '.zs', '.sav', '.npz')])
+
+N2_KIT = KITS / 'nioh-2'
+# commands that import numpy / scipy before parsing their arguments (they are also imported as libraries); every
+# other Nioh 2 command parses first, so its --help needs only the standard library
+N2_DEPS = {'findmodel': ('numpy',), 'fa_mesh': ('numpy',), 'bones': ('numpy',), 'gamemesh': ('numpy',),
+           'n2_skel': ('numpy',), 'n2_conform': ('numpy', 'scipy'), 'n2_build': ('numpy', 'scipy'),
+           'n2_miaomiao': ('numpy',)}
+N2_NOT_COMMANDS = ('common', 'simpy', 'test2')     # simcheck libraries: they load the build data when imported
+N2_LOCAL_NAMES = ('g1m_tool', 'ktpack', 'n2lnk', 'fa_mesh', 'bones')    # g1m_tool: same name as the Ronin / Nioh 3 copy
+# kit files that keep the original's CRLF line endings; every other kit file is LF
+N2_CRLF = {'scripts/n2lnk.py', 'scripts/n2_build.py'} | {
+    f'scripts/simcheck/{n}' for n in ('README.md', 'anim.py', 'anim2.py', 'common.py', 'simpy.py')}
+N2_VS, N2_PS = '73278b6e00000000', 'b2f60a9e522cd98f'
+N2_EQUIPPED = {'head': (0xDC89, 0xF4E5), 'torso': (0x0C1F, 0x591C), 'arms': (0xE6FE, 0x6B10),
+               'waist': (0xAAC9, 0x741F), 'feet': (0x3C4C, 0x3C4C)}      # (item, current look)
+N2_CELLS = {'head': 37, 'torso': 7, 'arms': 1, 'waist': 2, 'feet': 31}
+
+
+def n2_missing(script):
+    return [m for m in N2_DEPS.get(script, ()) if importlib.util.find_spec(m) is None]
+
+
+def n2_kit():
+    if not N2_KIT.is_dir():
+        raise unittest.SkipTest('nioh-2 is not included in this single-game export')
+    return N2_KIT
+
+
+def n2_need(*mods):
+    n2_kit()
+    missing = [m for m in mods if importlib.util.find_spec(m) is None]
+    if missing:
+        raise unittest.SkipTest('pip install -r portable-kits/nioh-2/requirements.txt (missing ' + ', '.join(missing) + ')')
+
+
+def n2_module(rel):
+    """Kit module by path below scripts/; the kit's own module names (and other kits' g1m_tool) are dropped from
+    sys.modules first so the Nioh 2 copies load"""
+    path = n2_kit() / 'scripts' / f'{rel}.py'
+    for name in N2_LOCAL_NAMES + (path.stem,):
+        sys.modules.pop(name, None)
+    sys.path.insert(0, str(path.parent))
+    spec = importlib.util.spec_from_file_location(path.stem, path)
+    obj = importlib.util.module_from_spec(spec)
+    sys.modules[path.stem] = obj
+    spec.loader.exec_module(obj)
+    return obj
+
+
+def n2_run(rel, *args, env=None, ok=True):
+    """Run a kit script (path below scripts/) with none of the caller's N2_* variables (plus env)."""
+    full = {k: v for k, v in os.environ.items() if not k.startswith('N2_')}
+    full.update(env or {}, PYTHONIOENCODING='utf-8')
+    process = subprocess.run([sys.executable, '-B', str(n2_kit() / 'scripts' / rel), *map(str, args)],
+                             capture_output=True, text=True, encoding='utf-8', env=full, timeout=300)
+    if (process.returncode == 0) != ok:
+        raise AssertionError(f'{rel}: exit {process.returncode}\n{process.stdout}\n{process.stderr}')
+    return process
+
+
+def n2_k300(entries):
+    """archive_XX.lnk (n2lnk.py): 0x20-byte header ('K300', 0, u64 count, u64 file size, u64 alignment 0x800), count x
+    (u64 offset, size, stored size, zip flag), entries 0x800-aligned. entries: (payload, zipped). A zipped payload is
+    16 KB chunks: u32 (compressed size | 0x8000) + zlib data, or the raw size + the raw bytes when zlib does not shrink
+    the chunk; every chunk padded to 16 bytes."""
+    pos = -(-(0x20 + 32 * len(entries)) // 0x800) * 0x800
+    first, table, blobs = pos, [], []
+    for payload, zipped in entries:
+        stored = payload
+        if zipped:
+            stored = bytearray()
+            for i in range(0, len(payload), 0x4000):
+                chunk = payload[i:i + 0x4000]
+                z = zlib.compress(chunk)
+                if len(z) < len(chunk):
+                    stored += struct.pack('<I', len(z) | 0x8000) + z
+                else:
+                    stored += struct.pack('<I', len(chunk)) + chunk
+                stored += bytes(-len(stored) % 16)
+            stored = bytes(stored)
+        table.append((pos, len(payload), len(stored), int(zipped)))
+        blobs.append(stored + bytes(-len(stored) % 0x800))
+        pos += len(blobs[-1])
+    head = b'K300' + struct.pack('<IQQQ', 0, len(entries), pos, 0x800) + b''.join(struct.pack('<4Q', *t) for t in table)
+    return head + bytes(first - len(head)) + b''.join(blobs)
+
+
+def n2_ktpack(magic, items, extra=b''):
+    """KT generic pack (ktpack.py): magic, u32 0x01010000, header size 0x30, total size, n, n, 0, offset table, size
+    table, extra pack (or 0), 0; offsets relative to the pack, items 16-aligned, the extra pack after them"""
+    n = len(items)
+    pos = -(-(0x30 + 8 * n) // 16) * 16
+    offs, body = [], b''
+    for item in items:
+        offs.append(pos + len(body))
+        body += item + bytes(-len(item) % 16)
+    px = pos + len(body) if extra else 0
+    head = magic + struct.pack('<10I', 0x01010000, 0x30, pos + len(body) + len(extra), n, n, 0, 0x30, 0x30 + 4 * n, px, 0)
+    head += struct.pack(f'<{n}I', *offs) + struct.pack(f'<{n}I', *map(len, items))
+    return head + bytes(pos - len(head)) + body + extra
+
+
+def n2_g1m():
+    """ronin_g1m: 4 vertices (stride 36) on palette entries 0 / 1 (BLENDINDICES = entry x 3), two triangles"""
+    verts = [((0, 100, 0), [1] + [0] * 7, [0] * 8), ((10, 100, 0), [0.5, 0.5] + [0] * 6, [0, 3] + [0] * 6),
+             ((0, 110, 0), [0, 1] + [0] * 6, [0, 3] + [0] * 6), ((10, 110, 5), [1] + [0] * 7, [3] + [0] * 7)]
+    eye = [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
+    return ronin_g1m(((0, -1, (0, 0, 0)), (1, 0, (0, 100, 0))), [eye, eye], [[(0, 1)]], verts, [[(0, 0), (1, 1)]],
+                     [(0, 0, 0, 4, 0, 6)], [0, 1, 2, 1, 3, 2])
+
+
+def n2_game(root):
+    """<root>/Nioh 2/archive/archive_00.lnk: e0 MDLTEXPK (G1M_PACK with the G1M, EXARG000 with a G1T; zipped), e1 the
+    bare G1M (stored), e2 random bytes (zipped: raw chunks), e3 a stored entry with whole zero pages.
+    Returns (game dir, G1M, its vertex buffer bytes, entries)."""
+    import random
+    g1m = n2_g1m()
+    gt = n2_module('g1m_tool')
+    vb = gt.parse(g1m).vertex_buffers[0]
+    vbytes = g1m[vb['offset']:vb['offset'] + vb['stride'] * vb['count']]
+    g1t = b'GT1G0600' + struct.pack('<4I', 40, 24, 0, 0) + bytes(16)
+    pack = n2_ktpack(b'MDLTEXPK', [n2_ktpack(b'G1M_PACK', [g1m])], n2_ktpack(b'EXARG000', [g1t]))
+    rnd = random.Random(2)
+    entries = [(pack + bytes(40000), True), (g1m, False), (bytes(rnd.randrange(256) for _ in range(40000)), True),
+               (b'\1' + bytes(4 * 4096) + b'\1', False)]
+    game = root / 'Nioh 2'
+    (game / 'archive').mkdir(parents=True)
+    (game / 'archive' / 'archive_00.lnk').write_bytes(n2_k300(entries))
+    return game, g1m, vbytes, entries
+
+
+def n2_frame_dump(folder, vbytes, palettes):
+    """3DMigoto frame analysis of skinned draws sharing one vertex / index buffer: per draw vb0 (.buf + .txt layout:
+    POSITION0 f32 x3 @0, BLENDWEIGHT0 f16 x4 @12, BLENDINDICES0 u8 x4 @28, NORMAL0 unorm8 x4 @32), ib (R16, 6 indices),
+    vs-cb0 (5 header float4 rows, then 3 rows per palette entry) and log.txt. palettes: {draw: [3x4 matrices]}"""
+    folder.mkdir(parents=True)
+    elems = [('POSITION', 'R32G32B32_FLOAT', 0), ('BLENDWEIGHT', 'R16G16B16A16_FLOAT', 12),
+             ('BLENDINDICES', 'R8G8B8A8_UINT', 28), ('NORMAL', 'R8G8B8A8_UNORM', 32)]
+    vtxt = 'stride: 36\nfirst vertex: 0\nvertex count: 4\ntopology: trianglelist\n' + ''.join(
+        f'element[{i}]:\n  SemanticName: {s}\n  SemanticIndex: 0\n  Format: {f}\n  InputSlot: 0\n  AlignedByteOffset: {o}\n'
+        f'  InputSlotClass: per-vertex\n  InstanceDataStepRate: 0\n' for i, (s, f, o) in enumerate(elems)) + '\nvertex-data:\n\n'
+    itxt = 'byte offset: 0\nfirst index: 0\nindex count: 6\ntopology: trianglelist\nformat: DXGI_FORMAT_R16_UINT\n\n0 1 2\n1 3 2\n'
+    log = ''
+    for draw, pal in palettes.items():
+        tail = f'-vs={N2_VS}-ps={N2_PS}'
+        for slot, h, buf, txt in (('vb0', '1a2b3c4d', vbytes, vtxt), ('ib', '5e6f7a8b', struct.pack('<6H', 0, 1, 2, 1, 3, 2), itxt)):
+            (folder / f'{draw:06d}-{slot}={h}{tail}.buf').write_bytes(buf)
+            (folder / f'{draw:06d}-{slot}={h}{tail}.txt').write_text(txt)
+        rows = [0.0] * 20 + [v for m in pal for r in m for v in r]
+        (folder / f'{draw:06d}-vs-cb0={draw:08x}{tail}.buf').write_bytes(struct.pack(f'<{len(rows)}f', *rows))
+        log += f'{draw:06d} DrawIndexed(IndexCount:6, StartIndexLocation:0, BaseVertexLocation:0)\n'
+    (folder / 'log.txt').write_text(log)
+
+
+def n2_save(m, seed=1, cells=None, equipped=None, flags=1):
+    """decrypted SAVEDATA.BIN with the Complete Edition layout (n2_miaomiao.py): header, body sub-keys at 0x40,
+    integrity flags, gear area, equipment table (the project's test_tool.py fixture)"""
+    import random
+    rnd = random.Random(seed)
+    cells = dict(N2_CELLS, **(cells or {}))
+    equipped = dict(N2_EQUIPPED, **(equipped or {}))
+    p = bytearray(m.SAVE_SIZE)
+    p[:8] = m.MAGIC
+    p[8:12] = bytes.fromhex('00050221')
+    struct.pack_into('<IIII', p, 0x10, 1638, m.HEADER_SIZE, m.BODY_SIZE, 0)
+    struct.pack_into('<I', p, 0x20, 1767225600)
+    struct.pack_into('<I', p, m.LEVEL_OFFSET, 258)
+    p[m.BODY_KEY_OFFSET:m.BODY_KEY_OFFSET + 64] = bytes(rnd.randrange(256) for _ in range(64))
+    for i in range(m.HEADER_SIZE, m.SAVE_SIZE, 4096):                  # some non-zero "game data"
+        p[i:i + 8] = bytes(rnd.randrange(256) for _ in range(8))
+    for off in m.INTEGRITY_FLAGS:
+        p[off] = flags
+    table = [13, 16, 0, 0, 0, 0, 0, 21, 38, 5, 4]
+    for slot, index, _ in m.SLOTS:
+        table[index] = cells[slot]
+        if cells[slot] < m.GEAR_SLOTS:
+            base = m.GEAR_START + m.GEAR_SIZE * cells[slot]
+            struct.pack_into('>HH', p, base, *equipped[slot])
+            p[base + 4:base + 24] = bytes.fromhex('0100c800c80078003c8601008000000105000000')
+    struct.pack_into(f'<{m.EQUIP_COUNT}I', p, m.EQUIP_TABLE, *table)
+    return bytes(p)
+
+
+class Nioh2Tools(unittest.TestCase):
+    """Synthetic K300 archives, KT packs, a G1M, a 3DMigoto frame analysis and save files. Real work needs the game's
+    archive/ folder, a frame dump on the game machine, the build inputs (N2_BUILD), texconv and the Mod Enabler's
+    d3dcompiler_46.dll; the builder and the offline checks were compared with the project originals on real data
+    (VALIDATION.md)."""
+
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(prefix='modding nioh 2 ')
+        self.root = Path(self.temp.name)
+
+    def tearDown(self): self.temp.cleanup()
+
+    @classmethod
+    def tearDownClass(cls):
+        for name in N2_LOCAL_NAMES + ('n2_build', 'n2_miaomiao', 'n2_armor', 'gamemesh'):
+            sys.modules.pop(name, None)
+
+    def test_n2_help_subfolders_and_build_dir(self):
+        kit = n2_kit()
+        scripts = sorted(p for d in ('checks', 'simcheck') for p in (kit / 'scripts' / d).glob('*.py')
+                         if p.stem not in N2_NOT_COMMANDS)
+        self.assertEqual(len(scripts), 12)                # 2 checks + 10 simcheck commands
+        from concurrent.futures import ThreadPoolExecutor
+        rels = [p.relative_to(kit / 'scripts').as_posix() for p in scripts]
+        with ThreadPoolExecutor(8) as pool:          # the top-level scripts are in test_all_cli_help
+            for rel, process in zip(rels, pool.map(lambda rel: n2_run(rel, '--help'), rels)):
+                self.assertIn('usage:', process.stdout, rel)
+        # without N2_BUILD the checks stop before reading anything, naming the variable
+        needs = ['checks/simtest.py', 'checks/eartest.py', 'check_skin.py']
+        if importlib.util.find_spec('numpy'):        # simcheck: common.py checks it after importing numpy
+            needs += ['simcheck/rest_check.py', 'simcheck/tailtune.py']
+        for rel in needs:
+            self.assertIn('N2_BUILD is not set', n2_run(rel, ok=False).stderr, rel)
+        # the help of the builder, the archive and frame-dump tools names their positional inputs
+        for rel, words in (('n2_build.py', ('work_dir', '--texconv')), ('findmodel.py', ('--game-dir', 'N2_GAME_DIR')),
+                           ('n2lnk.py', ('index', 'extract', 'many', 'locate'))):
+            if not n2_missing(Path(rel).stem):
+                out = n2_run(rel, '--help').stdout
+                self.assertTrue(all(w in out for w in words), (rel, out))
+
+    def test_n2_k300_archive_ktpack_and_verify(self):
+        game, g1m, vbytes, entries = n2_game(self.root)
+        adir = game / 'archive'
+        # n2lnk: index, extract, many, locate
+        n2_run('n2lnk.py', 'index', adir, self.root / 'index.jsonl')
+        index = [json.loads(l) for l in (self.root / 'index.jsonl').read_text(encoding='utf-8').splitlines()]
+        self.assertEqual([(r['e'], r['size'], r['zip']) for r in index], [(i, len(p), int(z)) for i, (p, z) in enumerate(entries)])
+        self.assertEqual([bytes.fromhex(r['magic'])[:8] for r in index[:2]], [b'MDLTEXPK', g1m[:8]])
+        self.assertTrue(struct.unpack_from('<I', bytes.fromhex(index[0]['zhead']))[0] & 0x8000)      # a zlib chunk first
+        for e, (payload, _) in enumerate(entries):
+            n2_run('n2lnk.py', 'extract', adir, 0, e, self.root / f'e{e}.bin')
+            self.assertEqual((self.root / f'e{e}.bin').read_bytes(), payload, e)
+        (self.root / 'list.txt').write_text('0 1 bare.g1m\n0 2\n\n', encoding='utf-8')
+        n2_run('n2lnk.py', 'many', adir, self.root / 'list.txt', self.root / 'many out')
+        self.assertEqual(sorted(p.name for p in (self.root / 'many out').iterdir()), ['00_000002.bin', 'bare.g1m'])
+        self.assertEqual((self.root / 'many out' / 'bare.g1m').read_bytes(), g1m)
+        # locate: the first entry whose [offset, offset + max(stored, size)) holds the offset (a compressed entry's
+        # span reaches past its stored bytes, as in the original), so probe the last entry
+        self.assertEqual(n2_run('n2lnk.py', 'locate', adir, 0, hex(index[3]['off'] + 100)).stdout.split()[:2], ['0', '3'])
+        self.assertIn('usage:', n2_run('n2lnk.py', ok=False).stderr)
+        # ktpack: models / textures of an MDLTEXPK, a G1M_PACK and a bare G1M
+        kp = n2_module('ktpack')
+        pack = entries[0][0]
+        (mo, ms), = kp.models(pack)
+        self.assertEqual(pack[mo:mo + ms], g1m)
+        (to, ts), = kp.textures(pack)
+        self.assertEqual(pack[to:to + 4], b'GT1G')
+        self.assertEqual(kp.models(g1m), [(0, len(g1m))])
+        self.assertEqual(kp.models(n2_ktpack(b'G1M_PACK', [g1m, g1m]))[1][1], len(g1m))
+        self.assertEqual((kp.models(b'EXARG000' + bytes(40)), kp.textures(g1m)), ([], []))
+        # g1m_index: one fingerprint per model vertex buffer (the MDLTEXPK and the bare G1M); --zip-only
+        import hashlib
+        n2_run('g1m_index.py', adir, self.root / 'index.jsonl', self.root / 'vb.jsonl')
+        vbs = [json.loads(l) for l in (self.root / 'vb.jsonl').read_text(encoding='utf-8').splitlines()]
+        fp = hashlib.sha1(vbytes[:96]).hexdigest()[:16]
+        self.assertEqual([(r['e'], r['model'], r['vb'], r['stride'], r['count'], r['fp']) for r in vbs],
+                         [(0, 0, 0, 36, 4, fp), (1, 0, 0, 36, 4, fp)])
+        self.assertEqual(vbs[0]['g1m_off'], mo)
+        n2_run('g1m_index.py', adir, self.root / 'index.jsonl', self.root / 'zip.jsonl', '--zip-only')
+        self.assertEqual([json.loads(l)['e'] for l in (self.root / 'zip.jsonl').read_text(encoding='utf-8').splitlines()], [0])
+        # n2verify: clean archive (a stored entry with zero pages is only flagged), a loose file, then a broken chunk
+        (game / 'data.bin').write_bytes(b'\1' + bytes(3 * 4096))
+        n2_run('n2verify.py', game, self.root / 'verify.txt')
+        log = (self.root / 'verify.txt').read_text(encoding='utf-8')
+        self.assertIn('archive_00: 4 entries, bad 0, zero-page flags 1', log)
+        self.assertIn('ZEROPAGE a00 e3 raw size 16386', log)
+        self.assertIn('file data.bin: 12289 bytes, zero pages 2', log)
+        self.assertRegex(log, r'DONE bad=0 ')
+        lnk = bytearray((adir / 'archive_00.lnk').read_bytes())
+        lnk[index[0]['off'] + 8] ^= 0xFF                                   # inside the first zlib stream
+        (adir / 'archive_00.lnk').write_bytes(bytes(lnk))
+        n2_run('n2verify.py', game, self.root / 'verify2.txt')
+        log = (self.root / 'verify2.txt').read_text(encoding='utf-8')
+        self.assertRegex(log, r'BAD a00 e0 off ')
+        self.assertRegex(log, r'DONE bad=1 ')
+
+    def test_n2_frame_dump_match_and_skeleton(self):
+        n2_need('numpy')
+        import numpy as np
+        game, g1m, vbytes, _ = n2_game(self.root)
+        n2_run('n2lnk.py', 'index', game / 'archive', self.root / 'index.jsonl')
+        n2_run('g1m_index.py', game / 'archive', self.root / 'index.jsonl', self.root / 'vb.jsonl')
+        eye = [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0]]
+        lift = [[1, 0, 0, 0], [0, 1, 0, 5], [0, 0, 1, 0]]
+        turn = [[0, 0, 1, 0], [0, 1, 0, 0], [-1, 0, 0, 0]]
+        fa = self.root / 'FrameAnalysis 1'
+        n2_frame_dump(fa, vbytes, {7: [eye, lift], 9: [lift, turn]})
+        # fa_parse: per-draw shaders, hashes, layouts, counts
+        out = n2_run('fa_parse.py', fa, '--json', self.root / 'fa.json').stdout
+        self.assertRegex(out, r'(?m)^   7 vs=73278b6e00000000 ps=b2f60a9e522cd98f ib=5e6f7a8b first=0 cnt=6 vb0=1a2b3c4d s36 n4 SKIN')
+        draws = {d['draw']: d for d in json.loads((self.root / 'fa.json').read_text())}
+        self.assertEqual(draws[9]['vb0']['layout'], ['POSITION0:R32G32B32_FLOAT@0+0', 'BLENDWEIGHT0:R16G16B16A16_FLOAT@0+12',
+                                                     'BLENDINDICES0:R8G8B8A8_UINT@0+28', 'NORMAL0:R8G8B8A8_UNORM@0+32'])
+        self.assertEqual(draws[7]['calls'], ['DrawIndexed(IndexCount:6, StartIndexLocation:0, BaseVertexLocation:0)'])
+        fm = n2_module('fa_mesh')
+        mesh = fm.load_draw(str(fa), draws[7])
+        self.assertEqual(mesh['POSITION0'].tolist(), [[0, 100, 0], [10, 100, 0], [0, 110, 0], [10, 110, 5]])
+        self.assertEqual(mesh['tris'].tolist(), [[0, 1, 2], [1, 3, 2]])
+        self.assertEqual(mesh['BLENDINDICES0'][:, :2].tolist(), [[0, 0], [0, 3], [0, 3], [3, 0]])
+        # fa_list: one row for the (vb0, ib) pair, both draws listed
+        rows = n2_run('fa_list.py', fa, self.root / 'fa.json').stdout.splitlines()
+        self.assertEqual(rows[-1], '1')
+        self.assertTrue(rows[0].startswith('7 73278b6e b2f60a9e 1a2b3c4d - 5e6f7a8b 4 2 ') and rows[0].endswith(' 3 [7, 9]'), rows)
+        # fa_match by fingerprint, findmodel by vertex count + decoded positions (archive, cache, N2_GAME_DIR)
+        out = n2_run('fa_match.py', fa, self.root / 'fa.json', self.root / 'vb.jsonl').stdout
+        self.assertEqual(out.strip(), '7 vb0 1a2b3c4d stride 36 n 4 -> [(0, 0, 0, 0, 4), (0, 1, 0, 0, 4)]')
+        args = (fa, self.root / 'fa.json', self.root / 'vb.jsonl', self.root / 'hits.json', 7)
+        self.assertIn('N2_GAME_DIR is not set', n2_run('findmodel.py', *args, ok=False).stderr)
+        n2_run('findmodel.py', *args, '--cache', self.root / 'cache', env={'N2_GAME_DIR': str(game)})
+        hits = json.loads((self.root / 'hits.json').read_text())
+        self.assertEqual([(h['a'], h['e'], h['model'], h['vb']) for h in hits['7']], [(0, 0, 0, 0), (0, 1, 0, 0)])
+        self.assertEqual(sorted(p.name for p in (self.root / 'cache').iterdir()), ['00_00000.bin', '00_00001.bin'])
+        (self.root / 'hits.json').unlink()
+        n2_run('findmodel.py', *args, '--cache', self.root / 'cache')            # from the cache, no game folder
+        self.assertEqual(json.loads((self.root / 'hits.json').read_text()), hits)
+        # bones.py: palette matrices matched across draws -> global ids; gamemesh: per-vertex global ids
+        n2_run('bones.py', fa, self.root / 'fa.json', self.root / 'bones.json', 7, 9)
+        bones = json.loads((self.root / 'bones.json').read_text())
+        self.assertEqual({d: {e: v['gid'] for e, v in t['entries'].items()} for d, t in bones['draws'].items()},
+                         {'7': {'0': 0, '1': 1}, '9': {'0': 1, '1': 2}})
+        self.assertEqual([bones['draws']['7']['entries'][e]['mass'] for e in '01'], [1.5, 2.5])
+        self.assertEqual(np.array(bones['mats']).tolist(), [eye, lift, turn])
+        gm = n2_module('gamemesh').load(str(fa), str(self.root / 'fa.json'), str(self.root / 'bones.json'), [9])
+        self.assertEqual(gm[9]['gid'][:, :2].tolist(), [[1, 1], [1, 2], [1, 2], [2, 1]])
+        self.assertEqual(gm[9]['w'][1, :2].tolist(), [0.5, 0.5])
+        # n2_skel: a joint is where the parent and child matrices agree (neck: gid 2 -> 3 rotates about q)
+        q = np.array([0.0, 156.0, 0.5])
+        R = np.array([[1, 0, 0], [0, 0, -1], [0, 1, 0]], float)
+        mats = [np.c_[np.eye(3), np.zeros(3)].tolist()] * 9
+        mats[3] = np.c_[R, q - R @ q].tolist()
+        (self.root / 'skel.json').write_text(json.dumps({'mats': mats, 'draws': {}}))
+        n2_run('n2_skel.py', self.root / 'skel.json', self.root / 'joints.json')
+        joints = json.loads((self.root / 'joints.json').read_text())
+        self.assertLess(np.abs(np.array(joints['joints']['neck']) - q).max(), 0.05)
+        self.assertEqual(joints['joints']['clav_L'], [4.0, 150.0, 0.0])          # both identity: the seed
+        self.assertEqual(joints['labels']['head'], 8)
+
+    def test_n2_build_texconv_and_weights(self):
+        from unittest import mock
+        n2_need('numpy', 'scipy')
+        with mock.patch.dict(os.environ):
+            os.environ.pop('N2_TEXCONV', None)
+            nb = n2_module('n2_build')
+            self.assertIsNone(nb.TEXCONV)
+            work = self.root / 'work dir'
+            with self.assertRaises(FileNotFoundError):                      # stops at fa3/fa3.json, after texconv
+                nb.main(str(work), str(self.root / 'out'))
+            self.assertEqual(nb.TEXCONV, str(work / 'texconv' / 'texconv.exe'))
+            nb.TEXCONV = None
+            with self.assertRaises(FileNotFoundError):
+                nb.main(str(work), str(self.root / 'out'), str(self.root / 'tc.exe'))
+            self.assertEqual(nb.TEXCONV, str(self.root / 'tc.exe'))
+        # f16 weights: strongest first, the last weight makes the sum exactly 1, padding repeats the first bone
+        ids, w = nb.pack_weights({'g1': 0.3, 'g2': 0.6, 'g3': 0.1, 'g4': 0.00001}, 4)
+        self.assertEqual((ids, sum(w), w[3]), (['g2', 'g1', 'g3', 'g2'], 1.0, 0.0))
+        nb.dds_const(str(self.root / 'c.dds'), [10, 20, 30, 40])
+        d = (self.root / 'c.dds').read_bytes()
+        self.assertEqual((d[:4], d[84:88], struct.unpack_from('<I', d, 128)[0], len(d), d[148:152]),
+                         (b'DDS ', b'DX10', 28, 148 + 64, bytes([10, 20, 30, 40])))
+
+    def test_n2_miaomiao_save_appearance(self):
+        n2_need('numpy')
+        import numpy as np
+        m = n2_module('n2_miaomiao')
+        # first keystream bytes of the fixed header key: the Nioh 1 / Nioh 3 value (the Nioh 3 one decrypts real saves)
+        self.assertEqual(m.header_keystream(16).tobytes().hex(), '31d530acb6d67a46c87cc851f5d4c3ca')
+        plain = n2_save(m)
+        cipher = m.encrypt(plain)
+        self.assertNotEqual(cipher[:8], m.MAGIC)
+        self.assertEqual(m.decrypt(cipher), plain)
+        for data in (b'\0' * 100, bytes(m.SAVE_SIZE)):
+            with self.assertRaises(ValueError):
+                m.decrypt(data)
+        # apply: only the five look fields and the four integrity flags change, CTR keeps the delta in place
+        out, report, count = m.make_candidate(cipher, 'karin')
+        self.assertEqual([r['slot'] for r in report], ['手', '腰', '胴', '脚', '头'])      # by offset
+        new = m.decrypt(out)
+        info = m.validate(new)
+        allowed = set(m.INTEGRITY_FLAGS)
+        for slot, _, _ in m.SLOTS:
+            s = info['slots'][slot]
+            self.assertEqual((s['look'], s['item']), (m.KARIN_TARGETS[slot], N2_EQUIPPED[slot][0]))
+            allowed |= {s['offset'], s['offset'] + 1}
+        self.assertEqual(info['flags'], [0, 0, 0, 0])
+        a, b, c, o = (np.frombuffer(x, np.uint8) for x in (plain, new, cipher, out))
+        diff = set(np.flatnonzero(a != b).tolist())
+        self.assertLessEqual(diff, allowed)
+        self.assertEqual(diff, set(np.flatnonzero(c != o).tolist()))
+        self.assertEqual(count, len(diff))
+        self.assertEqual(m.make_candidate(out, 'karin'), (out, [], 0))                     # idempotent
+        done = {slot: (N2_EQUIPPED[slot][0], m.KARIN_TARGETS[slot]) for slot in N2_EQUIPPED}
+        self.assertEqual(m.make_candidate(m.encrypt(n2_save(m, equipped=done)), 'karin')[1:], ([], 0))   # flags kept
+        cleared, report, _ = m.make_candidate(out, 'clear')
+        self.assertEqual(len(report), 4)               # the torso item is the Hayabusa robe itself: its own look
+        self.assertTrue(all(m.validate(m.decrypt(cleared))['slots'][s]['look'] == N2_EQUIPPED[s][0] for s in N2_EQUIPPED))
+        _, lines = m.describe(out)
+        self.assertIn('五个部位都已是 Karin 需要的外观。', lines)
+        # refusals: empty slot, item of another slot, unknown flag values, unknown items
+        for kw, msg in ((dict(cells={'head': 0xFFFFFFFF}), '头部位没有穿护甲'),
+                        (dict(cells={'feet': 600}, equipped={'feet': (0, 0)}), '脚部位没有穿护甲'),
+                        (dict(equipped={'head': (0x0C1F, 0x0C1F)}), '部位和物品类型对不上'),
+                        (dict(flags=7), '完整性标志'),
+                        (dict(equipped={s: (0x0001, 0x0001) for s in N2_EQUIPPED}), '大多无法识别')):
+            with self.assertRaisesRegex(ValueError, msg):
+                m.validate(n2_save(m, **kw))
+        # command line: inspect, --out, refusal of BACKUP.BIN, and on Windows --in-place with backup + restore
+        save = self.root / '1638' / 'SAVEDATA00' / 'SAVEDATA.BIN'
+        save.parent.mkdir(parents=True)
+        save.write_bytes(cipher)
+        self.assertIn('等级 258', n2_run('n2_miaomiao.py', 'inspect', save).stdout)
+        n2_run('n2_miaomiao.py', 'apply', save, '--out', self.root / 'out.bin')
+        self.assertEqual(((self.root / 'out.bin').read_bytes(), save.read_bytes()), (out, cipher))
+        (save.parent / 'BACKUP.BIN').write_bytes(cipher)
+        self.assertIn('SAVEDATA.BIN', n2_run('n2_miaomiao.py', 'apply', save.parent / 'BACKUP.BIN', '--in-place', ok=False).stderr)
+        if os.name == 'nt':
+            n2_run('n2_miaomiao.py', 'apply', save, '--in-place')
+            self.assertEqual(save.read_bytes(), out)
+            manifest, = (save.parent / 'MiaomiaoBackups').glob('*.json')
+            self.assertEqual(json.loads(manifest.read_text(encoding='utf-8'))['status'], 'verified')
+            n2_run('n2_miaomiao.py', 'restore', save, manifest)
+            self.assertEqual(save.read_bytes(), cipher)
+
+    def test_n2_provenance_and_portability(self):
+        import hashlib
+        import re
+        kit = n2_kit()
+        rows = [r for r in json.loads((KITS / 'PROVENANCE.json').read_text(encoding='utf-8-sig'))
+                if r['path'].startswith('portable-kits/nioh-2/')]
+        files = sorted(p.relative_to(ROOT).as_posix() for p in kit.rglob('*') if p.is_file() and '__pycache__' not in p.parts)
+        own = {'portable-kits/nioh-2/' + n for n in ('README.md', 'toolchain.json', 'requirements.txt')}
+        self.assertEqual(sorted(r['path'] for r in rows), sorted(set(files) - own))
+        for r in rows:
+            data = (ROOT / r['path']).read_bytes()
+            self.assertEqual((hashlib.sha256(data).hexdigest(), len(data)), (r['portable_sha256'], r['portable_bytes']), r['path'])
+            self.assertTrue(r['source'].startswith(('Mods/Nioh2/_build/tools/', 'Mods/Nioh2/tools/n2miaomiao/')), r['source'])
+            self.assertEqual(r['modified_for_portability'], r['portable_sha256'] != r['original_sha256'], r['path'])
+        bundled = json.loads((kit / 'toolchain.json').read_text(encoding='utf-8'))['bundled_scripts']
+        self.assertEqual(sorted('portable-kits/nioh-2/' + s for s in bundled), sorted(r['path'] for r in rows))
+        # the shared KT module stays byte-identical to the other kits' copies
+        for other in ('rise-of-the-ronin', 'nioh-3'):
+            if (KITS / other / 'scripts' / 'g1m_tool.py').is_file():
+                self.assertEqual((kit / 'scripts' / 'g1m_tool.py').read_bytes(), (KITS / other / 'scripts' / 'g1m_tool.py').read_bytes())
+        # no machine paths, machine / user names or written-in sys.path entries; CRLF only where the original had it
+        drive = re.compile(r'(?i)(?<![\w<])[a-z]:[\\/](?![\\/])|[\\/]users[\\/]')
+        crlf = set()
+        for rel in files:
+            data = (ROOT / rel).read_bytes()
+            text = data.decode('utf-8')
+            self.assertFalse(drive.search(text), f'{rel}: {drive.search(text)}')
+            self.assertNotRegex(text.lower(), r'kln55mi|desktop-|baidusync|droylouo|tenoke|uuremote|nioh2work', rel)
+            self.assertNotRegex(text, r'sys\.path\.insert\(0, *r?[\'"]', rel)
+            self.assertIn(data.count(b'\r\n'), (0, data.count(b'\n')), rel)
+            if b'\r\n' in data:
+                crlf.add(rel.split('/', 2)[2])
+        self.assertEqual(crlf, N2_CRLF)
+        # not bundled: one-off probes, .cmd wrappers, binaries, game data, frame dumps, build outputs
+        self.assertFalse([p for p in kit.rglob('*') if p.suffix in ('.sh', '.cmd', '.bat', '.exe', '.dll', '.zip', '.hlsl',
+                                                                       '.dds', '.png', '.vb', '.ib', '.buf', '.npz', '.bin')])
+        self.assertFalse([p for p in kit.rglob('*.py') if p.stem in ('cmpvb', 'mwheads', 'mwheads2', 'survey', 'findcount',
+                                                                    'lidscan', 'test_tool')])
+
 
 if __name__ == '__main__': unittest.main(verbosity=2)
