@@ -50,7 +50,7 @@ before authoring. Never use this root document as a live candidate state file.
 - Assassin's Creed Syndicate (PC, ACS.exe 2016-08-16, forge v27) -> `games/assassins-creed-syndicate/`
 - Death Stranding 2: On the Beach (PC, DS2.exe 1.0.48.0) -> `games/death-stranding-2/`
 - Hogwarts Legacy (PC, game version 1613387) -> `games/hogwarts-legacy/`
-- Phantom Blade Zero (PC, Steam buildid 26266538) -> `games/phantom-blade-zero/`
+- Phantom Blade Zero (PC, Steam buildid 26266538; 26367565 since 2026-11-04) -> `games/phantom-blade-zero/`
 - Nioh 3 (PC, Nioh3.exe v2.0.0.2) -> `games/nioh-3/`
 - The Legend of Zelda: Tears of the Kingdom (1.2.0, yuzu-family emulators) -> `games/zelda-tears-of-the-kingdom/`
 - Nioh 2 Complete Edition (PC 1.25, 3DMigoto / Nioh 2 Mod Enabler) -> `games/nioh-2/`

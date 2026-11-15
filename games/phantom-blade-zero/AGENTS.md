@@ -5,11 +5,12 @@
 
 ## 接手一个新任务前
 
-1. 核对 `appmanifest_4115450.acf` 的 `buildid`（本目录快照为 `26266538`）。build 变了 → 先重新 dump 身体、头、外观数据表、
+1. 核对 `appmanifest_4115450.acf` 的 `buildid`（本目录的 dump 和比较是 `26266538` 时做的；2026-11-04 起游戏是 `26367565`，流萤在上面运行正常、
+   但没有重新 dump）。build 变了 → 先重新 dump 身体、头、外观数据表、
    `BP_Renewal_Hun` 和骨架，与上一 build 比较（[技术合同](TECHNICAL_CONTRACTS.md) §8）；usmap 也要重新生成（[开发工具](DEV_TOOLING.md) §2）。
 2. 确认 UE **5.7** 编辑器（Epic 启动器版）和插件 PBZModTools 能编译（VS 2022 C++ 生成工具，项目用 MSVC 14.44）。
    内容工程名必须是 `ProjectPBZ`，且带一个空的 `HuaShira` 插件，否则 cook 出的路径对不上 `ProjectPBZ/Plugins/HuaShira/Content/`。
-3. 先看 `ProjectPBZ\Content\Paks\~mods` 里装了什么。三个包（`z_KarinPBZ_P`、`z_KarinPT_P`、`z_LenkoPBZ_P`）替换同样的资产：一次只装一个。
+3. 先看 `ProjectPBZ\Content\Paks\~mods` 里装了什么。四个包（`z_KarinPBZ_P`、`z_KarinPT_P`、`z_LenkoPBZ_P`、`z_FireflyPBZ_P`）替换同样的资产：一次只装一个。
 4. 游戏由用户启动和游玩。**不要启动、结束或切到前台游戏进程**；只在游戏关闭时往 `~mods` 里装文件（安装脚本会拒绝在游戏运行时安装）。
 5. 分清这一版改的是几何、材质、布料还是表情；一版只让一类改动进入实机反馈。
 
@@ -33,6 +34,9 @@
   （[物理](PHYSICS.md) §6）。Karin 的两个构建器都还是 0.6。
 - **长发不要只绑头骨。** 头发躺在背上、挂在衣服外面时，颈以下要跟随上胸，否则躯干一前倾它的蒙皮位置就在衣服里，碰撞体和 backstop 都救不回来。
   先用 `probe_lean.py` 看蒙皮，再调物理（[物理](PHYSICS.md) §8）。
+- **换模型先看比例报告。** 成年的手和手指是 Animation，前臂和手永远是魂的尺寸；`segment_stretch.lowerarm_*` 超过约 1.25 时用户会说「胳膊长、手大」。
+  先整体放大成年版、收窄手，再进实机；用 `cmp_bind.py` 和上一个被接受的构建并排比（[技术合同](TECHNICAL_CONTRACTS.md) §5）。
+- **贴身布料的碰撞体不要缩细。** 静止时会碰到裙子的胶囊，截短它的起点、保持半径；缩细后跑动时腿从褶子中间穿出（[物理](PHYSICS.md) §10）。
 - **不要相信容器大小。** 内容变了 `.ucas` 字节数也可能完全不变；用哈希和读回判断。
 - **PowerShell 变量名不分大小写。** `$l` 和 `$L` 是同一个变量；脚本里的循环变量和参数不要只差大小写。
 - **不要声称实机通过。** 构建、读回、装进 `~mods` 都只是 `offline-accepted`；实机结论只来自用户。

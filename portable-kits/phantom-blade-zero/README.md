@@ -4,18 +4,19 @@
 [技术合同](../../games/phantom-blade-zero/TECHNICAL_CONTRACTS.md)；布料见 [物理](../../games/phantom-blade-zero/PHYSICS.md)；表情和眨眼见 [面部](../../games/phantom-blade-zero/FACE.md)；
 PbzExport、objscan、usmap 和插件见 [开发工具](../../games/phantom-blade-zero/DEV_TOOLING.md)。
 
-这是 Karin_Original（v3）、Karin_PicodraTech（v1）和 Lenko（lk4）替换主角「魂」实际使用的工具：三个 Blender 构建器（另有预览渲染和姿势探针）、UE 5.7 编辑器 Python（原版、PicodraTech 和 Lenko 分支）、
+这是 Karin_Original（v3）、Karin_PicodraTech（v1）、Lenko（lk4）和流萤·春日手信（ff4）替换主角「魂」实际使用的工具：四个 Blender 构建器（另有预览渲染、姿势探针和比例 / 碰撞检查）、
+UE 5.7 编辑器 Python（原版、PicodraTech、Lenko 和流萤分支）、
 编辑器插件 PBZModTools 的 C++ 源码、内容工程模板、C# 写的 PbzExport（CUE4Parse 命令行）和 objscan（GUObjectArray 扫描器）、usmap 修正脚本、
-PowerShell 流水线和发行包的安装脚本。
+PowerShell 流水线、发行包的安装脚本和流萤的打包脚本。
 
-- **游戏版本：** Steam App 4115450，buildid `26266538`，引擎 `5.7.4-301524+42ecbfa37f78`。资源是 IoStore（`ProjectPBZ-Windows` + `_s1` … `_s65`，索引加密，Oodle）。
+- **游戏版本：** Steam App 4115450，buildid `26266538`（dump 和比较；2026-11-04 起游戏是 `26367565`，流萤在上面构建、运行，原版 dump 没有重做），引擎 `5.7.4-301524+42ecbfa37f78`。资源是 IoStore（`ProjectPBZ-Windows` + `_s1` … `_s65`，索引加密，Oodle）。
   mod 是 `ProjectPBZ\Content\Paks\~mods\z_<名>_P.{utoc,ucas,pak}`，不需要 `.sig`。
 - **AES 密钥、usmap、Oodle DLL：** 本包都不含。密钥从环境变量 `PBZX_AES` 读（`pbzx_run.ps1` 也会读 `<工作根>\tools\aes.txt`）；usmap 按 [开发工具](../../games/phantom-blade-zero/DEV_TOOLING.md) §2
   自己导出再用 `usmap_fix.py` 修正；Oodle DLL（`oo2core_9_win64.dll`）用户自备。读自己的 mod 容器不需要密钥。
 - **PbzExport / objscan：** 源码在 `pbzexport/`、`objscan/`，面向 net10.0（win-x64），要用 .NET 10 SDK 编译；PbzExport 的 NuGet 依赖是 CUE4Parse 和 CUE4Parse-Conversion
   `1.2.2.202610`。请复制到仓库外再编译，否则 `obj/`、`bin/` 会落进本包。
 - **UE：** 5.7（Epic 启动器版）。编插件要 Visual Studio C++ 生成工具（项目用 VS 2022 BuildTools、MSVC 14.44）。
-- **Blender：** 构建器在 Blender 4.2 内运行（`--background --factory-startup`），需要 UEFormat 插件（`io_scene_ueformat`，读 `.uemodel`）和自带的 glTF / FBX 插件。Lenko 的构建器另需 mmd_tools 4.5.x（Blender 扩展，连同它依赖的 opencc；本包不含，用 `PBZ_MMD_TOOLS` 指向）。
+- **Blender：** 构建器在 Blender 4.2 内运行（`--background --factory-startup`），需要 UEFormat 插件（`io_scene_ueformat`，读 `.uemodel`）和自带的 glTF / FBX 插件。Lenko 和流萤的构建器另需 mmd_tools 4.5.x（Blender 扩展，连同它依赖的 opencc；本包不含，用 `PBZ_MMD_TOOLS` 指向）。
 - **Python：** `usmap_fix.py` 要 Python 3.10+，压缩的输入另需 `zstandard`（`requirements.txt`）。UE 脚本在 UE 自带的 Python 里运行。
 - **只在 Windows 上：** UE、UnrealPak、PbzExport、objscan 和 PowerShell 工具。PowerShell 脚本按 PowerShell 7（`pwsh`）写；`release/install.ps1` 也支持 Windows PowerShell 5.1。
 
@@ -23,13 +24,13 @@ PowerShell 流水线和发行包的安装脚本。
 
 | 变量 | 读的脚本 | 含义 |
 | --- | --- | --- |
-| `PBZ_WORK` | `scripts/blender/build_pbz.py`、`build_pt.py`、`build_lenko.py` | 原版 dump 目录：`ue/Hun_Invs.uemodel`、`ue/Hun_Young_Skeleton.uemodel`、`ue/Hun_Hat_Skeleton.uemodel`；`c/Hun_Skin_Skeleton.Hun_Skin_Skeleton.skel.json`、`c/Hun_Body_Simple.Hun_Body_Simple.skel.json`；`g/Hun_Invs.Hun_Invs.skel.json`；`y/Hun_Young_Skeleton…`、`y/Hun_Young_Body…`。没设时报错退出，什么都不写 |
+| `PBZ_WORK` | `scripts/blender/build_pbz.py`、`build_pt.py`、`build_lenko.py`、`build_ff.py` | 原版 dump 目录：`ue/Hun_Invs.uemodel`、`ue/Hun_Young_Skeleton.uemodel`、`ue/Hun_Hat_Skeleton.uemodel`；`c/Hun_Skin_Skeleton.Hun_Skin_Skeleton.skel.json`、`c/Hun_Body_Simple.Hun_Body_Simple.skel.json`；`g/Hun_Invs.Hun_Invs.skel.json`；`y/Hun_Young_Skeleton…`、`y/Hun_Young_Body…`。没设时报错退出，什么都不写 |
 | `PBZ_SOURCE_VRM` | `build_pbz.py` | Karin_Original 的 VRM |
 | `PBZ_SOURCE_BLEND` | `build_pt.py` | `Karin_PT_Unified_Atlas.blend`（旁边要有 `textures/`） |
-| `PBZ_SOURCE_PMX` | `build_lenko.py` | `Lenko06.pmx`（旁边要有 `tex/`） |
-| `PBZ_MMD_TOOLS` | `build_lenko.py` | 含 `mmd_tools` 包（4.5.x）和它依赖的 opencc 的目录 |
-| `PBZ_HELPER_TEXTURES` | `build_lenko.py` | 一个 `build_pbz.py` 构建的 `textures/`（用 `Karin_FlatN`、`Karin_ARM`、`Karin_ARMMatte`、`Karin_Gray`、`Karin_SCMT`） |
-| `PBZ_BLENDER_ADDONS` | 三个构建器 | 可选：UEFormat 没装进 Blender 时，含 `io_scene_ueformat` 的目录 |
+| `PBZ_SOURCE_PMX` | `build_lenko.py`、`build_ff.py` | `Lenko06.pmx`（旁边要有 `tex/`）；`星穹铁道—流萤·春日手信.pmx`（贴图 `衣.png`、`颜.png`、`髪.png` 在同一目录） |
+| `PBZ_MMD_TOOLS` | `build_lenko.py`、`build_ff.py` | 含 `mmd_tools` 包（4.5.x）和它依赖的 opencc 的目录 |
+| `PBZ_HELPER_TEXTURES` | `build_lenko.py`、`build_ff.py` | 一个 `build_pbz.py` 构建的 `textures/`（用 `Karin_FlatN`、`Karin_ARM`、`Karin_ARMMatte`、`Karin_Gray`、`Karin_SCMT`） |
+| `PBZ_BLENDER_ADDONS` | 四个构建器 | 可选：UEFormat 没装进 Blender 时，含 `io_scene_ueformat` 的目录 |
 | `PBZ_ROOT` | `tools/*.ps1` | UE 侧的工作根：`UE\ProjectPBZ`、`logs\`、`out\`、`out_test\`、`tools\`（`PbzExport\PbzExport.exe`、`Mappings.usmap`、`oo2core_9_win64.dll`、`aes.txt`）、`extract\`。也可用 `-Root`（`pbzx_run.ps1` 用 `-WorkRoot` / `PBZ_WORK_ROOT`） |
 | `UE_ROOT` | `ue_run.ps1`、`cook.ps1`、`build_plugin.ps1`、`run_all.ps1`、`mkcontainer.ps1`、`mktest.ps1` | UE 5.7 安装目录（含 `Engine\`），或 `-UE` |
 | `PBZ_GAME_DIR` | `pbzx_run.ps1`、`mktest.ps1` | 含 `ProjectPBZ` 的游戏目录，或 `-GameDir` |
@@ -86,10 +87,18 @@ blender --background --factory-startup --python $Kit/scripts/blender/build_lenko
 blender --background "<run>/build.blend" --python $Kit/scripts/blender/render_lk.py -- "<run>" "<输出前缀>"     # 贴图与分段配色
 blender --background "<run>/build.blend" --python $Kit/scripts/blender/render_coll.py -- "<run>" "<输出前缀>"   # 头发碰撞体（红色）
 blender --background "<run>/build.blend" --python $Kit/scripts/blender/probe_lean.py -- "<输出前缀>" --lean 15 --twist 10   # 前倾 / 扭转时的蒙皮
+# 流萤（环境变量同 Lenko，PBZ_SOURCE_PMX 换成流萤的 PMX）：
+blender --background --factory-startup --python $Kit/scripts/blender/build_ff.py -- "<run>" --variant adult         # 眼高对齐 × 1.13
+blender --background --factory-startup --python $Kit/scripts/blender/build_ff.py -- "<run>" --variant young         # 只按眼高
+blender --background "<run>/build.blend" --python $Kit/scripts/blender/render_ff.py -- "<run>" "<输出前缀>"     # 贴图与分段配色
+blender --background --factory-startup --python $Kit/scripts/blender/cmp_bind.py -- "<输出前缀>" "ff=<run>/build.blend" "lk=<被接受的构建>/build.blend"   # 同比例并排
+blender --background "<run>/build.blend" --python $Kit/scripts/blender/hand_curl.py -- "<输出前缀>"           # 手张开 / 握拳
+blender --background "<run>/build.blend" --python $Kit/scripts/blender/pleat_gap.py -- "<run>"                # 褶深、腿半径、外壳到大腿轴的距离
 ```
 
 日志最后一行 `BUILD_OK <run>`。核对 `report.json`：`missing_face_keys` 与 `slots_unmapped` 为空，`bones.body` = 264，`body_bones_added` 是四根 `*_child` 骨。
 Lenko 另看 `jacket_shorten`、`shoulder`、`hair_collision.hair_particles_inside_at_rest`（要为 0）、`hair_follow`、`hair_backstop`。
+每个模型都看 `segment_stretch`（成年前臂超过约 1.25 时手臂显长）和 `hand_fix`；流萤另看 `leg_thicken`、`skirt_collision.shapes`。
 
 ### 3. UE 全流程
 
@@ -97,6 +106,7 @@ Lenko 另看 `jacket_shorten`、`shoulder`、`hair_collision.hair_particles_insi
 pwsh -NoProfile -File $T/run_all.ps1 -Run "<run>"                                   # Karin_Original → <工作根>\out\z_KarinPBZ_P.*
 pwsh -NoProfile -File $T/run_all.ps1 -Run "<pt run>" -Mod pt -Root "<PicodraTech 的工作根>"  # → z_KarinPT_P.*
 pwsh -NoProfile -File $T/run_all.ps1 -Run "<lk run>" -Mod lk -Root "<Lenko 的工作根>"         # → z_LenkoPBZ_P.*（插件要 2026-11-03 之后的源码）
+pwsh -NoProfile -File $T/run_all.ps1 -Run "<ff run>" -Mod ff -Root "<流萤的工作根>"           # → z_FireflyPBZ_P.*（scripts\ue\ff → lk → pt → 公共）
 ```
 
 构建目录（`-Run`）的路径里不要有空格：UE 的 `-script="脚本 参数"` 按空格切参数（项目的 `.cmd` 也一样）。进度在 `logs\run_all.txt`（`ok <步>` / `FAIL <步>` / `DONE`），每一步的输出在 `logs\<步>.out.txt`。单独跑一步：`ue_run.ps1 <脚本> <日志名> [参数]`；单独打容器：
@@ -113,6 +123,11 @@ pwsh -NoProfile -File $T/pbzx_run.ps1 rb morphs "$H/Hero_Hun/SkinParts/Hun_Head_
 
 发行包：按 [验证与发布](../../games/phantom-blade-zero/VALIDATION_AND_RELEASE.md) §3 的布局放 `release/install.ps1`、两个一行的 `.cmd`、README 和 `files\`（三个文件 + `SHA256SUMS.txt`）。
 `install.ps1` 里的包名、buildid 是常量，换包时改 `$Names`、`$OtherNames`、`$BuildId`。Lenko 的包：`$Names` 是 `z_LenkoPBZ_P.*`，`$OtherNames` 是两套 Karin 包。
+流萤的发行包源文件在 `release/firefly/`（安装脚本、README 模板、`pack_ff.py`）：
+
+```powershell
+python $Kit/release/firefly/pack_ff.py "<工作根>\out" "<发布目录>" FireflyPBZ_<日期> <日期>   # 写 zip（安装脚本布局）和 rar（~mods 布局），--rar 指定 Rar.exe
+```
 
 ## 文件
 
@@ -123,14 +138,19 @@ pwsh -NoProfile -File $T/pbzx_run.ps1 rb morphs "$H/Hero_Hun/SkinParts/Hun_Head_
 | `scripts/blender/render_pt.py` | `build.blend` 的贴图预览和分段配色预览 |
 | `scripts/blender/build_lenko.py` | Lenko 构建器（PMX 经 mmd_tools、外套按方位扇区缩短、肩宽重解、7 段布料、每段的碰撞资产、长发跟随躯干与逐粒子 backstop） |
 | `scripts/blender/render_lk.py`、`render_coll.py` | Lenko 的贴图 / 分段配色预览；头发碰撞体的红色球链视图 |
-| `scripts/blender/probe_lean.py` | 姿势探针：躯干前倾 / 扭转、头保持水平，只看蒙皮（三个构建器的 `build.blend` 都能用） |
+| `scripts/blender/probe_lean.py` | 姿势探针：躯干前倾 / 扭转、头保持水平，只看蒙皮（各构建器的 `build.blend` 都能用） |
+| `scripts/blender/build_ff.py` | 流萤构建器（Lenko 分支：共用顶点的叠加层按面删、PMX 法线按角色写回，成年 ×1.13，手臂径向加粗，手指沿弯曲轴收拢，腿按顶点加粗，短裙专用碰撞资产） |
+| `scripts/blender/render_ff.py` | 流萤的贴图 / 分段配色预览 |
+| `scripts/blender/cmp_bind.py`、`hand_curl.py`、`pleat_gap.py` | 几个构建同比例并排；手张开和握拳；褶深、腿半径、外壳到大腿轴的距离（流萤的裙子） |
 | `scripts/ue/*.py` | UE 5.7 步骤：`ue_import_pbz`、`ue_import_young`、`ue_fixmats`、`ue_brightness`、`ue_cloth`、`ue_blink`、`ue_morphdump`、`ue_grooms` |
 | `scripts/ue/pt/*.py` | PicodraTech 分支：导入、少年导入（加了资产注册表扫描和旧槽断言）、材质、亮度、布料（任何一段失败就失败），都读 `materials.json` |
 | `scripts/ue/lk/*.py` | Lenko 分支：导入（占位 Albedo 用 `Karin_Gray`）、亮度（系数读 `materials.json`）、布料（按 `collision` 标签建多个碰撞资产）；其余步骤用 `pt/` 和公共脚本 |
+| `scripts/ue/ff/ue_cloth.py` | 流萤分支：Lenko 的布料脚本多认一个 `skirt` 碰撞标签；其余步骤用 `lk/`、`pt/` 和公共脚本 |
 | `scripts/usmap_fix.py` | 去掉 Dumper-7 usmap 里的继承属性 |
 | `tools/run_all.ps1`、`ue_run.ps1`、`cook.ps1`、`build_plugin.ps1` | 项目 `.cmd` 的 PowerShell 版 |
 | `tools/mkcontainer.ps1`、`mktest.ps1`、`pbzx_run.ps1` | 容器、测试容器、PbzExport 包装 |
 | `release/install.ps1` | 发行包的安装 / 卸载 / 检查 |
+| `release/firefly/` | 流萤发行包：`install.ps1`（buildid `26367565`，安装时也删 Lenko）、`README.txt` / `README_rar.txt` 模板（含模型规则）、`pack_ff.py`（写 zip 和 rar，两个 `.cmd` 由它生成） |
 | `pbzexport/`、`objscan/` | C# 源码 |
 | `ue/PBZModTools/`、`ue/ProjectPBZ/` | 编辑器插件源码、内容工程模板（含空插件 `HuaShira`） |
 

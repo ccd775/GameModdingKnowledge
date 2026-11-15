@@ -42,6 +42,16 @@ KarinPBZ_<日期>_v<n>/
 
 Lenko 的发行包同样布局：`install.ps1` 的 `$Names` 换成 `z_LenkoPBZ_P.*`，`$OtherNames` 列两套 Karin 包（安装时删除）。
 
+流萤（`FireflyPBZ_20261107`）同样布局，源文件在便携包 `release/firefly/`：
+
+- `install.ps1`：`$Names` 是 `z_FireflyPBZ_P.*`，`$OtherNames` 是两套 Karin 包加 Lenko，`$BuildId` 是 `26367565`（2026-11-04 的更新，[技术合同](TECHNICAL_CONTRACTS.md) §8）。
+- `pack_ff.py <out 目录> <发布目录> <名字> <日期>` 一次写 zip（安装脚本布局）和 rar（用户习惯的 `README.txt` + `~mods\` 布局，WinRAR 的 `Rar.exe`），
+  README 里的 `{DATE}` 替换掉，写成 UTF-8 BOM + CRLF；两个 `.cmd` 由脚本自己写出（知识库不收 `.cmd`）。
+- README 写明模型作者、版权方和模型的使用规则（不得二次配布、不得商用、不得用于 18 禁），包只供个人使用。
+
+测试（2026-11-07，Windows PowerShell 5.1，从解压出的 zip 运行）：假游戏目录上，`-Check` 提示 `~mods` 里的 Lenko 文件 → 安装删掉 Lenko、保留无关的 pak → 卸载保留目录 →
+再装再卸，`~mods` 空了被删 → 版本不符只警告 → 包内文件被改时拒绝安装；对真实安装 `-Check` 报「已安装，与本包一致」。`pack_ff.py` 重新打出的 zip / rar 解开后与发布的逐文件相同。
+
 ## 4. 未测场景
 
 - 醉剑修复（v3）只读回了骨，没有进游戏复测；其它用到 `*_child` 骨的武器没有逐一检查。
@@ -49,4 +59,5 @@ Lenko 的发行包同样布局：`install.ps1` 的 `$Names` 换成 `z_LenkoPBZ_P
 - groom 头发关闭或质量低时的过场（两张脸可能闪）。
 - 大动作下的布料（翻滚、处决、骑乘）、拍照模式、对话特写。
 - Karin_PicodraTech 整体（构建、读回、安装过，用户没有反馈）。
-- Lenko：序章少年魂和十年前服装没有单独反馈；大动作下的长发和外套；发行包还没做。
+- Lenko：序章少年魂和十年前服装没有单独反馈；大动作下的长发和外套。发行包已做（2026-11-03 / 11-04 两版，安装脚本写的是 `26266538`）。
+- 流萤：ff4 的手（用户还没反馈）；序章少年魂、十年前服装、过场没有单独反馈；跑动时的裙片在 ff3 之后没有专门确认；大动作下的裙子和长发。

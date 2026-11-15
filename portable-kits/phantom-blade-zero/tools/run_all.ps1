@@ -1,11 +1,13 @@
-# run_all.ps1 [-Run <build dir>] [-Mod original|pt]: every UE step for both variants (import, young import, materials,
+# run_all.ps1 [-Run <build dir>] [-Mod original|pt|lk|ff]: every UE step for both variants (import, young import, materials,
 # brightness, cloth adult / young, blink anim blueprints, morph check), the versioned cook and the container in <Root>\out.
 # Port of the project's run_all.cmd. Progress in logs\run_all.txt ("ok <step>", "FAIL <step>", "DONE"); stops at the
 # first failed step. -Mod pt runs the Karin_PicodraTech forks from scripts\ue\pt (the other steps from scripts\ue) and
 # writes z_KarinPT_P; give it its own -Root (the project kept a second copy of the UE project for it). -Mod lk (Lenko,
 # build_lenko.py runs) takes scripts\ue\lk first, then scripts\ue\pt, then scripts\ue, and writes z_LenkoPBZ_P (the
-# project's third copy of the UE project, with the plugin rebuilt for the per-particle backstop).
-param([string]$Run, [ValidateSet('original', 'pt', 'lk')][string]$Mod = 'original',
+# project's third copy of the UE project, with the plugin rebuilt for the per-particle backstop). -Mod ff (Firefly,
+# build_ff.py runs) takes scripts\ue\ff first (ue_cloth.py with the "skirt" collision tag), then the Lenko order, and
+# writes z_FireflyPBZ_P (the project's fourth copy, robocopied from Lenko's).
+param([string]$Run, [ValidateSet('original', 'pt', 'lk', 'ff')][string]$Mod = 'original',
       [string]$Root = $env:PBZ_ROOT, [string]$UE = $env:UE_ROOT,
       [string]$Scripts = (Join-Path (Split-Path $PSScriptRoot -Parent) 'scripts\ue'))
 $ErrorActionPreference = 'Stop'
@@ -25,7 +27,7 @@ function Add-Shared([string]$Path, [string]$Text) {
 function Note([string]$t) { Add-Shared $progress "$t $(Get-Date -Format HH:mm:ss)" }
 function Step([string]$file, [string]$name, [string]$marker, [string[]]$a) {
     $py = Join-Path $Scripts $file
-    $forks = @{ original = @(); pt = @('pt'); lk = @('lk', 'pt') }[$Mod]
+    $forks = @{ original = @(); pt = @('pt'); lk = @('lk', 'pt'); ff = @('ff', 'lk', 'pt') }[$Mod]
     foreach ($d in $forks) { if (Test-Path (Join-Path $Scripts "$d\$file")) { $py = Join-Path $Scripts "$d\$file"; break } }
     if ($a) { & (Join-Path $PSScriptRoot 'ue_run.ps1') $py $name @a } else { & (Join-Path $PSScriptRoot 'ue_run.ps1') $py $name }
     if (-not (Select-String -Path (Join-Path $logs "$name.out.txt") -SimpleMatch $marker -Quiet -ErrorAction SilentlyContinue)) { Note "FAIL $name"; exit 1 }
@@ -35,7 +37,7 @@ $r = $Run.Replace('\', '/')
 Step 'ue_import_pbz.py' 'imp' 'IMPORT_OK' @($r)
 Step 'ue_import_young.py' 'young' 'IMPORT_YOUNG_OK' @($r)
 Step 'ue_fixmats.py' 'fixmats' 'FIXMATS_OK' @($r)
-Step 'ue_brightness.py' 'bright' 'BRIGHTNESS_OK' $(if ($Mod -eq 'lk') { @($r) } else { @() })   # the lk fork reads materials.json
+Step 'ue_brightness.py' 'bright' 'BRIGHTNESS_OK' $(if ($Mod -in 'lk', 'ff') { @($r) } else { @() })   # the lk fork reads materials.json
 Step 'ue_cloth.py' 'clotha' 'CLOTH_OK adult' @($r, 'adult')
 Step 'ue_cloth.py' 'clothy' 'CLOTH_OK young' @($r, 'young')
 Step 'ue_blink.py' 'blink' 'BLINK_OK' @()
@@ -44,7 +46,7 @@ Step 'ue_morphdump.py' 'morph1' 'MORPHDUMP_OK' @()
 # the COOKEXIT line can lose the race with the editor still holding cook.txt: judge by the cook summary
 if (-not (Select-String -Path (Join-Path $logs 'cook.txt') -SimpleMatch 'Success - 0 error(s)' -Quiet -ErrorAction SilentlyContinue)) { Note 'FAIL cook'; exit 1 }
 Note 'ok cook'
-$name = @{ original = 'z_KarinPBZ_P'; pt = 'z_KarinPT_P'; lk = 'z_LenkoPBZ_P' }[$Mod]
+$name = @{ original = 'z_KarinPBZ_P'; pt = 'z_KarinPT_P'; lk = 'z_LenkoPBZ_P'; ff = 'z_FireflyPBZ_P' }[$Mod]
 Remove-Item (Join-Path $Root "out\$name.pak") -ErrorAction SilentlyContinue
 try { & (Join-Path $PSScriptRoot 'mkcontainer.ps1') -Mod $Mod -Root $Root -UE $UE *>&1 | ForEach-Object { Add-Shared $progress "$_" } }
 catch { Add-Shared $progress "$_"; Note 'FAIL container'; exit 1 }

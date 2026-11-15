@@ -4495,8 +4495,8 @@
     "source": "ModTools/PBZ/ue_scripts/mkcontainer.ps1",
     "original_sha256": "70d9f446d22c2d75546e043b8d12724faed6f4d8c30400b6614db052e20be18d",
     "source_bytes": 5201,
-    "portable_sha256": "30ee23f350922307c9e0c92ac3327053d45b2ad000da8968428bb5e5e5f37219",
-    "portable_bytes": 6057,
+    "portable_sha256": "93dda05a8699365700f1c495ecadc70adf9ff8a32903e7a1ed32ef939778118c",
+    "portable_bytes": 6214,
     "modified_for_portability": true
   },
   {
@@ -4519,11 +4519,11 @@
   },
   {
     "path": "portable-kits/phantom-blade-zero/tools/run_all.ps1",
-    "source": "new file written for the portable kit (no project original); PowerShell port of the project's ModTools/PBZ/ue_scripts/run_all.cmd, pt/ue/run_all.cmd and lk/ue/run_all.cmd",
+    "source": "new file written for the portable kit (no project original); PowerShell port of the project's ModTools/PBZ/ue_scripts/run_all.cmd, pt/ue/run_all.cmd, lk/ue/run_all.cmd and ff/ue/run_all.cmd",
     "original_sha256": null,
     "source_bytes": null,
-    "portable_sha256": "2192805e70e7eff101ccca3cf535b9583246ef834a6c8a5c241fe19237d59c51",
-    "portable_bytes": 3950,
+    "portable_sha256": "227a5afa291623e4e9b76ce350fe759fe1c2a9f4dff0e9277013e27586061807",
+    "portable_bytes": 4231,
     "modified_for_portability": true
   },
   {
@@ -4605,6 +4605,96 @@
     "source_bytes": 652,
     "portable_sha256": "d1f9420dabeb698a1f27189f19d2fc14e766e426856e8e8fbad8f2407e175bed",
     "portable_bytes": 652,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/phantom-blade-zero/scripts/blender/build_ff.py",
+    "source": "ModTools/PBZ/ff/blender/build_ff.py",
+    "original_sha256": "a5b73d2b129b2f027bb61e0a0a4adba11006a3c7714424c3d831bae008f37cd6",
+    "source_bytes": 118742,
+    "portable_sha256": "41e7a25cf9c8c5e7a875192e8752de066275d086c8d1f1d04e94bd282ac9cb09",
+    "portable_bytes": 119066,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/phantom-blade-zero/scripts/blender/render_ff.py",
+    "source": "ModTools/PBZ/ff/blender/render_ff.py",
+    "original_sha256": "e923c9199a795cb97a58bb847eee98daeb3936841dd03fe51a0c371a043bb063",
+    "source_bytes": 4888,
+    "portable_sha256": "e923c9199a795cb97a58bb847eee98daeb3936841dd03fe51a0c371a043bb063",
+    "portable_bytes": 4888,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/phantom-blade-zero/scripts/blender/cmp_bind.py",
+    "source": "ModTools/PBZ/ff/blender/cmp_bind.py",
+    "original_sha256": "9b69f025dbc3a57a658364f1c277055d03cb44e5df43ca5c1f6dc8143bf52995",
+    "source_bytes": 3048,
+    "portable_sha256": "9b69f025dbc3a57a658364f1c277055d03cb44e5df43ca5c1f6dc8143bf52995",
+    "portable_bytes": 3048,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/phantom-blade-zero/scripts/blender/hand_curl.py",
+    "source": "ModTools/PBZ/ff/blender/hand_curl.py",
+    "original_sha256": "4b899cd74e2132ed800f930dae730c854b6ccc71ca81ec18b50f00d021032962",
+    "source_bytes": 3107,
+    "portable_sha256": "4b899cd74e2132ed800f930dae730c854b6ccc71ca81ec18b50f00d021032962",
+    "portable_bytes": 3107,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/phantom-blade-zero/scripts/blender/pleat_gap.py",
+    "source": "ModTools/PBZ/ff/blender/pleat_gap.py",
+    "original_sha256": "f8d9eb0bbd5d6b8ce8eebb8e5054de4368ca2c1163d587588d03246ef9633c0d",
+    "source_bytes": 3131,
+    "portable_sha256": "f8d9eb0bbd5d6b8ce8eebb8e5054de4368ca2c1163d587588d03246ef9633c0d",
+    "portable_bytes": 3131,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/phantom-blade-zero/scripts/ue/ff/ue_cloth.py",
+    "source": "ModTools/PBZ/ff/ue/ue_cloth.py",
+    "original_sha256": "376b6f256beb0472ddf00af20f54355091df41fe70ccc462350827751f2236ea",
+    "source_bytes": 6206,
+    "portable_sha256": "376b6f256beb0472ddf00af20f54355091df41fe70ccc462350827751f2236ea",
+    "portable_bytes": 6206,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/phantom-blade-zero/release/firefly/install.ps1",
+    "source": "ModTools/PBZ/ff/release/install.ps1",
+    "original_sha256": "59ae4d5585b09f343827c45f7722bca78380a53da521babc4afd94269d0ebfb2",
+    "source_bytes": 5581,
+    "portable_sha256": "fc2f361ddb2442a25391788690d4541e6050f83c8f1a0885c9c044bfadca74c8",
+    "portable_bytes": 5577,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/phantom-blade-zero/release/firefly/pack_ff.py",
+    "source": "ModTools/PBZ/ff/release/pack_ff.py",
+    "original_sha256": "6c4eb927f40c3c187c8dd62208794cfbffc4fd3cd0c49eb6f924c4f191050a80",
+    "source_bytes": 3442,
+    "portable_sha256": "6c4eb927f40c3c187c8dd62208794cfbffc4fd3cd0c49eb6f924c4f191050a80",
+    "portable_bytes": 3442,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/phantom-blade-zero/release/firefly/README.txt",
+    "source": "ModTools/PBZ/ff/release/README.txt",
+    "original_sha256": "0ed085a6a1e43e4cee5880be637a1bf2a6e7ee53e5e538753a43e204ae2d7f97",
+    "source_bytes": 3703,
+    "portable_sha256": "0ed085a6a1e43e4cee5880be637a1bf2a6e7ee53e5e538753a43e204ae2d7f97",
+    "portable_bytes": 3703,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/phantom-blade-zero/release/firefly/README_rar.txt",
+    "source": "ModTools/PBZ/ff/release/README_rar.txt",
+    "original_sha256": "6c91704e7e558d6c828b9dcbd7cc75aeff971ba40847866793a19f1a54af9a35",
+    "source_bytes": 985,
+    "portable_sha256": "6c91704e7e558d6c828b9dcbd7cc75aeff971ba40847866793a19f1a54af9a35",
+    "portable_bytes": 985,
     "modified_for_portability": false
   },
   {

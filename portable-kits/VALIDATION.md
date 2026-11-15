@@ -1,5 +1,27 @@
 # 迁移验证记录
 
+## 2026-11-15：影之刃零便携包加入流萤
+
+- **迁入：** 10 个新文件，2 个更新。
+  - `scripts/blender/build_ff.py`（项目 `ff/blender/`，PMX 构建器，`build_lenko.py` 的分支，便携改动见下）；`render_ff.py`、`cmp_bind.py`、`hand_curl.py`、`pleat_gap.py`（逐字节相同；
+    后三个是这次从会话临时目录收进项目 `ff/blender/` 的检查脚本）；
+  - `scripts/ue/ff/ue_cloth.py`（项目 `ff/ue/`，逐字节相同：Lenko 的布料脚本多认 `skirt` 碰撞标签）；
+  - `release/firefly/`：`install.ps1`（项目 `ff/release/`，便携改动见下）、`README.txt`、`README_rar.txt`、`pack_ff.py`（逐字节相同；`pack_ff.py` 迁入前在项目里改成 argparse，
+    两个 `.cmd` 由它直接写出）；
+  - 更新：`tools/run_all.ps1`、`tools/mkcontainer.ps1` 加 `-Mod ff`（脚本查找顺序 `ff → lk → pt → 公共`，容器 `z_FireflyPBZ_P`，伴随 pak 里的说明文字与项目 `ff/ue/mkcontainer.ps1` 写的一致）。
+- **没有迁入：** 远程机脚本（`go_remote.sh`、`up_ff.sh`、`inst_ff.ps1`、各个 `.cmd`）；源模型（规则不允许二次配布）、构建输出、容器、发行包本身。
+- **便携改动：** `build_ff.py`：本机的原版 dump 目录、PMX 路径、UEFormat 目录、Lenko 目录下的 vendored mmd_tools、Karin_Original 构建的辅助贴图目录 →
+  `PBZ_WORK`、`PBZ_SOURCE_PMX`、`PBZ_MMD_TOOLS`、`PBZ_HELPER_TEXTURES` 必须设置（在建输出目录之前检查），`PBZ_BLENDER_ADDONS` 可选；行尾保持原件的 CRLF。
+  `install.ps1`：提示里的示例游戏目录换成 `<Steam 库>\steamapps\common\PBZ`（与 `release/install.ps1` 的做法相同）。
+- **等价性验证（2026-11-15，项目机）：** 便携版 `build_ff.py` 用同一份原版 dump 和 PMX 跑成年和少年构建，12 个 JSON（`cloth*.json`、`cloth_collision*.json`、`materials*.json`、
+  `report*.json`）和 9 张贴图与项目 ff4 的输出逐字节相同；9 个 FBX 大小相同（内容里的时间戳 / 对象 ID 不同，没有逐结构比较）。`pack_ff.py` 用 ff4 的容器重打，
+  zip 和 rar 解开后与 2026-11-07 发布的包逐文件相同。`run_all.ps1` / `mkcontainer.ps1` 的 `-Mod ff` 没有运行，项目用的是 `.cmd`（PowerShell 解析器检查无语法错误）。
+- **合成数据测试：** `PhantomBladeZeroTools` 现在 6 项：构建器检查加上 `build_ff.py`；新增 `test_pbz_firefly_contracts`（变量在建目录之前检查、法线写回、成年 ×1.13 只用于成年、
+  手臂径向加粗、`HAND_CAP`、手指沿指根连线横移且三节同一偏移、腿的渐变、短裙碰撞资产的大腿胶囊截短条件、`skirt` 标签、`-Mod ff` 的查找顺序和容器名、
+  流萤安装脚本的包名 / Lenko / buildid / 先校验后删除、README 里的模型规则、`pack_ff.py` 自己写启动器）；PowerShell 变量名大小写检查覆盖流萤的安装脚本；
+  PROVENANCE / 便携性检查覆盖新文件。
+- **实机：** ff1–ff3 每轮都有用户的截图反馈，ff3 只剩「手还是有点大」；ff4 装进游戏、发行包测过，用户还没反馈。见 `games/phantom-blade-zero/cases/FIREFLY.md`。
+
 ## 2026-11-10：新增仁王2便携包
 
 - **迁入内容：** 35 个文件，放在 `portable-kits/nioh-2/`，按项目的相对布局（`simcheck/` 仍在 `n2_build.py` 旁边，`simcheck/README.md` 里的 `../n2_build.py` 因此不用改）。

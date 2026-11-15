@@ -25,6 +25,8 @@
 PicodraTech 用 `build_pt.py`（默认比例 1.37 = 1.30 × 眼高比 1.0994 / 1.0415）。
 Lenko 用 `build_lenko.py`（PMX；比例按眼高与 Karin_Original 对齐）。它需要 mmd_tools 4.5.x（`PBZ_MMD_TOOLS`），还要一个 Karin_Original 构建的 `textures/`
 （`PBZ_HELPER_TEXTURES`，用里面的 `Karin_FlatN`、`Karin_ARM`、`Karin_ARMMatte`、`Karin_Gray`、`Karin_SCMT` 辅助贴图）。另外写 `cloth_collision_hair.json` 和 `cloth_collision_jacket.json`。
+流萤用 `build_ff.py`（`build_lenko.py` 的分支，环境变量相同；成年默认比例 = 眼高对齐 × 1.13，少年只按眼高）。另外写 `cloth_collision_hair.json` 和 `cloth_collision_skirt.json`，
+UE 侧用 `scripts/ue/ff/ue_cloth.py`（`run_all.ps1 -Mod ff`）。PMX 里和本体共用顶点的叠加层要按面删、删完把 PMX 法线按角色写回（[案例：流萤](cases/FIREFLY.md)）。
 
 做的事：
 
@@ -38,6 +40,8 @@ Lenko 用 `build_lenko.py`（PMX；比例按眼高与 Karin_Original 对齐）�
 
 核对：`report.json` 的 `missing_face_keys` 为空、`slots_unmapped` 为空、`bones.body` 等于原版身体骨数（264）、布料段的面数和固定点数合理。
 Lenko 另核对：`jacket_shorten` 每个扇区的余量、`shoulder`、`hair_collision.hair_particles_inside_at_rest` 为 0、`hair_follow`、`hair_backstop`。
+每个模型都看 `segment_stretch`（成年前臂超过约 1.25 时手臂会显长，[技术合同](TECHNICAL_CONTRACTS.md) §5）和 `hand_fix.palm_ratio`；流萤另看 `leg_thicken`、`hand_fix.finger_lateral_cm`、
+`skirt_collision.shapes`（大腿一项 `capsule_from`），再用 `cmp_bind.py` 和上一个被接受的构建并排渲染比较比例。
 
 ## 3. UE 内容工程（UE 5.7）
 

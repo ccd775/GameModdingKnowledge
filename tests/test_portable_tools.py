@@ -5930,7 +5930,8 @@ class PhantomBladeZeroTools(unittest.TestCase):
 
     def test_pbz_builders_need_env_before_writing(self):
         kit = pbz_kit()
-        for name, src_var in (('build_pbz.py', 'PBZ_SOURCE_VRM'), ('build_pt.py', 'PBZ_SOURCE_BLEND'), ('build_lenko.py', 'PBZ_SOURCE_PMX')):
+        for name, src_var in (('build_pbz.py', 'PBZ_SOURCE_VRM'), ('build_pt.py', 'PBZ_SOURCE_BLEND'), ('build_lenko.py', 'PBZ_SOURCE_PMX'),
+                              ('build_ff.py', 'PBZ_SOURCE_PMX')):
             text = (kit / 'scripts/blender' / name).read_text(encoding='utf-8')
             ast.parse(text)
             for var in ('PBZ_WORK', src_var):
@@ -5969,11 +5970,50 @@ class PhantomBladeZeroTools(unittest.TestCase):
         self.assertIn("lk = 'z_LenkoPBZ_P'", run_all)
         self.assertIn("lk = 'LenkoPBZ'", (kit / 'tools/mkcontainer.ps1').read_text(encoding='utf-8-sig'))
 
+    def test_pbz_firefly_contracts(self):
+        kit = pbz_kit()
+        ff = (kit / 'scripts/blender/build_ff.py').read_text(encoding='utf-8')
+        for var in ('PBZ_MMD_TOOLS', 'PBZ_HELPER_TEXTURES'):
+            self.assertLess(ff.index(f'_need("{var}"'), ff.index('os.makedirs(RUN'), var)
+        # overlay layers sharing the base mesh's vertices: faces deleted alone, the PMX normals re-applied per role
+        self.assertIn('normals_split_custom_set_from_vertices', ff)
+        # hand / finger joints keep Hun's offsets (Animation): the adult is scaled so the forearm stretch is Lenko's
+        self.assertIn('ADULT_UP = 1.13', ff)
+        self.assertIn('(ADULT_UP if VARIANT == "adult" else 1.0)', ff)
+        self.assertIn('rad = math.sqrt(st) if seg in ("upperarm", "lowerarm") and st > 1.0 else 1.0', ff)
+        self.assertIn('HAND_CAP = 1.0 ', ff)
+        # finger meshes move along the knuckle line (the curl axis) only, the same offset on all three segments
+        self.assertIn('lat = jn["index"] - jn["pinky"]; lat = norm(lat - np.dot(lat, fd) * fd)', ff)
+        self.assertIn('OFS[V(f"{f}_{g}_{s}")] = dl * lat', ff)
+        # legs: per-vertex radial thickening, hips under the skirt untouched, fading out at the ankle
+        self.assertIn('LEG_F = 1.10', ff)
+        self.assertIn('ramp = smooth(t, 0.35, 0.6) if bone.endswith("UpperLeg") else 1.0 - smooth(t, 0.7, 0.95)', ff)
+        # skirt collision asset: shapes trimmed to the rest shape, thigh capsules keep their radius and start lower
+        self.assertIn('cloth_collision_skirt{VCFG[\'suffix\']}.json', ff)
+        self.assertIn('if float(seg_dist(SKIRT_SIM_P, a2, b_).min()) - STH - 0.3 >= R_: break', ff)
+        self.assertIn('"collision": "skirt"', ff)
+        self.assertIn('for tag in ("hair", "jacket", "skirt"):', (kit / 'scripts/ue/ff/ue_cloth.py').read_text(encoding='utf-8'))
+        run_all = (kit / 'tools/run_all.ps1').read_text(encoding='utf-8-sig')
+        self.assertIn("ff = @('ff', 'lk', 'pt')", run_all)
+        self.assertIn("ff = 'z_FireflyPBZ_P'", run_all)
+        self.assertIn("ff = 'FireflyPBZ'", (kit / 'tools/mkcontainer.ps1').read_text(encoding='utf-8-sig'))
+        inst = (kit / 'release/firefly/install.ps1').read_text(encoding='utf-8-sig')
+        self.assertIn("$Names = 'z_FireflyPBZ_P.pak', 'z_FireflyPBZ_P.ucas', 'z_FireflyPBZ_P.utoc'", inst)
+        self.assertIn("'z_LenkoPBZ_P.pak', 'z_LenkoPBZ_P.ucas', 'z_LenkoPBZ_P.utoc'", inst)
+        self.assertIn("$BuildId = '26367565'", inst)
+        self.assertLess(inst.index('包内文件缺失或损坏'), inst.index('foreach ($f in $found) { Remove-Item'))
+        # the package's README carries the model's credit and rules
+        readme = (kit / 'release/firefly/README.txt').read_text(encoding='utf-8-sig')
+        self.assertIn('流云景', readme)
+        self.assertIn('请勿二次配布', readme)
+        # the launchers are written by the packer (no .cmd files in the kit)
+        self.assertIn('LAUNCH = ', (kit / 'release/firefly/pack_ff.py').read_text(encoding='utf-8'))
+
     def test_pbz_powershell_names_and_installer(self):
         import re
         kit = pbz_kit()
         auto = {'_', 'args', 'error', 'lastexitcode', 'psscriptroot', 'env', 'true', 'false', 'null'}
-        for path in list((kit / 'tools').glob('*.ps1')) + [kit / 'release/install.ps1']:
+        for path in list((kit / 'tools').glob('*.ps1')) + [kit / 'release/install.ps1', kit / 'release/firefly/install.ps1']:
             text = path.read_text(encoding='utf-8-sig')
             spell = {}
             for v in re.findall(r'\$(?:env:)?([A-Za-z_][A-Za-z0-9_]*)', text):
