@@ -3924,6 +3924,33 @@
     "modified_for_portability": true
   },
   {
+    "path": "portable-kits/death-stranding-2/scripts/corediff.py",
+    "source": "Mods/DeathStranding2/.work/ds2py/corediff.py",
+    "original_sha256": "3081eedc26bbfe3f8665bf90c5a743b1fa978b2e418c42e63fe936b61a9c6642",
+    "source_bytes": 3570,
+    "portable_sha256": "3081eedc26bbfe3f8665bf90c5a743b1fa978b2e418c42e63fe936b61a9c6642",
+    "portable_bytes": 3570,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/death-stranding-2/scripts/diagcompare.py",
+    "source": "Mods/DeathStranding2/.work/ds2py/diagcompare.py",
+    "original_sha256": "98f77578214acad19a48d5b8d09266d3f5adf6b9ec5b82f647bd7aeb99d86e5f",
+    "source_bytes": 8242,
+    "portable_sha256": "98f77578214acad19a48d5b8d09266d3f5adf6b9ec5b82f647bd7aeb99d86e5f",
+    "portable_bytes": 8242,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/death-stranding-2/scripts/dry_verify.py",
+    "source": "Mods/DeathStranding2/.work/ds2py/dry_verify.py",
+    "original_sha256": "632f9be1061a2bba57d0bfc004bb17032e8646bf0a67deff7edc2a197a1cab4d",
+    "source_bytes": 2671,
+    "portable_sha256": "632f9be1061a2bba57d0bfc004bb17032e8646bf0a67deff7edc2a197a1cab4d",
+    "portable_bytes": 2671,
+    "modified_for_portability": false
+  },
+  {
     "path": "portable-kits/death-stranding-2/scripts/ds2ascii.py",
     "source": "Mods/DeathStranding2/.work/ds2py/ds2ascii.py",
     "original_sha256": "b8c926697c93252b3f1e1a73efc1f81e75e166a0377d2763133137375338fcfc",
@@ -3944,10 +3971,10 @@
   {
     "path": "portable-kits/death-stranding-2/scripts/export_group.ps1",
     "source": "Mods/DeathStranding2/.work/remote/export_group.ps1",
-    "original_sha256": "3c85a2bc4b2bc65781cfc3af087f5df28f6a95b4a9a393f15b23a9714f655372",
-    "source_bytes": 1254,
-    "portable_sha256": "8e61c8e731bbc53c687ddc408571d135def580e0dd6dfaea9dbfa0cb49fef58a",
-    "portable_bytes": 1381,
+    "original_sha256": "b1937e88021b8dcec0cd1206a0c673c3411b7981a62bda6247f119e28ebde317",
+    "source_bytes": 1537,
+    "portable_sha256": "9a8c1482839fa920b0fc03014e0037af138a3ad0052e69afd6bc4b5df34441c9",
+    "portable_bytes": 1851,
     "modified_for_portability": true
   },
   {
@@ -3980,10 +4007,10 @@
   {
     "path": "portable-kits/death-stranding-2/scripts/graph.py",
     "source": "Mods/DeathStranding2/.work/ds2py/graph.py",
-    "original_sha256": "435505085ad1178aefa8588914cb9eb91597d3cc69db1d570727caabfcd2fb2c",
-    "source_bytes": 7281,
-    "portable_sha256": "25f753491c55c2701724372d90d5b7b7fc7accbae210205a46136373744eff14",
-    "portable_bytes": 8444,
+    "original_sha256": "9315d2299a38c03d7594164928856983b0b28dc328ee52c55905b318462d5ee1",
+    "source_bytes": 7549,
+    "portable_sha256": "621e9d925b7f0bd5ed85a428e689aa822bdc6045eb2857ae08ec9653bb499f39",
+    "portable_bytes": 8737,
     "modified_for_portability": true
   },
   {
@@ -4043,19 +4070,19 @@
   {
     "path": "portable-kits/death-stranding-2/scripts/make_links.py",
     "source": "Mods/DeathStranding2/.work/remote/make_links.sh",
-    "original_sha256": "a2f7e1cbbe121bb5c5c8972bc901d3083cda1d2b0e91d2792f10c6fdc9c79c4a",
-    "source_bytes": 5960,
-    "portable_sha256": "0b391b0240d9ec51ca86d498cdb41e816432ac059062a84e5f15a510271edd82",
-    "portable_bytes": 7258,
+    "original_sha256": "a87fc86f249ace8c058ab0343f1541e92ff0d7c4c7b3f07f16bcd515c1a1436e",
+    "source_bytes": 7109,
+    "portable_sha256": "3261d350259894a835c4affb0f58d29387c07461f98dca6396fd5f62c52dc740",
+    "portable_bytes": 8315,
     "modified_for_portability": true
   },
   {
     "path": "portable-kits/death-stranding-2/scripts/make_mod_ds2.ps1",
     "source": "Mods/DeathStranding2/.work/remote/make_mod_ds2.ps1",
-    "original_sha256": "46fe0b7285ccf506da5bf69c926c412a263ba69ac23eee68f1130308ddd936d0",
-    "source_bytes": 7338,
-    "portable_sha256": "4a50bf160321c027ff11f068704f54dc433b7c3dc3a92b07f727f5567c7dd351",
-    "portable_bytes": 7570,
+    "original_sha256": "64aef9da849194654525ec69a8a399898417ac464e99d85477d98b875f6c0bc0",
+    "source_bytes": 7517,
+    "portable_sha256": "041563b800c724723e7af7146ca52b4a6323f867abaef4f053a15afd33bf9c51",
+    "portable_bytes": 7759,
     "modified_for_portability": true
   },
   {
@@ -4068,12 +4095,21 @@
     "modified_for_portability": true
   },
   {
+    "path": "portable-kits/death-stranding-2/scripts/mapgroups.py",
+    "source": "Mods/DeathStranding2/.work/ds2py/mapgroups.py",
+    "original_sha256": "c2253f944a081ca720101cfa3619102fde3ab89738fccf549eab67793b8688b4",
+    "source_bytes": 8548,
+    "portable_sha256": "c2253f944a081ca720101cfa3619102fde3ab89738fccf549eab67793b8688b4",
+    "portable_bytes": 8548,
+    "modified_for_portability": false
+  },
+  {
     "path": "portable-kits/death-stranding-2/scripts/pack.ps1",
     "source": "Mods/DeathStranding2/.work/remote/pack.ps1",
-    "original_sha256": "5b9fcfb60dfc4836e476b0ee750b0c0ee6bb73636211684f0a94921c35da4bd9",
-    "source_bytes": 2132,
-    "portable_sha256": "a7397285760f62770b012b0170afdd65539b951d8dc4b948e64d5c1e53448673",
-    "portable_bytes": 2259,
+    "original_sha256": "a45c3172a1d719f6d83ed3e3d0be49250d22de174aa7239709978818bf8fd160",
+    "source_bytes": 2311,
+    "portable_sha256": "b9a4cf836481fb4bc367d4fadc069ad449171f410e97c79b736758012cf9ba57",
+    "portable_bytes": 2450,
     "modified_for_portability": true
   },
   {
@@ -4084,6 +4120,33 @@
     "portable_sha256": "09487b39480e9e6dcbcbd7490d2331b19fe8a2d755c999d1832fb2b43e7a913c",
     "portable_bytes": 12249,
     "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/death-stranding-2/scripts/port_fields.py",
+    "source": "Mods/DeathStranding2/.work/ds2py/port_fields.py",
+    "original_sha256": "7ef622f975b6ffbe3e4b95d5f9f75c6cd8aed17c15a7a53b7b4a94803f61ae3f",
+    "source_bytes": 6577,
+    "portable_sha256": "7ef622f975b6ffbe3e4b95d5f9f75c6cd8aed17c15a7a53b7b4a94803f61ae3f",
+    "portable_bytes": 6577,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/death-stranding-2/scripts/port_release.py",
+    "source": "Mods/DeathStranding2/.work/ds2py/port_release.py",
+    "original_sha256": "1492303060b522a96b6cbd031c3320cad41b832943ad1b96474a35f9bccfe24d",
+    "source_bytes": 14836,
+    "portable_sha256": "1492303060b522a96b6cbd031c3320cad41b832943ad1b96474a35f9bccfe24d",
+    "portable_bytes": 14836,
+    "modified_for_portability": false
+  },
+  {
+    "path": "portable-kits/death-stranding-2/scripts/port_verify.py",
+    "source": "Mods/DeathStranding2/.work/ds2py/port_verify.py",
+    "original_sha256": "f3d9bbd768950e0e6ed507038017c821920f2cad975c2ac9d4f9788d8f926eaa",
+    "source_bytes": 7246,
+    "portable_sha256": "f3d9bbd768950e0e6ed507038017c821920f2cad975c2ac9d4f9788d8f926eaa",
+    "portable_bytes": 7246,
+    "modified_for_portability": false
   },
   {
     "path": "portable-kits/death-stranding-2/scripts/prep_ref.py",
@@ -4104,12 +4167,21 @@
     "modified_for_portability": true
   },
   {
+    "path": "portable-kits/death-stranding-2/scripts/release/collect.ps1",
+    "source": "Mods/DeathStranding2/.work/remote/release/collect.ps1",
+    "original_sha256": "0abc0d74b725a2083772271d367308ac23fb7091a09ade1c1237116122c0fa86",
+    "source_bytes": 30804,
+    "portable_sha256": "0abc0d74b725a2083772271d367308ac23fb7091a09ade1c1237116122c0fa86",
+    "portable_bytes": 30804,
+    "modified_for_portability": false
+  },
+  {
     "path": "portable-kits/death-stranding-2/scripts/release/install.ps1",
     "source": "Mods/DeathStranding2/.work/remote/release/install.ps1",
-    "original_sha256": "3bd25920aa7456c2051a9baf62d2854a47532816216d0bfe8800300cf092294a",
-    "source_bytes": 16208,
-    "portable_sha256": "3bd25920aa7456c2051a9baf62d2854a47532816216d0bfe8800300cf092294a",
-    "portable_bytes": 16208,
+    "original_sha256": "2b1a7601a8346712d7000b2abd33076f16228e81a209cb0467b3c165e62f2584",
+    "source_bytes": 18650,
+    "portable_sha256": "2b1a7601a8346712d7000b2abd33076f16228e81a209cb0467b3c165e62f2584",
+    "portable_bytes": 18650,
     "modified_for_portability": false
   },
   {
@@ -4173,6 +4245,15 @@
     "source_bytes": 1040,
     "portable_sha256": "8369ec06673d0d975eaf1f2d2500efe4336f172f5c5a7396d245fed109c36653",
     "portable_bytes": 1220,
+    "modified_for_portability": true
+  },
+  {
+    "path": "portable-kits/death-stranding-2/scripts/sparse_root.py",
+    "source": "Mods/DeathStranding2/.work/ds2py/sparse_root.py",
+    "original_sha256": "f1aab4f3b8b84371c34df40f5e26d35515dc926ffbe375aa11312104d38c2273",
+    "source_bytes": 3910,
+    "portable_sha256": "e4ffcc790faba79dce8137eb5776bfb9526af2149494889ef34e473ce2851e1a",
+    "portable_bytes": 4154,
     "modified_for_portability": true
   },
   {

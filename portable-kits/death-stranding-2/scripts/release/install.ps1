@@ -76,7 +76,8 @@ $Backup = Join-Path $GameDir 'KarinMod_backup'
 $StatePath = Join-Path $Backup 'state.json'
 Say "游戏文件夹：$GameDir"
 $exe = Join-Path $GameDir 'DS2.exe'
-if (Test-Path $exe) { Say ('游戏版本：' + (Get-Item $exe).VersionInfo.FileVersion) }
+$exeVersion = $null
+if (Test-Path $exe) { $exeVersion = (Get-Item $exe).VersionInfo.FileVersion; Say "游戏版本：$exeVersion" }
 if (Get-Process DS2 -ErrorAction SilentlyContinue) { Fail '游戏正在运行，请先退出游戏再运行。' }
 
 # ------------------------------------------------------------------ helpers
@@ -148,10 +149,19 @@ if (-not $Variant) { Fail '请用 -Variant NoExpression 或 -Variant Expression 
 
 # ------------------------------------------------------------------ install: load the mod
 $ModDir = Join-Path $Here $Variant
-$man = Get-Content (Join-Path $ModDir 'manifest.json') -Raw -Encoding UTF8 | ConvertFrom-Json
-$Archive = Join-Path $ModDir $man.archive.file
-if (-not (Test-Path $Archive) -or (Get-Item $Archive).Length -ne [long]$man.archive.size) { Fail "mod 数据文件缺失或不完整：$Archive" }
-Say "要安装：$($man.title)"
+# one manifest per supported game build (manifest.json = the build the mod was made from, manifest_<version>.json =
+# ports: the same archive with a byte patch); the one made for this game's version is tried first
+$mans = @(Get-ChildItem $ModDir -Filter 'manifest*.json' | Sort-Object Name |
+          ForEach-Object { Get-Content $_.FullName -Raw -Encoding UTF8 | ConvertFrom-Json })
+if (-not $mans) { Fail "找不到 $ModDir\manifest.json" }
+$mans = @($mans | Sort-Object { if ($_.built_from_exe -eq $exeVersion) { 0 } else { 1 } })
+$Archive = Join-Path $ModDir $mans[0].archive.file
+if (-not (Test-Path $Archive) -or (Get-Item $Archive).Length -ne [long]$mans[0].archive.size) { Fail "mod 数据文件缺失或不完整：$Archive" }
+Say "要安装：$($mans[0].title)"
+Say ('支持的游戏版本：' + (@($mans | ForEach-Object { $_.built_from_exe }) -join '、'))
+if ($exeVersion -and -not ($mans | Where-Object { $_.built_from_exe -eq $exeVersion })) {
+    Say "注意：没有专门为你的游戏版本 $exeVersion 做的数据；下面逐项核对，不一致就不会安装。"
+}
 if (Test-Path $StatePath) {
     Say '检测到已安装的 Karin mod，先卸载旧的……'
     Invoke-Uninstall
@@ -162,7 +172,8 @@ $G = [IO.File]::ReadAllBytes($GraphPath)
 $L = [IO.File]::ReadAllBytes($LinksPath)
 function U32([int]$p) { return [BitConverter]::ToUInt32($G, $p) }
 function I32([int]$p) { return [BitConverter]::ToInt32($G, $p) }
-if (([BitConverter]::ToUInt64($G, 0)).ToString('X16') -ne $man.graph_type_hash) { Fail '这个游戏版本的 streaming_graph.core 格式不同，mod 不兼容。' }
+$graphTypeHash = ([BitConverter]::ToUInt64($G, 0)).ToString('X16')
+if (-not ($mans | Where-Object { $_.graph_type_hash -eq $graphTypeHash })) { Fail '这个游戏版本的 streaming_graph.core 格式不同，mod 不兼容。' }
 # the graph object (after its type hash and size) is followed by a few zero bytes, kept as they are
 $trailer = $G.Length - 12 - (U32 8)
 if ($trailer -lt 0 -or $trailer -gt 16) { Fail 'streaming_graph.core 已损坏或不完整，请先在 Steam 里验证游戏文件。' }
@@ -175,11 +186,9 @@ $nLoc = U32 $p; $posLoc = $p + 4; $p += 4 + 8 * $nLoc
 $n = U32 $p; $p += 4 + 4 * $n
 $nSpan = U32 $p; $posSpan = $p + 4; $p += 4 + 12 * $nSpan
 $nGroups = U32 $p; $p += 4
-$want = @{}
-foreach ($grp in $man.groups) { $want[[int]$grp.gid] = $null }
+$gpos = @{}
 for ($i = 0; $i -lt $nGroups; $i++) {
-    $gid = I32 $p
-    if ($want.ContainsKey($gid)) { $want[$gid] = $p }
+    $gpos[(I32 $p)] = $p
     $p += 68 + 16 * (U32 ($p + 64))   # GroupID, NumObjects, GroupSize (int64), 12 uint32, ObjectUUIDs
 }
 $nSub = U32 $p; $posSub = $p + 4; $p += 4 + 4 * $nSub
@@ -216,10 +225,13 @@ if ($names -contains $FileEntry) { Fail "游戏的 streaming_graph.core 里已�
 if ($L.Length -ne $linkTableSize) { Fail 'streaming_links.stream 和 streaming_graph.core 不匹配，请先在 Steam 里验证游戏文件。' }
 
 # ------------------------------------------------------------------ check every touched group
-$bad = @()
 $typeIdxBase = $posTypeData + 20
+# returns what doesn't match (empty: the manifest fits this game); notes each group's table positions for the patch
+function Test-Manifest($man) {
+$bad = @()
+if ($man.graph_type_hash -ne $graphTypeHash) { return @('streaming_graph.core 格式') }
 foreach ($grp in $man.groups) {
-    $e = $want[[int]$grp.gid]
+    $e = $gpos[[int]$grp.gid]
     if ($null -eq $e) { $bad += "组 $($grp.gid)：找不到"; continue }
     $f = @{ NumObjects = I32 ($e + 4); GroupSize = [BitConverter]::ToInt64($G, $e + 8); SubGroupCount = I32 ($e + 20)
             SpanCount = I32 ($e + 36); TypeCount = I32 ($e + 44); LinkSize = I32 ($e + 52); LocatorCount = I32 ($e + 60) }
@@ -243,24 +255,35 @@ foreach ($grp in $man.groups) {
         foreach ($s in $grp.spans) {
             if ((U32 ($posSpan + 12 * ($spanStart + $s.k) + 4)) -ne [uint32]$s.vanilla_length) { $why += "span $($s.k)" }
         }
+        $badEdits = 0
         foreach ($le in $grp.link_edits) {
             $a = [int]($linkStart + $le.rel)
             $old = (($L[$a..($a + [int]($le.old.Length / 2) - 1)] | ForEach-Object { $_.ToString('x2') }) -join '')
-            if ($old -ne $le.old) { $why += "link @$($le.rel)" }
+            if ($old -ne $le.old) { $badEdits++ }
         }
-        $grp | Add-Member -NotePropertyName spanStart -NotePropertyValue $spanStart
-        $grp | Add-Member -NotePropertyName locStart -NotePropertyValue $locStart
-        $grp | Add-Member -NotePropertyName linkStart -NotePropertyValue $linkStart
+        if ($badEdits) { $why += "link 补丁 $badEdits/$(@($grp.link_edits).Count) 处" }
+        $grp | Add-Member -NotePropertyName spanStart -NotePropertyValue $spanStart -Force
+        $grp | Add-Member -NotePropertyName locStart -NotePropertyValue $locStart -Force
+        $grp | Add-Member -NotePropertyName linkStart -NotePropertyValue $linkStart -Force
     }
     if ($why) { $bad += "组 $($grp.gid)：$($why -join ', ')" }
 }
-if ($bad) {
-    Say ''
-    Say '这个游戏版本里，mod 要改的部分和制作 mod 时的版本不一样：'
-    $bad | Select-Object -First 12 | ForEach-Object { Say "  $_" }
-    Fail 'mod 和这个游戏版本不兼容，没有改动任何文件。需要针对这个版本重新制作 mod。'
+return $bad
 }
-Say "兼容性检查通过（$($man.groups.Count) 个组）。"
+$man = $null
+$first = $null
+foreach ($m in $mans) {
+    $bad = @(Test-Manifest $m)
+    if (-not $bad) { $man = $m; break }
+    if (-not $first) { $first = @{ man = $m; bad = $bad } }
+}
+if (-not $man) {
+    Say ''
+    Say "这个游戏版本里，mod 要改的 $($first.man.groups.Count) 个组有 $($first.bad.Count) 个和制作 mod 时的版本（$($first.man.built_from_exe)）不一样："
+    $first.bad | ForEach-Object { Say "  $_" }
+    Fail 'mod 和这个游戏版本不兼容，没有改动任何文件。需要针对这个版本重新制作 mod：可以运行“收集游戏数据.bat”，把生成的 zip（约 1.2 GB）发给 mod 作者。'
+}
+Say "兼容性检查通过：按游戏 $($man.built_from_exe) 的数据安装（$($man.groups.Count) 个组）。"
 
 # ------------------------------------------------------------------ patch in memory
 [uint32]$newIndex = $nFiles
@@ -301,17 +324,33 @@ Put-U32 $N ($posPflCount + $grow + 4) ([uint32]($nFiles + 1))
 Put-U32 $N 8 ([uint32]($N.Length - 12 - $trailer))
 
 # ------------------------------------------------------------------ write
+Say ('正在复制 mod 数据（{0} MB）……' -f [int]([long]$man.archive.size / 1MB))
+Copy-Item $Archive ($ArchivePath + '.karin_tmp') -Force
+if ($man.archive_patch) {
+    # a port to another game build: the same archive with a few bytes of each replaced group changed
+    $fs = [IO.File]::Open($ArchivePath + '.karin_tmp', 'Open', 'ReadWrite')
+    try {
+        foreach ($ap in $man.archive_patch) {
+            $b = New-Object byte[] ($ap.hex.Length / 2)
+            for ($i = 0; $i -lt $b.Length; $i++) { $b[$i] = [Convert]::ToByte($ap.hex.Substring(2 * $i, 2), 16) }
+            [void]$fs.Seek([long]$ap.offset, 'Begin')
+            $fs.Write($b, 0, $b.Length)
+        }
+    } finally { $fs.Dispose() }
+    if ($man.patched_sha256 -and (Get-FileSha256 ($ArchivePath + '.karin_tmp')) -ne $man.patched_sha256) {
+        Remove-Item ($ArchivePath + '.karin_tmp') -Force
+        Fail 'mod 数据打补丁后校验不对（数据文件可能损坏），没有改动游戏文件。请重新下载 mod。'
+    }
+}
 New-Item -ItemType Directory -Force $Backup | Out-Null
 Copy-Item $GraphPath (Join-Path $Backup 'streaming_graph.core') -Force
 Copy-Item $LinksPath (Join-Path $Backup 'streaming_links.stream') -Force
-Say ('正在复制 mod 数据（{0} MB）……' -f [int]([long]$man.archive.size / 1MB))
-Copy-Item $Archive ($ArchivePath + '.karin_tmp') -Force
 if (Test-Path $ArchivePath) { Remove-Item $ArchivePath -Force }
 Rename-Item ($ArchivePath + '.karin_tmp') $ArchiveName
 Replace-File $GraphPath $N
 Replace-File $LinksPath $L
 $state = [ordered]@{
-    variant = $Variant; title = $man.title; archive = $ArchiveName; date = (Get-Date).ToString('s')
+    variant = $Variant; title = $man.title; game_build = $man.built_from_exe; archive = $ArchiveName; date = (Get-Date).ToString('s')
     original_graph = Get-FileSha256 (Join-Path $Backup 'streaming_graph.core')
     original_links = Get-FileSha256 (Join-Path $Backup 'streaming_links.stream')
     installed_graph = Get-FileSha256 $GraphPath

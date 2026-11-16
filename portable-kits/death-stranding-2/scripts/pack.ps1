@@ -5,7 +5,8 @@ param([string]$ModDir, [string]$Name)
 $ErrorActionPreference = 'Stop'
 if (-not $env:DS2_MODDING) { throw 'set DS2_MODDING (the modding workspace: clean\, work\, out\, backup\, tools\)' }
 $M = $env:DS2_MODDING
-$Tool = Join-Path $M 'clean\LocalCacheWinGame'
+# DS2_ROOT: pack against another build's root (e.g. one rebuilt from a player's collect.ps1 zip) instead of clean\
+$Tool = if ($env:DS2_ROOT) { Join-Path $env:DS2_ROOT 'LocalCacheWinGame' } else { Join-Path $M 'clean\LocalCacheWinGame' }
 $Pkg = Join-Path $Tool 'package'
 $Out = Join-Path $M "out\$Name"
 Set-Location $Tool

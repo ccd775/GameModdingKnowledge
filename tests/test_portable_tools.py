@@ -5741,6 +5741,11 @@ class DeathStranding2Tools(unittest.TestCase):
         self.assertIn(('50110:166', '@74406:0', '75978:0'), v11)
         self.assertNotIn(('50110:166', '@74406:0', '75978:0'), v13)
         self.assertIn(('31123:47608', '@79289:0', '75978:0'), v12)
+        # v14f: the expression build's face materials drop Sam's sunburn alpha; v14 (no face) is v13
+        v14, v14f = triples('v14'), triples('v14f')
+        self.assertEqual(v14, v13)
+        self.assertEqual(len(v14f), 128)
+        self.assertEqual(set(v14f) - set(v13f), {(f'50120:{e}', '@67648:9', '75978:0') for e in (51, 89, 91, 176, 183)})
         process = subprocess.run([sys.executable, '-B', str(DS2_KIT / 'scripts' / 'make_links.py'), 'v13'],
                                  capture_output=True, text=True, env=self.env())
         self.assertNotEqual(process.returncode, 0)
@@ -5849,6 +5854,128 @@ class DeathStranding2Tools(unittest.TestCase):
         self.assertIn('300', p.stdout)
         self.assertEqual(((pkg / 'streaming_graph.core').read_bytes(), (pkg / 'streaming_links.stream').read_bytes()), (graph, bytes(changed)))
         self.assertFalse((pkg / 'package.99.00.core.stream').exists() or (game / 'KarinMod_backup').exists())
+
+    def test_ds2_port_merge_span_and_group_records(self):
+        pr = ds2('port_release')
+        v0 = bytes(range(32))
+        v1 = bytearray(v0); v1[3:5] = b'\xf3\xf4'; v1[10] = 0xFA; v1[20] = 0xE0               # the game update
+        m = bytearray(v0); m[10] = 0x77; m[12] = 0x66                                       # the mod (10: both)
+        runs, changed, conflicts = pr.merge_span(v0, bytes(v1), bytes(m), base=1000)
+        self.assertEqual([(o, bytes(b)) for o, b in runs], [(1003, b'\xf3\xf4'), (1020, b'\xe0')])
+        self.assertEqual((changed, conflicts), (4, 1))
+        self.assertEqual(pr.merge_span(v0, v0, bytes(m)), ([], 0, 0))
+        with self.assertRaises(ValueError):
+            pr.merge_span(v0, bytes(v1), bytes(m[:-1]))
+        # Graph.links runs on into the next group's records; group_records stops at the group's LinkSize
+        graph, mg = ds2('graph'), ds2('mapgroups')
+        g = graph.Graph.__new__(graph.Graph)
+        a, b = graph.encode_link(None, 5) + graph.encode_link(3, 82), graph.encode_link(None, 7)
+        g._links, g.groups = a + b, [{'LinkStart': 0, 'LinkSize': len(a)}, {'LinkStart': len(a), 'LinkSize': len(b)}]
+        self.assertEqual([r[:2] for r in mg.group_records(g, 0)], [(None, 5), (3, 82)])
+        self.assertEqual([r[:2] for r in mg.group_records(g, 1)], [(None, 7)])
+        self.assertEqual(len(list(g.links(0))), 3)
+
+    def test_ds2_port_group_mapping(self):
+        import hashlib
+        mg = ds2('mapgroups')
+
+        class Build:
+            """the parts of graph.Graph that build_map reads"""
+            def __init__(self, groups, roots, data, subs):
+                self.groups, self.data, self.subs = groups, data, subs
+                self.res = dict(TypeTableData=bytes(20) + struct.pack('<2H', 0, 1), TypeHashes=[0xA, 0xB], RootUUIDs=roots)
+                self.group_by_id = {x['GroupID']: i for i, x in enumerate(groups)}
+            def group_spans(self, gi): return [(gi, 0, len(self.data[gi]))]
+            def read_file(self, fi, off, ln): return self.data[fi]
+            def subgroups(self, gi): return self.subs.get(gi, [])
+
+        def grp(gid, n, size, ts, tc, rs, rc):
+            return dict(GroupID=gid, NumObjects=n, GroupSize=size, TypeStart=ts, TypeCount=tc, RootStart=rs, RootCount=rc)
+        old = Build([grp(10, 3, 100, 0, 2, 0, 1), grp(11, 1, 40, 1, 1, 1, 1), grp(12, 1, 8, 1, 1, 2, 0), grp(13, 1, 8, 1, 1, 2, 0)],
+                    ['u1', 'u2'], [b'a', b'b', b'cccccccc', b'dddddddd'], {0: [2]})
+        # the new build: IDs moved, group 11's root UUID changed, the two look-alike groups listed the other way round
+        new = Build([grp(20, 1, 8, 1, 1, 2, 0), grp(15, 3, 100, 0, 2, 0, 1), grp(16, 1, 40, 1, 1, 1, 1), grp(19, 1, 8, 1, 1, 2, 0)],
+                    ['u1', 'u9'], [b'dddddddd', b'a', b'b', b'cccccccc'], {1: [3]})
+        gmap, how, pending = mg.build_map(old, new, [0, 1, 2, 3], None)
+        self.assertEqual((gmap, pending), ({0: 1, 1: 2, 2: 3, 3: 0}, []))
+        self.assertEqual((how[0], how[1], how[2]), ('unique key', 'key without roots', 'core data'))
+        # the old build's files gone: its data comes from the collected report's per-span SHA-1s
+        old.data = {}
+        old.read_file = lambda *a: (_ for _ in ()).throw(OSError('gone'))
+        known = {12: (hashlib.sha1(b'cccccccc').hexdigest(),), 13: (hashlib.sha1(b'dddddddd').hexdigest(),)}
+        self.assertEqual(mg.build_map(old, new, [2, 3], known)[0], {2: 3, 3: 0})
+
+    def test_ds2_release_installer_picks_the_ported_manifest(self):
+        import hashlib
+        import shutil
+        ds2_kit()
+        shell = shutil.which('powershell') or shutil.which('pwsh')
+        if not shell:
+            self.skipTest('needs Windows PowerShell or pwsh')
+        files = ['cache:package/package.00.00.core', 'cache:package/package.01.00.core.stream',
+                 'cache:package/streaming_links.stream']
+        hashes = [0x1111, 0x2222, 0x3333]
+        links = bytearray(range(40))
+        # a later build: the mod's group 100 (subgroup 300) is now 105 (305), with a new group 102 in between
+        groups = [dict(GroupID=105, NumObjects=3, GroupSize=500, SpanStart=0, SpanCount=1, TypeStart=0, TypeCount=2,
+                       LinkStart=0, LinkSize=16, LocatorStart=0, LocatorCount=1, SubGroupStart=0, SubGroupCount=1),
+                  dict(GroupID=102, NumObjects=1, GroupSize=10, SpanStart=1, SpanCount=1, TypeStart=2, TypeCount=1,
+                       LinkStart=16, LinkSize=8, LocatorStart=1, SubGroupStart=1),
+                  dict(GroupID=305, NumObjects=1, GroupSize=40, SpanStart=2, SpanCount=1, TypeStart=2, TypeCount=1,
+                       LinkStart=24, LinkSize=16, LocatorStart=1, SubGroupStart=1)]
+        type_index = [0, 1, 2]
+        graph = ds2_graph(groups, files, [(1, 512)], [(0, 100, 0), (0, 10, 200), (0, 40, 300)], hashes, type_index,
+                          [305], len(links))
+        game = self.root / 'game dir'
+        pkg = game / 'LocalCacheWinGame' / 'package'
+        pkg.mkdir(parents=True)
+        (pkg / 'streaming_graph.core').write_bytes(graph)
+        (pkg / 'streaming_links.stream').write_bytes(bytes(links))
+        mod = self.root / 'release kit'
+        (mod / 'Expression').mkdir(parents=True)
+        shutil.copyfile(DS2_KIT / 'scripts' / 'release' / 'install.ps1', mod / 'install.ps1')
+        archive = bytes(range(256)) * 16
+        (mod / 'Expression' / 'karin.core.stream').write_bytes(archive)
+        g = groups[0]
+        th = b''.join(struct.pack('<Q', hashes[type_index[g['TypeStart'] + i]]) for i in range(g['TypeCount']))
+        check = dict(NumObjects=3, GroupSize=500, SubGroupCount=1, SpanCount=1, TypeCount=2, LinkSize=16, LocatorCount=1,
+                     types_sha1=hashlib.sha1(th).hexdigest(), subgroups=[305],
+                     links_sha1=hashlib.sha1(bytes(links[0:16])).hexdigest())
+        arch = dict(file='karin.core.stream', size=len(archive), sha256=hashlib.sha256(archive).hexdigest().upper())
+        made = dict(format=1, title='synthetic', built_from_exe='1.0.48.0', graph_type_hash='929D7AF6A30CD1C5',
+                    archive=arch, groups=[dict(gid=100, check=dict(check, subgroups=[300]), spans=[], locators=[],
+                                               link_edits=[])])
+        patched = bytearray(archive); patched[5:7] = b'\xaa\xbb'; patched[1000] = 0xCC
+        ported = dict(made, built_from_exe='9.9.9.0', ported_from='1.0.48.0',
+                      groups=[dict(gid=105, check=check, spans=[dict(k=0, vanilla_length=100, offset=2048, length=90)],
+                                   locators=[dict(k=0, offset=4096)],
+                                   link_edits=[dict(rel=2, old=bytes(links[2:4]).hex(), new='8105')])],
+                      archive_patch=[dict(offset=5, hex='aabb'), dict(offset=1000, hex='cc')],
+                      patched_sha256=hashlib.sha256(bytes(patched)).hexdigest().upper())
+        (mod / 'Expression' / 'manifest.json').write_text(json.dumps(made), encoding='utf-8')
+        (mod / 'Expression' / 'manifest_9.9.9.0.json').write_text(json.dumps(ported), encoding='utf-8')
+        def install(*args):
+            return subprocess.run([shell, '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', str(mod / 'install.ps1'),
+                                   *args, '-GameDir', str(game)], capture_output=True, text=True, errors='replace',
+                                  timeout=120)
+        p = install('-Variant', 'Expression')
+        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+        self.assertIn('9.9.9.0', p.stdout)
+        r = ds2_read_graph((pkg / 'streaming_graph.core').read_bytes())
+        self.assertEqual((r['spans'][0], r['locs'][0]), ((3, 90, 2048), (4096 << 24) | 3))
+        self.assertEqual((pkg / 'streaming_links.stream').read_bytes()[:6], bytes([0, 1, 0x81, 0x05, 4, 5]))
+        self.assertEqual((pkg / 'package.99.00.core.stream').read_bytes(), bytes(patched))
+        state = json.loads((game / 'KarinMod_backup' / 'state.json').read_text(encoding='utf-8-sig'))
+        self.assertEqual(state['game_build'], '9.9.9.0')
+        self.assertEqual(install('-Uninstall').returncode, 0)
+        self.assertEqual(((pkg / 'streaming_graph.core').read_bytes(), (pkg / 'streaming_links.stream').read_bytes()), (graph, bytes(links)))
+        # a damaged archive (the patched copy's SHA-256 is off): nothing is written, no temp file left
+        (mod / 'Expression' / 'manifest_9.9.9.0.json').write_text(json.dumps(dict(ported, patched_sha256='0' * 64)), encoding='utf-8')
+        p = install('-Variant', 'Expression')
+        self.assertEqual(p.returncode, 1, p.stdout + p.stderr)
+        self.assertEqual(((pkg / 'streaming_graph.core').read_bytes(), (pkg / 'streaming_links.stream').read_bytes()), (graph, bytes(links)))
+        self.assertEqual(sorted(x.name for x in pkg.iterdir()), ['streaming_graph.core', 'streaming_links.stream'])
+        self.assertFalse((game / 'KarinMod_backup').exists())
 
     def test_ds2_provenance_and_portability(self):
         import hashlib

@@ -1,8 +1,9 @@
 """Regenerates a mod's streaming_links.stream from the vanilla link table with every relink so far (v5 hair parts,
 v6 body variants -> Porter, v7 cutscene face/inner/second hair set, v9 barefoot parts (shown when the equipped boots
-come off; the game hides Porter's own boots then) -> Karin's shoes, v10 equipped boots, v11+ shower hair set).
+come off; the game hides Porter's own boots then) -> Karin's shoes, v10 equipped boots, v11+ shower hair set, v14f+
+the expression build's face without Sam's sunburn layer).
 
-python make_links.py <version> [--out <streaming_links.stream>] [--print]
+python make_links.py <version> [--out <streaming_links.stream>] [--root <vanilla root>] [--print]
 
 A version ending in "f" is for the expression build (build_karin.ps1 -Face): the face skin part 50108:43 keeps its
 vanilla mesh (LodMesh 50120:1) and that LodMesh's ZivaRT LOD0/1 point at its LOD2 mesh 186, which holds Karin's face.
@@ -93,6 +94,14 @@ def edits(v):
                     '50120:91', '31123:28864', '31123:34458'):
             for t in l1:
                 add(re_, f'@{t}', '75978:0')
+    # v14f+ (expression build): the face skin material (Sam's, effects 50120:51/89/91/176/183 of the face LodMesh
+    # 50120:1) lays Sam's sunburn over Karin's face (dark patches in Sam's face UV layout, stronger the longer the save).
+    # Its coverage is the sunburn alpha, packed into the B of 67648:9 (R msk_a, G tra, B alpha; the set's alpha defaults
+    # to black = none), which these effects bind on their own: swapped for the all-zero 75978:0. The sunburn set
+    # 67648:1 stays bound.
+    if face and len(v) > 2 and v[:2] == 'v1' and v[2] in '456789':
+        for re_ in (51, 89, 91, 176, 183):
+            add(f'50120:{re_}', '@67648:9', '75978:0')
     return a
 
 
@@ -101,6 +110,8 @@ def main():
     ap.add_argument('version', help='e.g. v13 (no expression) or v13f (expression build)')
     ap.add_argument('--out', help='default DS2_MODDING/work/karin/v1/streaming_links_<version>.stream')
     ap.add_argument('--print', action='store_true', help='print the relink arguments instead of running relink.py')
+    ap.add_argument('--root', help="another build's vanilla root to relink from (sets DS2_ROOT for relink.py, e.g. a "
+                                   'root rebuilt from a collect.ps1 zip by sparse_root.py)')
     a = ap.parse_args()
     args = edits(a.version)
     if a.print:
@@ -111,7 +122,9 @@ def main():
         if not os.environ.get('DS2_MODDING'):
             raise SystemExit('set DS2_MODDING (the modding workspace) or pass --out')
         out = os.path.join(os.environ['DS2_MODDING'], 'work', 'karin', 'v1', f'streaming_links_{a.version}.stream')
-    r = subprocess.run([sys.executable, os.path.join(HERE, 'relink.py'), out, *args], capture_output=True, text=True)
+    env = dict(os.environ, DS2_ROOT=a.root) if a.root else None
+    r = subprocess.run([sys.executable, os.path.join(HERE, 'relink.py'), out, *args], capture_output=True, text=True,
+                       env=env)
     if r.returncode:
         raise SystemExit(r.stdout + r.stderr)
     print(r.stdout.strip().splitlines()[-1])

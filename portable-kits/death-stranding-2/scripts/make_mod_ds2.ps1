@@ -4,7 +4,8 @@ param([string]$Work, [string]$Name, [string[]]$Collapse = @(), [switch]$Face)
 $ErrorActionPreference = 'Stop'
 if (-not $env:DS2_MODDING) { throw 'set DS2_MODDING (the modding workspace: clean\, work\, out\, backup\, tools\)' }
 $M = $env:DS2_MODDING
-$Tool = Join-Path $M 'clean\LocalCacheWinGame'
+# DS2_ROOT: build from another build's root (e.g. one rebuilt from a player's collect.ps1 zip) instead of clean\
+$Tool = if ($env:DS2_ROOT) { Join-Path $env:DS2_ROOT 'LocalCacheWinGame' } else { Join-Path $M 'clean\LocalCacheWinGame' }
 $Py = $PSScriptRoot
 $Skel = Join-Path $M 'work\skeletons'
 # vanilla cores of build 1.0.48.0 (export_group.ps1 keeps each export's core as <name>.core.pristine)

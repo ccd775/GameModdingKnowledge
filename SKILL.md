@@ -48,7 +48,7 @@ before authoring. Never use this root document as a live candidate state file.
 - Assassin's Creed Odyssey (PC, Ubisoft Connect v1.5.6) -> `games/assassins-creed-odyssey/`
 - Assassin's Creed Unity (PC, Steam build 21970519, v1.5.1) -> `games/assassins-creed-unity/`
 - Assassin's Creed Syndicate (PC, ACS.exe 2016-08-16, forge v27) -> `games/assassins-creed-syndicate/`
-- Death Stranding 2: On the Beach (PC, DS2.exe 1.0.48.0) -> `games/death-stranding-2/`
+- Death Stranding 2: On the Beach (PC, DS2.exe 1.0.48.0; release ported to Steam 1.10.89.0) -> `games/death-stranding-2/`
 - Hogwarts Legacy (PC, game version 1613387) -> `games/hogwarts-legacy/`
 - Phantom Blade Zero (PC, Steam buildid 26266538; 26367565 since 2026-11-04) -> `games/phantom-blade-zero/`
 - Nioh 3 (PC, Nioh3.exe v2.0.0.2) -> `games/nioh-3/`

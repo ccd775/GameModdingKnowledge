@@ -17,6 +17,7 @@
   | `DS2_MODDING` | 工作区：`clean\`（干净根目录）、`work\`（导出与构建）、`out\`（构建输出）、`backup\`（开发安装的备份）、`tools\`（`texconv.exe`、`ds2_modtool\`） |
   | `DS2_TYPES_DIR` | 放 Odradek 类型表的目录（默认：脚本所在目录） |
   | `DS2_VRM` | 源 VRM（`build_karin.ps1` 的 `-Vrm` 默认值） |
+  | `DS2_ROOT` | 可选：用另一个版本的原版根目录代替 `clean\`（例如 `sparse_root.py` 从玩家收集 zip 重建的根目录）；`graph.py`、`make_mod_ds2.ps1`、`pack.ps1`、`export_group.ps1` 都跟着它 |
 
 ## 流程
 
@@ -53,11 +54,28 @@ pwsh -File $Kit/install.ps1 -Name karin_v34      # -Restore 还原
 # 6. 发行：每个变体一个目录，再放 install.ps1 和三个 .bat（见下）
 python -B $Kit/make_release.py <工作区>/out/karin_v34 <发行目录>/NoExpression "Karin v34 (no expression)"
 python -B $Kit/make_release.py <工作区>/out/karin_v34f <发行目录>/Expression "Karin v34 (expression)"
+
+# 7. 移植到另一个游戏版本（不重做 mod）：先量差异，再出 manifest_<版本>.json，再离线核对
+#    旧根 = 干净根目录；旧报告 = 旧版本的收集 zip（每个 span 的 SHA-1）；新根 = 新版本游戏目录（装过 mod 时自动读 KarinMod_backup）
+$Pkg = "<工作区>/clean/LocalCacheWinGame/package"
+python -B $Kit/mapgroups.py <工作区>/clean $Pkg/streaming_graph.core.org $Pkg/streaming_links.stream <旧报告.zip> <新根> `
+    <工作区>/groupmap.json <发行目录>/NoExpression/manifest.json <发行目录>/Expression/manifest.json
+python -B $Kit/corediff.py <新根> <新组号> <旧版的组数据> 40                  # 变了的组：看是哪些字段
+python -B $Kit/port_release.py <工作区>/clean $Pkg/streaming_graph.core.org $Pkg/streaming_links.stream <旧报告.zip> <新根> `
+    <发行目录>/Expression 1.10.89.0
+python -B $Kit/port_verify.py <工作区>/clean <工作区>/out/karin_v35f <旧报告.zip> <新根> <发行目录>/Expression 1.10.89.0
+python -B $Kit/port_fields.py <工作区>/clean <工作区>/out/karin_v35f <旧报告.zip> <新根> <发行目录>/Expression 1.10.89.0
+
+# 8. 拿不到那个版本时：玩家运行 收集游戏数据.bat（collect.ps1），把 zip 发回；重建工具根目录并核对
+python -B $Kit/sparse_root.py <玩家.zip> <重建根目录>
+python -B $Kit/dry_verify.py <重建根目录> <同版本的完整根目录>       # 演练时用：确认 zip 里的数据够用
+python -B $Kit/diagcompare.py <旧报告.zip> <玩家.zip> <发行目录>/NoExpression/manifest.json
+$env:DS2_ROOT = "<重建根目录>"                                       # 之后的导出、构建、打包都读它
 ```
 
 构建要脱离 SSH 运行（`wmic process call create "cmd /c ..."`，把输出重定向到日志），否则 SSH 断线会杀掉构建。
 
-发行目录里的三个 `.bat`（仓库不收 `.bat`）：
+发行目录里的四个 `.bat`（仓库不收 `.bat`）：
 
 ```bat
 @echo off
@@ -70,6 +88,8 @@ if "%~1"=="" (
 pause
 ```
 
+`收集游戏数据.bat` 同样调 `collect.ps1`（不带 `-Variant`；可选 `-GameDir`、`-Out`）。发行目录里 `release/collect.ps1` 放在 `install.ps1` 旁边。移植版 manifest（`manifest_<版本>.json`）放进各自的变体目录即可，安装器自己选。
+
 ## 脚本
 
 | 脚本 | 职责 |
@@ -81,7 +101,7 @@ pause
 | `ds2ascii.py` | id-daemon ascii 网格和骨架的读写 |
 | `roundtrip.py` | `prep`：给网格 ascii 加骨架头；`compare`：逐对象比较两份组核心 |
 | `relink.py` | 原位改写链接记录：`<out> <gid>:<idx> <字段> <目标> ...`；字段可用 `Field#n`、`@<gid>:<idx>` |
-| `make_links.py` | 项目链接表的全部重指（v5–v13，`f` 后缀为有表情版），调用 `relink.py`；`--print` 只列参数 |
+| `make_links.py` | 项目链接表的全部重指（v5–v14f，`f` 后缀为有表情版；v14f 去掉脸上的晒伤层），调用 `relink.py`；`--print` 只列参数，`--root` 从另一个版本的根目录重指 |
 | `patch_core.py` | 补导入工具不更新的字段；部件隐藏、逆绑定矩阵（`ibm` / `ibm_post`）、投影开关、单字段补丁、材质变量改名 |
 | `prep_ref.py` | 参考数据 `ref.json`：骨架、绑定世界矩阵、槽网格关节表、图元材质 |
 | `build_ds2.py` | 构建器入口：VRM 读入、剔除、TPS 拟合、权重继承、借粒子（外套 / 背包带 / 头发）、头发图集、涂装 UV 角、表情拟合与眼睑杠杆、装备靴补齐、塌缩、写 ascii / `jobs.json` / 贴图页 |
@@ -93,11 +113,18 @@ pause
 | `collapse_mesh.py` / `gen_collapse.py` | 塌缩单个 ascii；整组塌缩任务（`--only`、`--skel`、`--stream-only`） |
 | `verify_pack.py` | 经打包后的流图和包读回组、解码网格位置 |
 | `make_release.py` | 发行变体：包文件 + manifest（重定向、链接改动、原版指纹） |
+| `mapgroups.py` | 两个游戏版本之间的组对应（键 + 后备键 + 数据 / 子组 / 组号偏移），逐组核对数据、locator、子组、链接记录；`build_map`、`group_records` 供下面的脚本用 |
+| `port_release.py` | 发行变体移植到另一个版本：`manifest_<版本>.json`（新组号和指纹、链接按记录重编码、核心三方合并成 `archive_patch` + `patched_sha256`）；`merge_span` 是逐字节合并 |
+| `port_verify.py` / `port_fields.py` | 移植的离线核对：内存安装后逐对象比指针和值；逐字段三方核对（不符 / 冲突 / 两边都改过的对象） |
+| `corediff.py` | 同一组在两个版本间逐对象、逐字段比较，按“类型.字段路径”汇总 |
+| `diagcompare.py` | 两份收集报告的比较：类型表、全图指纹、明细组、manifest 每处链接补丁在对方版本里指向什么（只用标准库） |
+| `sparse_root.py` / `dry_verify.py` | 玩家收集 zip → 工具根目录（普通文件还原成稀疏文件）；重建根目录与完整根目录逐组比读出的数据 |
 | `scan_strings.py` / `who_uses.py` / `sharing.py` / `group_keys.py` / `texsets.py` / `preview.py` | 扫全部核心包找字节模式；哪些部件用到某组的网格；哪些外观经子组用到某组；工具键；材质的贴图集；三视图预览 |
 | `setup_cleanroot.ps1` / `export_group.ps1` | 干净根目录；按组导出 |
 | `build_karin.ps1` / `make_mod_ds2.ps1` / `pack.ps1` | 整条构建；导入、stream-only 核对、核心补丁；打包（每次从 `.org` 恢复流图） |
 | `install.ps1` | 开发安装 / 还原（覆盖 `package.18.00`） |
-| `release/install.ps1` | 发行安装器：按组核对、追加新包文件、可卸载（Windows PowerShell 5.1） |
+| `release/install.ps1` | 发行安装器：按组核对、追加新包文件、可卸载；一个变体多个 manifest，选第一个全部通过的，移植版先在临时文件上打补丁并核对 SHA-256（Windows PowerShell 5.1） |
+| `release/collect.ps1` | 给玩家的只读数据收集：裁剪的 DSAR（保留整张块表，缺的块 `csize = 0`）、普通文件的区间、指纹报告 → `KarinMod_data_<版本>.zip`；装着 mod 时拒绝（Windows PowerShell 5.1，内嵌 C#） |
 
 ## 输入与输出
 

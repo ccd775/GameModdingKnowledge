@@ -23,7 +23,19 @@
     {
       "name": "make_release.py / release/install.ps1",
       "version": "project-pinned",
-      "role": "redistributable variant (archive + manifest) and the per-group-checked installer that patches the user's own graph and links",
+      "role": "redistributable variant (archive + manifest) and the per-group-checked installer that patches the user's own graph and links; one manifest per supported game build, the first whose checks all pass is installed (ported manifests carry an archive byte patch checked by SHA-256)",
+      "required": false
+    },
+    {
+      "name": "Cross-build port (mapgroups.py, port_release.py, port_verify.py, port_fields.py, corediff.py)",
+      "version": "project-pinned",
+      "role": "maps the mod's groups to a later game build (renumbered IDs), 3-way merges the replaced cores with that build's own changes into an archive patch, re-encodes link edits per record, and checks the port offline object by object and field by field",
+      "required": false
+    },
+    {
+      "name": "Player data collector (release/collect.ps1, sparse_root.py, dry_verify.py, diagcompare.py)",
+      "version": "project-pinned",
+      "role": "read-only collector a player runs on another build (cut-down DSAR files with full chunk tables, sparse ranges of plain files, fingerprint report), its rebuild into a tool root, the completeness check and the report comparison",
       "required": false
     },
     {
@@ -55,12 +67,15 @@
     "../../games/death-stranding-2/README.md",
     "../../games/death-stranding-2/BUILD_PIPELINE.md"
   ],
-  "runtime_boundary": "Karin_Original v34 / v34f (DS2.exe 1.0.48.0, 2026-10-31): outfit-table redirect, hair removal, skirt / tail / twin-tail sway, ear / bang physics, equipped boots and the CorrosionRate fix confirmed in game (user or agent per item); expressions: mouth open confirmed by the user, blink after the 0.55 refit not separately confirmed; the private-room shower still shows Sam's wet hair; cutscene Sam doubles, the idle neck tilt, dialogue lip sync and the release installer's appended archive were not confirmed in game; Steam builds untested.",
+  "runtime_boundary": "Karin_Original v34 / v34f (DS2.exe 1.0.48.0, 2026-10-31): outfit-table redirect, hair removal, skirt / tail / twin-tail sway, ear / bang physics, equipped boots and the CorrosionRate fix confirmed in game (user or agent per item); expressions: mouth open confirmed by the user, blink after the 0.55 refit not separately confirmed; the private-room shower still shows Sam's wet hair; cutscene Sam doubles, the idle neck tilt, dialogue lip sync and the release installer's appended archive were not confirmed in game. Release v35 (2026-11-16): both variants ported to Steam DS2.exe 1.10.89.0 and installed by the release installer, Karin shown in the private room with a migrated save (agent); the expression variant's links v14f remove Sam's sunburn layer from her face (agent, same scene). 1.0.48.0 is checked offline only for v35 (that copy is gone).",
   "bundled_scripts": [
     "scripts/atlas.py",
     "scripts/build_ds2.py",
     "scripts/build_karin.ps1",
     "scripts/collapse_mesh.py",
+    "scripts/corediff.py",
+    "scripts/diagcompare.py",
+    "scripts/dry_verify.py",
     "scripts/ds2ascii.py",
     "scripts/ds2rtti.py",
     "scripts/export_group.ps1",
@@ -77,10 +92,15 @@
     "scripts/make_links.py",
     "scripts/make_mod_ds2.ps1",
     "scripts/make_release.py",
+    "scripts/mapgroups.py",
     "scripts/pack.ps1",
     "scripts/patch_core.py",
+    "scripts/port_fields.py",
+    "scripts/port_release.py",
+    "scripts/port_verify.py",
     "scripts/prep_ref.py",
     "scripts/preview.py",
+    "scripts/release/collect.ps1",
     "scripts/release/install.ps1",
     "scripts/relink.py",
     "scripts/rigdec.py",
@@ -89,6 +109,7 @@
     "scripts/scan_strings.py",
     "scripts/setup_cleanroot.ps1",
     "scripts/sharing.py",
+    "scripts/sparse_root.py",
     "scripts/texsets.py",
     "scripts/verify_pack.py",
     "scripts/vrm.py",

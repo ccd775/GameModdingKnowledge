@@ -1,11 +1,14 @@
 # Exports vanilla ascii meshes of one streaming group for the given LODs with ds2_pc_mi_022 (clean root, no mod layers).
-# Usage: export_group.ps1 -Group 7e9d -Name porter -Lods 0,1,2
-param([string]$Group, [string]$Name, [string]$Lods = "0")
+# Usage: export_group.ps1 -Group 7e9d -Name porter -Lods 0,1,2 [-Tool <tool root>] [-WorkRoot <dir>]
+# (-Tool / -WorkRoot: another build's root, e.g. one rebuilt from a player's collect.ps1 zip, and where its exports go;
+#  defaults: DS2_ROOT\LocalCacheWinGame when DS2_ROOT is set, else DS2_MODDING\clean\LocalCacheWinGame, and DS2_MODDING\work)
+param([string]$Group, [string]$Name, [string]$Lods = "0", [string]$Tool, [string]$WorkRoot)
 $ErrorActionPreference = 'Stop'
 if (-not $env:DS2_MODDING) { throw 'set DS2_MODDING (the modding workspace: clean\, work\, out\, backup\, tools\)' }
 $M = $env:DS2_MODDING
-$Tool = Join-Path $M 'clean\LocalCacheWinGame'
-$Out = Join-Path $M "work\$Name"
+if (-not $Tool) { $Tool = if ($env:DS2_ROOT) { Join-Path $env:DS2_ROOT 'LocalCacheWinGame' } else { Join-Path $M 'clean\LocalCacheWinGame' } }
+if (-not $WorkRoot) { $WorkRoot = Join-Path $M 'work' }
+$Out = Join-Path $WorkRoot $Name
 Set-Location $Tool
 foreach ($lod in $Lods.Split(",")) {
     Get-ChildItem -File | Where-Object { $_.Extension -in '.core', '.stream', '.ascii', '.matrices', '.txt', '.SkeletonHelpers', '.log' } | Remove-Item

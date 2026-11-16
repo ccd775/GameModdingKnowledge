@@ -33,12 +33,16 @@
 
 ```
 Karin_DS2\
-  安装-无表情版.bat / 安装-有表情版.bat / 卸载.bat   （调 install.ps1；仓库不收 .bat，内容见便携包 README）
+  安装-无表情版.bat / 安装-有表情版.bat / 卸载.bat / 收集游戏数据.bat
+                     （调 install.ps1 / collect.ps1；仓库不收 .bat，内容见便携包 README）
   install.ps1        （Windows PowerShell 5.1 即可，UTF-8 带 BOM）
+  collect.ps1        （不兼容时给玩家用的只读数据收集，见 [跨版本移植](VERSION_PORTING.md#8-拿不到新版本时玩家数据收集工具)）
   README.txt
-  NoExpression\karin.core.stream + manifest.json   （240 MB）
-  Expression\karin.core.stream + manifest.json     （267 MB）
+  NoExpression\karin.core.stream + manifest.json + manifest_1.10.89.0.json   （240 MB）
+  Expression\karin.core.stream + manifest.json + manifest_1.10.89.0.json     （267 MB）
 ```
+
+`manifest.json` 对应制作 mod 的版本（1.0.48.0），`manifest_<版本>.json` 是 `port_release.py` 做的移植版：同一个包文件，组号、指纹、链接补丁换成那个版本的，另带 `archive_patch` 和 `patched_sha256`。
 
 `make_release.py <out> <变体目录> <标题>` 生成一个变体：
 
@@ -57,16 +61,16 @@ v34：无表情 16 组 / 10 个 span / 174 个 locator / 107 处链接改动；�
 1. 找游戏：参数 `-GameDir`，或安装器所在目录的上级，或 Steam（注册表 `SteamPath` → `libraryfolders.vdf` → `appmanifest_3280350.acf` 的 `installdir`），都没有就让用户粘贴路径。
 2. 游戏在运行就退出；已装过就先卸载。
 3. 解析用户自己的流图（布局见 [技术合同](TECHNICAL_CONTRACTS.md#3-流图-streaming_graphcore)），用 Files[0] 自检字符串校验算法（CRC32C）。
-4. **逐组核对指纹**，再核对每处链接改动的旧字节、每个被换 span 的原长度。任何一项不同就列出组号和不同的项、退出，**不写任何文件**。
+4. **逐组核对指纹**，再核对每处链接改动的旧字节、每个被换 span 的原长度。变体目录里有几个 `manifest*.json` 就逐个核对（和 `DS2.exe` 版本相同的先试），用第一个全部通过的；全都不过就列出第一个的组号和不同的项、提示运行收集工具，退出，**不写任何文件**。
 5. 在内存里改：span 指向新文件序号（= 原文件数），locator 的 `Data` = 偏移 << 24 | 新序号，写链接改动；在 Files 末尾追加 `cache:package/package.99.00.core.stream`，PackFileOffsets 追加 `[]`，PackFileLengths 追加 `[4]`，更新三个数组的个数和对象大小（保留对象后的 4 个零字节）。
-6. 原文件备份到 `<游戏>\KarinMod_backup`（`state.json` 记安装前后的 SHA-256）；复制包；流图和链接表都写临时文件、删原文件、改名。
+6. 复制包到临时文件；移植版在临时文件上打 `archive_patch`，`patched_sha256` 不对就删掉临时文件退出（游戏文件还没动）。然后原文件备份到 `<游戏>\KarinMod_backup`（`state.json` 记安装前后的 SHA-256 和 `game_build`）；临时文件改名成包；流图和链接表都写临时文件、删原文件、改名。
 7. 卸载：当前流图和链接表仍是安装后的哈希才还原；否则（游戏更新或验证过）只删 mod 文件和备份。
 
 要点：
 
 - 不再覆盖任何语言包；Steam 更新或“验证文件”会还原流图，mod 自然失效，追加的包文件只是一个没人引用的文件。
-- 发行包里没有任何游戏版本的流图或链接表；只要被改的组在用户的版本里和 1.0.48.0 相同，就能装。
-- **限制**：组号变了（流图重排）或这些组的内容变了，安装器会拒绝；那时要用那个版本的文件重新做 mod。手头没有 Steam 版的文件，没验证过 Steam 版是否兼容。
+- 发行包里没有任何游戏版本的流图或链接表；只要被改的组在用户的版本里和某个 manifest 的版本相同，就能装。
+- **限制**：遇到没有 manifest 的版本（组号又变了，或这些组的内容变了），安装器会拒绝；那时按 [跨版本移植](VERSION_PORTING.md#9-下次游戏更新) 做新的 manifest，移植不了就用那个版本的文件重新构建。
 
 ### 测试（2026-10-31，KLN55MI，Windows PowerShell 5.1）
 
@@ -77,3 +81,9 @@ v34：无表情 16 组 / 10 个 span / 174 个 locator / 107 处链接改动；�
 - 把 50108 的一个链接字节改掉后安装：报“组 50108：links”不兼容，退出码 1，没有写任何文件。
 - 真实游戏（1.0.48.0）：先用开发安装器还原原版（`package.18.00` 恢复成 573 893 812 字节），再用发行安装器装无表情版，兼容性检查通过 16 个组。
 - **未确认（截至 2026-10-31 提交时）**：游戏是否能读取追加的第 242 个文件（发行安装器装的版本还没有实机）；Steam 版的兼容性。
+
+### 测试（2026-11-16，v35）
+
+- 多 manifest 安装器：Steam 1.10.89 副本上两个变体安装 / 切换 / 卸载往返，与离线模拟逐字节一致；1.0.48 流图上回落到 `manifest.json`，无表情版的流图仍是 `F1020727…`（细节见 [跨版本移植](VERSION_PORTING.md#6-安装器一个变体多个-manifest)）。仓库里的合成测试覆盖：选中移植版、`archive_patch` 结果、`patched_sha256` 错时不写文件。
+- **实机（agent，Steam 1.10.89.0）**：发行安装器装的两个变体，游戏都读到了追加的包文件（Files 第 242 个），私人房间里显示 Karin；有表情版 v35 的脸没有晒伤层。1.0.48.0 的游戏副本已删，v35 在 1.0.48 上只做了离线核对。
+- 发行打包：这台机器没有 WinRAR，v35 打成 7z（固实 LZMA2，字典 512 MB，跨两个变体的包去重）：21.9 MB，`7z t` 通过；v34 的 rar（固实 RAR5）是 61 MB。

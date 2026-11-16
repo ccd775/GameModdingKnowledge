@@ -11,8 +11,10 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 # extensions_1048.json (default: next to this script).
 GAME_ROOT = os.environ.get('DS2_GAME_DIR', '')
 # The game folder holds the installed (modded) graph after install.ps1; the clean root keeps the vanilla graph and
-# hard links to the vanilla package files, so every analysis/patch reads vanilla data from there.
-VANILLA_ROOT = os.path.join(os.environ['DS2_MODDING'], 'clean') if os.environ.get('DS2_MODDING') else ''
+# hard links to the vanilla package files, so every analysis/patch reads vanilla data from there. DS2_ROOT names another
+# build's root instead (e.g. one rebuilt from a player's collect.ps1 zip by sparse_root.py).
+VANILLA_ROOT = (os.environ.get('DS2_ROOT') or
+                (os.path.join(os.environ['DS2_MODDING'], 'clean') if os.environ.get('DS2_MODDING') else ''))
 TYPES_DIR = os.environ.get('DS2_TYPES_DIR', HERE)
 
 
@@ -63,7 +65,8 @@ class Graph:
         hashes = self.res['TypeHashes']
         out = []
         for _ in range(count):
-            out.append(self.db.by_hash[hashes[r.u16()]])
+            h = hashes[r.u16()]   # a later build can add types this type table doesn't know (1.10.89: 2 of 4764)
+            out.append(self.db.by_hash.get(h) or 'Unknown_%016X' % h)
         return out
 
     def archive(self, name):
