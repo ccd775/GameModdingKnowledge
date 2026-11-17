@@ -1,5 +1,11 @@
 # 迁移验证记录
 
+## 2026-11-17：仁王2 `n2_build.py` 加入半透明用的抖动变体（KarinN2 build6）
+
+- **改动：** 只有 `scripts/n2_build.py`：`PS_HASHES` 后面追加 11 个抖动透明变体的哈希和一段注释，与项目 `_build/tools/n2_build.py` 的改动相同（便携改动部分不变，行尾保持 CRLF）。PROVENANCE 这一行的原件和便携件哈希、字节数已更新。
+- **等价性验证（2026-11-17，项目机）：** 原脚本和便携脚本在同一份构建包上各跑一次，两边的 26 个文件都与发行包 build6 `release\KarinN2\` 逐字节相同（`README.md` 不比较），标准输出相同。与 build5 相比只有 `karin.ini` 变了（多 11 个 `ShaderOverride`）。
+- **实机：** 项目用这份 `karin.ini` 部署到测试机，agent 按 3 进入半透明，画面显示 Karin、同样半透明、没有原版护甲残留（`runtime-load-pass`）。挂钩依据：半透明和常规两帧的帧分析日志对比，以及 `ShaderCache` 反汇编里的 `$Globals` 布局配对（`games/nioh-2/TECHNICAL_CONTRACTS.md` §7）。
+
 ## 2026-11-15：影之刃零便携包加入流萤
 
 - **迁入：** 10 个新文件，2 个更新。

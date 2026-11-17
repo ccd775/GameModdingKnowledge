@@ -49,7 +49,14 @@ PS_HASHES = [  # pixel shaders of the character's own mesh draws only. Full-scre
     # stale index buffer (seen: the ponytail ib), so hooking them would skip post-processing (build1: black screen)
     'd0e492840a2b7911', '2b4f1e31175e9cbc', '1c66ca69cf2a610c', 'b2f60a9e522cd98f', 'd2bf49c8ea14806d',
     'b28794540ed533bc', '350aaed214d440c4', '4687106fff835666', '65c8c4905227d570', 'eec27fd8b62a555b',
-    '7ec4d7cd2e0f82ca']
+    '7ec4d7cd2e0f82ca',
+    # build 6: dithered (see-through) variants of the 11 above, in the same order. The game switches the character's
+    # main pass to them while it is translucent (seen after the skill on key 3 in the test save); same VS, same texture slots,
+    # only ps-cb0 gains vDithAlp etc. 9 were seen in a translucent level frame (2026-11-17); 6191a734 and 9f142e4e
+    # (for d2bf49c8 / b2879454) were paired by identical $Globals layout + input signature in the ShaderCache dump.
+    '772657b75ca7704c', '79394530437cbffd', 'e213891105d445f3', 'cd1a5101bda0a813', '6191a73432955fbc',
+    '9f142e4e362aa2cf', '93b95d72490785d6', '3cfb97d621d93769', '37ebf8afb926fee0', '715a9ae7fcaa1a67',
+    'dc9f7c3cf4deeadc']
 VS_HASHES = ['24f9a3d0d0d9c367']   # cloth-flap VS (also hooked by the community 'Basewear No Flap' mod); its PS
 # (7bfcb1a8) is not one of the character PS above
 SHADOW_VS = ['cefcd0d8bb9cb78b', 'e91b4a26b8c1704e']   # their PS are hooked by the enabler (CommandListN2Shadows)

@@ -2,7 +2,7 @@
 
 先读 [游戏知识](../../games/nioh-2/README.md)、[Agent 入口](../../games/nioh-2/AGENTS.md) 和 [构建流水线](../../games/nioh-2/BUILD_PIPELINE.md)。被否定的归档改写路线、Mod Enabler 的挂钩、蒙皮常量缓冲、宿主绘制与合并调色板、影子和隐藏见 [技术合同](../../games/nioh-2/TECHNICAL_CONTRACTS.md)；弹簧链、碰撞体和离线测试台见 [物理](../../games/nioh-2/PHYSICS.md)；面部权重迁移和形态键眨眼见 [表情](../../games/nioh-2/FACE.md)；存档加解密和换装器见 [存档与外观](../../games/nioh-2/SAVE_AND_APPEARANCE.md)；症状和处理见 [排障手册](../../games/nioh-2/TROUBLESHOOTING.md)；离线 / 实机闸门、发行包和游戏版本见 [验证与发布](../../games/nioh-2/VALIDATION_AND_RELEASE.md)；版本轨迹见 [Karin_Original 案例](../../games/nioh-2/cases/KARIN_ORIGINAL.md)。
 
-这是 KarinN2（用 Karin_Original 替换仁王2 女性主角，build1–build5，发行包 build5）实际使用的工具。和仁王3 不同，这里**不改游戏文件**：Mod 是一个 3DMigoto 的 Mod 文件夹，挂钩角色着色器，按 IB 哈希跳过原版角色的全部绘制，再借两次原版绘制画 Karin——右手护手（IB `0814c08f`）画身体、衣服、头发、狐耳、尾巴、裙子（两个合并的 85 骨调色板），原版脸（IB `834bff26`）画脸（脸自己的 128 条目调色板）。
+这是 KarinN2（用 Karin_Original 替换仁王2 女性主角，build1–build6，发行包 build6）实际使用的工具。和仁王3 不同，这里**不改游戏文件**：Mod 是一个 3DMigoto 的 Mod 文件夹，挂钩角色着色器，按 IB 哈希跳过原版角色的全部绘制，再借两次原版绘制画 Karin——右手护手（IB `0814c08f`）画身体、衣服、头发、狐耳、尾巴、裙子（两个合并的 85 骨调色板），原版脸（IB `834bff26`）画脸（脸自己的 128 条目调色板）。
 
 包里有：
 
@@ -198,17 +198,17 @@ python -B $S/n2_miaomiao.py restore $Save <MiaomiaoBackups\…json>
 
 以下随游戏版本变化（`build-sensitive`），游戏更新后要重新核对：
 
-- 着色器哈希：`PS_HASHES`（11 个角色 PS）、`VS_HASHES`（布料 VS `24f9a3d0`）、`SHADOW_VS`、`FACE_VS`，蒙皮 VS `73278b6e` 的 cb0 布局（`SHADOW_LAYOUT`、`bones.HDR`）；
+- 着色器哈希：`PS_HASHES`（22 个角色 PS：11 个常规的，加上角色半透明时换用的 11 个抖动透明变体）、`VS_HASHES`（布料 VS `24f9a3d0`）、`SHADOW_VS`、`FACE_VS`，蒙皮 VS `73278b6e` 的 cb0 布局（`SHADOW_LAYOUT`、`bones.HDR`）；
 - IB 哈希：`HIDE_IBS`、`SOURCES`、`HOST_A`（`0814c08f`）、`HOST_B`（`834bff26`）；
 - 帧分析目录名 `FA`（`fa3/FrameAnalysis-2026-11-07-205515`）只是本次抓帧的名字；
 - `n2lnk.py` 的 K300 布局是在 Complete Edition 2021-02-05 版上量的；存档格式（`n2_miaomiao.py` 的偏移）与面向当前 Steam 版的社区编辑器相同（`reference-inferred`）。
 
 ## 已验证与边界
 
-- **实机。** 结论来自项目用原脚本构建的 build1–build5（[验证与发布](../../games/nioh-2/VALIDATION_AND_RELEASE.md)、[Karin_Original 案例](../../games/nioh-2/cases/KARIN_ORIGINAL.md)）：build1d 由 agent 在装备界面和关卡里自测（`runtime-load-pass`）；build2b 的眨眼由用户确认；build4（鬓发、裙摆物理）、build5（调软的狐尾、隐藏裆前布条）只做了离线测试，用户在游戏里看过 build5。换装器在测试机上实测（agent，`runtime-load-pass`，2026-11-10）：取消外观变更后小腿显示原版护胫，改回后 Karin 恢复，游戏自动存档后完整性标志恢复为 1。
+- **实机。** 结论来自项目用原脚本构建的 build1–build6（[验证与发布](../../games/nioh-2/VALIDATION_AND_RELEASE.md)、[Karin_Original 案例](../../games/nioh-2/cases/KARIN_ORIGINAL.md)）：build1d 由 agent 在装备界面和关卡里自测（`runtime-load-pass`）；build2b 的眨眼由用户确认；build4（鬓发、裙摆物理）、build5（调软的狐尾、隐藏裆前布条）只做了离线测试，用户在游戏里看过 build5；build6（挂上半透明用的抖动变体）由 agent 在测试机上按 3 进入半透明后确认显示 Karin（`runtime-load-pass`，2026-11-17）。换装器在测试机上实测（agent，`runtime-load-pass`，2026-11-10）：取消外观变更后小腿显示原版护胫，改回后 Karin 恢复，游戏自动存档后完整性标志恢复为 1。
 - **便携版本身只做了离线核对（2026-11-10）：** 在本机把项目构建包复制两份，原脚本在一份上、便携脚本在另一份上运行（`N2_BUILD` 指向副本）：
   - 从帧分析起的整条链：`fa_parse.py` → `bones.py`（上面的绘制顺序）→ `n2_skel.py` → `n2_conform.py` 两边的退出码、标准输出和写出的文件相同，并与项目里现有的 `fa3/fa3.json`、`data/bones3.json`、`data/joints.json`、`build1/conform.json` 逐字节相同、`build1/conformed.npz` 按数组相同；`fa_list.py` 的输出相同；
-  - `n2_build.py` 写出的 26 个文件与发行包 build5 `release\KarinN2\` 逐字节相同（`README.md` 是手写的，不比较），`build1/build_report.json` 与项目里的现有文件、标准输出与原脚本都相同；
+  - `n2_build.py` 写出的 26 个文件与发行包 build5 `release\KarinN2\` 逐字节相同（`README.md` 是手写的，不比较），`build1/build_report.json` 与项目里的现有文件、标准输出与原脚本都相同；2026-11-17 加入 build6 的挂钩后重跑，26 个文件与发行包 build6 逐字节相同，标准输出与原脚本相同；
   - 生成的 7 个着色器用 `c46.py` + Mod Enabler 的 `d3dcompiler_46.dll` 全部编译通过，输出与原 `c46.py` 相同；
   - `simcheck/tailtune.py`、`rest_check.py`、`anim5.py`、`checks/simtest.py`、`eartest.py` 的退出码、标准输出和标准错误与原脚本相同；`check_skin.py` 两边都在同一处报 `IndexError`（见[离线检查](#离线检查)）。
   

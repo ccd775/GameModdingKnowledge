@@ -5888,10 +5888,10 @@
   {
     "path": "portable-kits/nioh-2/scripts/n2_build.py",
     "source": "Mods/Nioh2/_build/tools/n2_build.py",
-    "original_sha256": "84795e49437576c2da3e2037c0ce916c7ed5ebdfeb42f8179356bb2998144982",
-    "source_bytes": 66431,
-    "portable_sha256": "b6fc5339fce79e12ae7399ff0e2fccfb2092c8bfe84d139437f2bad6a4c59f98",
-    "portable_bytes": 67038,
+    "original_sha256": "eda963b5dc7da01f46a721be6efb4baf6c88689bb089c644205bf341c075ba0f",
+    "source_bytes": 67145,
+    "portable_sha256": "595fc6c534c6f3d12f10a4e40ed6fb024010101e28be4013de4a78a64d8533fe",
+    "portable_bytes": 67752,
     "modified_for_portability": true
   },
   {

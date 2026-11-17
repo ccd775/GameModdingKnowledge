@@ -3,7 +3,7 @@
 ## 范围
 
 本目录整理 PC 版《仁王2 完全版》用 3DMigoto（Nioh 2 Mod Enabler 1.1，内含 3DMigoto 1.3.16）替换女性主角的可复用合同。
-主体来自 2026-11-07 → 11-10 用 Karin_Original 做的 KarinN2（build1 → build5），以及配套的存档换装器。
+主体来自 2026-11-07 → 11-10 用 Karin_Original 做的 KarinN2（build1 → build5）和配套的存档换装器，以及 11-17 修半透明形态的 build6。
 
 | 交付 | 内容 | 最高证据级 |
 | --- | --- | --- |
@@ -11,6 +11,7 @@
 | 眨眼（build2a → 2b） | 眼睑顶点随头骨刚性移动；计算着色器读游戏眼睑骨的下落量，按比例加上 Karin 自己的闭眼形态键 | 用户：「眨眼是正常了」`runtime-confirmed`（build2b）；张嘴等其它表情没有单独检查 |
 | 次级物理（build2c → 5） | Mod 自己的弹簧链（计算着色器，每帧一次）：双马尾、狐尾、狐耳、鬓发、裙摆 16 条，23 条链、58 根模拟骨；碰撞体是头、下巴、胸、骨盆、胯、臀和两条大腿 | 双马尾不再拉长、刘海不再飘进脑袋由 agent 实机确认；裙子不穿模、狐耳回弹（build3）agent 30 fps 录像确认；鬓发 / 裙摆（build4）和调软的狐尾（build5）只做了离线测试，用户实机看过 build5 后说「不错」 |
 | 隐藏裆前布条（build5） | 两片原版布料挂件用单独的布料着色器绘制，按 IB 跳过不生效，要先挂钩那个顶点着色器 | 用户在 build4 指出、build5 修复后未再提出 |
+| 半透明形态（build6） | 角色半透明时主 pass 换成 11 个 PS 的抖动透明变体，全部挂钩后 Karin 也照样半透明 | 用户报告「半透明形态依然是原版形象」；agent 实机复现、修复后确认 `runtime-load-pass` |
 | 可再部署包 | 一个 `KarinN2` 文件夹放进 `<游戏目录>\Mods\`：`karin.ini`、7 个计算着色器、网格、贴图 | 构建包重建逐字节一致；测试机上 26 个文件与发行包一致 |
 | 换装器（2026-11-09 → 11-10） | 解密存档，把当前穿着的五件护甲的外观（铁匠「外观变更」写的字段）改成隼套装，清零 4 个完整性标志；自动备份、可回滚 | `runtime-load-pass`（agent 实机：改回原版护胫外观 → 画面变成原版；再改回 → Karin 恢复；游戏自动存档后标志恢复为 1） |
 
@@ -29,6 +30,7 @@
 - **Mod Enabler 只在被挂钩的着色器上匹配 IB**。`TextureOverride` 只有在运行 `CommandListN2General` 的 `ShaderOverride` 之后才生效（影子走它自己的 `CommandListN2Shadows`）。
   所以**每个画了要隐藏部件的着色器都要挂钩**：裆前两片布料用的是布料顶点着色器 `24f9a3d0d0d9c367`，build4 没挂它，布条就一直在（[技术合同](TECHNICAL_CONTRACTS.md) §2）。
   - 不要挂全屏后处理的像素着色器：它们沿用上一次绑定的 IB，会被当成角色跳过，整屏变黑（build1）。
+  - 角色状态也会换着色器：半透明时每个 PS 都换成抖动透明的变体，没挂就显示原版（build6，[技术合同](TECHNICAL_CONTRACTS.md) §7）。
 - **一个调色板最多 85 根骨**。蒙皮顶点着色器 `73278b6e` 的 BLENDINDICES 是 u8 且预乘了 3。Karin 用两个合并调色板：A（身体、衣服，60 根）和 B（头发、耳朵、尾巴、裙子和全部模拟骨，66 根），在同一个 `TextureOverride` 里两次 `drawindexed` 之间切换 `vs-cb0`。
 - **合并调色板要每帧对齐**。关卡里游戏先画右手护手（宿主 A），再画其它护甲；直接拷贝会拿到别的护甲上一帧的骨骼，跑动时头发和脸差约 8 cm（刘海「飘进脑袋」）。
   用每帧一次的计数着色器 + 每件护甲的帧戳，过期的骨骼按匀速外推一帧，误差中位数降到约 0.5 cm（[技术合同](TECHNICAL_CONTRACTS.md) §4）。
@@ -59,14 +61,14 @@
 ## 阅读入口
 
 - [Agent 入口](AGENTS.md)：接手前核对项与硬性规矩
-- [技术合同](TECHNICAL_CONTRACTS.md)：归档与被否定的改写路线、Mod Enabler 挂钩、蒙皮常量缓冲、宿主绘制与合并调色板、帧对齐、影子、隐藏
+- [技术合同](TECHNICAL_CONTRACTS.md)：归档与被否定的改写路线、Mod Enabler 挂钩、蒙皮常量缓冲、宿主绘制与合并调色板、帧对齐、影子、隐藏、半透明状态的抖动变体
 - [构建流水线](BUILD_PIPELINE.md)：帧分析 → 全局骨号 → 关节 → 贴合 → 权重（裙子权重场）→ 贴图 → 着色器与 ini → 编译检查 → 打包
 - [物理](PHYSICS.md)：Mod 自己的弹簧链、参数、碰撞体、裙摆锚点、离线测试台和调参结果
 - [表情](FACE.md)：脸的宿主绘制、面部权重迁移、形态键眨眼
 - [存档与外观](SAVE_AND_APPEARANCE.md)：存档加解密、固定布局、外观字段、装备表、完整性标志，换装器
 - [排障手册](TROUBLESHOOTING.md)：症状 → 原因 → 处理，以及已被否定的假设
 - [验证与发布](VALIDATION_AND_RELEASE.md)：离线闸门、实机闸门、发行包、版本依赖与 Steam 版
-- [案例：Karin_Original](cases/KARIN_ORIGINAL.md)：build1 → build5 与换装器的每一轮
+- [案例：Karin_Original](cases/KARIN_ORIGINAL.md)：build1 → build6 与换装器的每一轮
 - [便携工具包](../../portable-kits/nioh-2/README.md)：归档读取、帧分析解析、骨架与贴合、构建器、编译检查、离线物理检查、换装器
 
 ## 公开边界

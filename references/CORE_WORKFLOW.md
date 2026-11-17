@@ -200,6 +200,11 @@ The game workflows use different formats, but the same engineering loop.
   an unhooked shader stays visible however its IB is listed: two cloth flaps drawn by a cloth VS survived until that
   VS was hooked. Never hook full-screen passes; they reuse a stale IB and get skipped, blacking out the frame
   (`games/nioh-2/TECHNICAL_CONTRACTS.md` §2).
+- A hook list built from normal gameplay misses state variants. While Nioh 2's character is translucent, every
+  character PS is swapped for a dithered twin (same VS and texture slots, extra `ps-cb0` fields), so the original
+  armour came back. Capture one frame in each character state the user reports and diff it against a normal frame of
+  the same view; twins that never appear on screen can be paired by cbuffer layout in the 3DMigoto `ShaderCache`
+  (`games/nioh-2/TECHNICAL_CONTRACTS.md` §7).
 - Draw order differs between menus and gameplay. Nioh 2 draws the right gauntlet first in levels but last on the
   equipment screen, so a palette merged from other draws was one frame stale only in levels (bangs sank into the head
   while running). A once-per-frame counter, per-draw stamps and constant-velocity extrapolation fixed it; check
